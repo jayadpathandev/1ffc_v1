@@ -7,16 +7,12 @@
     	</fail>
     	<loadproperties srcfile="build.properties"/>
         <property name="app" value="user"/>
+
+		<mkdir dir="deploy/${app}"/> 
+        <mkdir dir="deploy/${app}/classes"/>
     </target>
 	
-	<target name="-clean" depends="-init">
-    	<delete file="${install.dir}/app - ${app}/resources/linked-root/css/customization.css"/>
-	</target>
-	
-    <target name="deploy" depends="-init, -clean">
-        <mkdir dir="deploy/${app}"/> 
-        <mkdir dir="deploy/${app}/classes"/>
-    	
+	<target name="-base" depends="-init">
     	<!-- Copy the classpath from the base application -->
         <copy todir="deploy/${app}/classes">
             <fileset dir="${install.dir}/app - ${app}/resources">
@@ -27,7 +23,7 @@
         	<fileset dir="${install.dir}/app - ${app}/src-gen" includes="com/**/*.class"/>
         </copy>
 
-    	<!-- Usecases/I18N/services from the base application. -->
+		<!-- Usecases/I18N/services from the base application. -->
         <copy todir="deploy/${app}/">
         	<fileset dir="${install.dir}/app - ${app}/resources" includes="config.properties"/>
         	<fileset dir="${install.dir}/app - ${app}/resources" includes="services/*.xml"/>
@@ -40,16 +36,27 @@
         <copy todir="deploy/${app}">
             <fileset dir="${install.dir}/app - ${app}/resources" includes="linked-root/**/*.*"/>
         	<fileset dir="${install.dir}/app - ${app}/resources" includes="layout-pages/**/*.*"/>
-            <fileset dir="../1ffc - common" includes="linked-root/**/*"/>            
         </copy>
 
-    	<!-- Duplicate the common linked-root for the b2c and admin login flows -->
-    	<!-- Copy configuration for jetty -->
+		<!-- Copy configuration for jetty -->
         <copy todir="deploy">
         	<fileset dir="${install.dir}/app - ${app}/deploy">
         		<include name="jndi.xml"/>
         		<include name="license"/>
         	</fileset>
         </copy>    	
+
+	</target>
+
+	<!-- Copy the 1FFC files common across all applications. -->
+	<target name="-common" depends="-init, -base">
+
+		<copy todir="deploy/${app}" overwrite="true">
+            <fileset dir="../1ffc - common" includes="linked-root/**/*"/>            
+        </copy>
+
+	</target>
+
+    <target name="deploy" depends="-init, -base, -common">
     </target>
 </project> 
