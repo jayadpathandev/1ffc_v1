@@ -6,7 +6,7 @@
         <table_page_size>10</table_page_size>
         <default_app></default_app>
         <default_controller></default_controller>
-		<default_controller_init></default_controller_init>
+        <default_controller_init>init(menuTweak=true)</default_controller_init>
 		<angular>off</angular>
 		<expiring>message</expiring>
     </props>
@@ -18,28 +18,29 @@
 		               	<div class="row">
 		               		<div class="col-md-12">
 				    			<div class="st-logo-container">
-						            <a href="http://www.sorrisotech.com" class="st-logo-img" tabindex="-1">
-						            </a>
-					            </div>
-							</div>
-						</div>
-					</div>
+						            <a href="http://www.sorrisotech.com" class="st-logo-img" tabindex="-1"></a>
+			            		</div>
+			            		<div id="header_user_profile"/>
+			            	</div>
+			            </div>
+		            </div>
 	            </header>
     		]]>
     	</banner>
         <common>
             <![CDATA[
-                <link href="css/lib/bootstrap.min.css" rel="stylesheet" type="text/css"/>
-                <link href="css/lib/bootstrap-toggle.min.css" rel="stylesheet" type="text/css"/>
-                <link href="css/lib/font-awesome.min.css" rel="stylesheet"/>
+				<link href="css/lib/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+				<link href="css/lib/bootstrap-toggle.min.css" rel="stylesheet" type="text/css"/>
+                <link href="css/lib/font-awesome.min.css" rel="stylesheet"/>				
                 <link href="css/lib/jquery-ui.min.css" rel="stylesheet"/>
                 <link href="css/lib/jquery-ui.theme.min.css" rel="stylesheet"/>
-
-                <link href="css/brand.css" rel="stylesheet" type="text/css"/>
-                <link href="css/customization.css" rel="stylesheet" type="text/css"/>
-                <link href="css/app.css" rel="stylesheet" type="text/css"/>
-                <link href="css/authentication.css" rel="stylesheet" type="text/css"/>
-
+				
+				<link href="css/brand.css" rel="stylesheet" type="text/css"/>
+				<link href="css/customization.css" rel="stylesheet" type="text/css"/>
+				<link href="css/app.css" rel="stylesheet" type="text/css"/>
+				<link href="css/print.css" media="print" rel="stylesheet" type="text/css"/>
+				<link href="css/userProfile.css" rel="stylesheet" type="text/css"/>
+				
 				<link rel="icon" type="image/png" href="img/favicon_16.png" sizes="16x16">
 				<link rel="icon" type="image/png" href="img/favicon_32.png" sizes="32x32">
 				<link rel="icon" type="image/png" href="img/favicon_57.png" sizes="57x57">
@@ -51,14 +52,14 @@
 				<link rel="icon" type="image/png" href="img/favicon_152.png" sizes="152x152">
 				<link rel="icon" type="image/png" href="img/favicon_195.png" sizes="195x195">
 				<link rel="icon" type="image/png" href="img/favicon_228.png" sizes="228x228">
-
-            	<!--[if lt IE 9]>
-				    <script src="js/lib/html5shiv.min.js"></script>
-				    <script src="js/lib/respond.min.js"></script>
-			    <![endif]-->
-
+				
+				<!--[if lt IE 9]>
+					<script src="js/lib/html5shiv.min.js"></script>
+					<script src="js/lib/respond.min.js"></script>
+				<![endif]-->
+				
                 <script src="js/lib/bootstrap.bundle.min.js"></script>
-				<script src="js/auth.js"></script>
+				<script src="js/csr.js"></script>				
             ]]>
         </common>
     </header>
@@ -104,12 +105,12 @@
             <text>st-checkbox-text</text>
         </checkboxInline>
         <checkboxToggle>
-            <parent>st-field st-toggle form-group</parent>
+            <parent>st-field st-toggle</parent>
             <label>st-field-label st-toggle-label form-label col-md-2</label>
-            <field>st-toggle-field col-md-8</field>
-            <item>st-toggle-item checkbox</item>
-            <itemLabel>st-toggle-item-label</itemLabel>
-            <control>st-toggle-field</control>
+            <field>col-md-8 st-toggle-field</field>
+            <item>form-check form-switch st-toggle-item</item>
+            <itemLabel>form-check-label st-toggle-item-label</itemLabel>
+            <control>form-check-input st-toggle-field</control>
             <text>st-toggle-text</text>
         </checkboxToggle>
         <date>
@@ -203,7 +204,6 @@
             <item></item>
         </orderedList>
         <radioset>
-            <parent>st-field st-radio form-group</parent>
             <label>st-radio-label form-label col-md-2</label>
             <field>st-field-label st-radio-field col-md-8</field>
             <item>st-radio-item form-check</item>
@@ -212,10 +212,9 @@
             <text>st-radio-text</text>
         </radioset>
         <radiosetInline>
-            <parent>st-field st-radio</parent>
             <label>st-field-label st-radio-label form-label col-md-2</label>
-            <field>st-radio-field col-md-8</field>
-            <item>st-radio-item form-check form-check-inline</item>
+            <field>st-radio-field form-check form-check-inline</field>
+            <item>st-radio-item</item>
             <itemLabel>st-radio-item-label form-check-label</itemLabel>
             <control>st-radio-control form-check-input</control>
             <text>st-radio-text</text>
@@ -304,7 +303,7 @@
             <paging_item_last></paging_item_last>
             <paging_link_first></paging_link_first>
             <paging_link_first_icon>&#171;</paging_link_first_icon>
-            <paging_link></paging_link>
+            <paging_link>page-link</paging_link>
             <paging_link_last></paging_link_last>
             <paging_link_last_icon>&#187;</paging_link_last_icon>
             <element>table</element>
@@ -318,11 +317,11 @@
             <empty_table></empty_table>
             <empty_table_msg>alert alert-info</empty_table_msg>
             <empty_table_msg_body></empty_table_msg_body>
-            <sort_num_ascending>glyphicon glyphicon-triangle-top sort</sort_num_ascending>
-            <sort_num_descending>glyphicon glyphicon-triangle-bottom sort</sort_num_descending>
-            <sort_alpha_ascending>glyphicon glyphicon-triangle-top sort</sort_alpha_ascending>
-            <sort_alpha_descending>glyphicon glyphicon-triangle-bottom sort</sort_alpha_descending>
-            <sortable>glyphicon glyphicon-triangle-left sort</sortable>
+            <sort_num_ascending>st-icon-triangle-up sort</sort_num_ascending>
+            <sort_num_descending>st-icon-triangle-down sort</sort_num_descending>
+            <sort_alpha_ascending>st-icon-triangle-up sort</sort_alpha_ascending>
+            <sort_alpha_descending>st-icon-triangle-down sort</sort_alpha_descending>
+            <sortable>st-icon-triangle-left sort</sortable>
         </table>
         <unorderedList>
             <group></group>

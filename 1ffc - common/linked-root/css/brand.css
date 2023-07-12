@@ -1,7 +1,7 @@
 /**************************************************************************************************
  * Fonts
  *************************************************************************************************/
-@import url(lib/google_fonts.css);
+@import url(fonts.css);
 
 /**************************************************************************************************
  * Page Branding
@@ -10,7 +10,7 @@ html {
 	height: 100%;
 }
 body {
-    font-family: "Source Sans Pro", sans-serif;
+    font-family: 'Myriad Pro Regular',Helvetica,sans-serif;
     font-size: 16px;
     color: #25408F;
     letter-spacing: -0.14px;
@@ -382,6 +382,11 @@ input.st-date-control[readonly] {
 	min-width: auto;
 }
 
+.input-group button.btn {
+	border-radius: 0.25rem;
+}
+
+
 /**************************************************************************************************
  * Branding for the tab elements.
  *************************************************************************************************/
@@ -650,7 +655,7 @@ input.btn, button.btn, a.btn {
     min-width:     120px;
     color: 		   #fccf08;
     background:    #25408F;
-    padding:       5px 9px;
+    padding:       7px 9px 3px 9px;
     font-weight:   bold;
     transition:    transform .6s cubic-bezier(.165,.84,.44,1),-webkit-transform .6s cubic-bezier(.165,.84,.44,1);
 }
@@ -667,7 +672,6 @@ input.btn:hover, button.btn:hover, a.btn:hover {
 .btn.btn-primary.disabled, .btn.btn-primary:disabled {
     color: 		   #25408F;
     background:    #fff;
-    padding:       5px 9px;
 }
  
 .btn.btn-primary {
@@ -697,7 +701,7 @@ display: inline-block;
     transition: right .6s cubic-bezier(.165,.84,.44,1);
     position: relative;
     right: -8px;
-    top: 6px;
+    top: 5px;
     transform: translateY(-50%);
 }
 
@@ -863,6 +867,10 @@ a:hover, .btn-link:hover {
 .downloadDropdown ul.dropdown-menu li a .icon.txt:before {
 	content: "\f0f6" !important;
 }	
+
+.text-info {
+	color: #25408F !important;
+}
 
 /**************************************************************************************************
  * Branding for the bootstrap popover module.
