@@ -1,0 +1,332 @@
+<config>
+    <props>
+        <disable_submit_on_invalid>true</disable_submit_on_invalid>
+        <table_nav_before>true</table_nav_before>
+        <table_nav_after>false</table_nav_after>
+        <table_page_size>10</table_page_size>
+        <default_app></default_app>
+        <default_controller></default_controller>
+		<default_controller_init></default_controller_init>
+		<angular>off</angular>
+		<expiring>message</expiring>
+    </props>
+    <header>
+    	<banner>
+    		<![CDATA[
+    			<header>
+	            	<div class="container">
+		               	<div class="row">
+		               		<div class="col-md-12">
+				    			<div class="st-logo-container">
+						            <a href="http://www.sorrisotech.com" class="st-logo-img" tabindex="-1">
+						            </a>
+					            </div>
+							</div>
+						</div>
+					</div>
+	            </header>
+    		]]>
+    	</banner>
+        <common>
+            <![CDATA[
+                <link href="css/lib/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+                <link href="css/lib/bootstrap-toggle.min.css" rel="stylesheet" type="text/css"/>
+                <link href="css/lib/font-awesome.min.css" rel="stylesheet"/>
+                <link href="css/lib/jquery-ui.min.css" rel="stylesheet"/>
+                <link href="css/lib/jquery-ui.theme.min.css" rel="stylesheet"/>
+
+                <link href="css/brand.css" rel="stylesheet" type="text/css"/>
+                <link href="css/customization.css" rel="stylesheet" type="text/css"/>
+                <link href="css/app.css" rel="stylesheet" type="text/css"/>
+                <link href="css/authentication.css" rel="stylesheet" type="text/css"/>
+
+				<link rel="icon" type="image/png" href="img/favicon_16.png" sizes="16x16">
+				<link rel="icon" type="image/png" href="img/favicon_32.png" sizes="32x32">
+				<link rel="icon" type="image/png" href="img/favicon_57.png" sizes="57x57">
+				<link rel="icon" type="image/png" href="img/favicon_72.png" sizes="72x72">
+				<link rel="icon" type="image/png" href="img/favicon_96.png" sizes="96x96">
+				<link rel="icon" type="image/png" href="img/favicon_120.png" sizes="120x120">
+				<link rel="icon" type="image/png" href="img/favicon_128.png" sizes="128x128">
+				<link rel="icon" type="image/png" href="img/favicon_144.png" sizes="144x144">
+				<link rel="icon" type="image/png" href="img/favicon_152.png" sizes="152x152">
+				<link rel="icon" type="image/png" href="img/favicon_195.png" sizes="195x195">
+				<link rel="icon" type="image/png" href="img/favicon_228.png" sizes="228x228">
+
+            	<!--[if lt IE 9]>
+				    <script src="js/lib/html5shiv.min.js"></script>
+				    <script src="js/lib/respond.min.js"></script>
+			    <![endif]-->
+
+                <script src="js/lib/bootstrap.bundle.min.js"></script>
+				<script src="js/auth.js"></script>
+            ]]>
+        </common>
+    </header>
+    <footer>
+   		<![CDATA[
+   			<footer>
+	            <p>
+					Copyright &copy; 2023 1st Franklin Financial Corporation All Rights Reserved.
+				</p>
+            </footer>
+   		]]>
+    </footer>
+    <logo>
+        <enabled>false</enabled>
+        <url>http://www.sorrisotech.com</url>
+        <class>st-logo-img img-rounded</class>
+        <image>img/logo.png</image>
+    </logo>
+    <class>
+        <a>
+            <internal></internal>
+            <external></external>
+            <popin></popin>
+            <cancel></cancel>
+        </a>
+        <body></body>
+        <checkbox>
+            <parent>st-field st-checkbox</parent>
+            <label>st-field-label st-checkbox-label form-label col-md-2</label>
+            <field>st-checkbox-field col-md-8</field>
+            <item>form-check st-checkbox-item</item>
+            <itemLabel>form-check-label st-checkbox-item-label</itemLabel>
+            <control>form-check-input st-checkbox-field</control>
+            <text>st-checkbox-text</text>
+        </checkbox>
+        <checkboxInline>
+            <parent>st-field st-checkbox</parent>
+            <label>st-field-label st-checkbox-label form-label col-md-2</label>
+            <field>st-checkbox-field col-md-8</field>
+            <item>form-check-inline st-checkbox-item</item>
+            <itemLabel>form-check-label st-checkbox-item-label</itemLabel>
+            <control>form-check-input st-checkbox-field</control>
+            <text>st-checkbox-text</text>
+        </checkboxInline>
+        <checkboxToggle>
+            <parent>st-field st-toggle form-group</parent>
+            <label>st-field-label st-toggle-label form-label col-md-2</label>
+            <field>st-toggle-field col-md-8</field>
+            <item>st-toggle-item checkbox</item>
+            <itemLabel>st-toggle-item-label</itemLabel>
+            <control>st-toggle-field</control>
+            <text>st-toggle-text</text>
+        </checkboxToggle>
+        <date>
+            <parent>st-field st-date form-group</parent>
+            <label>st-field-label st-date-label form-label</label>
+            <field>st-date-field</field>
+            <input_group>input-group st-date-input-group</input_group>
+            <button_group></button_group>
+            <control>form-control st-date-jquery</control>
+            <button>btn btn-primary st-date-button</button>
+            <glyph>icon-calendar</glyph>
+        </date>
+        <dropdown>
+            <parent>st-field st-dropdown</parent>
+            <label>st-field-label st-dropdown-label form-label</label>
+            <field>st-dropdown-field</field>
+            <control>form-control form-select st-dropdown-control</control>
+            <option>st-dropdown-option</option>>
+        </dropdown>
+        <embedded_item>st-embedded</embedded_item>
+        <group>
+            <blockquote></blockquote>
+            <div></div>
+            <footer></footer>
+            <form></form>
+            <h1></h1>
+            <h2></h2>
+            <h3></h3>
+            <h4></h4>
+            <h5></h5>
+            <h6></h6>
+            <li></li>
+            <p></p>
+            <ul></ul>
+        </group>
+        <image></image>
+        <input>
+            <parent>form-group st-field st-input</parent>
+            <label>form-label col-md-2 st-field-label st-input-label</label>
+            <field>col-md-8 st-input-field</field>
+            <control>form-control st-input-control</control>
+        </input>
+        <linkField>
+            <external>st-link-control form-control</external>
+            <internal>st-link-control form-control</internal>
+        </linkField>
+        <list>
+            <parent>st-field st-list form-group</parent>
+            <label>st-field-label st-list-label form-label col-md-2</label>
+            <field>st-list-field col-md-8</field>
+            <control>st-list-control form-control</control>
+            <option>st-list-option</option>>
+        </list>
+        <menu>
+            <header>
+                <navbar>navbar navbar-expand-lg navbar-light bg-light</navbar>
+                <container>container</container>
+                <header>navbar-header</header>
+                <button>navbar-toggler</button>
+            </header>
+            <body>
+                <content>collapse navbar-collapse</content>
+                <class>navbar-nav me-auto mb-2 mb-lg-0</class>
+            </body>
+            <item>
+                <class>nav-item</class>
+                <active>active</active>
+                <dropdown>dropdown</dropdown>
+                <link>nav-link</link>
+                <dropdownLink>dropdown-toggle</dropdownLink>
+                <dropdownMenu>dropdown-menu</dropdownMenu>
+                <dropdownItem>dropdown-item</dropdownItem>
+            </item>
+        </menu>
+        <msg>
+            <header></header>
+            <body></body>
+        </msg>
+        <msgData>
+            <class>alert</class>
+            <baseType>alert-</baseType>
+        </msgData>
+        <msgScreen>
+            <common>alert</common>
+            <positive>alert-success</positive>
+            <negative>alert-danger</negative>
+            <baseType>alert-</baseType>
+        </msgScreen>
+        <orderedList>
+            <group></group>
+            <item></item>
+        </orderedList>
+        <radioset>
+            <parent>st-field st-radio form-group</parent>
+            <label>st-radio-label form-label col-md-2</label>
+            <field>st-field-label st-radio-field col-md-8</field>
+            <item>st-radio-item form-check</item>
+            <itemLabel>st-radio-item-label form-check-label</itemLabel>
+            <control>st-radio-control form-check-input</control>
+            <text>st-radio-text</text>
+        </radioset>
+        <radiosetInline>
+            <parent>st-field st-radio</parent>
+            <label>st-field-label st-radio-label form-label col-md-2</label>
+            <field>st-radio-field col-md-8</field>
+            <item>st-radio-item form-check form-check-inline</item>
+            <itemLabel>st-radio-item-label form-check-label</itemLabel>
+            <control>st-radio-control form-check-input</control>
+            <text>st-radio-text</text>
+        </radiosetInline>
+        <screenMsg>
+            <common>alert</common>
+            <positive>alert-success</positive>
+            <negative>alert-danger</negative>
+            <baseType>alert-</baseType>
+        </screenMsg>
+        <submit>
+            <normal>st-submit</normal>
+            <button>st-button</button>
+            <reset>st-reset</reset>
+        </submit>
+        <string>
+            <cite></cite>
+            <del></del>
+            <em></em>
+            <footer></footer>
+            <h1></h1>
+            <h2></h2>
+            <h3></h3>
+            <h4></h4>
+            <h5></h5>
+            <h6></h6>
+            <ins></ins>
+            <p></p>
+            <pre></pre>
+            <s></s>
+            <small></small>
+            <span></span>
+            <strong></strong>
+            <u></u>
+        </string>
+        <stringField>
+            <control>st-string-control form-control</control>
+        </stringField>
+        <structure>
+            <parent>form-group st-field</parent>
+            <label>form-label st-field-label</label>
+            <field>st-field-field</field>
+            <error>
+                <generic>
+                    <alert>alert alert-danger visually-hidden st-error</alert>
+                    <alert_text>st-error-text</alert_text>
+                </generic>
+                <required>
+                    <alert>alert alert-danger visually-hidden st-required</alert>
+                    <alert_text>st-required-text</alert_text>
+                </required>
+                <validation>
+                    <alert>alert alert-danger visually-hidden st-validation</alert>
+                    <alert_text>st-validation-text</alert_text>
+                </validation>
+            </error>
+            <help_label>
+                <icon>glyphicon glyphicon-info-sign text-info st-help</icon>
+                <placement>right</placement>
+                <open_delay>0</open_delay>
+                <close_delay>0</close_delay>
+                <trigger>hover focus</trigger>
+                <class>ms-2 text-info</class>
+            </help_label>
+            <help_field>
+                <icon>glyphicon glyphicon-info-sign text-info st-help</icon>
+                <placement>top</placement>
+                <open_delay>0</open_delay>
+                <close_delay>0</close_delay>
+                <trigger>hover focus</trigger>
+                <class>visually-hidden text-info</class>
+            </help_field>
+        </structure>
+        <text>
+            <parent>st-text form-group</parent>
+            <label>st-field-label st-text-label form-label col-md-2</label>
+            <field>st-text-field col-md-8</field>
+            <control>st-text-control form-control</control>
+        </text>
+        <table>
+            <parent></parent>
+            <paging_nav></paging_nav>
+            <paging_nav_list>pagination</paging_nav_list>
+            <paging_item_first></paging_item_first>
+            <paging_item>page-item visually-hidden</paging_item>
+            <paging_item_last></paging_item_last>
+            <paging_link_first></paging_link_first>
+            <paging_link_first_icon>&#171;</paging_link_first_icon>
+            <paging_link></paging_link>
+            <paging_link_last></paging_link_last>
+            <paging_link_last_icon>&#187;</paging_link_last_icon>
+            <element>table</element>
+            <header></header>
+            <header_row></header_row>
+            <header_column></header_column>
+            <body></body>
+            <row>visually-hidden</row>
+            <column></column>
+            <footer></footer>
+            <empty_table></empty_table>
+            <empty_table_msg>alert alert-info</empty_table_msg>
+            <empty_table_msg_body></empty_table_msg_body>
+            <sort_num_ascending>glyphicon glyphicon-triangle-top sort</sort_num_ascending>
+            <sort_num_descending>glyphicon glyphicon-triangle-bottom sort</sort_num_descending>
+            <sort_alpha_ascending>glyphicon glyphicon-triangle-top sort</sort_alpha_ascending>
+            <sort_alpha_descending>glyphicon glyphicon-triangle-bottom sort</sort_alpha_descending>
+            <sortable>glyphicon glyphicon-triangle-left sort</sortable>
+        </table>
+        <unorderedList>
+            <group></group>
+            <item></item>
+        </unorderedList>
+    </class>
+</config>

@@ -1,0 +1,704 @@
+/**************************************************************************************************
+ * Body
+ *************************************************************************************************/
+body {
+    background-color: #fff;
+}
+
+/**************************************************************************************************
+ * Header
+ *************************************************************************************************/
+header .st-logout {
+    color: #7B77D6;
+}
+
+header .st-logout:hover {   
+    color: #9793F4;
+}
+
+/**************************************************************************************************
+ * Navigation
+ *************************************************************************************************/
+.navbar-default .navbar-collapse {
+    background-color: #f3f3f3;
+    border-bottom: 1px solid #c0c0c0;
+}
+
+.navbar-default .navbar-nav>li {
+	width: 20%;
+	/* overflow: hidden; */
+}
+
+.navbar-default .navbar-nav>li>a {
+    color: #424242;
+}
+
+.navbar-default .navbar-nav>li>a:hover {
+    color: #7B77D6;
+}
+
+.navbar-default .navbar-nav>li.menuactive>a {
+    color: #424242;
+}
+
+.navbar-default .navbar-nav>li.menuactive {
+    border-bottom: 5px solid #7B77D6;
+}
+
+.navbar-default .navbar-collapse.in .navbar-nav>li {
+    border-bottom: 1px solid #c0c0c0;
+}
+
+.navbar-default .navbar-collapse.in .navbar-nav>li.menuactive {
+    border-bottom: 5px solid #7B77D6;
+}
+
+@media (max-width: 768px) {
+	.navbar-default .navbar-nav {
+		padding-left: 30px;
+	}
+}
+
+@media (min-width: 992px) {
+	.navbar-light .navbar-nav>li {
+	    text-align: center;
+	    width: 25%;
+	}
+}
+
+/**************************************************************************************************
+ * Tabs
+ *************************************************************************************************/
+.tabs a.selected, 
+.tabs a:hover {
+    color:white; 
+    background: #7B77D6;
+}
+
+.tabs a {
+    border-top: 1px solid #7B77D6;
+    border-left: 1px solid #7B77D6;
+    border-right: 1px solid #7B77D6;
+}
+
+
+/**************************************************************************************************
+ * Links & Buttons
+ *************************************************************************************************/
+.btn-link.st-download-pdf:hover {
+    color: #9793F4;
+}
+
+.btn-primary:active:focus,
+.btn-primary.focus,
+.btn-primary:focus,
+.btn-primary.active,
+.btn-primary:active {
+    background: #5653A7;
+}
+
+.btn.btn-warning:hover,
+.btn.btn-warning:active,
+.btn.btn-warning:focus {
+    background: #d4d4d4;
+    border: #8c8c8c;
+}
+
+button.btn.btn-default.st-date-button,
+button.btn.btn-default.st-date-button:active {
+	background: #7B77D6;
+	color: white;
+}
+
+button.btn.btn-default.st-date-button:hover {
+	background: #9793F4;
+	color: white;
+}
+
+/**************************************************************************************************
+ * Branding for checkboxes and radio buttons. 
+ *************************************************************************************************/
+
+label input[type="checkbox"] + .custom-checkbox{
+	background: url("../img/sprite_sorriso.png") no-repeat -26px -49px;
+	width: 24px;
+	height: 24px;
+    display: inline-block;
+}
+
+label input[type="checkbox"]:hover + .custom-checkbox {
+    background: url("../img/sprite_sorriso.png") no-repeat -78px -49px;
+}
+
+label input[type="checkbox"]:focus + .custom-checkbox,
+label input[type="checkbox"]:active + .custom-checkbox {
+    background: url("../img/sprite_sorriso.png") no-repeat -130px -49px;
+}
+
+label input[type="checkbox"]:checked + .custom-checkbox{
+    background: url("../img/sprite_sorriso.png") no-repeat 0 -49px;
+}
+
+label input[type="checkbox"]:checked:hover + .custom-checkbox {
+    background: url("../img/sprite_sorriso.png") no-repeat -52px -49px;
+}
+
+label input[type="checkbox"]:checked:focus + .custom-checkbox,
+label input[type="checkbox"]:checked:active + .custom-checkbox {
+    background: url("../img/sprite_sorriso.png") no-repeat -104px -49px;
+}
+
+label input[type="radio"] + .custom-radio {
+    background-color: #fff;
+    border: 2px solid #9793F4;
+    padding: 9px;
+    border-radius: 50px;
+    display: inline-block;
+    position: relative;
+    
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+label input[type="radio"]:checked + .custom-radio:after {
+    content: ' ';
+    width: 12px;
+    height: 12px;
+    border-radius: 50px;
+    position: absolute;
+    top: 3px;
+    background: #9793F4;
+    text-shadow: 0px;
+    left: 3px;
+    font-size: 32px;
+}
+
+label input[type="radio"]:checked + .custom-radio {
+    background-color: #fff;
+    color: #fff;
+    border: 2x solid #9793F4;
+}
+
+
+/**************************************************************************************************
+ * Pagination controls
+ *************************************************************************************************/
+ 
+.pagination>.active>a, 
+.pagination>.active>a:focus, 
+.pagination>.active>a:hover, 
+.pagination>.active>span, 
+.pagination>.active>span:focus, 
+.pagination>.active>span:hover {
+
+}
+
+.pagination>li>a, 
+.pagination>li>span {
+
+}
+
+.pagination>li>a:focus, 
+.pagination>li>a:hover, 
+.pagination>li>span:focus, 
+.pagination>li>span:hover {
+
+}
+
+
+/**************************************************************************************************
+ * Date picker
+ *************************************************************************************************/
+
+div[uib-datepicker-popup-wrap] button.btn {
+	min-width: 0;
+}
+ 
+div[uib-datepicker-popup-wrap] .btn-default,
+div[uib-datepicker-popup-wrap] .btn-info,
+div[uib-datepicker-popup-wrap] .btn-danger,
+div[uib-datepicker-popup-wrap] .btn-success {
+    background: none;
+    border: 0;
+    box-shadow: none;
+    -webkit-box-shadow: none;
+    text-shadow: none;
+}
+
+div[uib-datepicker-popup-wrap] .btn-info,
+div[uib-datepicker-popup-wrap] .btn-danger,
+div[uib-datepicker-popup-wrap] .btn-success {
+    background-image: linear-gradient(to bottom,#337ab7 0,#265a88 100%);
+    border-color: #245580;
+    color: #fff;
+    min-width: 0;
+}
+
+div[uib-datepicker-popup-wrap] .btn-default.active,
+div[uib-datepicker-popup-wrap] .btn-default:focus {
+    background: #9793F4;
+}
+
+div[uib-datepicker-popup-wrap] .btn-default.active span.text-info,
+div[uib-datepicker-popup-wrap] .btn-default:active:focus span {
+    color: #fff;
+    text-shadow: none;
+}
+
+div[uib-datepicker-popup-wrap] thead .btn-default.pull-left,
+div[uib-datepicker-popup-wrap] thead .btn-default.pull-right {
+    color: #9793F4;
+}
+
+div[uib-datepicker-popup-wrap] thead .btn-default {
+    background: none !important;
+    min-width: 0;
+}
+
+div[uib-datepicker-popup-wrap] li[ng-if="showButtonBar"] {
+    display: none;
+}
+
+
+/**************************************************************************************************
+ * i18n special css
+ *************************************************************************************************/
+[st-i18n] {
+	border-style: dashed !important;
+	border-width: 2px !important;
+	border-color: red !important;
+}
+
+
+
+/**************************************************************************************************
+ * Spinner styling.
+ *************************************************************************************************/
+.overlay {
+	width: 100%;
+    height: 100%;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    background-color: rgba(0,0,0,0.5);
+}
+ 
+.spinnerContent {
+	width: 100%;
+    height: 100%;
+    position: fixed;
+    z-index: 2;
+    left: 0;
+    top: 0;
+}
+
+.please-wait {
+	color: rgb(255,255,255);
+	float: left;
+	position:relative;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+#circularG{
+	position:relative;
+	width:58px;
+	height:58px;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+.circularG{
+	position:absolute;
+	background-color:rgb(255,255,255);
+	width:14px;
+	height:14px;
+	border-radius:9px;
+		-o-border-radius:9px;
+		-ms-border-radius:9px;
+		-webkit-border-radius:9px;
+		-moz-border-radius:9px;
+	animation-name:bounce_circularG;
+		-o-animation-name:bounce_circularG;
+		-ms-animation-name:bounce_circularG;
+		-webkit-animation-name:bounce_circularG;
+		-moz-animation-name:bounce_circularG;
+	animation-duration:1.1s;
+		-o-animation-duration:1.1s;
+		-ms-animation-duration:1.1s;
+		-webkit-animation-duration:1.1s;
+		-moz-animation-duration:1.1s;
+	animation-iteration-count:infinite;
+		-o-animation-iteration-count:infinite;
+		-ms-animation-iteration-count:infinite;
+		-webkit-animation-iteration-count:infinite;
+		-moz-animation-iteration-count:infinite;
+	animation-direction:normal;
+		-o-animation-direction:normal;
+		-ms-animation-direction:normal;
+		-webkit-animation-direction:normal;
+		-moz-animation-direction:normal;
+}
+
+#circularG_1{
+	left:0;
+	top:23px;
+	animation-delay:0.41s;
+		-o-animation-delay:0.41s;
+		-ms-animation-delay:0.41s;
+		-webkit-animation-delay:0.41s;
+		-moz-animation-delay:0.41s;
+}
+
+#circularG_2{
+	left:6px;
+	top:6px;
+	animation-delay:0.55s;
+		-o-animation-delay:0.55s;
+		-ms-animation-delay:0.55s;
+		-webkit-animation-delay:0.55s;
+		-moz-animation-delay:0.55s;
+}
+
+#circularG_3{
+	top:0;
+	left:23px;
+	animation-delay:0.69s;
+		-o-animation-delay:0.69s;
+		-ms-animation-delay:0.69s;
+		-webkit-animation-delay:0.69s;
+		-moz-animation-delay:0.69s;
+}
+
+#circularG_4{
+	right:6px;
+	top:6px;
+	animation-delay:0.83s;
+		-o-animation-delay:0.83s;
+		-ms-animation-delay:0.83s;
+		-webkit-animation-delay:0.83s;
+		-moz-animation-delay:0.83s;
+}
+
+#circularG_5{
+	right:0;
+	top:23px;
+	animation-delay:0.97s;
+		-o-animation-delay:0.97s;
+		-ms-animation-delay:0.97s;
+		-webkit-animation-delay:0.97s;
+		-moz-animation-delay:0.97s;
+}
+
+#circularG_6{
+	right:6px;
+	bottom:6px;
+	animation-delay:1.1s;
+		-o-animation-delay:1.1s;
+		-ms-animation-delay:1.1s;
+		-webkit-animation-delay:1.1s;
+		-moz-animation-delay:1.1s;
+}
+
+#circularG_7{
+	left:23px;
+	bottom:0;
+	animation-delay:1.24s;
+		-o-animation-delay:1.24s;
+		-ms-animation-delay:1.24s;
+		-webkit-animation-delay:1.24s;
+		-moz-animation-delay:1.24s;
+}
+
+#circularG_8{
+	left:6px;
+	bottom:6px;
+	animation-delay:1.38s;
+		-o-animation-delay:1.38s;
+		-ms-animation-delay:1.38s;
+		-webkit-animation-delay:1.38s;
+		-moz-animation-delay:1.38s;
+}
+
+@keyframes bounce_circularG{
+	0%{
+		transform:scale(1);
+	}
+
+	100%{
+		transform:scale(.3);
+	}
+}
+
+@-o-keyframes bounce_circularG{
+	0%{
+		-o-transform:scale(1);
+	}
+
+	100%{
+		-o-transform:scale(.3);
+	}
+}
+
+@-ms-keyframes bounce_circularG{
+	0%{
+		-ms-transform:scale(1);
+	}
+
+	100%{
+		-ms-transform:scale(.3);
+	}
+}
+
+@-webkit-keyframes bounce_circularG{
+	0%{
+		-webkit-transform:scale(1);
+	}
+
+	100%{
+		-webkit-transform:scale(.3);
+	}
+}
+
+@-moz-keyframes bounce_circularG{
+	0%{
+		-moz-transform:scale(1);
+	}
+
+	100%{
+		-moz-transform:scale(.3);
+	}
+}
+
+/* Bring over from paymentbusiness.css */
+/* PB custom styles */
+.billingDashboard .mainNav a.active, 
+.billingDashboard .mainNav a:hover, 
+.billingDashboard .mainNav a:focus {
+    color: #7b77d6;
+    border-bottom: 5px solid #7b77d6;
+}
+
+/* Generic styling */
+.billingDashboard .mainNav a {
+    display: inline-block;
+    padding: 0 20px 10px;
+    text-align: center;
+    font-size: 20px;
+    color: #424242;
+}
+
+.paymentMenu a {
+	cursor: pointer;
+}
+
+.payment {
+    margin-top: 20px;
+}
+
+.paymentLink:before {
+    font: normal normal normal 14px/1 FontAwesome;
+    font-size: inherit;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    margin-right: 10px;
+}
+
+.makePaymentPage .alert p {
+    float: left;
+    width: 100%;
+}
+
+.makePaymentLink:before {
+    content: "\f0d6";
+}
+
+.makePaymentLink.active:before,
+.makePaymentLink:hover:before {
+    content: "\f0d6";
+}
+
+.paymentAutomaticLink:before {
+    content: "\f274";
+}
+
+.paymentAutomaticLink.active:before,
+.paymentAutomaticLink:hover:before {
+    content: "\f274";
+}
+
+.paymentStatusLink:before {
+    content: "\f022";
+}
+
+.paymentStatusLink.active:before,
+.paymentStatusLink:hover:before {
+    content: "\f022";
+}
+
+.paymentWalletLink:before {
+    content: "\f283";
+}
+
+.paymentWalletLink.active:before,
+.paymentWalletLink:hover:before {
+    content: "\f283";
+}
+
+.paymentError {
+    color: #FF0000;
+    font-size: 16px;
+}
+
+.st-payment-automatic-container .sti-payments-status-action a {
+    float: left;
+}
+
+.st-payment-automatic-container .sti-payments-status-action a,
+.st-payment-status .sti-payments-status-action a {
+    text-decoration: none;
+}
+
+.paymentDetailsIcon:before,
+.cancelPaymentIcon:before {
+    font: normal normal normal 14px/1 FontAwesome;
+    font-size: inherit;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    margin-right: 10px;
+}
+
+.paymentDetailsIcon:before {
+    content: "\f06e";
+}
+
+.cancelPaymentIcon:before {
+    content: "\f00d";
+}
+
+.paymentLegend {
+    color: #909090;
+}
+
+.paymentLegend span {
+    font-family: "Precision Sans Lt", CenturyGothic, AppleGothic, sans-serif;
+}
+
+.wallet_table_empty {
+	display: table-cell;
+	vertical-align: middle;
+	display: block;
+	margin-bottom: 30px;
+}
+
+.wallet_table_empty_icon {
+	width: 30px;
+	height: 45px;
+	margin: auto;
+	border-radius: 5px;
+	border: 5px solid #DCDCDC;
+}
+
+.wallet_table_empty_text {
+	max-width: 300px;
+	margin: 10px auto 0 auto;
+	font-style: italic;
+	color: #C0C0C0;
+	text-align: center;
+}
+
+/*************************************************************************************************
+ * Select2 dropdown overrides
+ **************************************************************************************************/
+.select2-container--bootstrap-5 .select2-selection,
+.select2-container--bootstrap-5.select2-container--focus .select2-selection,
+.select2-container--bootstrap-5.select2-container--open .select2-selection {
+	font-family: "Source Sans Pro", sans-serif;
+	background: linear-gradient(to right, #FFFFFF 195px, #FFFFFF 195px, #7B77D6 35px);
+	border: 1px solid #7B77D6;
+	border-radius: 0px;
+    box-shadow: none;
+    display: inline-block;
+    height: 42px;
+}
+
+.st-field-wide .select2-container--bootstrap-5 .select2-selection,
+.st-field-wide .select2-container--bootstrap-5.select2-container--focus .select2-selection,
+.st-field-wide .select2-container--bootstrap-5.select2-container--open .select2-selection {
+	background: linear-gradient(to right, #FFFFFF 315px, #FFFFFF 315px, #7B77D6 35px);
+}
+
+.st-field-narrow .select2-container--bootstrap-5 .select2-selection,
+.st-field-narrow .select2-container--bootstrap-5.select2-container--focus .select2-selection,
+.st-field-narrow .select2-container--bootstrap-5.select2-container--open .select2-selection {
+	background: linear-gradient(to right, #FFFFFF 95px, #FFFFFF 95px, #7B77D6 35px); 
+}
+
+.select2-container--bootstrap-5 .select2-selection--single .select2-selection__arrow b {
+	border-top: 0;
+	border-left: 0;
+	border-bottom: 3px solid #FFFFFF;
+    border-right: 3px solid #FFFFFF;
+    content: '';
+    display: block;
+    height: 10px;
+    margin-top: -4px;
+    pointer-events: none;
+    position: absolute;
+    right: 13px;
+    top: 40%;
+    transform-origin: 66% 66%;
+    transform: rotate(45deg);
+    transition: all 0.15s ease-in-out;
+    width: 10px;
+}
+.select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered  {
+	padding-top: 1px;
+}
+
+.select2-container--bootstrap-5 .select2-dropdown {
+	border: 1px solid #7B77D6;
+	border-radius: 0px;
+    box-shadow: none;
+}
+
+.select2-container--bootstrap-5 .select2-results__option {
+	border-top: 1px solid #7B77D6;
+}
+.select2-container--bootstrap-5 .select2-dropdown .select2-results__options .select2-results__option.select2-results__option--selected, 
+.select2-container--bootstrap-5 .select2-dropdown .select2-results__options .select2-results__option[aria-selected=true] {
+    background-color: #7B77D6;
+}
+
+.select2-container--bootstrap-5.select2-container--disabled .select2-selection {
+	background: linear-gradient(to right, #e9ecef 195px, #e9ecef 195px, #7B77D6 35px);
+}
+
+.st-field-wide .select2-container--bootstrap-5.select2-container--disabled .select2-selection {
+	background: linear-gradient(to right, #e9ecef 315px, #e9ecef 315px, #7B77D6 35px);
+}
+
+.st-field-narrow .select2-container--bootstrap-5.select2-container--disabled .select2-selection {
+	background: linear-gradient(to right, #e9ecef 95px, #e9ecef 95px, #7B77D6 35px);
+}
+
+@media (max-width: 992px) {
+	.st-field-wide .select2-container--bootstrap-5 .select2-selection,
+	.st-field-wide .select2-container--bootstrap-5.select2-container--focus .select2-selection,
+	.st-field-wide .select2-container--bootstrap-5.select2-container--open .select2-selection {
+		background: linear-gradient(to right, #FFFFFF 250px, #FFFFFF 250px, #7B77D6 35px); /* W3C */
+	}	   
+	.st-field-wide .select2-container--bootstrap-5.select2-container--disabled .select2-selection {
+		background: linear-gradient(to right, #e9ecef 315px, #e9ecef 315px, #7B77D6 35px);
+	}
+}
+

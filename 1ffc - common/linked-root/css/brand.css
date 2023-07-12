@@ -1,0 +1,1336 @@
+/**************************************************************************************************
+ * Fonts
+ *************************************************************************************************/
+@import url(lib/google_fonts.css);
+
+/**************************************************************************************************
+ * Page Branding
+ *************************************************************************************************/
+html {
+	height: 100%;
+}
+body {
+    font-family: "Source Sans Pro", sans-serif;
+    font-size: 16px;
+    color: #25408F;
+    letter-spacing: -0.14px;
+    height: 100%;
+}
+
+/**************************************************************************************************
+ * The Header
+ *************************************************************************************************/
+header {
+	background-image: linear-gradient(180deg,#25408f,#1c316e);
+    width: 100%;
+	height: 143px;
+    float: left;
+}
+
+header .container .row {
+	height: 143px;
+	align-items: center;
+}
+
+header .st-banner-links {
+    float: right;
+    padding-top: 25px;
+}
+header .st-banner-links button {
+    font-weight: 700;
+    color: #25408F;
+    text-transform: uppercase;
+}
+
+header .st-logo-container {
+	background: url("../img/1FFC Logo.webp") no-repeat 0 0;
+	background-size: 185px 80px;
+	height: 80px;
+	margin-top: 0px;
+}
+
+.st-logo-img {
+	display: none;
+    width: 100px;
+    height: 50px;
+}
+
+/**************************************************************************************************
+ * The menu
+ *************************************************************************************************/
+ @media (min-width: 992px) {
+	.navbar-light {
+	    width: 100%;
+	    margin-bottom: 45px;    
+	    border: 0;
+	    border-radius: 0;
+	    padding-bottom: 0px;
+	    padding-top: 0px;
+	    box-shadow: none;
+	}
+	
+	.navbar-expand-lg .navbar-nav {
+		width: 100%
+	}
+	
+	.navbar-default .navbar-collapse {
+	    padding: 0;
+	}
+	
+	.navbar-light .navbar-nav>li {
+	    height: 100%;
+	    padding-top: 11px;
+	    padding-bottom: 11px;
+	}
+	
+	.navbar-light .navbar-nav>li {
+	    text-align: center;
+	    width: 20%;
+	}
+	
+	/* Collapsed navbar */
+	.navbar-default .navbar-collapse.in .navbar-nav {
+	    height: auto;
+	}
+	
+	.navbar-default .navbar-collapse.in .navbar-nav>li {
+	    padding-top: 0;
+	}
+	
+	.navbar-default .navbar-collapse.in .navbar-nav>li.menu,
+	.navbar-default .navbar-collapse.in .navbar-nav>li.menuactive {
+	    width: 100%;
+	}
+}
+
+.navbar-light .navbar-nav>li {
+    font-weight: 900;
+    font-size: 20px;
+    text-transform: uppercase;
+}
+
+#nav_main .nav-item a.active {
+    background-color: #e7e7e7;
+    background-image: linear-gradient(to bottom,#dbdbdb 0,#e2e2e2 100%);
+    background-repeat: repeat-x;
+    -webkit-box-shadow: inset 0 3px 9px rgb(0 0 0 / 8%);
+}
+
+/**************************************************************************************************
+ * Branding for the main area
+ *************************************************************************************************/
+main {
+    width: 100%;
+    background: #fff;
+    min-height: 100%;
+    height: auto !important;
+    height: 100%;
+    margin-bottom: -74px;
+    display:block;
+    padding-top: 80px;
+}
+
+form .form-group {
+	margin-bottom: 25px;
+}
+
+form .st-field .st-field-label {
+	font-size: 16px;
+    text-align: left;
+    padding-top: 0;
+}
+
+.st-hide-when-empty:blank {
+	display: none;
+}
+
+/**************************************************************************************************
+ * The Footer
+ *************************************************************************************************/
+.footer-spacer {
+	height: 74px;
+}
+
+footer {
+    background-color: #25408f;
+    padding:          20px 0px;
+    color:            #fff;
+    font-size: 		  12px;
+    font-weight:      bold;
+    text-align:       center;
+}
+
+/**************************************************************************************************
+ * Generic text branding.
+ *************************************************************************************************/
+
+h1 {
+	font-weight: 900;
+	font-size: 40px;
+	letter-spacing: -0.4px;
+	padding-bottom: 30px;
+	margin: 0;
+	border-bottom: 1px solid #c0c0c0;
+	margin-bottom: 30px;
+	float: left;
+    width: 100%;
+}
+
+h4 {
+    font-weight: 700;
+    display: block;
+}
+
+.glyphicon {
+    line-height: 1.42857143;
+}
+
+a.icon-filter {
+	text-decoration: none;
+	cursor: pointer;
+}
+
+a.icon-filter:before {
+	content:"";
+	display:inline-block;
+	width: 12px;
+	height: 15px;
+	vertical-align: middle;
+}
+
+.icon-filter:before {
+	background: url("../img/sprite_sorriso.png") -555px -101px no-repeat;
+}
+
+/**************************************************************************************************
+ * Branding for the bootstrap modal pop-ins.
+ *************************************************************************************************/
+.modal-header {
+	padding: 0;
+}
+
+.modal-header h3 {
+	font-weight: 700;
+	font-size: 16px;
+	margin-top: 0;
+}
+
+.modal-content {
+	border-radius: 0;
+	-moz-border-radius: 0;
+	-webkit-border-radius: 0;
+	padding: 20px !important;
+}
+
+/**************************************************************************************************
+ * Branding for tables.
+ *************************************************************************************************/
+.table {
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    font-size: 16px;
+}
+
+tr.total td {
+    font-weight: bold;
+}
+
+th.amount,
+td.amount,
+th.right,
+td.right,
+th.right-amount,
+td.right-amount,
+div.amount {
+    text-align: right;
+}
+
+.table>tbody>tr>td, 
+.table>tbody>tr>th, 
+.table>tfoot>tr>td, 
+.table>tfoot>tr>th, 
+.table>thead>tr>td, 
+.table>thead>tr>th {
+    vertical-align: middle;
+}
+
+.table>thead>tr>th {
+    background: #f3f3f3;
+    border-bottom: 1px solid #ddd;
+}
+
+.table>thead>tr>th .glyphicon {
+    margin-left: 10px;
+}
+
+.table .checkbox {
+    margin: 0;
+}
+.table>:not(:first-child) {
+	border-top: none;
+}
+
+.sort svg {
+	margin-bottom: -4px;	
+}
+
+.pagination>.active>a, 
+.pagination>.active>a:focus, 
+.pagination>.active>a:hover, 
+.pagination>.active>span, 
+.pagination>.active>span:focus, 
+.pagination>.active>span:hover {
+	background-color: #25408F;
+	border-color: #25408F;
+	color: #FFFFFF;
+}
+
+.pagination>li>a, 
+.pagination>li>span {
+	color: #25408F;
+}
+
+.pagination>li>a:focus, 
+.pagination>li>a:hover, 
+.pagination>li>span:focus, 
+.pagination>li>span:hover {
+	color: #25408F;
+}
+
+/**************************************************************************************************
+ * Generic branding for forms.
+ *************************************************************************************************/
+
+.form-control,
+.input-group .form-control {
+    max-width: 100%;
+    border: 2px solid #25408f;
+}
+
+.form-horizontal .form-group {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.form-horizontal .checkbox {
+    padding: 0;
+}
+
+.st-help {
+	margin-left: 10px;
+	font-weight: 400;
+	font-size: 16px;
+	color: #25408F;
+}
+
+.st-help:hover {
+	color: #9793F4;
+}
+
+.st-help:focus,
+.st-help:active {
+	color: #5653A7;
+}
+
+/**************************************************************************************************
+ * Branding for date fields.
+ *************************************************************************************************/
+.st-date-button-group {
+    left: -40px;
+    top: -2px;
+}
+
+.st-date-glyph {
+	background: url("../img/sprite_sorriso.png") no-repeat -80px -99px;
+	width: 18px;
+	height: 18px;
+	margin-left: 3px;
+}
+
+.st-date-glyph:before {
+    content: "";
+}
+
+.st-date.form-group .st-date.form-group  {
+    display: inline-block;
+    margin-right: 50px;
+}
+
+.input-group-btn.st-date-button-group {
+    display: block;
+}
+
+.st-date-input-group .st-date-control {
+	border: 1px solid #25408F;
+    border-radius: 0;
+    -moz-border-radius: 0;
+    -webkit-border-radius: 0;
+    box-shadow: none;
+    -webkit-box-shadow: none;
+}
+
+input.st-date-control, 
+input.st-date-control[readonly] {
+	background: white;    
+}
+
+.st-date-input-group .form-control:focus {
+	z-index: 0; !important;
+}
+
+.st-date-input-group > .st-date-button {
+	min-width: auto;
+}
+
+/**************************************************************************************************
+ * Branding for the tab elements.
+ *************************************************************************************************/
+
+.tabs {
+    margin-top:10px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #c0c0c0;
+}
+
+.tabs a {
+    padding: 10px 10px 10px 10px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    -moz-border-top-left-radius: 5px;
+    -moz-border-top-right-radius: 5px;
+    -moz-border-bottom-left-radius: 0;
+    -moz-border-bottom-right-radius: 0;
+    -webkit-border-top-left-radius: 5px;
+    -webkit-border-top-right-radius: 5px;
+    -webkit-border-bottom-left-radius: 0;
+    -webkit-border-bottom-right-radius: 0;
+    text-decoration:none; 
+    margin-right: 5px;
+    font-weight: 700;
+    font-size: 16px;
+    display: inline-block;
+}
+
+/**************************************************************************************************
+ * Toggles
+ *************************************************************************************************/
+
+.toggle.sorriso,
+.toggle-on.sorriso,
+.toggle-off.sorriso { 
+	border-radius: 20px;
+	-moz-border-radius: 20px;
+	-webkit-border-radius: 20px;
+	border: 0;
+	box-shadow: none;
+	-webkit-box-shadow: none;
+}
+
+.toggle-on.btn-sm {
+	font-weight: 900;
+	letter-spacing: 1px;
+	padding-right: 30px !important;
+	border: 0;
+	box-shadow: none;
+	-webkit-box-shadow: none;
+	background: #25408F;
+	color: #ffffff;
+	text-shadow: none;
+}
+
+.toggle-on.btn-sm:hover {
+	background: #9793F4;
+}
+
+.toggle-on.btn-sm:focus,
+.toggle-on.btn-sm:active {
+	background: #5653A7;
+}
+
+.toggle-on.btn-sm:disabled {
+	background: #9793F4;
+	opacity: 0.5;
+}
+
+.toggle-off.btn-sm,
+.toggle-off.btn-sm:active,
+.toggle-off.btn-sm:focus,
+.toggle-off.btn-sm:hover {
+	font-weight: 900;
+	letter-spacing: 1px;
+	padding-left: 30px !important;
+	border: 0;
+	box-shadow: none;
+	-webkit-box-shadow: none;
+    background: #c0c0c0;
+	color: #ffffff;
+	text-shadow: none;
+}
+
+.toggle.sorriso .toggle-handle {
+    border-radius: 50%;
+	-moz-border-radius: 50%;
+	-webkit-border-radius: 50%;
+    left: -15px;
+	width: 21px;
+    height: 21px;
+    margin-top: 8px;
+	border: 0;
+	box-shadow: none;
+	-webkit-box-shadow: none;
+	background: #ffffff;
+	padding: 0;
+}
+
+.toggle.sorriso.off .toggle-handle {
+	left: 15px;
+}
+
+.st-toggle.st-field .st-field-label {
+	font-size: 16px;
+	padding-top: 18px;
+}
+
+/**************************************************************************************************
+ * Branding for checkboxes and radio buttons. 
+ *************************************************************************************************/
+
+label input[type="checkbox"] {
+    /*display: none;*/
+    position: absolute; 
+    left: -99999px; 
+    display: block;
+}
+
+.st-checkbox-text {
+    margin-left: 10px;
+    vertical-align: top;
+}
+
+label input[type="radio"] {
+    /*display: none;*/
+    position: absolute; 
+    left: -99999px; 
+    display: block;
+}
+
+.checkbox label, 
+.radio label {
+    padding-left: 0;
+}
+
+.checkbox label .toggle, 
+.checkbox-inline .toggle {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.st-radio-text {
+    margin-left: 10px;
+    vertical-align: top;
+    position: relative;
+    top: -2px;
+}
+
+a.checkbox {
+    display: inline-block;
+	width: 20px;
+	height: 20px;
+	margin: 0;
+	cursor: pointer;
+	vertical-align: middle;
+	text-align: center;
+    border: 2px solid;
+    margin-right: 5px;
+}
+
+a.checkbox.selected {
+    background-color: #25408F;
+}
+
+a.checkbox.selected::before {
+    content: '';
+	display: inline-block;
+	width: 14px;
+	height: 7px;
+	margin-bottom: 5px;
+	border: 2px solid #FFFFFF;
+	border-top: none;
+	border-right: none;
+	-ms-transform: rotate(-45deg);
+	-webkit-transform: rotate(-45deg);
+    transform: rotate(-45deg);
+}
+
+a.checkbox + span, a.radio + span {
+    vertical-align: middle;
+}
+
+a.radio {
+    background-color: #fff;
+    border: 2px solid #9793F4;
+    padding: 9px;
+    border-radius: 50px;
+    display: inline-block;
+    position: relative;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    margin: 0;
+    text-align: center;
+    vertical-align: middle;
+    margin-right: 5px;
+    cursor: pointer;
+}
+
+a.radio.selected::after {
+    content: ' ';
+    width: 12px;
+    height: 12px;
+    border-radius: 50px;
+    position: absolute;
+    top: 3px;
+    background: #9793F4;
+    text-shadow: 0px;
+    left: 3px;
+    font-size: 32px;
+}
+
+
+/**************************************************************************************************
+ * Branding for buttons.
+ *************************************************************************************************/
+a, a:hover {
+ 	color: #25408F; 
+}
+ 
+.st-buttons {
+	margin-top: 55px;
+    margin-bottom: 70px;
+}
+
+.st-buttons-tight {
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+
+.st-buttons .btn,
+.st-buttons-tight .btn {
+    margin-right: 10px;
+}
+
+button.btn.btn-default.st-date-button,
+button.btn.btn-default.st-date-button:hover,
+button.btn.btn-default.st-date-button:active,
+button.btn.btn-default.st-date-button:focus {
+    border-radius: 0;
+    -moz-border-radius: 0;
+    -webkit-border-radius: 0;
+    background: none;
+    border: 0;
+    box-shadow: none;
+    -webkit-box-shadow: none;
+    color: #25408F;
+    width: auto;
+    min-width: 0;
+}
+
+.btn, .btn:hover, .btn:active {
+    box-shadow: none;
+}
+
+input.btn, button.btn, a.btn {
+    border-radius: 0;
+    border:        solid #25408F;
+    min-width:     120px;
+    color: 		   #fccf08;
+    background:    #25408F;
+    padding:       5px 9px;
+    font-weight:   bold;
+    transition:    transform .6s cubic-bezier(.165,.84,.44,1),-webkit-transform .6s cubic-bezier(.165,.84,.44,1);
+}
+
+.btn.btn-primary, .btn.btn-default, .btn.btn-danger {
+    text-transform: uppercase;
+    text-shadow: none;
+}
+
+input.btn:hover, button.btn:hover, a.btn:hover {
+    transform: scale(1.08);
+}
+
+.btn.btn-primary.disabled, .btn.btn-primary:disabled {
+    color: 		   #25408F;
+    background:    #fff;
+    padding:       5px 9px;
+}
+ 
+.btn.btn-primary {
+	background-color: #25408F;
+	border-color:     #25408F;
+}
+
+.btn.btn-secondary {
+	color:            #25408F;
+	background-color: #FFCF01;
+	border-color:     #FFCF01;
+}
+
+.btn-link {
+	font-weight: 	 bold;
+    text-transform:  uppercase;
+    text-decoration: none;
+    padding:         8px 12px;
+}
+
+.btn-link:after {
+display: inline-block;
+    font: normal normal normal 14px/1 FontAwesome;
+    font-size: 12px;
+    text-rendering: auto;
+    content: "\F054";
+    transition: right .6s cubic-bezier(.165,.84,.44,1);
+    position: relative;
+    right: -8px;
+    top: 6px;
+    transform: translateY(-50%);
+}
+
+.btn-link:hover:after {
+	right: -13px;
+}
+
+.btn-link.btn-primary {
+	background-color: transparent;
+    color: 		      #25408F;
+}
+
+.btn-link.btn-secondary {
+	background-color: transparent;
+    color: 		      #FFCF01; 
+}
+
+.btn-link.btn-secondary:hover {
+	background-color: transparent;
+	border:           none;
+    color: 		      #FFCF01; 
+}
+
+a:hover, .btn-link:hover {
+    color:     #25408F;
+}
+
+.btn-link.btn-cancel {
+    text-decoration: none;
+    min-width: 0 !important;
+    padding: 0;
+}
+
+.btn-alt {
+	min-width: 0;
+	padding: 5px 10px;
+	font-size: 16px;
+	font-weight: 600;
+	border: 2px solid;
+	border-radius: 4px;
+	background-color: transparent;
+	cursor:pointer;
+}
+
+.btn-alt:hover {
+	color: #FFFFFF;
+	background-color: #25408F;
+	text-decoration: none;
+	border-color: #25408F;
+}
+
+.st-download-pdf {
+	color: #FFFFFF;
+}
+
+.st-download-pdf input.btn.btn-primary {
+	padding-left: 30px;
+}
+
+.st-download-pdf .glyphicon {
+	position: absolute;
+	top: 7px;
+	left: 7px;
+}
+
+.btn.btn-warning {
+    background: #c0c0c0;
+    text-transform: uppercase;
+    border: 0;
+    padding: 8px 12px;
+}
+
+.downloadDropdown {
+	width: 165px;
+}
+
+.downloadDropdown .dropdown-toggle {
+	border-radius: 5px !important;
+	color: #25408F !important;
+}
+
+.downloadDropdown .dropdown-toggle span {
+	background-color: #25408F !important;
+	color: white;
+    font-size: 18px;
+    float: left;
+}
+
+.downloadDropdown .dropdown-toggle span.divider {
+	border-right: 1px solid #FFFFFF;
+    float: left;
+    height: 20px;
+    margin-top: 8px;
+}
+
+.downloadDropdown .dropdown .dropdown-toggle .arrow:before  {
+	border-width: 3px !important;
+    margin-top: 10px;
+}
+
+.downloadDropdown .dropdown.open .dropdown-toggle .arrow:before {
+	margin: 14px 0 0 0;
+}
+
+.downloadDropdown ul.dropdown-menu {
+	padding: 0;
+}
+
+.downloadDropdown ul.dropdown-menu li {
+	border-bottom: 1px solid #ddd;
+}
+
+.downloadDropdown ul.dropdown-menu li:last-of-type {
+	border-bottom: none;
+}
+
+.downloadDropdown ul.dropdown-menu li a {
+	padding: 3px 10px;
+}
+
+.downloadDropdown ul.dropdown-menu li a:hover {
+	background-color: rgba(123, 119, 214, 0.2);
+    background-image: none;
+    color: #25408F;
+}
+
+.downloadDropdown ul.dropdown-menu li a .icon {
+	display: inline-block;
+    color: #25408F;
+    font: normal normal normal 14px/1 FontAwesome;
+    font-size: inherit;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.downloadDropdown ul.dropdown-menu li a .icon:before {
+    display: inline-block;
+    padding: 8px;
+}
+
+.downloadDropdown ul.dropdown-menu li a .icon.file:before {
+	content: "\f016" !important;
+}
+
+.downloadDropdown ul.dropdown-menu li a .icon.csv:before,
+.downloadDropdown ul.dropdown-menu li a .icon.xls:before {
+	content: "\f1c3" !important;
+}
+
+.downloadDropdown ul.dropdown-menu li a .icon.pdf:before {
+	content: "\f1c1" !important;
+}
+
+.downloadDropdown ul.dropdown-menu li a .icon.zip:before {
+	content: "\f1c6" !important;
+}
+
+.downloadDropdown ul.dropdown-menu li a .icon.word:before {
+	content: "\f1c2" !important;
+}
+
+.downloadDropdown ul.dropdown-menu li a .icon.txt:before {
+	content: "\f0f6" !important;
+}	
+
+/**************************************************************************************************
+ * Branding for the bootstrap popover module.
+ *************************************************************************************************/
+.popover-min {
+	max-width: 480px;
+	border: 2px solid #25408F;
+}
+
+.popover.bottom.popover-min>.arrow {
+	border-bottom-color: #25408F;
+}
+
+.popover.bottom.popover-min>.arrow:after {
+	top: 2px;
+}
+
+/**************************************************************************************************
+ * Branding for the bootstrap alerts module.
+ *************************************************************************************************/
+.alert {
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border-top: 0;
+    border-left: 0;
+    border-right: 0;
+    border-radius: 0;
+    -moz-border-radius: 0;
+    -webkit-border-radius: 0;
+}
+
+.alert.alert-success {
+    background: #f9fbf7;
+    border-bottom: 10px solid #55b70d;
+    color: #55b70d;
+}
+
+.alert.alert-success  h4 span {
+    font-weight: 900;
+    font-size: 18px;
+}
+
+.alert.alert-success  p span {
+    font-size: 16px;
+    color: #909090;
+}
+
+.alert.alert-info {
+    background: #d9edf7;
+    border-bottom: 10px solid #31708f;
+    color: #31708f;
+}
+
+.alert.alert-info  h4 span {
+    font-weight: 900;
+    font-size: 18px;
+}
+
+.alert.alert-info  p span {
+    font-size: 16px;
+}
+
+.alert.alert-warning {
+    background: #fff3cdd6;
+    border-bottom: 10px solid #f0bc02e3;
+    color: #664d03;
+}
+
+.alert.alert-warning  h4 span {
+    font-weight: 900;
+    font-size: 18px;
+}
+
+.alert.alert-danger {
+    background: #fbedea;
+    border-bottom: 10px solid #ce1a1a;
+    color: #ce1a1a;
+}
+
+.alert.alert-danger  h4 span {
+    font-weight: 900;
+    font-size: 18px;
+}
+
+.alert.alert-danger  p span {
+    font-size: 16px;
+}
+
+.alert {
+    margin-left: initial;
+    margin-right: initial;
+    margin-bottom: auto;
+    border: 0;
+    box-shadow: none;
+    -webkit-box-shadow: none;
+    display: inline-block;
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+.alert h4:before {
+	background: url("../img/sprite_sorriso.png") no-repeat;
+	width: 24px;
+	height:	24px;
+	content: "";
+	position: absolute;
+	top: 22px;
+}
+
+.st-field .alert:before {
+	background: url("../img/sprite_sorriso.png") no-repeat;
+	width: 24px;
+	height:	24px;
+	content: "";
+	position: absolute;
+	top: 15px;
+}
+
+.alert h4 span { 
+    padding-left: 30px;
+}
+
+.st-field .alert span { 
+    padding-left: 30px;
+    floating: left;
+}
+
+.alert.alert-success h4:before {  
+	background-position: -473px -75px;
+}
+
+.st-field .alert.alert-success:before {  
+	background-position: -473px -75px;
+}
+
+.alert.alert-info h4:before {  
+	background-position: -1606px -48px;
+}
+
+.st-field .alert.alert-info:before {  
+	background-position: -1606px -48px;
+}
+
+.alert.alert-warning h4:before {  
+	background-position: 0 -74px;
+}
+
+.st-field .alert.alert-warning:before {  
+	background-position: 0 -74px;
+}
+
+.alert.alert-danger h4:before {
+	background-position: -1580px -48px;
+}
+
+.st-field .alert.alert-danger:before {
+	background-position: -1580px -48px;
+}
+
+.modal-dialog .alert {
+    width: auto;
+}
+
+.modal-dialog .alert.alert-danger {
+    border-bottom: 0;
+}
+
+.has-error {
+    border-color: #ce1a1a;
+}
+
+.has-error:focus {
+    box-shadow: none;
+    -webkit-box-shadow: none;
+    border-color: #ce1a1a;
+}
+
+.has-error-display {
+    border-color: #ce1a1a;
+    display:initial;
+}
+
+.has-error-display:focus {
+    display:initial;
+    box-shadow: none;
+    -webkit-box-shadow: none;
+    border-color: #ce1a1a;
+}
+
+/**************************************************************************************************
+ * The language links.
+ *************************************************************************************************/
+.st-languages {
+    text-align: center;
+    border-top: 1px solid #ddd;
+    padding-top: 20px;
+    margin-bottom: 20px;
+}
+
+.st-language {
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+/**************************************************************************************************
+ * Special classes for the login flows.
+ *************************************************************************************************/
+.st-login h1 {
+    font-weight: 900;
+    font-size: 40px;
+    letter-spacing: -0.4px;
+    padding-top: 50px;
+    padding-bottom: 30px;
+    color: #25408F;
+    border-bottom: 1px solid #c0c0c0;
+    margin-top: 0;
+    margin-bottom: 30px;
+}
+
+.st-login h2  {
+    font-weight: 900;
+    font-size: 18px;
+    color: #25408F;
+    margin-top: 0px;
+    margin-bottom: 30px;
+}
+
+.st-login h3 {
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 2px;
+}
+
+/**************************************************************************************************
+ * Formatting Classes
+ *************************************************************************************************/
+
+/* --------------------------------------------------------------------------------------------- */
+/* st-field-row adjust links & buttons on the same row as input fields so everything lines up.   */
+.st-field-row .btn-primary {
+    margin-top: 38px;
+}
+
+.st-field-row a {
+	display: inline-block;
+    margin-top: 42px;
+}
+
+/* --------------------------------------------------------------------------------------------- */
+/* st-vertical-links adds a display: block to the link elements.                                 */
+.st-vertical-links a {
+    display: block;
+}
+
+/* --------------------------------------------------------------------------------------------- */
+/* Adds space to the left side of the element.                                                   */
+.st-left-space {
+    padding-left: 10px;
+}
+
+/* --------------------------------------------------------------------------------------------- */
+/* Creates a bulleted list.                                                                      */
+.st-bullet {
+    display: list-item;
+    margin-left: 10px;
+    line-height: 2;  
+}
+
+/* --------------------------------------------------------------------------------------------- */
+/* Adds a border to the bottom of the element.                                                   */
+.st-border-bottom {
+    border-bottom: 1px solid #c0c0c0;
+    margin-bottom: 30px;
+    padding-bottom: 10px;
+}
+
+/* --------------------------------------------------------------------------------------------- */
+/* Adds a border to the bottom of the element with smaller size                                  */
+.st-border-bottom-sm {
+    border-bottom: 1px solid #c0c0c0;
+}
+
+/* --------------------------------------------------------------------------------------------- */
+/* Adds a border to the top of the element.                                                      */
+.st-border-top {
+    border-top: 1px solid #c0c0c0;
+    margin-top: 30px;
+    padding-top: 10px;
+}
+
+/* --------------------------------------------------------------------------------------------- */
+/* Adds additional spacing above the element.                                                    */
+.st-spacing-top {
+    padding-top: 30px;
+}
+
+/* --------------------------------------------------------------------------------------------- */
+/* Adds additional spacing to right the element.                                                    */
+.st-margin-right10 {
+	margin-right: 10px;
+}
+
+/* No padding left */
+.no-padding-left {
+	padding-left: 0px !important;
+}
+
+/* --------------------------------------------------------------------------------------------- */
+/* Adds additional spacing below the element.                                                    */
+.st-spacing-bottom {
+    padding-bottom: 30px;
+}
+
+.st-error {
+	font-size: 14px;
+	color: #FF0000;
+}
+
+.st-print-show {
+	display: none !important;
+}
+
+
+/**************************************************************************************************
+ * Impersonation
+ *************************************************************************************************/
+
+div.impersonation {
+	background: none repeat scroll 0 0 red;
+	position: fixed;
+	opacity: 0.75;
+	z-index: 1000;
+	padding: 0px;
+	text-align: center;
+	overflow: hidden;
+	-webkit-box-sizing: content-box;
+	-moz-box-sizing: content-box;
+	box-sizing: content-box
+}
+div.impersonation.top, div.impersonation.bottom {
+	height: 20px;
+	left: 0px;
+	right: 0px;
+}
+div.impersonation.left, div.impersonation.right {
+	width: 20px;
+	top: 24px;
+	bottom: 24px;
+}
+div.impersonation.top {
+	top: 0px;
+}
+div.impersonation.bottom {
+	bottom: 0px;
+	border-top: none;
+}
+div.impersonation.left {
+	left: 0px;
+}
+div.impersonation.right {
+	right: 0px;
+}
+div.impersonation.top {
+	border-top: darkred solid 4px;
+	border-left: darkred solid 4px;
+	border-right: darkred solid 4px;
+}
+div.impersonation.bottom {
+	border-bottom: darkred solid 4px;
+	border-left: darkred solid 4px;
+	border-right: darkred solid 4px;
+}
+div.impersonation.left {
+	border-left: darkred solid 4px;
+}
+div.impersonation.right {
+	border-right: darkred solid 4px;
+}
+.impersonation span {
+	color: black;
+	display: inline-block;
+	font-weight: bolder;
+	opacity: 1;
+	padding-top: 2px;
+}
+
+
+/**************************************************************************************************
+ * Elements inside elements (checkboxes/radio buttons with input fields in their items.)
+ *************************************************************************************************/
+.custom-radio {
+    vertical-align: top;
+}
+
+.st-radio-text .st-embedded,
+.st-checkbox-text .st-embedded {
+    margin-right: 8px;
+    display: inline-block;
+    position: relative;
+    top: -4px;    
+}
+
+.st-radio-text .st-embedded select,
+.st-checkbox-text .st-embedded select {
+    width: 150px;
+}
+
+
+/**************************************************************************************************
+ * Responsive
+ *************************************************************************************************/
+ @media (min-width: 768px) {
+    .st-logo-img {
+		display: none !important;
+	    width: 200px;
+		height: 80px;
+	    display: inline-block;
+	    background-size: 100% 100%;	    
+    }
+
+    .st-logo-img.admin {
+	    //background: url("../img/sprite_sorriso.png") no-repeat 0 0;
+      background: url("../img/myLogo.png") no-repeat 0 0;
+		  width: 200px;
+	    height: 57px;    
+    }
+	
+    input.btn,
+	button.btn,
+	a.btn  {
+        min-width: 160px;
+    }
+}
+
+@media (max-width: 767px) {
+	footer .st-copyright {
+		float: left;
+	}
+}
+
+/**************************************************************************************************
+ * Surcharge , to hide or show
+ *************************************************************************************************/
+.hide-surcharge .conditional-on-surcharge {
+         display: none;
+}
+
+/**************************************************************************************************
+ * Well
+ *************************************************************************************************/
+.well {
+	margin: 10px;
+	padding: 10px;
+	background-image: linear-gradient(to bottom,#e8e8e8 0,#f5f5f5 100%);
+	background-repeat: repeat-x;
+	border-color: #dcdcdc;
+	box-shadow: inset 0 1px 3px rgb(0 0 0 / 5%), 0 1px 0 rgb(255 255 255 / 10%);
+	border-radius: 3px;
+	background-color: #f5f5f5;
+    border: 1px solid #e3e3e3;
+}
+
+/**************************************************************************************************
+ * Date picker
+ *************************************************************************************************/
+.ui-datepicker {
+	/* Set to 4 so it appears above page navigation. */
+	z-index: 4 !important;
+}

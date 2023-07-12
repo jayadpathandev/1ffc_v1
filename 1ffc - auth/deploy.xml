@@ -51,20 +51,23 @@
 	<!-- Copy the 1FFC files common across all applications. -->
 	<target name="-common" depends="-init, -base">
 
-		<copy todir="deploy/${app}">
+		<copy todir="deploy/${app}" overwrite="true">
             <fileset dir="../1ffc - common" includes="linked-root/**/*"/>            
         </copy>
 
     	<!-- Duplicate the common linked-root for the b2c and admin login flows -->
-    	<copy todir="deploy/${app}/linked-root/b2c">  
+    	<copy todir="deploy/${app}/linked-root/b2c" overwrite="true">  
     		<fileset dir="../1ffc - common/linked-root" includes="**/*.*"/>
     	</copy>    	
-    	<copy todir="deploy/${app}/linked-root/csr">
+    	<copy todir="deploy/${app}/linked-root/csr" overwrite="true">
     		<fileset dir="../1ffc - common/linked-root" includes="**/*.*"/>
     	</copy>
 
 	</target>
 	
     <target name="deploy" depends="-init, -base, -common">
+		<copy todir="deploy/${app}" overwrite="true">
+			<fileset dir="." includes="layout-pages/**/*"/>
+        </copy>
     </target>
 </project> 
