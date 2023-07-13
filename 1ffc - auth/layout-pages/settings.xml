@@ -16,14 +16,15 @@
     			<header>
 	            	<div class="container">
 		               	<div class="row">
-		               		<div class="col-md-12">
-				    			<div class="st-logo-container">
-						            <a href="http://www.sorrisotech.com" class="st-logo-img" tabindex="-1">
-						            </a>
-					            </div>
-							</div>
-						</div>
-					</div>
+		               		<div class="col-6 col-sm-5 col-md-4 col-lg-3 col-xxl-2">
+								<div id="header-logo">								   
+					    			<div class="st-logo-container">
+							            <a href="http://www.sorrisotech.com" class="st-logo-img" tabindex="-1"></a>
+				            		</div>
+				            	</div>
+			            	</div>
+			            </div>
+		            </div>
 	            </header>
     		]]>
     	</banner>
