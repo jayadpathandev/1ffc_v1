@@ -16,12 +16,16 @@
     			<header>
 	            	<div class="container">
 		               	<div class="row">
-		               		<div class="col-md-12">
-				    			<div class="st-logo-container">
-						            <a href="http://www.sorrisotech.com" class="st-logo-img" tabindex="-1"></a>
-			            		</div>
-			            		<div id="header_user_profile"/>
+		               		<div class="col-6 col-sm-5 col-md-4 col-lg-3 col-xxl-2">
+								<div id="header-logo">								   
+					    			<div class="st-logo-container">
+							            <a href="http://www.sorrisotech.com" class="st-logo-img" tabindex="-1"></a>
+				            		</div>
+				            	</div>
 			            	</div>
+			            	<div class="col-6 col-sm-7 col-md-8 col-lg-9 col-xxl-10">
+			            		<div id="header_user_profile"/>
+							</div>
 			            </div>
 		            </div>
 	            </header>
@@ -173,7 +177,7 @@
             </header>
             <body>
                 <content>collapse navbar-collapse</content>
-                <class>navbar-nav me-auto mb-2 mb-lg-0</class>
+                <class>navbar-nav ms-auto mb-2 mb-lg-0</class>
             </body>
             <item>
                 <class>nav-item</class>

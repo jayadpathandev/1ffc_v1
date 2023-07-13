@@ -9,6 +9,7 @@
 html {
 	height: 100%;
 }
+
 body {
     font-family: 'Myriad Pro Regular',Helvetica,sans-serif;
     font-size: 16px;
@@ -23,30 +24,38 @@ body {
 header {
 	background-image: linear-gradient(180deg,#25408f,#1c316e);
     width: 100%;
-	height: 143px;
+	height: 126px;
     float: left;
-}
-
-header .container .row {
-	height: 143px;
-	align-items: center;
 }
 
 header .st-banner-links {
     float: right;
-    padding-top: 25px;
 }
+
 header .st-banner-links button {
-    font-weight: 700;
-    color: #25408F;
+    font-weight: bold;
+    color: #fff;
     text-transform: uppercase;
+    background: transparent;
+    border: none;
+    padding-top: 10px;
+    padding-bottom: 6px;
+}
+
+header .st-banner-links button:hover, header .st-banner-links button.show {
+	color:            #25408F;
+	background-color: #fff;
+	transform: none;
+}
+header .st-banner-links .dropdown-menu {
+	min-width: 160px
 }
 
 header .st-logo-container {
 	background: url("../img/1FFC Logo.webp") no-repeat 0 0;
 	background-size: 185px 80px;
 	height: 80px;
-	margin-top: 0px;
+	margin-top: 23px;
 }
 
 .st-logo-img {
@@ -58,6 +67,11 @@ header .st-logo-container {
 /**************************************************************************************************
  * The menu
  *************************************************************************************************/
+ #main-menu nav.navbar {
+ 	background-color: transparent !important;
+ 	top: -68px;
+ }
+   
  @media (min-width: 992px) {
 	.navbar-light {
 	    width: 100%;
@@ -67,10 +81,6 @@ header .st-logo-container {
 	    padding-bottom: 0px;
 	    padding-top: 0px;
 	    box-shadow: none;
-	}
-	
-	.navbar-expand-lg .navbar-nav {
-		width: 100%
 	}
 	
 	.navbar-default .navbar-collapse {
@@ -83,10 +93,21 @@ header .st-logo-container {
 	    padding-bottom: 11px;
 	}
 	
-	.navbar-light .navbar-nav>li {
-	    text-align: center;
-	    width: 20%;
+	#main-menu .navbar-light .navbar-nav .nav-link {
+	 	color:          #FFCF01;
+	    padding-top:    10px;
+	    padding-bottom: 6px;
 	}
+	
+	#nav_main .nav-item a.active {
+		background-color: white;
+		color:            #25408F !important;
+	}
+	
+	#nav_main .nav-item a:hover {
+		background-color: white;
+		color:            #25408F !important;
+	}	
 	
 	/* Collapsed navbar */
 	.navbar-default .navbar-collapse.in .navbar-nav {
@@ -101,20 +122,19 @@ header .st-logo-container {
 	.navbar-default .navbar-collapse.in .navbar-nav>li.menuactive {
 	    width: 100%;
 	}
+
+	.navbar-light .navbar-nav>li {
+	    font-weight: bold;
+	    font-size: 20px;
+	    text-transform: uppercase;
+	    margin: 0 10px;
+	}
+
+	.navbar-light .navbar-nav>li:last-child {
+		margin-right: 0;
+	}
 }
 
-.navbar-light .navbar-nav>li {
-    font-weight: 900;
-    font-size: 20px;
-    text-transform: uppercase;
-}
-
-#nav_main .nav-item a.active {
-    background-color: #e7e7e7;
-    background-image: linear-gradient(to bottom,#dbdbdb 0,#e2e2e2 100%);
-    background-repeat: repeat-x;
-    -webkit-box-shadow: inset 0 3px 9px rgb(0 0 0 / 8%);
-}
 
 /**************************************************************************************************
  * Branding for the main area
@@ -124,10 +144,12 @@ main {
     background: #fff;
     min-height: 100%;
     height: auto !important;
-    height: 100%;
     margin-bottom: -74px;
     display:block;
-    padding-top: 80px;
+}
+
+main.has-menu {
+    margin-top:    -68px;
 }
 
 form .form-group {
@@ -870,6 +892,10 @@ a:hover, .btn-link:hover {
 
 .text-info {
 	color: #25408F !important;
+}
+
+.dropdown-item {
+	color: #25408F;
 }
 
 /**************************************************************************************************
