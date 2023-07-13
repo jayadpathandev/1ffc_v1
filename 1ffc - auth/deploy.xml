@@ -53,6 +53,7 @@
 
 		<copy todir="deploy/${app}" overwrite="true">
             <fileset dir="../1ffc - common" includes="linked-root/**/*"/>            
+			<fileset dir="../1ffc - common" includes="layout-pages/**/*"/>
         </copy>
 
     	<!-- Duplicate the common linked-root for the b2c and admin login flows -->

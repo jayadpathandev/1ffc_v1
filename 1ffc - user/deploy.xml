@@ -53,10 +53,14 @@
 
 		<copy todir="deploy/${app}" overwrite="true">
             <fileset dir="../1ffc - common" includes="linked-root/**/*"/>            
+			<fileset dir="../1ffc - common" includes="layout-pages/**/*"/>
         </copy>
 
 	</target>
 
     <target name="deploy" depends="-init, -base, -common">
+		<copy todir="deploy/${app}" overwrite="true">
+			<fileset dir="." includes="layout-pages/**/*"/>
+        </copy>
     </target>
 </project> 
