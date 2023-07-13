@@ -52,7 +52,8 @@
 	<target name="-common" depends="-init, -base">
 
 		<copy todir="deploy/${app}" overwrite="true">
-            <fileset dir="../1ffc - common" includes="linked-root/**/*"/>            
+            <fileset dir="../1ffc - common" includes="linked-root/**/*"/>
+			<fileset dir="../1ffc - common" includes="layout-pages/**/*"/>
         </copy>
 
 	</target>
