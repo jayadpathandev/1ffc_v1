@@ -24,19 +24,16 @@
 .st-login-welcome-heading {
     font-weight: 700;
     font-size: 18px;
-    color: #424242;
 }
 
 .st-login-welcome-name {
     font-weight: 700;
     font-size: 30px;
-    color: #424242;
 }
 
 .st-login-welcome-message {
     font-weight: 700;
     font-size: 16px;
-    color: #909090;
     float: left;
     width: 65%;
 }
