@@ -82,14 +82,6 @@ header .st-logout:hover {
     color: #9793F4;
 }
 
-.btn-primary:active:focus,
-.btn-primary.focus,
-.btn-primary:focus,
-.btn-primary.active,
-.btn-primary:active {
-    background: #5653A7;
-}
-
 .btn.btn-warning:hover,
 .btn.btn-warning:active,
 .btn.btn-warning:focus {
@@ -475,8 +467,7 @@ div[uib-datepicker-popup-wrap] li[ng-if="showButtonBar"] {
 .billingDashboard .mainNav a.active, 
 .billingDashboard .mainNav a:hover, 
 .billingDashboard .mainNav a:focus {
-    color: #7b77d6;
-    border-bottom: 5px solid #7b77d6;
+    border-bottom: 5px solid #25408F;
 }
 
 /* Generic styling */
@@ -484,8 +475,9 @@ div[uib-datepicker-popup-wrap] li[ng-if="showButtonBar"] {
     display: inline-block;
     padding: 0 20px 10px;
     text-align: center;
+    text-decoration: none;
     font-size: 20px;
-    color: #424242;
+    color: #25408F;
 }
 
 .paymentMenu a {
