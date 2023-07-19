@@ -633,6 +633,7 @@ table.dataTable thead .sorting:after {
 .st-payment-template-border {
 	border: solid 1px #c0c0c0;	
 	padding-left: 15px;
+	padding-top: 20px;
 }
 
 .st-payment-buttons {

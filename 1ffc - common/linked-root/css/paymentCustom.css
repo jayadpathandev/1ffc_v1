@@ -1,0 +1,39 @@
+/**************************************************************************************************
+ * Grab the application's CSS.
+ *************************************************************************************************/
+@import "brand.css";
+@import "app.css";
+
+/**************************************************************************************************
+ * Payment should be updated to include the form-control on dropdowns.
+ *************************************************************************************************/
+.form-control, .input-group .form-control {
+    max-width: 100%;
+    border: 2px solid #25408f;
+}
+
+/**************************************************************************************************
+ * CSS for PAYA hosted pages.
+ *************************************************************************************************/
+#accountform_container .accountForm {
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 18px;
+}
+
+#accountform_field_ach_sec_code {
+	display: none;
+}
+
+.accountForm.ACH {
+	width: 20em;
+}
+
+#accountform_col_1.ACH {
+	width: auto;
+	display: inline;
+}
+
+#accountform_col_2.ACH {
+	display: none;
+}
