@@ -760,9 +760,13 @@ a:hover, .btn-link:hover {
 }
 
 .btn-link.btn-cancel {
-    text-decoration: none;
-    min-width: 0 !important;
-    padding: 0;
+	color:            #25408F;
+	background-color: #FFCF01;
+	border-color:     #FFCF01;
+}
+
+.btn-link.btn-cancel:after {
+	display: none;
 }
 
 .btn-alt {
