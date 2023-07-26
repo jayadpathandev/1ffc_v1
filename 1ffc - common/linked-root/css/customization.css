@@ -792,7 +792,9 @@ table.dataTable thead .sorting:after {
 }
 
 .payment-history-eyeopen-img {
-	background: url("../img/sprite_sorriso.png") no-repeat -1658px -50px;
+	/* background: url("../img/sprite_sorriso.png") no-repeat -1658px -50px; */
+	background: url("../img/sprite_sorriso.png") no-repeat -1685px -50px;
+	/* background: url("../img/sprite_sorriso.png") no-repeat -1711px -50px; */
 	width: 24px;
 	height: 24px;
     display: inline-block;
@@ -800,14 +802,18 @@ table.dataTable thead .sorting:after {
 }
 
 .payment-history-auto-img {
-	background: url("../img/sprite_sorriso.png") no-repeat -1455px -50px;
+	/* background: url("../img/sprite_sorriso.png") no-repeat -1455px -50px; */
+	background: url("../img/sprite_sorriso.png") no-repeat -1479px -50px;
+	/* background: url("../img/sprite_sorriso.png") no-repeat -1504px -50px; */
 	width: 25px;
 	height: 25px;
     display: inline-block;
 }
 
 .payment-edit-img {
-    background: url(../img/sprite_sorriso.png) no-repeat -253px -73px;
+    /* background: url(../img/sprite_sorriso.png) no-repeat -253px -73px; */
+    background: url(../img/sprite_sorriso.png) no-repeat -273px -73px;
+    /* background: url(../img/sprite_sorriso.png) no-repeat -295px -73px; */
     width: 22px;
     height: 21px;
     display: inline-block;
@@ -815,7 +821,9 @@ table.dataTable thead .sorting:after {
 }     
 
 .payment-cancel-img {
-    background: url(../img/sprite_sorriso.png) no-repeat -153px -73px;
+    /* background: url(../img/sprite_sorriso.png) no-repeat -153px -73px; */
+    background: url(../img/sprite_sorriso.png) no-repeat -173px -73px;
+    /* background: url(../img/sprite_sorriso.png) no-repeat -193px -73px; */
     width: 23px;
     height: 25px;
     display: inline-block;
@@ -1406,33 +1414,48 @@ tbody .payment-history-channel span {
 }
 
 .payment-history-channel .st-payment-channel-icon.pay-chan-online.online:before {
-	background-position: -624px -49px;
+	/* background-position: -624px -49px; */
+	background-position: -650px -49px;
+	/* background-position: -676px -49px; */.
 	margin-left: 0;
 }
 
 .payment-history-channel .st-payment-channel-icon.pay-chan-store.store:before {
-	background-position: -1205px -49px;
+	/* background-position: -1205px -49px; */
+	background-position: -1228px -49px;
+	/* background-position: -1252px -49px; */
 }
 
 .payment-history-channel .st-payment-channel-icon.pay-chan-phone.phone:before {
-	background-position: -884px -49px;
+	/* background-position: -884px -49px; */
+	background-position: -899px -49px;
+	/* background-position: -914px -49px; */
 	width: 13px;
 }
 
 .payment-history-channel .st-payment-channel-icon.pay-chan-partner.partner:before {
-	background-position: -1075px -49px;
+	/* background-position: -1075px -49px; */
+	background-position: -1101px -49px;
+	/* background-position: -1127px -49px; */
+
 }
 
 .payment-history-channel .st-payment-channel-icon.pay-chan-check.check:before {
-	background-position: -1325px -49px;
+	/* background-position: -1325px -49px; */
+	background-position: -1351px -49px;
+	/* background-position: -1377px -49px; */
 }
 
 .payment-history-channel .st-payment-channel-icon.pay-chan-mail.mail:before {
-	background-position: -624px -49px;
+	/* background-position: -624px -49px; */
+	background-position: -650px -49px;
+	/* background-position: -676px -49px; */
 }
 
 .payment-history-channel .st-payment-channel-icon.pay-chan-other.other:before {
-	background-position: -959px -49px;
+	/* background-position: -959px -49px; */
+	background-position: -982px -49px;
+	/* background-position: -1005px -49px; */
 	width: 22px;
 }
 
