@@ -97,7 +97,7 @@
 	<classpathentry kind="lib" path="/app - auth/lib/micrometer-commons-1.10.4.jar"/>
 	<classpathentry kind="lib" path="/app - auth/lib/micrometer-observation-1.10.4.jar"/>
 	<classpathentry kind="lib" path="/app - auth/lib/mimepull-1.9.15.jar"/>
-	<classpathentry kind="lib" path="/app - auth/lib/mysql-connector-j-8.0.33.jar"/>
+	<classpathentry kind="lib" path="/app - auth/lib/mysql-connector-j-8.1.0.jar"/>
 	<classpathentry kind="lib" path="/app - auth/lib/not-yet-commons-ssl-0.3.9.jar"/>
 	<classpathentry kind="lib" path="/app - auth/lib/ntfRequest-api.jar"/>
 	<classpathentry kind="lib" path="/app - auth/lib/opensaml-2.6.4.jar"/>
@@ -105,12 +105,12 @@
 	<classpathentry kind="lib" path="/app - auth/lib/oro-2.0.8.jar"/>
 	<classpathentry kind="lib" path="/app - auth/lib/osgi-resource-locator-1.0.3.jar"/>
 	<classpathentry kind="lib" path="/app - auth/lib/payment-api-2.0.jar"/>
-	<classpathentry kind="lib" path="/app - auth/lib/persona-aaa-5.1.20230614.jar"/>
-	<classpathentry kind="lib" path="/app - auth/lib/persona-audit-5.1.20230614.jar"/>
-	<classpathentry kind="lib" path="/app - auth/lib/persona-i18n-5.1.20230614.jar"/>
+	<classpathentry kind="lib" path="/app - auth/lib/persona-aaa-5.1.20230714.jar"/>
+	<classpathentry kind="lib" path="/app - auth/lib/persona-audit-5.1.20230714.jar"/>
+	<classpathentry kind="lib" path="/app - auth/lib/persona-i18n-5.1.20230714.jar"/>
 	<classpathentry kind="lib" path="/app - auth/lib/persona-jetty.jar"/>
-	<classpathentry kind="lib" path="/app - auth/lib/persona-saml-5.1.20230614.jar"/>
-	<classpathentry kind="lib" path="/app - auth/lib/persona-service-loader-5.1.20230614.jar"/>
+	<classpathentry kind="lib" path="/app - auth/lib/persona-saml-5.1.20230714.jar"/>
+	<classpathentry kind="lib" path="/app - auth/lib/persona-service-loader-5.1.20230714.jar"/>
 	<classpathentry kind="lib" path="/app - auth/lib/poi-5.2.3.jar"/>
 	<classpathentry kind="lib" path="/app - auth/lib/poi-ooxml-5.2.3.jar"/>
 	<classpathentry kind="lib" path="/app - auth/lib/poi-ooxml-lite-5.2.3.jar"/>
