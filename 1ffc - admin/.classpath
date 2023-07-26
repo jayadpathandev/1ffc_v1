@@ -103,7 +103,7 @@
 	<classpathentry kind="lib" path="/app - admin/lib/micrometer-commons-1.10.4.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/micrometer-observation-1.10.4.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/mimepull-1.9.15.jar"/>
-	<classpathentry kind="lib" path="/app - admin/lib/mysql-connector-j-8.0.33.jar"/>
+	<classpathentry kind="lib" path="/app - admin/lib/mysql-connector-j-8.1.0.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/not-yet-commons-ssl-0.3.9.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/ntfRequest-api.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/opensaml-2.6.4.jar"/>
@@ -111,12 +111,12 @@
 	<classpathentry kind="lib" path="/app - admin/lib/oro-2.0.8.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/osgi-resource-locator-1.0.3.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/payment-api-2.0.jar"/>
-	<classpathentry kind="lib" path="/app - admin/lib/persona-aaa-5.1.20230614.jar"/>
-	<classpathentry kind="lib" path="/app - admin/lib/persona-audit-5.1.20230614.jar"/>
-	<classpathentry kind="lib" path="/app - admin/lib/persona-i18n-5.1.20230614.jar"/>
+	<classpathentry kind="lib" path="/app - admin/lib/persona-aaa-5.1.20230714.jar"/>
+	<classpathentry kind="lib" path="/app - admin/lib/persona-audit-5.1.20230714.jar"/>
+	<classpathentry kind="lib" path="/app - admin/lib/persona-i18n-5.1.20230714.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/persona-jetty.jar"/>
-	<classpathentry kind="lib" path="/app - admin/lib/persona-saml-5.1.20230614.jar"/>
-	<classpathentry kind="lib" path="/app - admin/lib/persona-service-loader-5.1.20230614.jar"/>
+	<classpathentry kind="lib" path="/app - admin/lib/persona-saml-5.1.20230714.jar"/>
+	<classpathentry kind="lib" path="/app - admin/lib/persona-service-loader-5.1.20230714.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/poi-5.2.3.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/poi-ooxml-5.2.3.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/poi-ooxml-lite-5.2.3.jar"/>
