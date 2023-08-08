@@ -36,6 +36,7 @@ header {
     float: left;
 }
 
+
 header .st-banner-links {
     float: right;
 }
@@ -70,6 +71,19 @@ header .st-logo-container {
 	display: none;
     width: 100px;
     height: 50px;
+}
+
+body.min-header header {
+	height: 40px
+}
+
+body.min-header #header-logo {
+	display: none;
+}
+
+
+body.min-header #main-menu nav.navbar {
+	display: none;
 }
 
 /**************************************************************************************************
@@ -133,14 +147,23 @@ header .st-logo-container {
 
 	.navbar-light .navbar-nav>li {
 	    font-weight: bold;
-	    font-size: 20px;
-	    text-transform: uppercase;
+	    font-size: 18px;
 	    margin: 0 10px;
 	}
 
 	.navbar-light .navbar-nav>li:last-child {
 		margin-right: 0;
 	}
+
+	/** Renew Now **/	
+	#main-menu .navbar-light .navbar-nav .nav-link.renew {
+		background-color: #FFCF01;
+	 	color: #25408F;
+	}	
+	#main-menu .navbar-light .navbar-nav .nav-link.renew:hover {
+		background-color: #ffffff;
+
+	}	
 }
 
 

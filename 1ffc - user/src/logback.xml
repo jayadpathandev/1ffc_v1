@@ -9,7 +9,8 @@
     <logger name="com" level="WARN"/>
     <logger name="org" level="WARN"/>
     <logger name="log" level="DEBUG"/>
-
+	<logger name="com.sorrisotech.app.common" level="DEBUG"/>
+	
     <root level="OFF">
         <appender-ref ref="STDOUT" />
     </root>
