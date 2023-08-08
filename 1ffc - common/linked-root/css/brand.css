@@ -86,6 +86,15 @@ body.min-header #main-menu nav.navbar {
 	display: none;
 }
 
+.phone-number {
+	padding-top: 10px;
+}
+
+#phone-number-text {
+	font-weight: bold;
+	color: white;
+}
+
 /**************************************************************************************************
  * The menu
  *************************************************************************************************/
@@ -211,6 +220,7 @@ footer {
     font-size: 		  12px;
     font-weight:      bold;
     text-align:       center;
+    line-height: 	  28px;
 }
 
 /**************************************************************************************************
