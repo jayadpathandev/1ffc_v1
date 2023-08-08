@@ -62,5 +62,10 @@
 		<copy todir="deploy/${app}" overwrite="true">
 			<fileset dir="." includes="layout-pages/**/*"/>
         </copy>
+    	<copy todir="deploy/${app}" overwrite="true">
+    		<fileset dir="src-gen" includes="admin.xml"/>
+    		<fileset dir="src-gen" includes="usecases/*.xml"/>
+    		<fileset dir="src-gen" includes="internationalization/*.properties"/>
+    	</copy>
     </target>
 </project> 
