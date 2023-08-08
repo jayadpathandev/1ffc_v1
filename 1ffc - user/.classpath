@@ -142,7 +142,7 @@
 	<classpathentry kind="lib" path="/app - user/lib/serviceSysConfig.jar"/>
 	<classpathentry kind="lib" path="/app - user/lib/serviceTagManagement.jar"/>
 	<classpathentry kind="lib" path="/app - user/lib/serviceUserSearch.jar"/>
-	<classpathentry kind="lib" path="/app - user/lib/serviceUtils.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/serviceUtils.jar" sourcepath="/home/josh/src/tipV2/core_v1/service - utils/src"/>
 	<classpathentry kind="lib" path="/app - user/lib/serviceVideo.jar"/>
 	<classpathentry kind="lib" path="/app - user/lib/snakeyaml-2.0.jar"/>
 	<classpathentry kind="lib" path="/app - user/lib/SparseBitSet-1.2.jar"/>
@@ -177,5 +177,6 @@
 	<classpathentry kind="lib" path="/app - user/lib/xmlbeans-5.1.1.jar"/>
 	<classpathentry kind="lib" path="/app - user/lib/xmlsec-3.0.2.jar"/>
 	<classpathentry kind="lib" path="/app - user/lib/xmltooling-1.4.4.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/app - user"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
