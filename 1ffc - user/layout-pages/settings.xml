@@ -23,7 +23,10 @@
 				            		</div>
 				            	</div>
 			            	</div>
-			            	<div class="col-6 col-sm-7 col-md-8 col-lg-9 col-xxl-10">
+			            	<div class="col-3 col-sm-5 col-md-6 col-lg-8 col-xxl-9 text-center phone-number">
+			            		<span id="phone-number-text">###-###-####</span>
+							</div>
+			            	<div class="col-3 col-sm-2 col-md-2 col-lg-1">
 			            		<div id="header_user_profile"/>
 							</div>
 			            </div>
@@ -70,9 +73,16 @@
     <footer>
    		<![CDATA[
    			<footer>
-	            <p>
-					Copyright &copy; 2023 1st Franklin Financial Corporation All Rights Reserved.
-				</p>
+				<div class="max-wrap">
+					  <p style="font-size: 12px; margin-bottom: 0px;">
+						  <b>Copyright © 2012 – 2023 1st Franklin Financial Corporation All Rights Reserved.</b>
+					  </p>
+					  <p>
+						  <span><a style="font-size: 12px; color: #ffcf0a;" href="#">Online Services Agreement</a></span>
+						  <span style="padding: 0px 10px;"> | </span>
+						  <span><a style="font-size: 12px; color: #ffcf0a;" href="#">Privacy Policy</a></span>
+					  </p>
+			     </div>
             </footer>
    		]]>
     </footer>

@@ -6,7 +6,7 @@ application [
 	initialUseCase saml
 
 	menu main [
-		item appOverview ("{Overview}", overview) [
+		item appOverview ("{Account Summary}", overview) [
 			class: "menu"			
 		]
 		
@@ -14,7 +14,7 @@ application [
 			class: "menu"
 		]
 		
-	    item appDashboard ("{Correspondence}", document) [
+	    item appDashboard ("{Statements}", document) [
 			class: "menu"			
 		]
 			
