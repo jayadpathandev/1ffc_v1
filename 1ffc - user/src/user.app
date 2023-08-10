@@ -14,11 +14,11 @@ application [
 			class: "menu"
 		]
 		
-	    item appDashboard ("{Statements}", document) [
+	    item appDashboard ("{Statements & Letters}", document) [
 			class: "menu"			
 		]
 			
-		item menuPayment("{Payment}", payment) [
+		item menuPayment("{Make a Payment}", payment) [
 			class: "menu"
 	    ]	    
 
