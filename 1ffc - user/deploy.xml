@@ -67,5 +67,8 @@
     		<fileset dir="src-gen" includes="usecases/*.xml"/>
     		<fileset dir="src-gen" includes="internationalization/*.properties"/>
     	</copy>
+    	<copy todir="deploy/${app}" overwrite="true">
+    		<fileset dir="." includes="linked-root/**/*.*"/>
+    	</copy>
     </target>
 </project> 

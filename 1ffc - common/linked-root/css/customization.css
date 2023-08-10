@@ -1162,12 +1162,6 @@ f
     padding-bottom: 20px;
 }
 
-.st-payment-summary {   
-    border: 1px solid #c0c0c0;
-    border-radius: 3px;
-	margin-bottom: 70px;
-}
-
 .st-payment-summary-heading {
 	padding: 20px;
 	border-bottom: 1px solid #c0c0c0;
@@ -1895,11 +1889,7 @@ div#adminCreateCompany_content .st-field .st-field-label {
 	.st-buttons .btn {
 		margin-bottom: 20px;
 	}
-	
-	.float-end {
-		float: left !important;
-	}
-	
+		
 	#regBillingInfo_fieldRow .form-control,
 	#paymentWallet_paymentWalletForm .form-control {
 		margin-bottom: 0px;

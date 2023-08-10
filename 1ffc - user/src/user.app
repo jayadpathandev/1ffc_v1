@@ -56,6 +56,7 @@ application [
 		
 		// 1FFC 
 		fffcRenewNow
+		fffcViewDocument
  	]
  	
  	roles [
