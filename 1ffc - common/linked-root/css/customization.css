@@ -102,7 +102,6 @@
 
 .st-dashboard-summary-label {
     color: #909090;
-    display: block;
 }
 
 .st-dashboard-summary-value {
@@ -124,6 +123,10 @@
     display: block;
     margin-top: 0;
     margin-bottom: 30px;
+}
+
+.st-advanced-search-linksearch {
+	display: none;
 }
 
 form.st-doc-search .form-group {
