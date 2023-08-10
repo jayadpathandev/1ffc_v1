@@ -1,19 +1,19 @@
 <#setting date_format="yyyyMMdd">		
 
-<div id="payment_summary" class="st-payment-summary border border-3 border-dark p-3">
+<div class="st-payment-summary border border-5 rounded-3 border-primary p-3">
 
 	<div class="row">
-		<div class="col-8">
+		<div class="col-10">
 			<div class="mb-2">
 				<span>Account #:</span> <span>${displayAccount}</span>
 			</div>
 			<div>
-				<a class="me-4" target="_blank" href="fffcViewDoc?sAccount=${bill.internalAccountNo}&sDate=${bill.dateNum?c}&sStreamId=${bill.stream}&sDocId=${bill.id?c}&sExtDocId=${bill.extDocId}">View bill</a>
-				<a class="me-4" href="startPaymentHistory">Transaction History</a>
+				<a class="me-4" target="_blank" href="fffcViewDoc?sAccount=${bill.internalAccountNo}&sDate=${bill.dateNum?c}&sStreamId=${bill.stream}&sDocId=${bill.id?c}&sExtDocId=${bill.extDocId}">View statement</a>
+				<a class="me-4 text-nowrap" href="startPaymentHistory">Transaction History</a>
 				<a class="text-nowrap" href="startAutomaticPayment">Set&nbsp;up&nbsp;automatic&nbsp;payments</a>				
 			</div>
 		</div>
-		<div class="col-4">
+		<div class="col-2">
 			<a class="btn btn-primary float-end" href="startMakePayment">PAY THIS BILL</a>
 		</div>
 	</div>
@@ -28,29 +28,27 @@
 		</div>
 	</#if>
 	
-	<h2 class="mt-3 pt-3 border-top border-dark">
-		${dueDate}
-		<span class="float-end">${formatUtils.formatAmount(amount?number)}</span>
+	<h2 class="mt-3 pt-3 border-top border-dark row">
+		<div class="col">
+			$10,0000 <!-- Need to pull loan amount this from bill.flex? (Don't know which flex field.) -->
+		</div>
+		<div class="col text-center">
+			${dueDate}
+		</div>
+		<div class="col">
+			<span class="float-end">${formatUtils.formatAmount(amount?number)}</span>
+		</div>
 	</h2>
 	
-	<div class="mb-3 pb-3 border-bottom border-dark row">
+	<div class="row">
 		<div class="col">
+			Personal loan amount
+		</div>
+		<div class="col text-center">
 			Monthly payment due date
 		</div>
 		<div class="col">
 			<span class="float-end">Monthly payment amount</span>
-		</div>
-	</div>
-	
-	<div class="row">
-		<div class="col-4">
-			Personal loan amount $10,0000 <!-- Need to pull this from bill.flex? (Don't know which flex field.) -->
-		</div>
-		<div class="col-4 text-center">
-			Principle Paid $8,0000 <!-- Need to pull this from bill.flex? (Don't know which flex field.) -->
-		</div>
-		<div class="col-4">
-			Principle owed $2,0000 <!-- Need to pull this from bill.flex? (Don't know which flex field.) -->
 		</div>
 	</div>
 </div>

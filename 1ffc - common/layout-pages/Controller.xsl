@@ -85,8 +85,7 @@
                 <xsl:if test="group/groupwrapper[@section='sti_menu']">
 	                <div id="main-menu" class="container">
 						<div class="row">
-							<div class="col-6 col-sm-5 col-md-4 col-lg-3 col-xxl-2"/>
-							<div class="col-6 col-sm-7 col-md-8 col-lg-9 col-xxl-10">
+							<div class="col-12 offset-lg-3 offset-xxl-2 col-lg-9 col-xxl-10">
 								<xsl:apply-templates select="group/groupwrapper[@section='sti_menu']"/>
 							</div>
 						</div>
