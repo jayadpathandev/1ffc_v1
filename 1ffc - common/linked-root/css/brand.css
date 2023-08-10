@@ -103,6 +103,7 @@ body.min-header #main-menu nav.navbar {
 #main-menu nav.navbar {
  	background-color: transparent !important;
  	top: -68px;
+ 	padding-bottom: 55px;
 }
 
 .navbar-light .navbar-toggler {
@@ -135,6 +136,10 @@ body .navbar-light .navbar-nav .nav-link, .navbar-light .navbar-nav .show>.nav-l
 
 /** Menu branding on wide (desktop) screens. **/    
 @media (min-width: 992px) {
+	#main-menu nav.navbar {
+		padding-bottom: 0px;
+	}
+	
 	.navbar-nav {
 		margin-top: 0px;
 		background-color: transparent;
