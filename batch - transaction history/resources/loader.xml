@@ -1,0 +1,286 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" 
+       xmlns:batch="http://www.springframework.org/schema/batch"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+	<!-- ********************************************************************************** -->
+	<!-- ******** This file contains bean definitions that are specific to and        ***** -->
+	<!-- ******** required by the bill loader job                                     ***** -->
+	<!-- ********************************************************************************** -->
+	<!-- ********************************************************************************** -->
+	<!-- ******** Import common definitions like dataSource, jdbcTemplate,            ***** -->
+	<!-- ******** jobRepository, simpleStep.                                          ***** -->
+	<!-- ********************************************************************************** -->
+	<import resource="classpath:common-context.xml"/>		
+    <import resource="classpath:transactionhistory/BillFileMetaDataDao.xml"/>
+		
+	<!-- ******************************************************************* -->
+	<!-- ********  Load properties for the following:             ********** -->
+	<!-- ********         Database connection details             ********** -->
+	<!-- ********         BillLoaderJob configuration details     ********** -->
+	<!-- ******************************************************************* -->
+	
+	<bean id="propertyConfigurer" 
+       class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
+       <property name="propertySources">
+       <bean class="com.sorrisotech.utils.ConfigFactory">
+            <property name="sources">
+                <list>                    
+                    <bean class="com.sorrisotech.utils.ConfigFile">
+                        <constructor-arg value="false"/>
+                        <constructor-arg value="db/common.properties"/>
+                        <property name="cacheTimeout" value="10"/>
+                    </bean>
+                    <bean class="com.sorrisotech.utils.ConfigFile">
+                        <constructor-arg value="false"/>
+                        <constructor-arg value="common/user_config.properties"/>
+                        <property name="cacheTimeout" value="10"/>
+                    </bean>
+                    <bean class="com.sorrisotech.utils.ConfigFile">
+                        <constructor-arg value="false"/>
+                        <constructor-arg value="common/file_path.properties"/>
+                        <property name="cacheTimeout" value="10"/>
+                    </bean>
+                    <bean class="com.sorrisotech.utils.ConfigFile">
+                        <constructor-arg value="false"/>
+                        <constructor-arg value="loader.properties"/>
+                        <property name="cacheTimeout" value="10"/>
+                    </bean>
+                    <bean class="com.sorrisotech.utils.ConfigDefine"/>
+                </list>
+            </property>
+        </bean>
+       </property>
+   </bean>
+   
+	<!-- ********************************************************************************** -->
+	<!-- ********************************************************************************** -->
+	<!-- ******** TransactionLoaderJob configuration. It consists of                  ***** -->
+	<!-- ******** STAXReader        - Reads the Input XML file and stores the content ***** -->
+	<!-- ********                     of an invoice in a Java Object.                 ***** -->
+	<!-- ******** JdbcWriter        - JdbcWriter writes to a database.                ***** -->
+	<!-- ********************************************************************************** -->
+	<batch:job id="transactionHistoryLoaderJob" parent="simpleJob">
+		<batch:step id="scannerStep">
+			<batch:tasklet ref="fileScanner">
+				<batch:listeners>
+					<batch:listener ref="promotionListener"/>
+				</batch:listeners>
+			</batch:tasklet>
+			<batch:next on="FAILED" to="updateFailStep"/>
+			<batch:end on="NOOP"/>
+			<batch:next on="COMPLETED" to="processorStep"/>
+		</batch:step>	
+		<batch:step id="processorStep">
+			<batch:tasklet>
+				<batch:chunk 
+					reader="transactionReader" 
+					processor="transactionProcessor" 
+					writer="transactionWriter" commit-interval="${loader.chunk.commit.interval}"/>
+			</batch:tasklet>
+			<batch:next on="FAILED" to="updateFailStep"/>
+			<batch:next on="COMPLETED" to="updateSuccessStep"/>
+		</batch:step>		        
+		<batch:step id="updateFailStep" next="sendFailedNotificationStep">
+			<batch:tasklet ref="updateFailStepTasklet"/>
+		</batch:step>
+		<batch:step id="updateSuccessStep" next="sendSuccessNotificationStep">
+			<batch:tasklet ref="updateSuccessStepTasklet"/>
+		</batch:step>
+		<batch:step id="sendFailedNotificationStep">
+			<batch:tasklet ref="failureNotificationTasklet"/>
+		</batch:step>
+		<batch:step id="sendSuccessNotificationStep">
+			<batch:tasklet ref="successNotificationTasklet"/>
+			<batch:next on="COMPLETED" to="scannerStep"/>
+		</batch:step>		
+	</batch:job>
+	
+	<!-- ********************************************************************************** -->
+	<!-- ******** Promotes the properties with the specified keys to the job execution  *** -->
+	<!-- ******** context. The properties have to be saved first in the execution       *** -->
+	<!-- ******** context of the Step on which the listener is defined                  *** -->
+	<!-- ********************************************************************************** -->
+	<bean id="promotionListener" class="org.springframework.batch.core.listener.ExecutionContextPromotionListener">
+		<property name="keys">
+			<list>
+				<value>FILE_ID</value>
+				<value>FILE_PATH</value>
+				<value>FILE_NAME</value>
+			</list>			
+		</property>
+		<property name="statuses">
+			<list>
+				<value>COMPLETED</value>
+			</list>			
+		</property>
+	</bean>	
+    <bean id="promotionStreamAndPay" class="org.springframework.batch.core.listener.ExecutionContextPromotionListener">
+        <property name="keys">
+            <list>                
+                <value>PAYMENT_PROVIDER</value>
+            </list>         
+        </property>
+        <property name="statuses">
+            <list>
+                <value>COMPLETED</value>
+            </list>         
+        </property>
+    </bean>
+		
+	<!-- ********************************************************************************** -->
+	<!-- ******** A class that updates the status of the file processed by the         **** -->
+	<!-- ******** Transaction LoaderJob to a status-state                                      **** -->
+	<!-- ******** reflecting that the file was not successfully processed. If move=true,*** -->
+	<!-- ******** the processed file will be moved to an error destination directory   **** -->
+	<!-- ******** specified by destinationDirPath.                                     **** -->
+	<!-- ******** fileMetaDao is the bean that handles the update of the database for  **** -->
+	<!-- ******** the bill files.                                                      **** -->
+	<!-- ********************************************************************************** -->
+	<bean id="updateFailStepTasklet" class="com.sorrisotech.batch.fffc.transaction.loader.FileStatusUpdateTasklet" scope="step">
+		<property name="status" value="FAILED"/>
+		<property name="fileMetaDataDao" ref="billFileMetaDataDao"/>
+		<property name="sourceDirPath" value="#{jobExecutionContext[FILE_PATH]}"/>
+		<property name="sourceFileName" value="#{jobExecutionContext[FILE_NAME]}"/>
+		<property name="destinationDirPath" value="${thlj.dir.error}"/>
+		<property name="move" value="${move.file.flag}"/>		
+	</bean>
+	
+	<!-- ********************************************************************************** -->
+	<!-- ******** A class that updates the status of the file processed by the         **** -->
+	<!-- ******** Transaction historyLoader Job to a status-state                      **** -->
+	<!-- ******** reflecting that the file was successfully processed. If move=true,   **** -->
+	<!-- ******** the processed file will be moved to an archive destination directory **** -->
+	<!-- ******** specified by destinationDirPath                                      **** -->
+	<!-- ******** fileMetaDao is the bean that handles the update of the database for  **** -->
+	<!-- ******** the bill files.                                                      **** -->
+	<!-- ********************************************************************************** -->
+	<bean id="updateSuccessStepTasklet" class="com.sorrisotech.batch.fffc.transaction.loader.FileStatusUpdateTasklet" scope="step">
+		<property name="status" value="PUBLISHED"/>
+		<property name="fileMetaDataDao" ref="billFileMetaDataDao"/>
+		<property name="sourceDirPath" value="#{jobExecutionContext[FILE_PATH]}"/>
+		<property name="sourceFileName" value="#{jobExecutionContext[FILE_NAME]}"/>
+		<property name="destinationDirPath" value="${thlj.dir.archive}"/>
+		<property name="move" value="${move.file.flag}"/>		
+	</bean>
+	
+	<!-- ********************************************************************************** -->
+	<!-- **** Notification tasklet used to send out notification(s) informing failure   *** -->
+	<!-- **** of the job.                                                               *** -->
+	<!-- ********************************************************************************** -->
+	<bean id="failureNotificationTasklet" class="com.sorrisotech.batch.common.notify.NotificationTasklet">
+		<property name="enabled" value="${notification.onFailure.enabled}"/>
+		<property name="notificationType" value="${batch.failure}"/>
+		<property name="destination" value="${notification.onFailure.emails}"/>
+		<property name="locale">
+			<util:constant static-field="java.util.Locale.US"/>
+		</property>
+		<property name="parameters">
+			<map>
+				<entry key="jobName" value="${job.name}"/>
+			</map>
+		</property>
+	</bean>
+	
+	<!-- ********************************************************************************** -->
+	<!-- **** Notification tasklet used to send out notification(s) informing           *** -->
+	<!-- **** successful completion of the job.                                         *** -->
+	<!-- ********************************************************************************** -->
+	<bean id="successNotificationTasklet" class="com.sorrisotech.batch.common.notify.NotificationTasklet">
+		<property name="enabled" value="${notification.onSuccess.enabled}"/>
+		<property name="notificationType" value="${batch.success}"/>
+		<property name="destination" value="${notification.onSuccess.emails}"/>
+		<property name="locale">
+			<util:constant static-field="java.util.Locale.US"/>
+		</property>
+		<property name="parameters">
+			<map>
+				<entry key="jobName" value="${job.name}"/>
+			</map>
+		</property>
+	</bean>
+	
+	<!-- ********************************************************************************** -->
+	<!-- ******** Scanner class that checks the database for files with current_status **** -->
+	<!-- ******** is equal to currentStatus. The scanner task will update the status   **** -->
+	<!-- ******** of the file to the value specified by newStatus before returning the **** -->
+	<!-- ******** the file.                                                            **** -->
+	<!-- ********************************************************************************** -->
+	<bean id="fileScanner" class="com.sorrisotech.batch.fffc.transaction.loader.DbScanner">
+		<property name="currentStatus" value="READY_FOR_PROCESSING"/>
+		<property name="newStatus" value="LOADING"/>
+		<property name="mostRecent" value="TRUE"/>
+		<property name="fileMetaDataDao" ref="billFileMetaDataDao"/>
+		<property name="processFailedFilesFirst" value="FALSE"/>
+		<property name="processFailedFiles" value="FALSE"/>
+		<property name="dbScannerParams" ref="scannerParams"/>
+	</bean>
+	<bean id="scannerParams" class="com.sorrisotech.batch.fffc.transaction.loader.DbScannerParamsBean">
+		<property name="filenamePattern" value="${th.loader.pattern}"/>
+		<property name="timeDelay" value="${dbscanner.time.delay}"/>
+	</bean>
+    
+	<!-- ********************************************************************************** -->
+	<!-- ******** Read, process and write xml file header.                            ***** -->	
+	<!-- ********************************************************************************** -->	
+	
+	<bean id="headerReader" class="org.springframework.batch.item.xml.StaxEventItemReader" scope="step">
+		<property name="fragmentRootElementName" value="FileHeader"/>
+		<property name="resource" value="file:///#{jobExecutionContext[FILE_PATH]}/#{jobExecutionContext[FILE_NAME]}"/>
+		<property name="unmarshaller" ref="transactionMarshaller"/>
+	</bean>	
+	
+	<!-- ********************************************************************************** -->
+	<!-- ******** Read, process and write xml transactions.                           ***** -->	
+	<!-- ********************************************************************************** -->	
+	
+	<bean id="transactionReader" class="org.springframework.batch.item.xml.StaxEventItemReader" scope="step">
+		<property name="fragmentRootElementName" value="TransactionRecord"/>
+		<property name="resource" value="file:///#{jobExecutionContext[FILE_PATH]}/#{jobExecutionContext[FILE_NAME]}"/>
+		<property name="unmarshaller" ref="transactionMarshaller"/>
+	</bean>	
+		
+	<bean id="transactionProcessor" class="com.sorrisotech.batch.fffc.transaction.loader.transformer.XmlObjectToTransactionTransformer"/>      
+	
+    <bean id="transactionWriter" class="com.sorrisotech.batch.fffc.transaction.loader.writer.TransactionDetailsWriter">        
+        <property name="dataSource" ref="dataSource"/>
+        
+        <property name="insertHistory">
+            <value>
+                INSERT INTO fffc_transactions (
+ 				 online_id, description, "date", pmt_group, 
+  				account, amount
+				) 
+				VALUES 
+  				(
+   				 :onlineId, :description, :created_date, :pmtGroup, 
+   				 :account, :amount
+  			    )
+            </value>
+        </property>
+    </bean>
+     
+	<!-- ********************************************************************************** -->
+	<!-- ******** Read, process and write xml footer.                                 ***** -->	
+	<!-- ********************************************************************************** -->
+	
+	<bean id="footerReader" class="org.springframework.batch.item.xml.StaxEventItemReader" scope="step">
+		<property name="fragmentRootElementName" value="Footer"/>
+		<property name="resource" value="file:///#{jobExecutionContext[FILE_PATH]}/#{jobExecutionContext[FILE_NAME]}"/>
+		<property name="unmarshaller" ref="transactionMarshaller"/>
+	</bean>		
+			
+	<!-- ********************************************************************************** -->
+	<!-- ******** Jaxb2Marshaller.                                                    ***** -->	
+	<!-- ********************************************************************************** -->
+		
+	<bean id="transactionMarshaller" class="org.springframework.oxm.jaxb.Jaxb2Marshaller">
+		<property name="classesToBeBound"
+			value="com.sorrisotech.batch.fffc.transaction.loader.model.TransactionsData" />
+    </bean> 	
+</beans>

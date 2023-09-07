@@ -1,0 +1,514 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" 
+    xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+    
+    <!-- ******************************************************************* -->
+    <!-- * Dao for BILL_FILE_META_DATA table.                              * -->
+    <!-- ******************************************************************* -->
+    <bean id="billFileMetaDataDao" class="com.sorrisotech.batch.fffc.transaction.loader.BaseFileMetaDataDao">
+        <property name="jdbcTemplate" ref="namedParameterJdbcTemplate"/>
+        <property name="rowMapper">
+            <bean id="billFileRowMapper" class="com.sorrisotech.batch.fffc.transaction.loader.BillFileMetaDataMapper"/>
+        </property>
+        <property name="queryMap" ref="billFileMetaDataDao.queryMap.${database}"/>
+	</bean>
+	
+    <util:map id="billFileMetaDataDao.queryMap.oracle">
+        <entry key="updateFileStatus">
+            <value>
+                UPDATE
+                    bill_file_meta_data bfmd
+                SET
+                    STATUS = :new_status,
+                    STATUS_UPDATE_DATE = systimestamp
+                WHERE
+                    bfmd.bill_file_id = :file_id
+            </value>
+        </entry>
+	    <entry key="updateFileBillStream">
+            <value>
+                UPDATE
+                    bill_file_meta_data bfmd
+                SET
+                    BILL_STREAM = :bill_stream,
+                    STATUS_UPDATE_DATE = systimestamp
+                WHERE
+                    bfmd.bill_file_id = :file_id
+            </value>
+        </entry>
+        <entry key="getLatestAvailableFile">
+            <value>
+                SELECT 
+                    bfmd.*
+                FROM
+                    bill_file_meta_data bfmd
+                WHERE
+                    bfmd.status = :current_status
+                    and rownum &lt; 2
+                ORDER BY bfmd.created_date desc
+            </value>
+        </entry>
+        <entry key="getAvailableFileList">
+            <value>
+                SELECT 
+                    bfmd.*
+                FROM
+                    bill_file_meta_data bfmd
+                WHERE
+                    bfmd.status = :current_status
+                ORDER BY bfmd.created_date desc
+            </value>
+        </entry>
+        <entry key="getLatestAvailableFileFiltered">
+            <value>
+                SELECT 
+                    bfmd.*
+                FROM
+                    bill_file_meta_data bfmd
+                WHERE
+                    bfmd.status = :current_status
+                    and bfmd.bill_file_name like :filename_pattern
+                    and rownum &lt; 2
+                ORDER BY bfmd.created_date desc
+            </value>
+        </entry>
+        <entry key="getAvailableFileListFiltered">
+            <value>
+                SELECT 
+                    bfmd.*
+                FROM
+                    bill_file_meta_data bfmd
+                WHERE
+                    bfmd.status = :current_status
+                    and bfmd.bill_file_name like :filename_pattern
+                ORDER BY bfmd.created_date desc
+            </value>
+        </entry>
+        <entry key="getOldestAvailableFile">
+            <value>
+                SELECT 
+                    bfmd.*
+                FROM
+                    bill_file_meta_data bfmd
+                WHERE
+                    bfmd.status = :current_status
+                    and rownum &lt; 2
+                ORDER BY bfmd.created_date asc
+            </value>
+        </entry>
+        <entry key="getOldestAvailableFileFiltered">
+            <value>
+                SELECT 
+                    bfmd.*
+                FROM
+                    bill_file_meta_data bfmd
+                WHERE
+                    bfmd.status = :current_status
+                    and bfmd.bill_file_name like :filename_pattern
+                    and rownum &lt; 2
+                ORDER BY bfmd.created_date asc
+            </value>
+        </entry>
+        <entry key="lockTableRow">
+            <value>
+                UPDATE 
+                    batch_lock 
+                SET 
+                    job_key = 'B' 
+                WHERE 
+                    job_name = 'BILL_LOADER'
+            </value>
+        </entry>
+        <entry key="insertNewFile">
+            <value>
+                INSERT INTO bill_file_meta_data 
+                        (
+                          bill_file_id, 
+                          created_date, 
+                          bill_file_name, 
+                          bill_file_path, 
+                          status, 
+                          status_update_date 
+                        )
+                VALUES (
+                          :new_file_id,
+                          systimestamp,
+                          :new_file_name,
+                          :new_file_path,
+                          :new_status,
+                          systimestamp
+                        )
+            </value>
+        </entry>
+        <entry key="findDuplicateFiles">
+            <value>
+                SELECT 
+                      bfmd.bill_file_id,
+                      bfmd.created_date,
+                      bfmd.bill_file_name,
+                      bfmd.bill_file_path,
+                      bfmd.status,
+                      bfmd.status_update_date
+                FROM
+                    bill_file_meta_data bfmd
+                WHERE
+                    bill_file_name = :new_file_name
+                    AND ((UPPER(bfmd.status) != 'REJECTED')
+                          AND (UPPER(bfmd.status) != 'NOT_READY_FOR_PROCESSING'))
+            </value>
+        </entry>
+        <entry key="getBillFileToUpdate">
+            <value>
+                SELECT 
+                      bfmd.bill_file_id,
+                      bfmd.created_date,
+                      bfmd.bill_file_name,
+                      bfmd.bill_file_path,
+                      bfmd.status,
+                      bfmd.status_update_date
+                FROM
+                    bill_file_meta_data bfmd
+                WHERE
+                    bfmd.status = 'ACCEPTED' AND (sysdate-(to_date(to_char(bfmd.status_update_date,'dd-mm-yyyy'),'dd-mm-yyyy'))) &gt;= :days.before.auto.publish
+                    OR bfmd.status = 'LOADED' AND (sysdate-(to_date(to_char(bfmd.status_update_date,'dd-mm-yyyy'),'dd-mm-yyyy'))) &gt;= :days.before.auto.accept
+            </value>
+        </entry>                
+        <entry key="uniqueId">
+            <value>select count(*) from bill_file_meta_data where bill_file_id=:id</value>
+        </entry>
+    </util:map>
+    <util:map id="billFileMetaDataDao.queryMap.mysql">
+        <entry key="updateFileStatus">
+             <value>
+                 UPDATE
+                      bill_file_meta_data bfmd
+                 SET
+                      STATUS = :new_status,
+                      STATUS_UPDATE_DATE = CURRENT_TIMESTAMP
+                 WHERE
+                      bfmd.bill_file_id = :file_id
+             </value>
+         </entry>
+         <entry key="updateFileBillStream">
+             <value>
+                 UPDATE
+                     bill_file_meta_data bfmd
+                 SET
+                     BILL_STREAM = :bill_stream,
+                     STATUS_UPDATE_DATE = CURRENT_TIMESTAMP
+                 WHERE
+                     bfmd.bill_file_id = :file_id
+             </value>
+         </entry>
+         <entry key="getLatestAvailableFile">
+             <value>
+                 SELECT 
+                     bfmd.*
+                 FROM
+                     bill_file_meta_data bfmd
+                 WHERE
+                     bfmd.status = :current_status
+                 ORDER BY bfmd.created_date desc
+                 LIMIT 1
+             </value>
+         </entry>
+         <entry key="getAvailableFileList">
+             <value>
+                 SELECT 
+                     bfmd.*
+                 FROM
+                     bill_file_meta_data bfmd
+                 WHERE
+                     bfmd.status = :current_status
+                 ORDER BY bfmd.created_date desc
+             </value>
+         </entry>
+         <entry key="getLatestAvailableFileFiltered">
+             <value>
+                 SELECT 
+                     bfmd.*
+                 FROM
+                     bill_file_meta_data bfmd
+                 WHERE
+                     bfmd.status = :current_status
+                     and bfmd.bill_file_name like :filename_pattern
+                 ORDER BY bfmd.created_date desc
+                 LIMIT 1
+             </value>
+         </entry>
+         <entry key="getAvailableFileListFiltered">
+             <value>
+                 SELECT 
+                     bfmd.*
+                 FROM
+                     bill_file_meta_data bfmd
+                 WHERE
+                     bfmd.status = :current_status
+                     and bfmd.bill_file_name like :filename_pattern
+                 ORDER BY bfmd.created_date desc
+             </value>
+         </entry>
+         <entry key="getOldestAvailableFile">
+             <value>
+                 SELECT 
+                     bfmd.*
+                 FROM
+                     bill_file_meta_data bfmd
+                 WHERE
+                     bfmd.status = :current_status
+                 ORDER BY bfmd.created_date asc
+                 LIMIT 1
+             </value>
+         </entry>
+         <entry key="getOldestAvailableFileFiltered">
+             <value>
+                 SELECT 
+                     bfmd.*
+                 FROM
+                     bill_file_meta_data bfmd
+                 WHERE
+                     bfmd.status = :current_status
+                     and bfmd.bill_file_name like :filename_pattern
+                 ORDER BY bfmd.created_date asc
+                 LIMIT 1
+             </value>
+         </entry>
+         <entry key="lockTableRow">
+             <value>
+                 UPDATE 
+                     batch_lock 
+                 SET 
+                     job_key = 'B' 
+                 WHERE 
+                     job_name = 'BILL_LOADER'
+             </value>
+         </entry>
+         <entry key="insertNewFile">
+             <value>
+                 INSERT INTO bill_file_meta_data 
+                         (
+                           bill_file_id, 
+                           created_date, 
+                           bill_file_name, 
+                           bill_file_path, 
+                           status, 
+                           status_update_date 
+                         )
+                 VALUES (
+                           :new_file_id,
+                           CURRENT_TIMESTAMP,
+                           :new_file_name,
+                           :new_file_path,
+                           :new_status,
+                           CURRENT_TIMESTAMP
+                         )
+             </value>
+         </entry>
+         <entry key="findDuplicateFiles">
+             <value>
+                 SELECT 
+                       bfmd.bill_file_id,
+                       bfmd.created_date,
+                       bfmd.bill_file_name,
+                       bfmd.bill_file_path,
+                       bfmd.status,
+                       bfmd.status_update_date
+                 FROM
+                     bill_file_meta_data bfmd
+                 WHERE
+                     bill_file_name = :new_file_name
+                     AND ((UPPER(bfmd.status) != 'REJECTED')
+                           AND (UPPER(bfmd.status) != 'NOT_READY_FOR_PROCESSING'))
+             </value>
+         </entry>
+         <entry key="getBillFileToUpdate">
+             <value>
+                 SELECT 
+	                   bfmd.bill_file_id,
+                       bfmd.created_date,
+                       bfmd.bill_file_name,
+                       bfmd.bill_file_path,
+                       bfmd.status,
+                       bfmd.status_update_date
+			       FROM
+			              bill_file_meta_data bfmd
+			       WHERE
+			              bfmd.status = 'ACCEPTED' AND(TIMESTAMPDIFF(SECOND,(STR_TO_DATE(DATE_FORMAT(bfmd.status_update_date,'%d-%m-%Y'),'%d-%m-%Y')),CURRENT_TIMESTAMP)/86400) &gt;= :days.before.auto.publish
+			              OR bfmd.status = 'LOADED' AND(TIMESTAMPDIFF(SECOND,(STR_TO_DATE(DATE_FORMAT(bfmd.status_update_date,'%d-%m-%Y'),'%d-%m-%Y')),CURRENT_TIMESTAMP)/86400) &gt;= :days.before.auto.accept
+             </value>
+         </entry>              
+        <entry key="uniqueId">
+            <value>select count(*) from bill_file_meta_data where bill_file_id=:id</value>
+        </entry>
+    </util:map>
+
+    <util:map id="billFileMetaDataDao.queryMap.postgres">
+        <entry key="updateFileStatus">
+             <value>
+                 UPDATE
+                      bill_file_meta_data bfmd
+                 SET
+                      STATUS = :new_status,
+                      STATUS_UPDATE_DATE = CURRENT_TIMESTAMP
+                 WHERE
+                      bfmd.bill_file_id = :file_id
+             </value>
+         </entry>
+         <entry key="updateFileBillStream">
+             <value>
+                 UPDATE
+                     bill_file_meta_data bfmd
+                 SET
+                     BILL_STREAM = :bill_stream,
+                     STATUS_UPDATE_DATE = CURRENT_TIMESTAMP
+                 WHERE
+                     bfmd.bill_file_id = :file_id
+             </value>
+         </entry>
+         <entry key="getLatestAvailableFile">
+             <value>
+                 SELECT 
+                     bfmd.*
+                 FROM
+                     bill_file_meta_data bfmd
+                 WHERE
+                     bfmd.status = :current_status
+                 ORDER BY bfmd.created_date desc
+                 LIMIT 1
+             </value>
+         </entry>
+         <entry key="getAvailableFileList">
+             <value>
+                 SELECT 
+                     bfmd.*
+                 FROM
+                     bill_file_meta_data bfmd
+                 WHERE
+                     bfmd.status = :current_status
+                 ORDER BY bfmd.created_date desc
+             </value>
+         </entry>
+         <entry key="getLatestAvailableFileFiltered">
+             <value>
+                 SELECT 
+                     bfmd.*
+                 FROM
+                     bill_file_meta_data bfmd
+                 WHERE
+                     bfmd.status = :current_status
+                     and bfmd.bill_file_name like :filename_pattern
+                 ORDER BY bfmd.created_date desc
+                 LIMIT 1
+             </value>
+         </entry>
+         <entry key="getAvailableFileListFiltered">
+             <value>
+                 SELECT 
+                     bfmd.*
+                 FROM
+                     bill_file_meta_data bfmd
+                 WHERE
+                     bfmd.status = :current_status
+                     and bfmd.bill_file_name like :filename_pattern
+                 ORDER BY bfmd.created_date desc
+             </value>
+         </entry>
+         <entry key="getOldestAvailableFile">
+             <value>
+                 SELECT 
+                     bfmd.*
+                 FROM
+                     bill_file_meta_data bfmd
+                 WHERE
+                     bfmd.status = :current_status
+                 ORDER BY bfmd.created_date asc
+                 LIMIT 1
+             </value>
+         </entry>
+         <entry key="getOldestAvailableFileFiltered">
+             <value>
+                 SELECT 
+                     bfmd.*
+                 FROM
+                     bill_file_meta_data bfmd
+                 WHERE
+                     bfmd.status = :current_status
+                     and bfmd.bill_file_name like :filename_pattern
+                 ORDER BY bfmd.created_date asc
+                 LIMIT 1
+             </value>
+         </entry>
+         <entry key="lockTableRow">
+             <value>
+                 UPDATE 
+                     batch_lock 
+                 SET 
+                     job_key = 'B' 
+                 WHERE 
+                     job_name = 'BILL_LOADER'
+             </value>
+         </entry>
+         <entry key="insertNewFile">
+             <value>
+                 INSERT INTO bill_file_meta_data 
+                         (
+                           bill_file_id, 
+                           created_date, 
+                           bill_file_name, 
+                           bill_file_path, 
+                           status, 
+                           status_update_date 
+                         )
+                 VALUES (
+                           :new_file_id,
+                           CURRENT_TIMESTAMP,
+                           :new_file_name,
+                           :new_file_path,
+                           :new_status,
+                           CURRENT_TIMESTAMP
+                         )
+             </value>
+         </entry>
+         <entry key="findDuplicateFiles">
+             <value>
+                 SELECT 
+                       bfmd.bill_file_id,
+                       bfmd.created_date,
+                       bfmd.bill_file_name,
+                       bfmd.bill_file_path,
+                       bfmd.status,
+                       bfmd.status_update_date
+                 FROM
+                     bill_file_meta_data bfmd
+                 WHERE
+                     bill_file_name = :new_file_name
+                     AND ((UPPER(bfmd.status) != 'REJECTED')
+                           AND (UPPER(bfmd.status) != 'NOT_READY_FOR_PROCESSING'))
+             </value>
+         </entry>
+         <entry key="getBillFileToUpdate">
+             <value>
+                 SELECT 
+                      bfmd.bill_file_id,
+                      bfmd.created_date,
+                      bfmd.bill_file_name,
+                      bfmd.bill_file_path,
+                      bfmd.status,
+                      bfmd.status_update_date
+                FROM
+                    bill_file_meta_data bfmd
+                WHERE
+                    bfmd.status = 'ACCEPTED' AND (now()-(to_date(to_char(bfmd.status_update_date,'dd-mm-yyyy'),'dd-mm-yyyy'))) &gt;= :days.before.auto.publish
+                    OR bfmd.status = 'LOADED' AND (now()-(to_date(to_char(bfmd.status_update_date,'dd-mm-yyyy'),'dd-mm-yyyy'))) &gt;= :days.before.auto.accept
+             </value>
+         </entry>              
+        <entry key="uniqueId">
+            <value>select count(*) from bill_file_meta_data where bill_file_id=:id</value>
+        </entry>
+    </util:map>
+    
+</beans>
