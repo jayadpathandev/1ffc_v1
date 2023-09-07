@@ -1,0 +1,73 @@
+<project name="batch-transaction-history" default="package" basedir=".">
+
+    <!-- ######################################################################
+	     # Verify that all needed properties are defined.
+         ################################################################## -->
+    <target name="-init" depends="-uptodate">
+		<loadproperties srcFile="../build.properties"/>
+
+        <property name="moduleName" value="batch/transaction_history"/>
+
+    	<property name="output.dir"    value="${build.output.dir}/${moduleName}"/>
+    	<property name="artifacts.dir" value="${build.artifacts.dir}/${moduleName}"/>
+
+    	<mkdir dir="${output.dir}"/>
+    	<mkdir dir="${artifacts.dir}"/>
+
+    	<path id="classpath">
+    		<fileset dir="${build.output.dir}">
+    			 <include name="batch/common/*.jar"/>
+				 <include name="service/beans/*.jar"/>
+    			 <include name="service/utils/*.jar"/>
+                 <include name="jars/batch/*.jar"/>
+    		</fileset>
+    	</path>
+    </target>
+
+    <!-- ######################################################################
+         # Make sure the build.properties is up to date.
+         ################################################################## -->
+    <target name="-uptodate">
+        <uptodate property="uptodate"
+            srcfile="../build.properties.template"
+            targetfile="../build.properties"/>
+
+        <fail unless="uptodate">
+            There is a newer build.properties.template file, please copy it to build.properties
+            and update it for your system.
+        </fail>
+    </target>
+
+    <!-- ######################################################################
+         # Compile the java files.
+         ################################################################## -->
+    <target name="compile" depends="-init">
+    	<javac destdir="${artifacts.dir}" classpathref="classpath" includeAntRuntime="false" debug="${javac.debug}" debuglevel="${javac.flags}">
+    	    <src>
+    	        <pathelement location="src"/>
+    		</src>
+    	</javac>
+    </target>
+
+    <!-- ######################################################################
+         # Package everything up.
+         ################################################################## -->
+	<target name="package" depends="-init, compile">
+		<mkdir dir="${output.dir}/resources"/>
+
+		<jar destfile="${output.dir}/batchTransactionHistory.jar">
+		    <fileset dir="${artifacts.dir}"/>
+		</jar>
+
+        <copy todir="${output.dir}/resources">
+             <fileset dir="resources"/>
+        </copy>
+
+		<copy file="assemble.xml" todir="${output.dir}"/>
+		<copy todir="${output.dir}">
+			<fileset dir=".">
+				<include name="control_*.xml"/>
+			</fileset>
+		</copy>
+	</target>
+</project>

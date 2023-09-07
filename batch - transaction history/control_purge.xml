@@ -1,0 +1,31 @@
+<project name="transaction history purge" default="run" basedir=".">
+    <target name="help">
+        <echo>Modify path.properties to adjust the directories.</echo>
+    </target>
+    
+    <target name="-init">
+       <loadproperties srcfile="paths.properties"/>
+    </target>
+	
+	<target name="run" depends="-init">
+		<mkdir dir="${log.dir}"/>
+		
+		<copy tofile="resources/logback.xml" file="resources/logback.template.xml">
+			<filterset>
+			    <filter token="LOG_FILE" value="${log.dir}/${log.file}"/>
+			</filterset>
+		</copy>
+			
+		<java classname="com.sorrisotech.batch.fffc.transaction.purge.JobRunner" fork="true" failonerror="true">
+            <jvmarg value="-server"/>
+            <classpath> 
+                <path location="${common.config.dir}"/>
+            	<fileset dir="${jar.dir}">
+                    <include name="**/*.jar"/>
+            	</fileset>
+            	<path location="resources"/>
+            </classpath>
+        </java>    	    
+	</target>
+	
+</project>
