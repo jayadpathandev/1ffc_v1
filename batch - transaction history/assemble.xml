@@ -1,0 +1,157 @@
+<project name="transaction history loader/xfer/purge">
+
+    <target name="-init">
+    	<fail unless="output.dir">output.dir - Not set.  This should point to the directory to install the batch job.</fail>
+
+    	<property name="output.jar.dir"    value="${output.dir}/batch/lib"/>
+    	<property name="output.config.dir" value="${output.dir}/config"/>
+
+        <mkdir dir="${output.jar.dir}"/>
+        <mkdir dir="${output.config.dir}"/>
+    </target>
+
+    <target name="assemble_loader" depends="-init">
+    	<property name="output.batch.dir"  value="${output.dir}/batch/transaction_history_loader"/>
+
+    	<mkdir dir="${output.batch.dir}"/>
+        <mkdir dir="${output.batch.dir}/resources"/>
+
+    	<copy todir="${output.batch.dir}/resources">
+        	<fileset dir="../../service/notification/resources"/>
+        </copy>
+        <copy todir="${output.batch.dir}/resources">
+            <fileset dir="resources">
+                <include name="transactionhistory/**"/>
+            	<include name="loader.*"/>
+            	<include name="logback.template.xml"/>
+        	</fileset>
+        </copy>
+        <copy todir="${output.config.dir}">
+            <fileset dir="../common/resources"/>
+            <fileset dir="../../service/utils/resources">
+                <exclude name="db/db_config.xml"/>
+            	<exclude name="db/db_config.batch.xml"/>
+        	</fileset>
+        </copy>
+    	<copy file="../../service/utils/resources/db/db_config.batch.xml" tofile="${output.config.dir}/db/db_config.xml"/>
+    	<copy file="../../service/utils/resources/db/db_config.batch.xml" tofile="${output.config.dir}/db/db_config.template.xml"/>
+
+        <copy todir="${output.jar.dir}" flatten="true">
+            <fileset dir="../common">
+                <include name="**/*.jar"/>
+            </fileset>
+			<fileset dir="../../service/notification">
+        	    <include name="**/*.jar"/>
+        	</fileset>
+        	<fileset dir="../../service/beans"/>
+            <fileset dir="../../service/utils">
+                <include name="**/*.jar"/>
+            </fileset>
+        	<fileset dir=".">
+                <include name="**/*.jar"/>
+        	</fileset>
+        </copy>
+
+    	<copy tofile="${output.batch.dir}/build.xml" file="control_loader.xml"/>
+    	<echo file="${output.batch.dir}/paths.properties">
+log.dir  = ${install.path}/logs
+log.file = transaction_history_loader
+
+common.config.dir = ${install.path}/config
+jar.dir           = ${install.path}/batch/lib
+    	</echo>
+    </target>
+
+	 <target name="assemble_xfer" depends="-init">
+	 	<property name="output.batch.dir"  value="${output.dir}/batch/transaction_history_xfer"/>
+ 	        <mkdir dir="${output.batch.dir}"/>
+ 	        <mkdir dir="${output.batch.dir}/resources"/>
+
+ 	        <copy todir="${output.batch.dir}/resources">
+ 	            <fileset dir="resources">
+ 	                <include name="transactionhistory/**"/>
+ 	                <include name="xfer.*"/>
+ 	                <include name="logback.template.xml"/>
+ 	            </fileset>
+ 	        </copy>
+ 	        <copy todir="${output.config.dir}">
+ 	            <fileset dir="../common/resources"/>
+ 	            <fileset dir="../../service/utils/resources">
+ 	                <exclude name="db/db_config.xml"/>
+ 	                <exclude name="db/db_config.batch.xml"/>
+ 	            </fileset>
+ 	        </copy>
+ 	        <copy file="../../service/utils/resources/db/db_config.batch.xml" tofile="${output.config.dir}/db/db_config.xml"/>
+ 	    	<copy file="../../service/utils/resources/db/db_config.batch.xml" tofile="${output.config.dir}/db/db_config.template.xml"/>
+
+ 	        <copy todir="${output.jar.dir}" flatten="true">
+ 	            <fileset dir="../common">
+ 	                <include name="**/*.jar"/>
+ 	            </fileset>
+ 	            <fileset dir="../../service/notification">
+ 	                <include name="**/*.jar"/>
+ 	            </fileset>
+ 	            <fileset dir="../../service/beans"/>
+ 	            <fileset dir=".">
+ 	                <include name="**/*.jar"/>
+ 	            </fileset>
+ 	        </copy>
+
+        <copy tofile="${output.batch.dir}/build.xml" file="control_xfer.xml"/>
+	 	<echo file="${output.batch.dir}/paths.properties">
+log.dir  = ${install.path}/logs
+log.file = transaction_history_xfer
+
+common.config.dir = ${install.path}/config
+jar.dir           = ${install.path}/batch/lib
+    	</echo>
+    </target>
+
+    <target name="assemble_purge" depends="-init">
+    	<property name="output.batch.dir"  value="${output.dir}/batch/transaction_history_purge"/>
+
+    	<mkdir dir="${output.batch.dir}"/>
+        <mkdir dir="${output.batch.dir}/resources"/>
+
+    	<copy todir="${output.batch.dir}/resources">
+        	<fileset dir="../../service/notification/resources"/>
+        </copy>
+        <copy todir="${output.batch.dir}/resources">
+            <fileset dir="resources">
+                <include name="purge.*"/>
+                <include name="logback.template.xml"/>
+            </fileset>
+        </copy>
+        <copy todir="${output.config.dir}">
+            <fileset dir="../common/resources"/>
+            <fileset dir="../../service/utils/resources">
+                <exclude name="db/db_config.xml"/>
+                <exclude name="db/db_config.batch.xml"/>
+            </fileset>
+        </copy>
+        <copy file="../../service/utils/resources/db/db_config.batch.xml" tofile="${output.config.dir}/db/db_config.xml"/>
+    	<copy file="../../service/utils/resources/db/db_config.batch.xml" tofile="${output.config.dir}/db/db_config.template.xml"/>
+
+        <copy todir="${output.jar.dir}" flatten="true">
+            <fileset dir="../common">
+                <include name="**/*.jar"/>
+            </fileset>
+            <fileset dir="../../service/notification">
+                <include name="**/*.jar"/>
+            </fileset>
+            <fileset dir="../../service/beans"/>
+            <fileset dir=".">
+                <include name="**/*.jar"/>
+            </fileset>
+        </copy>
+
+        <copy tofile="${output.batch.dir}/build.xml" file="control_purge.xml"/>
+        <echo file="${output.batch.dir}/paths.properties">
+log.dir  = ${install.path}/logs
+log.file = transaction_history_purge
+
+common.config.dir = ${install.path}/config
+jar.dir           = ${install.path}/batch/lib
+			</echo>
+    	</target>
+</project>
