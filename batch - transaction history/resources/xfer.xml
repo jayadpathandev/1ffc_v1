@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" 
+       xmlns:batch="http://www.springframework.org/schema/batch"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+    <!-- ********************************************************************************** -->
+    <!-- ******** This file contains bean definitions that are specific to and        ***** -->
+    <!-- ******** required by the transaction history file transfer job                   ***** -->
+    <!-- ********************************************************************************** -->
+
+    <!-- ********************************************************************************** -->
+    <!-- ******** Import common definitions like  jobRepository, simpleStep.          ***** -->
+    <!-- ********************************************************************************** -->
+    <import resource="classpath:common-context.xml"/>
+    <import resource="classpath:transactionhistory/BillFileMetaDataDao.xml"/>
+    
+    <!-- ******************************************************************* -->
+    <!-- ***** Load properties for the following:                 ********** -->
+    <!-- *****  Database connection details                       ********** -->
+    <!-- *****  TransactionhistoryFileTransferJob configuration details    ***** -->
+    <!-- ******************************************************************* -->
+    <bean id="propertyConfigurer" 
+       class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
+       <property name="propertySources">
+       <bean class="com.sorrisotech.utils.ConfigFactory">
+            <property name="sources">
+                <list>                    
+                    <bean class="com.sorrisotech.utils.ConfigFile">
+                        <constructor-arg value="false"/>
+                        <constructor-arg value="xfer.properties"/>
+                        <property name="cacheTimeout" value="10"/>
+                    </bean>
+                    <bean class="com.sorrisotech.utils.ConfigFile">
+                        <constructor-arg value="false"/>
+                        <constructor-arg value="db/common.properties"/>
+                        <property name="cacheTimeout" value="10"/>
+                    </bean>
+                    <bean class="com.sorrisotech.utils.ConfigFile">
+                        <constructor-arg value="false"/>
+                        <constructor-arg value="common/user_config.properties"/>
+                        <property name="cacheTimeout" value="10"/>
+                    </bean>
+                    <bean class="com.sorrisotech.utils.ConfigFile">
+                        <constructor-arg value="false"/>
+                        <constructor-arg value="common/file_path.properties"/>
+                        <property name="cacheTimeout" value="10"/>
+                    </bean>
+                    <bean class="com.sorrisotech.utils.ConfigDefine"/>
+                </list>
+            </property>
+        </bean>
+       </property>
+   </bean>
+    
+    <!-- ********************************************************************************** -->
+    <!-- ******** TransactionhistoryFileTransferJob configuration. It consists of         ***** -->
+    <!-- ******** FileSystemReader  - Reads a list of files from a source directory   ***** -->
+    <!-- ********                     and filters the files by a file pattern.        ***** -->
+    <!-- ********                     Returns a list of File objects which match its  ***** -->
+    <!-- ********                     FilePattern                                     ***** -->
+    <!-- ********                                                                     ***** -->    
+    <!-- ******** FileSystemWriter  - Moves Files to a destination directory and      ***** -->
+    <!-- ********                     updates the database about the status of the    ***** -->
+    <!-- ********                     files: RECEIVED, READY_FOR_PROCESSING,          ***** -->
+    <!-- ********                     NOT_READE_FOR_PROCESSING                        ***** -->
+    <!-- ********************************************************************************** -->
+    <batch:job id="transactionHistoryTransferJob" parent="simpleJob">
+        <batch:step id="step1" parent="simpleStep">
+            <batch:tasklet>
+                <batch:chunk reader="itemFileSystemReader" writer="itemFileSystemWriter"/>
+            </batch:tasklet>
+        </batch:step>
+    </batch:job>
+    
+    <!-- ********************************************************************************** -->
+    <!-- ******** Reader to read files from the source directory                      ***** -->
+    <!-- ******** Files are filtered by fileFilter and a list of matching Files       ***** -->
+    <!-- ******** is output by the read method of the Reader class                    ***** -->
+    <!-- ********************************************************************************** -->
+    <bean id = "itemFileSystemReader" 
+        class="com.sorrisotech.batch.fffc.transaction.xfer.FileSystemReader">
+        <property name="sourceDirPath" value="${thftj.dir.source}" /> 
+        <property name="fileFilter" ref="fileFilter" />        
+    </bean>
+    
+    
+    <!-- ********************************************************************************** -->
+    <!-- ******** A class that filters files given a file pattern and a fileType      ***** -->
+    <!-- ******** If fileType = 'file', the class will return only files matching     ***** -->
+    <!-- ********     the provided filePattern                                        ***** -->
+    <!-- ******** If fileType = 'dir', the class will return only Directories         ***** --> 
+    <!-- ********     whose names match the provided filePattern                      ***** -->
+    <!-- ******** If fileType = any value different than file and dir, the class will ***** -->
+    <!-- ********     return both files and directory whose names match the provided  ***** -->
+    <!-- ********     filePattern.                                                    ***** -->
+    <!-- ********************************************************************************** -->
+     <bean id="fileFilter"
+         class="com.sorrisotech.batch.fffc.transaction.xfer.FileFilter">
+         <property name="filePattern" value="${th.file.filter}" />
+         <property name="fileType" value="file" />
+     </bean>
+
+
+    <!-- ********************************************************************************** -->
+    <!-- ******** ItemWriter class that takes a list of Files may move the files      ***** -->
+    <!-- ******** to a destination directory based on the value of the move property. ***** -->
+    <!-- ******** For every file the Writer class does:                               ***** -->
+    <!-- ********    1) Updates the database that a File has been receieved           ***** -->
+    <!-- ********    2) Sets the status of the file to READY_FOR_PROCESSING           ***** -->
+    <!-- ********       if file moved successfully, NOT_READY_FOR_PROCESSING if       ***** -->
+    <!-- ********       an error occurred while moving the file                       ***** -->
+    <!-- ********************************************************************************** -->    
+    <bean id="itemFileSystemWriter"
+        class="com.sorrisotech.batch.fffc.transaction.xfer.FileSystemWriter">
+        <property name="fileMetaDataDao" ref="billFileMetaDataDao"/>
+        <property name="destinationDirPath" value="${thftj.dir.dest}" />
+        <property name ="move" value="${move}" />
+        <property name="moveMethod" value="${move.method}" /> 
+        <property name="successStatus" value="READY_FOR_PROCESSING" />
+        <property name="failStatus" value="NOT_READY_FOR_PROCESSING" />
+        <property name="newStatus" value="RECEIVED" />
+        <property name="errorStatus" value="ERROR" />
+        <property name="errorDirPath" value="${thftj.dir.dup}"/>
+        <property name="allowDuplicateFilename" value="${thftjob.allow.duplicate.filename}" />
+    </bean>
+</beans>
