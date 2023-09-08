@@ -55,20 +55,20 @@
             <fileset dir="../1ffc - common" includes="linked-root/**/*"/>            
 			<fileset dir="../1ffc - common" includes="layout-pages/**/*"/>
         </copy>
-
+		<ant dir="../1ffc - common/ui" target="debug-package" inheritAll="false" inheritRefs="false">
+			<property name="outDir" value="../../1ffc - user/deploy/user/linked-root/js"/> 
+		</ant>
 	</target>
 
     <target name="deploy" depends="-init, -base, -common">
 		<copy todir="deploy/${app}" overwrite="true">
 			<fileset dir="." includes="layout-pages/**/*"/>
+			<fileset dir="." includes="linked-root/**/*.*"/>
         </copy>
     	<copy todir="deploy/${app}" overwrite="true">
     		<fileset dir="src-gen" includes="user.xml"/>
     		<fileset dir="src-gen" includes="usecases/*.xml"/>
     		<fileset dir="src-gen" includes="internationalization/*.properties"/>
-    	</copy>
-    	<copy todir="deploy/${app}" overwrite="true">
-    		<fileset dir="." includes="linked-root/**/*.*"/>
     	</copy>
     </target>
 </project> 

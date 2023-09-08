@@ -43,12 +43,11 @@ useCase accountSummaryChild [
 	importJava AppConfig(com.sorrisotech.utils.AppConfig)
 	importJava LocalizedFormat(com.sorrisotech.common.LocalizedFormat)
 	
-				
-    import billCommon.sSelectedAccount
-	import billCommon.sBillingAccountGroup
+    import billCommon.sBillAccountInternal
+    import billCommon.sBillAccountExternal
+	import billCommon.sBillGroup
 	import billCommon.sBillStream
 	import billCommon.sBillVersion
-	import billCommon.sDisplayBillingAccountNumber
 	import billCommon.sBillingPeriod
 	import billCommon.sBillsFound
     
@@ -66,7 +65,7 @@ useCase accountSummaryChild [
     string sAccNumLabel             = "{Account number}"
     string sTotDueHead      		= "{Monthly payment amount}"   
 	string sInvDueDateLabel			= "{Monthly payment due date}"		
-	string sLoanAmountLabel         = "{Personal load amount}"
+	string sLoanAmountLabel         = "{Personal loan amount}"
 	
 	native string sCurrBalDisplay
 	native string sCurrentBalance
@@ -132,12 +131,12 @@ useCase accountSummaryChild [
 	
 	/* 5. Load the latest bill data into screen elements. */
     action loadLatestBill [    
-        sSelectedAccount             = srLatestResult.internalAccount
-        sDisplayBillingAccountNumber = srLatestResult.externalAccount
-        sBillingAccountGroup         = srLatestResult.payGroup
-        sBillingPeriod               = sBillDate
-        sCurrBalDisplay              = sAccountBalance
-        sOlderThanXMonths            = srLatestResult.oldBill
+        sBillAccountInternal = srLatestResult.internalAccount
+        sBillAccountExternal = srLatestResult.externalAccount
+        sBillGroup           = srLatestResult.payGroup
+        sBillingPeriod       = sBillDate
+        sCurrBalDisplay      = sAccountBalance
+        sOlderThanXMonths    = srLatestResult.oldBill
         
         sBillStream = srLatestResult.docStream
         sBillVersion = srLatestResult.docVersion 
@@ -211,73 +210,92 @@ useCase accountSummaryChild [
         div summary [
             class: "row st-dashboard-summary"
             
-            div info [
-            	class: "col-8 col-sm-9 col-lg-10 row"
-
-	            div accountCol [
-	            	class: "col-12 col-lg-3 st-summary-account"
-	            	
+            div account [
+            	class: "col-6 col-lg-3 d-flex flex-column justify-content-center st-summary-account"
+            	
+            	div accountFlex [
 	            	display sAccNumLabel [
 	                	class: "st-dashboard-summary-label"
 	            		append_space: "true"
 	            	] 
-	            	display sDisplayBillingAccountNumber [
+	            	display sBillAccountExternal [
 	            		class: "st-dashboard-summary-value"
 	                ]
-	            ]
-	            
-	            div loanState [
-	            	class: "col-12 col-lg-3 st-summary-loan-state text-lg-center"
-	            	
-	            	display sLoanAmountLabel [
-	                	class: "st-dashboard-summary-label"
-	            		append_space: "true"
-	            	] 
-	            	
-	            	display sLoanAmount [
-	            		class: "st-dashboard-summary-value"
-	                ]
-	            ]
-				    
-				div payDate [
-					class: "col-12 col-lg-3 st-summary-date text-lg-center"
-	            	
-	                display sInvDueDateLabel [			              			 				                				                	
-	                	class: "st-dashboard-summary-label d-lg-block"
-	            		append_space: "true"
-	                ]
-	
-	                display sInvDueDateValue [
-	            		class: "st-dashboard-summary-value d-lg-block"
-	                ]				
-				]        
-	
-				div payAmount [
-					class: "col-12 col-lg-3 st-summary-amount text-lg-center"
-	            	
-	                display sTotDueHead [
-	                	class: "st-dashboard-summary-label d-lg-block"
-	            		append_space: "true"
-	                ]
-	
-	                display  sTotalAmountDue [
-	            		class: "st-dashboard-summary-value d-lg-block"
-	                ]
-					
+                ]            	
+            ]
+
+			div payNowNarrow [
+				class: "col-6 d-lg-none d-flex flex-column justify-content-center st-summary-pay-now"
+            	
+            	div payFlexN [
+	        		navigation payNowLinkN(gotoPayment, "{Pay Now}") [
+						class: "btn btn-primary float-end"
+														
+						logic: [
+		                	if sOlderThanXMonths == "true"  then "hide"
+		                	if sPaymentFlag      != "true"  then "hide"
+		                	
+		                ]
+		                attr_tabindex: "2"
+					]
 				]
 			]        
-			div payNow [
-				class: "col-4 col-sm-3 col-lg-2 st-summary-pay-now float-end"
+            
+            div info [
+            	class: "col-12 col-lg-6 col-lg-6 col-xl-7 mt-4 mt-lg-0 text-center"
+	            
+	            h2 values [
+	            	class: "row"
+	            	
+	            	div loanValue [
+	            		class: "col"
+	            		display sLoanAmount
+	            	]
+
+	            	div dateValue [
+	            		class: "col"
+	            		display sInvDueDateValue
+	            	]
+
+	            	div dueValue [
+	            		class: "col"
+	            		display sTotalAmountDue
+	            	]
+	            ]
+	            div labels [
+	            	class: "row st-dashboard-summary-label"
+	            	
+	            	div loanLabel [
+	            		class: "col"
+	            		display sLoanAmountLabel	
+	            	]
+
+	            	div dateLabel [
+	            		class: "col"
+	            		display sInvDueDateLabel	
+	            	]
+
+	            	div dueLabel [
+	            		class: "col"
+	            		display sTotDueHead	
+	            	]
+	            ]
+			]
+			        
+			div payNowWide [
+				class: "d-none d-lg-flex col-lg-3 col-xl-2 d-flex flex-column justify-content-center st-summary-pay-now"
             	
-        		navigation payNowLink(gotoPayment, "{Pay Now}") [
-					class: "btn btn-primary"
-													
-					logic: [
-	                	if sOlderThanXMonths == "true"  then "hide"
-	                	if sPaymentFlag      != "true"  then "hide"
-	                	
-	                ]
-	                attr_tabindex: "2"
+            	div payFlexW [
+	        		navigation payNowLinkW(gotoPayment, "{Pay Now}") [
+						class: "btn btn-primary float-end"
+														
+						logic: [
+		                	if sOlderThanXMonths == "true"  then "hide"
+		                	if sPaymentFlag      != "true"  then "hide"
+		                	
+		                ]
+		                attr_tabindex: "2"
+					]
 				]
 			]        
         ]
