@@ -1,0 +1,213 @@
+<project name="1ffc" default="package" basedir=".">
+
+    <target name="-init">
+        <loadproperties srcFile="build.properties"/>
+
+        <mkdir dir="${output.dir}"/>
+        <mkdir dir="${artifacts.dir}"/>
+
+        <mkdir dir="${output.dir}/admin"/>
+        <mkdir dir="${output.dir}/auth"/>
+        <mkdir dir="${output.dir}/user"/>        
+    </target>
+
+    <target name="-build.admin.uc" depends="-init">
+        <delete dir="${artifacts.dir}/admin"/>
+        <mkdir  dir="${output.dir}/admin"/>
+
+        <copy todir="${artifacts.dir}/admin" overwrite="true" flatten="true">
+            <fileset dir="${devkit.dir}/app - admin/usecases"/>
+        </copy>
+
+        <copy todir="${artifacts.dir}/admin" overwrite="true" flatten="true">
+            <fileset dir="1ffc - admin/src" excludes="logback.xml"/>
+        </copy>
+
+        <ant dir="${devkit.dir}/build" antfile="persona.xml" inheritAll="false" inheritRefs="false">
+            <property name="usecase.directories" value="${artifacts.dir}/admin"/>
+            <property name="usecase.output" value="${output.dir}/admin"/>
+        </ant>
+
+        <delete dir="${output.dir}/admin/com"/>
+    </target>
+
+    <target name="build.admin" depends="-init, -build.admin.uc">
+        <mkdir dir="${output.dir}/admin"/>
+
+        <!-- Copy the classpath from the base application -->
+        <mkdir dir="${output.dir}/admin/classes"/>
+        <copy todir="${output.dir}/admin/classes" overwrite="true">
+            <fileset dir="${devkit.dir}/app - admin/resources">
+            	<exclude name="linked-root/**"/>
+            	<exclude name="layout-pages/**"/>
+            </fileset>            
+        </copy>
+
+		<!-- Usecases/I18N/services from the base application. -->
+        <copy todir="${output.dir}/admin/" overwrite="true">
+        	<fileset dir="${devkit.dir}/app - admin/resources" includes="config.properties"/>
+        	<fileset dir="${devkit.dir}/app - admin/resources" includes="services/*.xml"/>
+            <fileset dir="${devkit.dir}/app - admin" includes="lib/*.jar" excludes="lib/persona-jetty.jar"/>
+        </copy>
+
+    	<!-- Copy the linked-root and layout-pages from the base application. -->
+        <copy todir="${output.dir}/admin/" overwrite="true">
+            <fileset dir="${devkit.dir}/app - admin/resources" includes="linked-root/**/*.*"/>
+        	<fileset dir="${devkit.dir}/app - admin/resources" includes="layout-pages/**/*.*"/>
+        </copy>
+
+    	<!-- Copy the common resources from 1ffc common to the application. -->
+		<copy todir="${output.dir}/admin" overwrite="true">
+            <fileset dir="1ffc - common" includes="linked-root/**/*"/>
+			<fileset dir="1ffc - common" includes="layout-pages/**/*"/>
+        </copy>
+
+    	<!-- Copy the resources customized for 1ffc to the application. -->
+		<copy todir="${output.dir}/admin" overwrite="true">
+			<fileset dir="1ffc - admin" includes="layout-pages/**/*"/>
+        </copy>
+
+        <propertyfile file="${output.dir}/admin/classes/app-config.properties">
+            <entry key="app.telco_b2c" value="https://1ffc.server2.sorrisoqa.com/personaWeb/user/"/>
+            <entry key="app.telco_b2b" value="https://1ffc.server2.sorrisoqa.com/personaWeb/user/"/>
+            <entry key="epayment.url" value="http://localhost:8080/payment-core-2.0/"/>
+            <entry key="extdoc.url" value="http://localhost:8080/personaWeb/extdoc/"/>
+        </propertyfile>
+
+    </target>
+
+    <target name="-build.auth.uc" depends="-init">
+        <delete dir="${artifacts.dir}/auth"/>
+        <mkdir  dir="${output.dir}/auth"/>
+
+        <copy todir="${artifacts.dir}/auth" overwrite="true" flatten="true">
+            <fileset dir="${devkit.dir}/app - auth/usecases"/>
+        </copy>
+
+        <ant dir="${devkit.dir}/build" antfile="persona.xml" inheritAll="false" inheritRefs="false">
+            <property name="usecase.directories" value="${artifacts.dir}/auth"/>
+            <property name="usecase.output" value="${output.dir}/auth"/>
+        </ant>
+
+        <delete dir="${output.dir}/auth/com"/>
+    </target>
+
+    <target name="build.auth" depends="-init, -build.auth.uc">
+        <mkdir dir="${output.dir}/auth"/>
+
+        <!-- Copy the classpath from the base application -->
+        <mkdir dir="${output.dir}/auth/classes"/>
+        <copy todir="${output.dir}/auth/classes" overwrite="true">
+            <fileset dir="${devkit.dir}/app - auth/resources">
+            	<exclude name="linked-root/**"/>
+            	<exclude name="layout-pages/**"/>
+            </fileset>            
+        </copy>
+
+		<!-- Usecases/I18N/services from the base application. -->
+        <copy todir="${output.dir}/auth/" overwrite="true">
+        	<fileset dir="${devkit.dir}/app - auth/resources" includes="config.properties"/>
+        	<fileset dir="${devkit.dir}/app - auth/resources" includes="services/*.xml"/>
+            <fileset dir="${devkit.dir}/app - auth" includes="lib/*.jar" excludes="lib/persona-jetty.jar"/>
+        </copy>
+
+    	<!-- Copy the linked-root and layout-pages from the base application. -->
+        <copy todir="${output.dir}/auth/" overwrite="true">
+            <fileset dir="${devkit.dir}/app - auth/resources" includes="linked-root/**/*.*"/>
+        	<fileset dir="${devkit.dir}/app - auth/resources" includes="layout-pages/**/*.*"/>
+        </copy>
+
+    	<!-- Copy the common resources from 1ffc common to the application. -->
+		<copy todir="${output.dir}/auth" overwrite="true">
+            <fileset dir="1ffc - common" includes="linked-root/**/*"/>
+			<fileset dir="1ffc - common" includes="layout-pages/**/*"/>
+        </copy>
+
+		<copy todir="${output.dir}/auth/linked-root/b2c" overwrite="true">
+            <fileset dir="1ffc - common/linked-root" includes="**/*"/>
+        </copy>
+
+		<copy todir="${output.dir}/auth/linked-root/csr" overwrite="true">
+            <fileset dir="1ffc - common/linked-root" includes="**/*"/>
+        </copy>
+
+    	<!-- Copy the resources customized for 1ffc to the application. -->
+		<copy todir="${output.dir}/auth" overwrite="true">
+            <fileset dir="1ffc - auth" includes="layout-pages/**/*"/>
+        </copy>
+
+    </target>
+
+    <target name="-build.user.uc" depends="-init">
+        <delete dir="${artifacts.dir}/user"/>
+        <mkdir  dir="${output.dir}/user"/>
+
+        <copy todir="${artifacts.dir}/user" overwrite="true" flatten="true">
+            <fileset dir="${devkit.dir}/app - user/usecases"/>
+        </copy>
+
+        <copy todir="${artifacts.dir}/user" overwrite="true" flatten="true">
+            <fileset dir="1ffc - user/src" excludes="logback.xml, app-config.properties"/>
+        </copy>
+
+        <ant dir="${devkit.dir}/build" antfile="persona.xml" inheritAll="false" inheritRefs="false">
+            <property name="usecase.directories" value="${artifacts.dir}/user"/>
+            <property name="usecase.output" value="${output.dir}/user"/>
+        </ant>
+
+        <delete dir="${output.dir}/user/com"/>
+    </target>
+
+    <target name="build.user" depends="-init, -build.user.uc">
+        <mkdir dir="${output.dir}/user"/>
+
+        <!-- Copy the classpath from the base application -->
+        <mkdir dir="${output.dir}/user/classes"/>
+
+        <copy todir="${output.dir}/user/classes" overwrite="true">
+            <fileset dir="${devkit.dir}/app - user/resources">
+            	<exclude name="linked-root/**"/>
+            	<exclude name="layout-pages/**"/>
+            </fileset>            
+        </copy>
+
+		<!-- Usecases/I18N/services from the base application. -->
+        <copy todir="${output.dir}/user/" overwrite="true">
+        	<fileset dir="${devkit.dir}/app - user/resources" includes="config.properties"/>
+        	<fileset dir="${devkit.dir}/app - user/resources" includes="services/*.xml"/>
+            <fileset dir="${devkit.dir}/app - user" includes="lib/*.jar" excludes="lib/persona-jetty.jar"/>
+        </copy>
+
+    	<!-- Copy the linked-root and layout-pages from the base application. -->
+        <copy todir="${output.dir}/user/" overwrite="true">
+            <fileset dir="${devkit.dir}/app - user/resources" includes="linked-root/**/*.*"/>
+        	<fileset dir="${devkit.dir}/app - user/resources" includes="layout-pages/**/*.*"/>
+        </copy>
+
+    	<!-- Copy the common resources from 1ffc common to the application. -->
+		<copy todir="${output.dir}/user" overwrite="true">
+            <fileset dir="1ffc - common" includes="linked-root/**/*"/>
+			<fileset dir="1ffc - common" includes="layout-pages/**/*"/>
+        </copy>
+
+    	<!-- Copy the resources customized for 1ffc to the application. -->
+		<copy todir="${output.dir}/user" overwrite="true">
+            <fileset dir="1ffc - user" includes="layout-pages/**/*"/>
+            <fileset dir="1ffc - user" includes="linked-root/**/*"/>
+        </copy>
+
+		<copy todir="${output.dir}/user/classes" file="1ffc - user/src/app-config.properties" overwrite="true"/>
+
+        <propertyfile file="${output.dir}/user/classes/app-config.properties">
+            <entry key="user.app.url" value="https://1ffc.server2.sorrisoqa.com/personaWeb/user/"/>
+            <entry key="epayment.url" value="http://localhost:8080/payment-core-2.0/"/>
+            <entry key="epayment.public.url" value="https://1ffc.server2.sorrisoqa.com/payment-core-2.0/"/>
+            <entry key="extdoc.url" value="http://localhost:8080/personaWeb/extdoc/"/>
+        </propertyfile>
+    </target>
+
+    <target name="package" depends="build.admin, build.auth, build.user">
+        <delete file="${output.dir}/package.zip"/>
+        <zip destfile="${output.dir}/package.zip" basedir="${output.dir}"/>
+    </target>
+</project>

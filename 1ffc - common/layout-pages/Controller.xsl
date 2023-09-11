@@ -79,23 +79,49 @@
                 </xsl:if>
                                                             
                 <!-- ########################################################################## -->
-				<xsl:value-of select="$settings/config/header/banner" disable-output-escaping="yes"/>
+    			<header>
+	            	<div class="container">
+		               	<div class="row">
+			                <xsl:if test="group/groupwrapper[@section='sti_menu']">
+								<div class="row d-lg-none profile-bar-mobile">
+									<div class="col-8 col-sm-10 col-lg-11 phone-number">
+					            		<span id="phone-number-text">(###) ###-####</span>
+									</div>
+					            	<div class="col-3 col-sm-2 col-lg-1">
+					            		<div class="header-user-profile"/>
+									</div>
+								</div>
+							</xsl:if>
+		               		<div class="col-6 col-sm-5 col-md-4 col-lg-3">
+								<div id="header-logo" class="hide-on-minimize">								   
+					    			<div class="st-logo-container">
+							            <a href="http://www.sorrisotech.com" class="st-logo-img" tabindex="-1"></a>
+				            		</div>
+				            	</div>
+			            	</div>
+			                <xsl:if test="group/groupwrapper[@section='sti_menu']">
+				            	<div class="col-6 col-sm-7 col-md-8 col-lg-9">
+									<div class="row d-none d-lg-flex hide-on-minimize">
+										<div class="col-8 col-sm-10 col-lg-11 phone-number">
+						            		<span id="phone-number-text">(833) 689-LOAN</span>
+										</div>
+						            	<div class="col-3 col-sm-2 col-lg-1">
+						            		<div class="header-user-profile"/>
+										</div>
+									</div>
+									<div id="main-menu" class="row hide-on-mobile-minimize">
+										<div class="col-12">
+											<xsl:apply-templates select="group/groupwrapper[@section='sti_menu']"/>
+										</div>
+									</div>
+								</div>
+							</xsl:if>                
+			            </div>
+		            </div>
+	            </header>
                 
                 <!-- ########################################################################## -->
-                <xsl:if test="group/groupwrapper[@section='sti_menu']">
-	                <div id="main-menu" class="container">
-						<div class="row">
-							<div class="col-12 offset-lg-3 offset-xxl-2 col-lg-9 col-xxl-10">
-								<xsl:apply-templates select="group/groupwrapper[@section='sti_menu']"/>
-							</div>
-						</div>
-					</div>
-				</xsl:if>                
-                <!-- ########################################################################## -->
 				<main>                	
-	                <xsl:if test="group/groupwrapper[@section='sti_menu']">
-                		<xsl:attribute name="class">has-menu</xsl:attribute>
-                	</xsl:if>
                 	<xsl:if test="$settings/config/props/default_controller_init != ''">
                 		<xsl:attribute name="ng-init"><xsl:value-of select="$settings/config/props/default_controller_init"/></xsl:attribute>
                 	</xsl:if>
