@@ -169,7 +169,6 @@ body.min-header #main-menu nav.navbar {
 
 .navbar-nav {
 	margin-top: 20px;
-	background-color: #1c316e;
 }
 
 body .navbar-light .navbar-nav .nav-link, .navbar-light .navbar-nav .show>.nav-link {
@@ -265,7 +264,7 @@ body .navbar-light .navbar-nav .nav-link, .navbar-light .navbar-nav .show>.nav-l
 	#main-menu .navbar-light .navbar-nav .nav-link.renew:hover {
 		background-color: #ffffff;
 
-	}	
+	}		
 }
 
 .minimize .navbar-light .navbar-nav > li {
@@ -274,6 +273,11 @@ body .navbar-light .navbar-nav .nav-link, .navbar-light .navbar-nav .show>.nav-l
 }
 .minimize #main-menu .navbar-light .navbar-nav .nav-link {
 	padding-bottom: 10px;
+}
+
+#nav_main.navbar-collapse.collapse.show {
+	position: relative;
+	width: 100%;
 }
 
 /**************************************************************************************************
