@@ -11,10 +11,9 @@ html {
 }
 
 body {
-    font-family: 'Myriad Pro Regular',Helvetica,sans-serif;
+    font-family: 'Myriad Pro', Helvetica, sans-serif;
     font-size: 16px;
     color: #25408F;
-    letter-spacing: -0.14px;
     height: 100%;
 }
 
@@ -32,8 +31,29 @@ body {
 header {
 	background-image: linear-gradient(180deg,#25408f,#1c316e);
     width: 100%;
-	height: 126px;
-    float: left;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+	padding-bottom: 15px;
+	z-index: 1000;
+}
+
+header.minimize {
+	padding-bottom: 1px;
+}
+
+@media (min-width: 992px) {
+	header {
+		padding-bottom: 0px;
+	}
+	header.minimize {
+		padding-bottom: 0px;
+	}
+}
+
+
+header div.container {
+	max-width: 1080px;
 }
 
 
@@ -64,7 +84,15 @@ header .st-logo-container {
 	background: url("../img/1FFC Logo.webp") no-repeat 0 0;
 	background-size: 185px 80px;
 	height: 80px;
-	margin-top: 23px;
+	margin-left: 3px;
+	margin-top:  1px;
+}
+
+@media (min-width: 992px) {
+	header .st-logo-container {
+		margin-left: -12px;
+		margin-top: 23px;
+	}
 }
 
 .st-logo-img {
@@ -87,12 +115,38 @@ body.min-header #main-menu nav.navbar {
 }
 
 .phone-number {
-	padding-top: 10px;
+	padding-top: 16px;
+	padding-left: 15px;
+	font-weight: bold;
 }
 
 #phone-number-text {
 	font-weight: bold;
 	color: white;
+}
+
+.navbar > .container {
+	padding-left: 0;
+	padding-right: 0;
+}
+
+.header-user-profile .dropdown-toggle {
+	padding-top: 16px;
+	padding-bottom: 10px;
+}
+
+.minimize .hide-on-minimize {
+	display: none !important;
+}
+
+.minimize .hide-on-mobile-minimize {
+	display: none !important;
+}
+
+@media (min-width: 992px) {
+	.minimize .hide-on-mobile-minimize {
+		display: flex !important;
+	}
 }
 
 /**************************************************************************************************
@@ -102,8 +156,6 @@ body.min-header #main-menu nav.navbar {
 /** Menu branding on narrow (mobile) screens. **/
 #main-menu nav.navbar {
  	background-color: transparent !important;
- 	top: -68px;
- 	padding-bottom: 55px;
 }
 
 .navbar-light .navbar-toggler {
@@ -147,7 +199,6 @@ body .navbar-light .navbar-nav .nav-link, .navbar-light .navbar-nav .show>.nav-l
 
 	.navbar-light {
 	    width: 100%;
-	    margin-bottom: 45px;    
 	    border: 0;
 	    border-radius: 0;
 	    padding-bottom: 0px;
@@ -161,14 +212,13 @@ body .navbar-light .navbar-nav .nav-link, .navbar-light .navbar-nav .show>.nav-l
 	
 	.navbar-light .navbar-nav>li {
 	    height: 100%;
-	    padding-top: 11px;
-	    padding-bottom: 11px;
+	    padding-top: 14px;
 	}
 	
 	#main-menu .navbar-light .navbar-nav .nav-link {
 	 	color:          #FFCF01;
-	    padding-top:    10px;
-	    padding-bottom: 6px;
+	    padding-top:    14px;
+	    padding-bottom: 21px;
 	}
 	
 	#nav_main .nav-item a.active {
@@ -209,11 +259,21 @@ body .navbar-light .navbar-nav .nav-link, .navbar-light .navbar-nav .show>.nav-l
 	#main-menu .navbar-light .navbar-nav .nav-link.renew {
 		background-color: #FFCF01;
 	 	color: #25408F;
+	    padding-bottom: 10px;
 	}	
+	
 	#main-menu .navbar-light .navbar-nav .nav-link.renew:hover {
 		background-color: #ffffff;
 
 	}	
+}
+
+.minimize .navbar-light .navbar-nav > li {
+	padding-top: 0px;
+	padding-bottom: 0px;
+}
+.minimize #main-menu .navbar-light .navbar-nav .nav-link {
+	padding-bottom: 10px;
 }
 
 /**************************************************************************************************
@@ -224,13 +284,16 @@ main {
     background: #fff;
     min-height: 100%;
     height: auto !important;
-    margin-bottom: -74px;
+    margin-top: 176px;
     display:block;
 }
 
-main.has-menu {
-    margin-top:    -68px;
+@media (min-width: 992px) {
+	main {
+		margin-top: 156px;
+	}
 }
+
 
 form .form-group {
 	margin-bottom: 25px;
@@ -1224,7 +1287,7 @@ a:hover, .btn-link:hover {
 /* --------------------------------------------------------------------------------------------- */
 /* st-field-row adjust links & buttons on the same row as input fields so everything lines up.   */
 .st-field-row .btn-primary {
-    margin-top: 38px;
+    margin-top: 32px;
 }
 
 .st-field-row a {

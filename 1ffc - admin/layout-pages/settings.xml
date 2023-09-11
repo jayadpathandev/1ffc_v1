@@ -64,6 +64,7 @@
 				
                 <script src="js/lib/bootstrap.bundle.min.js"></script>
 				<script src="js/csr.js"></script>				
+				<script src="js/1ffc.js"></script>
             ]]>
         </common>
     </header>

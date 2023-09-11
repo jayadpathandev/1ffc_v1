@@ -1,0 +1,20 @@
+{
+  "name": "ui",
+  "version": "1.0.0",
+  "description": "Customization for 1st Frankline Financial",
+  "main": "1ffc.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Sorriso Technologies, Inc.",
+  "license": "SEE LICENSE IN LICENSE.TXT",
+  "dependencies": {
+    "@types/jquery": "^3.5.18",
+    "jquery": "^3.7.1",
+    "terser-webpack-plugin": "^5.3.9",
+    "ts-loader": "^9.4.4",
+    "typescript": "^5.2.2",
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4"
+  }
+}
