@@ -23,9 +23,9 @@ application [
 	    ]	    
 
 		// 1FFC 
-	    item menuRenew("{Renew Now}", fffcRenewNow) [
-	    	class: "renew"
-	    ]
+	    // item menuRenew("{Renew Now}", fffcRenewNow) [
+	    //     class: "renew"
+	    // ]
 	]
 	
 	modules [
