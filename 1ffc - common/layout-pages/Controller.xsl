@@ -102,10 +102,10 @@
 			                <xsl:if test="group/groupwrapper[@section='sti_menu']">
 				            	<div class="col-6 col-sm-7 col-md-8 col-lg-9">
 									<div class="row d-none d-lg-flex hide-on-minimize">
-										<div class="col-8 col-sm-10 col-lg-11 phone-number">
-						            		<span id="phone-number-text">((833) 555-HELP</span>
+										<div class="col-8 col-sm-10 col-lg-9 phone-number text-end">
+						            		<span id="phone-number-text">(833) 555-HELP</span>
 										</div>
-						            	<div class="col-3 col-sm-2 col-lg-1">
+						            	<div class="col-3 col-sm-2 col-lg-3">
 						            		<div class="header-user-profile"/>
 										</div>
 									</div>
