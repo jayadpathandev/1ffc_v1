@@ -43,7 +43,7 @@ header.minimize {
 }
 
 @media (min-width: 992px) {
-	header {
+	html#user header, html#csr header {
 		padding-bottom: 0px;
 	}
 	header.minimize {
@@ -502,6 +502,10 @@ div.amount {
 	color: #5653A7;
 }
 
+form label {
+	font-weight: bold;
+}
+
 /**************************************************************************************************
  * Branding for date fields.
  *************************************************************************************************/
@@ -840,8 +844,9 @@ input.btn:hover, button.btn:hover, a.btn:hover {
 }
 
 .btn.btn-primary.disabled, .btn.btn-primary:disabled {
-    color: 		   #25408F;
-    background:    #fff;
+    color: 		   #fff;
+    background:    #bdc3c7;
+    border-color:  #bdc3c7;
 }
  
 .btn.btn-primary {
