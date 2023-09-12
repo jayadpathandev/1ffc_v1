@@ -11,26 +11,7 @@
 		<expiring>message</expiring>
     </props>
     <header>
-    	<banner>
-    		<![CDATA[
-    			<header>
-	            	<div class="container">
-		               	<div class="row">
-		               		<div class="col-6 col-sm-5 col-md-4 col-lg-3 col-xxl-2">
-								<div id="header-logo">								   
-					    			<div class="st-logo-container">
-							            <a href="http://www.sorrisotech.com" class="st-logo-img" tabindex="-1"></a>
-				            		</div>
-				            	</div>
-			            	</div>
-			            	<div class="col-6 col-sm-7 col-md-8 col-lg-9 col-xxl-10">
-			            		<div id="header_user_profile"/>
-							</div>
-			            </div>
-		            </div>
-	            </header>
-    		]]>
-    	</banner>
+    	<banner>csr</banner>
         <common>
             <![CDATA[
 				<link href="css/lib/bootstrap.min.css" rel="stylesheet" type="text/css"/>
