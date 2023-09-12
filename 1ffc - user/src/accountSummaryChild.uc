@@ -42,7 +42,7 @@ useCase accountSummaryChild [
 	importJava AppConfig(com.sorrisotech.utils.AppConfig)
 	importJava LocalizedFormat(com.sorrisotech.common.LocalizedFormat)	
 	importJava UcBillingAction(com.sorrisotech.uc.bill.UcBillingAction)
-	importJava Overview(com.sorrisotech.ffc.user.Overview)
+	importJava Overview(com.sorrisotech.fffc.user.Overview)
 				
     import billCommon.sBillAccountInternal
     import billCommon.sBillAccountExternal
@@ -222,17 +222,17 @@ useCase accountSummaryChild [
        		
        div summary [
             class: "row st-dashboard-summary"
+	        logic: [		                	
+				if sIsBill != "true" then "hide"
+	        ]	
             
             div info [
             	class: "col-8 col-sm-9 col-lg-10 row"
 
 	            div accountCol [
 	            	class: "col-12 col-lg-3 st-summary-account"	            	
-               		logic: [		                	
-							if sIsBill != "true" then "hide"
-		                ]	            	
-	            	
-	            	display sAccNumLabel [
+ 
+ 	            	display sAccNumLabel [
 	                	class: "st-dashboard-summary-label"
 	            		append_space: "true"
 	            	] 
@@ -305,8 +305,7 @@ useCase accountSummaryChild [
 													
 					logic: [
 	                	if sOlderThanXMonths == "true"  then "hide"
-	                	if sPaymentFlag      != "true"  then "hide"
-	                	
+	                	if sPaymentFlag      != "true"  then "hide"	                	
 	                ]
 	                attr_tabindex: "2"
 				]
