@@ -12,6 +12,29 @@
     display: block;
 }
 
+#login_bRight a.st-self-register-button {
+	background-color: #25408F;
+	border:           solid #25408F;
+    color:            #fccf08;
+    display:          inline-block;
+    font-size:        1rem;
+    font-weight:      bold;
+    line-height:      1.5;
+    min-width:        160px;
+    padding:          7px 9px 3px 9px;
+    text-align:       center;
+    text-shadow:      none;
+    transition:       transform .6s cubic-bezier(.165,.84,.44,1),-webkit-transform .6s cubic-bezier(.165,.84,.44,1);
+    vertical-align:   middle;
+}
+#login_bRight a.st-self-register-button:hover {
+	transform: scale(1.08);
+}
+
+#login_bRight a.st-self-register-button:after {
+	display: none;
+}
+
 /* 
  * loginPasswordPcNotRecognized.uc & loginPasswordPcRecognized.uc 
  */
