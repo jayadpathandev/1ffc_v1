@@ -28,7 +28,7 @@
     <xsl:variable name="settings" select="document('settings.xml')"/>
        
     <xsl:template match="screen">
-        <html lang="en">
+        <html id="{$settings/config/header/banner}" lang="en">
 
             <!-- ############################################################################## -->
             <head>
@@ -85,7 +85,7 @@
 			                <xsl:if test="group/groupwrapper[@section='sti_menu']">
 								<div class="row d-lg-none profile-bar-mobile">
 									<div class="col-8 col-sm-10 col-lg-11 phone-number">
-					            		<span id="phone-number-text">(###) ###-####</span>
+					            		<span id="phone-number-text">(833) 555-HELP</span>
 									</div>
 					            	<div class="col-3 col-sm-2 col-lg-1">
 					            		<div class="header-user-profile"/>
@@ -103,7 +103,7 @@
 				            	<div class="col-6 col-sm-7 col-md-8 col-lg-9">
 									<div class="row d-none d-lg-flex hide-on-minimize">
 										<div class="col-8 col-sm-10 col-lg-11 phone-number">
-						            		<span id="phone-number-text">(833) 689-LOAN</span>
+						            		<span id="phone-number-text">((833) 555-HELP</span>
 										</div>
 						            	<div class="col-3 col-sm-2 col-lg-1">
 						            		<div class="header-user-profile"/>

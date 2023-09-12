@@ -11,7 +11,7 @@
 		<expiring>message</expiring>
     </props>
     <header>
-    	<banner>** Not Used **</banner>
+    	<banner>user</banner>
         <common>
             <![CDATA[
 				<link href="css/lib/bootstrap.min.css" rel="stylesheet" type="text/css"/>

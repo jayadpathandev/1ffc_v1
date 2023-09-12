@@ -55,6 +55,9 @@
             <fileset dir="../1ffc - common" includes="linked-root/**/*"/>
 			<fileset dir="../1ffc - common" includes="layout-pages/**/*"/>
         </copy>
+		<ant dir="../1ffc - common/ui" target="debug-package" inheritAll="false" inheritRefs="false">
+			<property name="outDir" value="../../1ffc - admin/deploy/admin/linked-root/js"/> 
+		</ant>
 
 	</target>
 

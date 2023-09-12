@@ -50,7 +50,7 @@
 
 	<!-- Copy the 1FFC files common across all applications. -->
 	<target name="-common" depends="-init, -base">
-
+		
 		<copy todir="deploy/${app}" overwrite="true">
             <fileset dir="../1ffc - common" includes="linked-root/**/*"/>            
 			<fileset dir="../1ffc - common" includes="layout-pages/**/*"/>
@@ -58,6 +58,7 @@
 		<ant dir="../1ffc - common/ui" target="debug-package" inheritAll="false" inheritRefs="false">
 			<property name="outDir" value="../../1ffc - user/deploy/user/linked-root/js"/> 
 		</ant>
+		
 	</target>
 
     <target name="deploy" depends="-init, -base, -common">
