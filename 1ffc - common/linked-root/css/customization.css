@@ -29,6 +29,7 @@
 }
 #login_bRight a.st-self-register-button:hover {
 	transform: scale(1.08);
+	color:     white;
 }
 
 #login_bRight a.st-self-register-button:after {
