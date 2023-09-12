@@ -1,5 +1,4 @@
 
-<<<<<<< .mine
 <#-- 
 	   File: paymentSummary.ftl
 	   Date: September 11, 2023
@@ -54,80 +53,7 @@
 		not. So yeah... if for some reason, .now can't convert to a comparison string directly.. same date but keeps time.
 
 		The test returns 0(false) if due date is is today or in the future, 1(true) if we are passed the due date -->
-<#assign bPastDueDate = bill.dueDate?date < .now?string["MM/dd/yyyy"]?date />
-<#assign bBillHasOverdue = false>
-<#if bill.overdue??><#assign bBillHasOverdue = bill.overdue></#if>
-
-<#--  ** DATA VALUES USED IN THE TEMPLATE BUT MAY CHANGE WHERE THEY COME FROM IN THE FUTURE ** -->
-<#assign nAmountDue = amount> 				<#--  probably want to change what the use case sends down -->
-<#assign dDueDate = bill.dueDate?date />	<#--  we use this everywhere so make it a variable -->
-<#assign bPastDueDate= dDueDate?date < .now?string["MM/dd/yyyy"]?date />
-<#if bill.flex12?has_content && bill.flex12?string?trim != ''>  <#-- checks to see if loan amount exists -->
-	<#assign nLoanAmount = bill.flex12>
-<#else>
-	<#assign nLoanAmount = "0.00">
-</#if>
-
-
-<#-- ***************************** LET THE GAMES BEGIN ******************************************** -->
-
-||||||| .r22
-=======
-<#-- 
-	   File: paymentSummary.ftl
-	   Date: September 11, 2023
-	   Updated by: John A. Kowalonek
-	   Purpose: summary freemarker template for 1st Franklin application
-	   
-	   2023-Sep-11	jak-- first major iteration, handles all the messages we can
-	   						think of today.. unit tested without all the use case data
-	   						but with 1st Franklin styled bill data. 
-
-  -->
-
-<#--  setting the date format here for just this template... was having a problem with the date 
-		handed down from the use case so using bill.dueDate instead of the dueDate stuffed into
-		the variables directly. There was some kind of locale problem with my setup (I'm guessing) 
-		because all dueDate had curly braces around it. -->
-<#setting date_format="MM/dd/yyyy">
-
-<#--  ********************************************************************************************
-		The settings here are used during testing and should be passed down from the use case.
-		But...we haven't built that yet so they are currently set to NOT interfere with a normal bill
-		operation... 
-	  ******************************************************************************************** -->
-
-<#--   ** CONTROLS ACCOUNT RESTRICTION BEHAVIOR **  passed in to the template by use case and obtained from the status feed-->
-<#assign bAccessDisabledCollections = false> 	<#-- true if account is in collections -->
-<#assign bACHDisabled = false>					<#-- true if ACH is disabled -->
-<#assign bPaymentDisabled = false>				<#-- true if payment is disabled -->
-<#assign sPaymentDisabledReason = "none">  		<#--  valid reasons are 'none', 'delinquency', or 'lastpayment' -->
-
-
-<#--  ** CONTROLS SCHEDULED AND AUTOMATIC PAYMENT MESSAGES ** passed in to the template by use case -->
-<#assign sScheduledPaymentCount = "none"> 			<#-- not really a count but an enum "none", "one", "multiple" -->
-<#assign dScheduledPaymentDate = "09/11/2023">		<#-- the last schedule payment date for all one time scheduled payments before due date-->
-<#assign nScheduledPaymentAmount = "1022.00">		<#-- the total amount of all scheduled payments -->
-<#assign bScheduledPaymentsLate = true> 			<#-- true if the total of all scheduled payments before payment due date + the automatic payment won't work -->
-<#assign bAutomaticPaymentScheduled = false>		<#-- true if there's an automatic payment scheduled for this account -->
-<#assign dAutomaticPaymentDate = "09/15/2023">		<#-- date of the automatic payment -->
-<#assign nAutomaticPaymentAmount = "995.10">		<#-- amount of the automatic payment -->
-
-<#--  ** ACCOUNT STATUS INFORMATION FOR STATEMENT MESSAGES ** passed nto the template by use case -->
-<#assign sBillAvailable = "yes"> <#-- "yes", "no-NewAccount", "no-PaidOff", "no-Unknown" -->
-
-<#--  ********************************************************************************************
-	  END - Settings for testing that should come from use case 
-	  ******************************************************************************************** -->
-	  
-<#--   ** VARIABLES THAT CONTROL STATEMENT MESSAGE BEHAVIOR ..
-
-	   This odd conversion of .now to a string with date format and then back to a date 
-		allowS us to compare our "pure" date formatted dueDate when other mathmatical forms do
-		not. So yeah... if for some reason, .now can't convert to a comparison string directly.. same date but keeps time.
-
-		The test returns 0(false) if due date is is today or in the future, 1(true) if we are passed the due date -->
-<#assign bPastDueDate= bill.dueDate?date < .now?string["dd/MM/yyyy"]?date />
+<#assign bPastDueDate= bill.dueDate?date < .now?string["MM/dd/yyyy"]?date />
 <#assign bBillHasOverdue = false>
 <#if bill.overdue??><#assign bBillHasOverdue = bill.overdue></#if>
 
@@ -142,7 +68,6 @@
 
 <#-- ***************************** LET THE GAMES BEGIN ******************************************** -->
 
->>>>>>> .r42
 <div class="st-payment-summary border border-5 rounded-3 border-primary p-3">
 
 	<div class="row">
@@ -378,29 +303,6 @@
 				Your account history is still available.
 			</div>
 		</div>
-<<<<<<< .mine
-	<#else>
-		<h2 class="mt-3 pt-3 border-top border-dark row">
-			<div class="col text-center">
-				Unknown bill status, please contact your local branch.
-			</div>
-		</h2>
-	</#if> <#-- bAccessDisabledcollections -->
-</div>||||||| .r22
-	</h2>
-	
-	<div class="row">
-		<div class="col">
-			Personal loan amount
-		</div>
-		<div class="col text-center">
-			Monthly payment due date
-		</div>
-		<div class="col">
-			<span class="float-end">Monthly payment amount</span>
-		</div>
-	</div>
-</div>=======
 	<#else>
 		<h2 class="mt-3 pt-3 border-top border-dark row">
 			<div class="col text-center">
@@ -409,4 +311,3 @@
 		</h2>
 	</#if> <#-- bAccessDisabledcollections -->
 </div>
->>>>>>> .r42
