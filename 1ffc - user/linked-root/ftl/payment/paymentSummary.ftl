@@ -53,9 +53,9 @@
 		not. So yeah... if for some reason, .now can't convert to a comparison string directly.. same date but keeps time.
 
 		The test returns 0(false) if due date is is today or in the future, 1(true) if we are passed the due date -->
-<#assign bPastDueDate= bill.dueDate?date < .now?string["MM/dd/yyyy"]?date />
-<#assign bBillHasOverdue = false>
-<#if bill.overdue??><#assign bBillHasOverdue = bill.overdue></#if>
+<#assign bPastDueDate = bill.dueDate?date < .now?string["MM/dd/yyyy"]?date />
+<#assign bBillHasOverdue = overdue>
+
 
 <#--  ** DATA VALUES USED IN THE TEMPLATE BUT MAY CHANGE WHERE THEY COME FROM IN THE FUTURE ** -->
 <#assign nAmountDue = amount> 				<#--  probably want to change what the use case sends down -->
