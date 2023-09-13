@@ -11,6 +11,13 @@
         <mkdir dir="${output.dir}/user"/>        
     </target>
 
+    <target name="clean">
+        <loadproperties srcFile="build.properties"/>
+
+        <delete dir="${output.dir}"/>
+        <delete dir="${artifacts.dir}"/>
+    </target>
+
     <target name="-build.admin.uc" depends="-init">
         <delete dir="${artifacts.dir}/admin"/>
         <mkdir  dir="${output.dir}/admin"/>
@@ -60,7 +67,12 @@
 		<copy todir="${output.dir}/admin" overwrite="true">
             <fileset dir="1ffc - common" includes="linked-root/**/*"/>
 			<fileset dir="1ffc - common" includes="layout-pages/**/*"/>
+            <fileset dir="1ffc - common" includes="internationalization/*"/>
         </copy>
+
+		<ant dir="1ffc - common/ui" target="package" inheritAll="false" inheritRefs="false">
+			<property name="outDir" value="${output.dir}/admin/linked-root/js"/> 
+		</ant>
 
     	<!-- Copy the resources customized for 1ffc to the application. -->
 		<copy todir="${output.dir}/admin" overwrite="true">
@@ -121,6 +133,7 @@
 		<copy todir="${output.dir}/auth" overwrite="true">
             <fileset dir="1ffc - common" includes="linked-root/**/*"/>
 			<fileset dir="1ffc - common" includes="layout-pages/**/*"/>
+            <fileset dir="1ffc - common" includes="internationalization/*"/>
         </copy>
 
 		<copy todir="${output.dir}/auth/linked-root/b2c" overwrite="true">
@@ -147,7 +160,10 @@
         </copy>
 
         <copy todir="${artifacts.dir}/user" overwrite="true" flatten="true">
-            <fileset dir="1ffc - user/src" excludes="logback.xml, app-config.properties"/>
+            <fileset dir="1ffc - user/src">
+                <include name="*.app"/>
+                <include name="*.uc"/>
+            </fileset>
         </copy>
 
         <ant dir="${devkit.dir}/build" antfile="persona.xml" inheritAll="false" inheritRefs="false">
@@ -188,7 +204,12 @@
 		<copy todir="${output.dir}/user" overwrite="true">
             <fileset dir="1ffc - common" includes="linked-root/**/*"/>
 			<fileset dir="1ffc - common" includes="layout-pages/**/*"/>
+            <fileset dir="1ffc - common" includes="internationalization/*"/>
         </copy>
+
+		<ant dir="1ffc - common/ui" target="package" inheritAll="false" inheritRefs="false">
+			<property name="outDir" value="${output.dir}/user/linked-root/js"/> 
+		</ant>
 
     	<!-- Copy the resources customized for 1ffc to the application. -->
 		<copy todir="${output.dir}/user" overwrite="true">
@@ -204,6 +225,13 @@
             <entry key="epayment.public.url" value="https://1ffc.server2.sorrisoqa.com/payment-core-2.0/"/>
             <entry key="extdoc.url" value="http://localhost:8080/personaWeb/extdoc/"/>
         </propertyfile>
+        <javac srcdir="1ffc - user/src" destdir="${output.dir}/user/classes/" includeAntRuntime="false">
+            <classpath>
+                <fileset dir="${devkit.dir}/app - user/lib">
+                    <include name="*.jar"/>
+                </fileset>
+            </classpath>
+        </javac>
     </target>
 
     <target name="package" depends="build.admin, build.auth, build.user">

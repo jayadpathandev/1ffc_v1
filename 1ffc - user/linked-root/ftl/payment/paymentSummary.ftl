@@ -244,7 +244,14 @@
 						We want to remind you that 
 						<span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nAmountDue?number)}</span>
 						is due for payment on <span class="fw-bold text-decoration-underline">${dDueDate?date}</span> 
-						and includes an overdue amount of <span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(bill.flex17?number)}</span>.
+						and includes an overdue amount of 
+						<span class="fw-bold text-decoration-underline">
+							<#if bill.flex17??>
+								${formatUtils.formatAmount(bill.flex17?number)}
+							<#else>
+								Flex 17
+							</#if>								
+						</span>.
 						Please pay now to avoid additional charges.
 					</div>
 				<#--  HANDLE GOOD OLD BILL THAT'S NOT LATE AND DOESN'T CONTAIN ANY OVERDUE AMOUNT -->
