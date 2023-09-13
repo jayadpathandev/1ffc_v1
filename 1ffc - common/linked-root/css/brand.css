@@ -1494,7 +1494,7 @@ div.impersonation.right {
     input.btn,
 	button.btn,
 	a.btn  {
-        min-width: 160px;
+        min-width: 140px;
     }
 }
 
