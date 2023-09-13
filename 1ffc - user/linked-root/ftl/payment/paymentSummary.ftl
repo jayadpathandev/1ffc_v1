@@ -85,19 +85,19 @@
 							<#-- All links enabled -->
 							<a class="me-4" target="_blank" href="fffcViewDoc?sAccount=${bill.internalAccountNo}&sDate=${bill.dateNum?c}&sStreamId=${bill.stream}&sDocId=${bill.id?c}&sExtDocId=${bill.extDocId}">View statement</a>
 							<a class="me-4 text-nowrap" href="startPaymentHistory">Transaction history</a>
-							<a class="text-nowrap" href="startAutomaticPayment">Set&nbsp;up&nbsp;automatic&nbsp;payments</a>				
+							<a class="text-nowrap" href="startAutomaticPayment">Set&nbsp;up&nbsp;recurring&nbsp;payments</a>				
 							<#break>
 						<#case "no-NewAccount">
 							<#-- All links disabled -->
 							<a class="me-4 disabled" aria-disabled="true" target="_blank" href="fffcViewDoc?sAccount=${bill.internalAccountNo}&sDate=${bill.dateNum?c}&sStreamId=${bill.stream}&sDocId=${bill.id?c}&sExtDocId=${bill.extDocId}">View statement</a>
 							<a class="me-4 text-nowrap disabled" aria-disabled="true" href="startPaymentHistory">Transaction History</a>
-							<a class="text-nowrap disabled" aria-disabled="true"href="startAutomaticPayment">Set&nbsp;up&nbsp;automatic&nbsp;payments</a>				
+							<a class="text-nowrap disabled" aria-disabled="true"href="startAutomaticPayment">Set&nbsp;up&nbsp;recurring&nbsp;payment</a>				
 							<#break>
 						<#case "no-PaidOff">
 							<#--  bill linke and automatic payment link disabled -->
 							<a class="me-4 disabled" aria-disabled="true" target="_blank" href="fffcViewDoc?sAccount=${bill.internalAccountNo}&sDate=${bill.dateNum?c}&sStreamId=${bill.stream}&sDocId=${bill.id?c}&sExtDocId=${bill.extDocId}">View statement</a>
 							<a class="me-4 text-nowrap" href="startPaymentHistory">Transaction History</a>
-							<a class="text-nowrap disabled" aria-disabled="true"href="startAutomaticPayment">Set&nbsp;up&nbsp;automatic&nbsp;payments</a>				
+							<a class="text-nowrap disabled" aria-disabled="true"href="startAutomaticPayment">Set&nbsp;up&nbsp;recurring&nbsp;payment</a>				
 							<#break>
 						<#case "unknown">
 						<#default>
