@@ -245,7 +245,9 @@
 		<property name="unmarshaller" ref="transactionMarshaller"/>
 	</bean>	
 		
-	<bean id="transactionProcessor" class="com.sorrisotech.batch.fffc.transaction.loader.transformer.XmlObjectToTransactionTransformer"/>      
+	<bean id="transactionProcessor" class="com.sorrisotech.batch.fffc.transaction.loader.transformer.XmlObjectToTransactionTransformer">
+		 <property name="payGroup" value="${th.pay.group}"></property>
+	</bean>      
 	
     <bean id="transactionWriter" class="com.sorrisotech.batch.fffc.transaction.loader.writer.TransactionDetailsWriter">        
         <property name="dataSource" ref="dataSource"/>
@@ -261,12 +263,12 @@
             <value>
                 INSERT INTO fffc_transactions (
  				 online_id,"date", account, transaction_type,
-  				 description, amount
+  				 description, amount, pay_group
 				) 
 				VALUES 
   				(
    				 :onlineId, :date, :account, :transaction_type, 
-   				 :description, :amount
+   				 :description, :amount, :pay_group
   			    )
             </value>
         </property>

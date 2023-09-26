@@ -10,6 +10,7 @@ CREATE TABLE public.fffc_transactions (
 	transaction_type varchar(255) NOT NULL,
 	description varchar(255) NOT NULL,
 	amount numeric(38,3) NULL,
+	pay_group varchar(255) NOT NULL,
 	CONSTRAINT fffc_transactions_pkey PRIMARY KEY (online_id)
 ) TABLESPACE ecare_data;
 

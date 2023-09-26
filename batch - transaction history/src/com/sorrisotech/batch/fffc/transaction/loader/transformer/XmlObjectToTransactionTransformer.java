@@ -55,6 +55,16 @@ public class XmlObjectToTransactionTransformer
 	private static final Logger mLog = LoggerFactory
 	        .getLogger(XmlObjectToTransactionTransformer.class);
 	
+	/***************************************************************************
+	 * Payment group.
+	 * 
+	 */
+	private String payGroup;
+	
+	public void setPayGroup(String payGroup) {
+		this.payGroup = payGroup;
+	}
+	
 	/**************************************************************************
 	 * Job execution context
 	 */
@@ -96,7 +106,7 @@ public class XmlObjectToTransactionTransformer
 		TransactionDetailsBean cTransactionDetails = new TransactionDetailsBean(
 		        cTransactionRecord.getOnlineId(), formattedDate, cTransactionRecord.getAccount(),
 		        cTransactionRecord.getTransactionType(), cTransactionRecord.getDescription(),
-		        cTransactionRecord.getAmount());
+		        cTransactionRecord.getAmount(), payGroup);
 		
 		if (postProcessItemWriter != null && cTransactionDetails != null) {
 			List<TransactionDetailsBean> wrapperList = new ArrayList<TransactionDetailsBean>(1);
