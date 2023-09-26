@@ -40,7 +40,6 @@ import com.sorrisotech.batch.fffc.transaction.loader.api.IFileMetaDataDao;
 import com.sorrisotech.batch.fffc.transaction.loader.exception.NoFileAvailableException;
 
 
-
 /******************************************************************************
  * Generic class to access and update the File_Meta_Data table.
  *

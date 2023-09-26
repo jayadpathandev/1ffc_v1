@@ -21,8 +21,8 @@
 		
 	<!-- ******************************************************************* -->
 	<!-- ********  Load properties for the following:             ********** -->
-	<!-- ********         Database connection details             ********** -->
-	<!-- ********         BillLoaderJob configuration details     ********** -->
+	<!-- ********  Database connection details                    ********** -->
+	<!-- ********  Transactionloader job configuration details    ********** -->
 	<!-- ******************************************************************* -->
 	
 	<bean id="propertyConfigurer" 
@@ -249,17 +249,24 @@
 	
     <bean id="transactionWriter" class="com.sorrisotech.batch.fffc.transaction.loader.writer.TransactionDetailsWriter">        
         <property name="dataSource" ref="dataSource"/>
+      
+        <property name="queryOnlineId">
+            <value>select online_id from fffc_transactions where online_id = :onlineId</value>
+        </property>
+        <property name="deleteHistory">
+            <value>delete from fffc_transactions where online_id = :onlineId</value>
+        </property>
         
         <property name="insertHistory">
             <value>
                 INSERT INTO fffc_transactions (
- 				 online_id, description, "date", pmt_group, 
-  				account, amount
+ 				 online_id,"date", account, transaction_type,
+  				 description, amount
 				) 
 				VALUES 
   				(
-   				 :onlineId, :description, :created_date, :pmtGroup, 
-   				 :account, :amount
+   				 :onlineId, :date, :account, :transaction_type, 
+   				 :description, :amount
   			    )
             </value>
         </property>
