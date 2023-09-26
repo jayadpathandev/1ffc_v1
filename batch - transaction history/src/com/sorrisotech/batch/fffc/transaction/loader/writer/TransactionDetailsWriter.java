@@ -69,17 +69,13 @@ public class TransactionDetailsWriter extends NamedParameterJdbcDaoSupport
 	 * 
 	 */
 	private String deleteHistorySql = null;
-
+	
 	public void setDeleteHistory(String deleteHistorySql) {
 		this.deleteHistorySql = deleteHistorySql;
 	}
 
 	public void setQueryOnlineId(String queryOnlineTransIdSql) {
 		this.queryOnlineIdSql = queryOnlineTransIdSql;
-	}
-	
-	public String getInsertHistory() {
-		return insertHistorySql;
 	}
 	
 	public void setInsertHistory(String insertHistory) {
@@ -169,6 +165,8 @@ public class TransactionDetailsWriter extends NamedParameterJdbcDaoSupport
 			//--------------------------------------------------------------------------------------------
 			// If we are getting amount as null or empty then storing amount as 'N/A' in fffc_transactions
 			param.addValue("amount",bean.getAmount() , Types.DECIMAL);
+			
+			param.addValue("pay_group", bean.getPayGroup(), Types.VARCHAR);
 			params.add(param);
 		}
 		final MapSqlParameterSource[] data = params.toArray(new MapSqlParameterSource[count]);

@@ -61,6 +61,11 @@ public class TransactionDetailsBean {
 	private final BigDecimal amount;
 	
 	/**************************************************************************
+	 * The payment group.
+	 */
+	private final String payGroup;
+	
+	/**************************************************************************
 	 * All argument constructor 
 	 */
 	public TransactionDetailsBean(
@@ -69,7 +74,8 @@ public class TransactionDetailsBean {
 			String account,
 	        String transactionType, 
 	        String description, 
-	        BigDecimal amount
+	        BigDecimal amount,
+	        String payGroup
 	        ) {
 		super();
 		this.onlineId = onlineId;
@@ -78,6 +84,7 @@ public class TransactionDetailsBean {
 		this.transactionType = transactionType;
 		this.description = description;
 		this.amount = amount;
+		this.payGroup = payGroup;
 	}
 	
 	/**************************************************************************
@@ -133,5 +140,14 @@ public class TransactionDetailsBean {
 	 */
 	public BigDecimal getAmount() {
 		return amount;
+	}
+	
+	/**************************************************************************
+	 * Getter for pay_group
+	 * 
+	 * @return String
+	 */
+	public String getPayGroup() {
+		return payGroup;
 	}
 }
