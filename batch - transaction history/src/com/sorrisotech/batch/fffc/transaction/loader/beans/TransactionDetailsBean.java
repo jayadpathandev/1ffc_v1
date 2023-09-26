@@ -20,7 +20,7 @@
  */
 package com.sorrisotech.batch.fffc.transaction.loader.beans;
 
-import java.sql.Timestamp;
+import java.math.BigDecimal;
 
 /******************************************************************************
  * Holds the information of the transaction details.
@@ -36,39 +36,52 @@ public class TransactionDetailsBean {
 	private final String onlineId;
 	
 	/**************************************************************************
+	 * The transaction date
+	 */
+	private final Integer date;
+
+	/**************************************************************************
+	 * Account of user 
+	 */
+	private final String account;
+	
+	/**************************************************************************
+	 * Type of transaction e.g. Payment/ Acct Update / Addr Change 
+	 */
+	private final String transactionType;
+
+	/**************************************************************************
 	 * The description of transaction.
 	 */
 	private final String description;
 	
-	/**
-	 * The invoice of transactions.
+	/**************************************************************************
+	 * The amount.
 	 */
-	private TransactionDocumentDetailsBean cInvoices = new TransactionDocumentDetailsBean();
+	private final BigDecimal amount;
 	
 	/**************************************************************************
-	 * The transaction time stamp.
+	 * All argument constructor 
 	 */
-	private final Timestamp mDateTime;
-	
-	/**************************************************************************
-	 * Getter method for invoice
-	 * 
-	 * @return TransactionDocumentDetailsBean
-	 */
-	public TransactionDocumentDetailsBean getInvoices() {
-		return cInvoices;
+	public TransactionDetailsBean(
+			String onlineId, 
+			Integer date, 
+			String account,
+	        String transactionType, 
+	        String description, 
+	        BigDecimal amount
+	        ) {
+		super();
+		this.onlineId = onlineId;
+		this.date = date;
+		this.account = account;
+		this.transactionType = transactionType;
+		this.description = description;
+		this.amount = amount;
 	}
 	
 	/**************************************************************************
-	 * Setter method for invoice
-	 * 
-	 */
-	public void setInvoices(TransactionDocumentDetailsBean lInvoices) {
-		this.cInvoices = lInvoices;
-	}
-	
-	/**************************************************************************
-	 * Getter method for online id.
+	 * Getter for online_id
 	 * 
 	 * @return String
 	 */
@@ -76,8 +89,9 @@ public class TransactionDetailsBean {
 		return onlineId;
 	}
 	
+
 	/**************************************************************************
-	 * Getter method for description.
+	 * Getter for description
 	 * 
 	 * @return String
 	 */
@@ -86,25 +100,38 @@ public class TransactionDetailsBean {
 	}
 	
 	/**************************************************************************
-	 * Getter method for date and time.
+	 * Getter for date
 	 * 
-	 * @return Time stamp.
+	 * @return String
 	 */
-	public Timestamp getDateTime() {
-		return mDateTime;
+	public Integer getDate() {
+		return date;
 	}
 	
 	/**************************************************************************
-	 * All argument constructor.
+	 * Getter for account
 	 * 
+	 * @return String
 	 */
-	public TransactionDetailsBean(String onlineId, String description,
-	        TransactionDocumentDetailsBean cInvoices, Timestamp mDateTime) {
-		super();
-		this.onlineId = onlineId;
-		this.description = description;
-		this.cInvoices = cInvoices;
-		this.mDateTime = mDateTime;
+	public String getAccount() {
+		return account;
 	}
 	
+	/**************************************************************************
+	 * Getter for transaction_type
+	 * 
+	 * @return String
+	 */
+	public String getTransactionType() {
+		return transactionType;
+	}
+
+	/**************************************************************************
+	 * Getter for amount.
+	 * 
+	 * @return BigDecimal
+	 */
+	public BigDecimal getAmount() {
+		return amount;
+	}
 }

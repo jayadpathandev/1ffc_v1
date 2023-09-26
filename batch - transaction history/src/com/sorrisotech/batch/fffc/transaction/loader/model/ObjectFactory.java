@@ -64,29 +64,4 @@ public class ObjectFactory {
 		return new TransactionsData.TransactionRecord();
 	}
 	
-	/**
-	 * Create an instance of {@link TransactionsData.FileHeader }
-	 *
-	 */
-	public TransactionsData.FileHeader createTransactionsHeader() {
-		return new TransactionsData.FileHeader();
-	}
-	
-	/**
-	 * Create an instance of {@link TransactionsData.Footer }
-	 *
-	 */
-	public TransactionsData.Footer createTransactionsFooter() {
-		return new TransactionsData.Footer();
-	}
-	
-	/**
-	 * Create an instance of
-	 * {@link TransactionsData.TransactionRecord.Invoice }
-	 *
-	 */
-	public TransactionsData.TransactionRecord.Invoice createTransactionRecordsRecordInvoice() {
-		return new TransactionsData.TransactionRecord.Invoice();
-	}
-	
 }

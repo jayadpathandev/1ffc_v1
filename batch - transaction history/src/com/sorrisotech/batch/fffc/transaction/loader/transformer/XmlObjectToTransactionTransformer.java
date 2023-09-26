@@ -20,11 +20,9 @@
  */
 package com.sorrisotech.batch.fffc.transaction.loader.transformer;
 
-import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.xmlbeans.XmlObject;
@@ -38,7 +36,6 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
 
 import com.sorrisotech.batch.fffc.transaction.loader.beans.TransactionDetailsBean;
-import com.sorrisotech.batch.fffc.transaction.loader.beans.TransactionDocumentDetailsBean;
 import com.sorrisotech.batch.fffc.transaction.loader.model.TransactionsData;
 import com.sorrisotech.batch.fffc.transaction.loader.model.TransactionsData.TransactionRecord;
 
@@ -85,24 +82,21 @@ public class XmlObjectToTransactionTransformer
 	@SuppressWarnings({ "unchecked" })
 	public TransactionDetailsBean process(
 	        final TransactionsData.TransactionRecord cTransactionRecord) throws Exception {
-		DateFormat format = new SimpleDateFormat("yyyyMMdd");
+		//-------------------------------------------------------------------------------------
+		// The date in XML file is in time stamp format.
+		DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 		
-		Date cPayDate = format.parse(cTransactionRecord.getDate());
+		LocalDateTime cPayDate = LocalDateTime.parse(cTransactionRecord.getDate(), inputFormatter);
 		
-		Timestamp timeStampDate = new Timestamp(cPayDate.getTime());
+		//-------------------------------------------------------------------------------------
+		// Converted date to yyyyMMdd format and storing in numeric format.
 		
-		TransactionDocumentDetailsBean cDetailsBean = null;
-		
-		if (null != cTransactionRecord.getInvoice()) {
-			cDetailsBean = new TransactionDocumentDetailsBean(
-			        cTransactionRecord.getInvoice().getPmtGroup(),
-			        cTransactionRecord.getInvoice().getAccount(),
-			        cTransactionRecord.getInvoice().getAmount());
-		}
+		Integer formattedDate =Integer.valueOf(DateTimeFormatter.ofPattern("yyyyMMdd").format(cPayDate));
 		
 		TransactionDetailsBean cTransactionDetails = new TransactionDetailsBean(
-		        cTransactionRecord.getOnlineId(), cTransactionRecord.getDescription(), cDetailsBean,
-		        timeStampDate);
+		        cTransactionRecord.getOnlineId(), formattedDate, cTransactionRecord.getAccount(),
+		        cTransactionRecord.getTransactionType(), cTransactionRecord.getDescription(),
+		        cTransactionRecord.getAmount());
 		
 		if (postProcessItemWriter != null && cTransactionDetails != null) {
 			List<TransactionDetailsBean> wrapperList = new ArrayList<TransactionDetailsBean>(1);

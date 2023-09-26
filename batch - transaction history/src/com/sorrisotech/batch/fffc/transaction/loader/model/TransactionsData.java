@@ -26,158 +26,184 @@ import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
+/******************************************************************************
+ * Class used to hold java representation of XML content.
+ *
+ * @author Asrar Saloda
+ *
+ */
 @XmlRootElement(name = "TransactionsData")
 public class TransactionsData {
 	
-	protected TransactionsData.FileHeader fileHeader;
-	
 	protected TransactionsData.TransactionRecord transactionRecord;
 	
-	protected TransactionsData.Footer footer;
-	
-	public TransactionsData.FileHeader getFileHeader() {
-		return fileHeader;
-	}
-	
-	@XmlElement(required = true)
-	public void setFileHeader(TransactionsData.FileHeader value) {
-		this.fileHeader = value;
-	}
-	
+	/*********************************************************************************
+	 * Getter method for transaction record of transaction file
+	 *
+	 *@return TransactionRecord
+	 */
 	public TransactionsData.TransactionRecord getTransactionRecord() {
 		return transactionRecord;
 	}
 	
+	/*********************************************************************************
+	 * Setter method for transaction record of transaction file
+	 *
+	 */
 	@XmlElement(required = true)
-	public void setTransactionRecords(TransactionsData.TransactionRecord value) {
-		this.transactionRecord = value;
+	public void setTransactionRecords(TransactionsData.TransactionRecord transactionRecord) {
+		this.transactionRecord = transactionRecord;
 	}
 	
-	public TransactionsData.Footer getFooter() {
-		return footer;
-	}
-	
-	@XmlElement(required = true)
-	public void setFooter(TransactionsData.Footer value) {
-		this.footer = value;
-	}
-	
-	@XmlRootElement(name = "Footer")
-	public static class Footer {
+	/*********************************************************************************
+	 * Holding the XML root element (Transaction Record) of transaction history file
+	 *
+	 */
+	@XmlRootElement(name = "TransactionRecord")
+	public static class TransactionRecord {
 		
-		protected int records;
+		/******************************************************************************
+		 * Online id of transaction.
+		 *
+		 */
+		protected String onlineId;
 		
-		public int getRecords() {
-			return records;
+		/******************************************************************************
+		 * Date of transaction.
+		 *
+		 */
+		protected String date;
+		
+		/******************************************************************************
+		 * Account of user doing transaction.
+		 *
+		 */
+		protected String account;
+		
+		/******************************************************************************
+		 * Type of transaction.
+		 *
+		 */
+		protected String transactionType;
+		
+		/******************************************************************************
+		 * Descriptions of transaction.
+		 *
+		 */
+		protected String description;
+		
+		/******************************************************************************
+		 * The amount. (Optional)
+		 *
+		 */
+		protected BigDecimal amount;
+		
+		/******************************************************************************
+		 * Getter method for amount.
+		 *
+		 * @return BigDecimal
+		 */
+		public BigDecimal getAmount() {
+			return amount;
 		}
 		
-		@XmlAttribute(required = true)
-		public void setRecords(int records) {
-			this.records = records;
+		/******************************************************************************
+		 * Setter method for amount.
+		 *
+		 */
+		@XmlAttribute(name = "amount")
+		public void setAmount(BigDecimal amount) {
+			this.amount = amount;
 		}
-	}
-	
-	
-		@XmlRootElement(name = "TransactionRecord")
-		public static class TransactionRecord {
-			
-			protected TransactionsData.TransactionRecord.Invoice invoice;
-			
-			protected String onlineId;
-			
-			protected String date;
-			
-			public String getDate() {
-				return date;
-			}
 
-			@XmlAttribute(name = "date")
-			public void setDate(String date) {
-				this.date = date;
-			}
-
-			protected String description;
-			
-			public TransactionsData.TransactionRecord.Invoice getInvoice() {
-				if (invoice == null) {
-					invoice = new TransactionsData.TransactionRecord.Invoice();
-				}
-				return this.invoice;
-			}
-			
-			@XmlElement(name = "Invoice" , required = true)
-			public void setInvoice(TransactionsData.TransactionRecord.Invoice invoice) {
-				this.invoice = invoice;
-			}
-
-			public String getOnlineId() {
-				return onlineId;
-			}
-			
-			@XmlAttribute(name = "online_id")
-			public void setOnlineId(String value) {
-				this.onlineId = value;
-			}
-			
-			public String getDescription() {
-				return description;
-			}
-			
-			@XmlAttribute(name = "description")
-			public void setDescription(String value) {
-				this.description = value;
-			}
-			
-			@XmlRootElement(name = "Invoice")
-			public static class Invoice {
-
-				protected String pmtGroup;
-				
-				protected String account;
-				
-				protected BigDecimal amount;
-				
-				public String getAccount() {
-					return account;
-				}
-				
-				@XmlAttribute(name = "account")
-				public void setAccount(String value) {
-					this.account = value;
-				}
-				
-				public BigDecimal getAmount() {
-					return amount;
-				}
-				
-				@XmlAttribute(name = "amount")
-				public void setAmount(BigDecimal value) {
-					this.amount = value;
-				}
-				
-				public String getPmtGroup() {
-					return pmtGroup;
-				}
-				
-				@XmlAttribute(name = "pmt_group")
-				public void setPmtGroup(String value) {
-					this.pmtGroup = value;
-				}
-			}
-		}
-	
-	@XmlRootElement(name = "FileHeader")
-	public static class FileHeader {
-
-		protected String group;
-		
-		public String getGroup() {
-			return group;
+		/******************************************************************************
+		 * Getter method for online_id of transaction.
+		 *
+		 * @return String
+		 */
+		public String getOnlineId() {
+			return onlineId;
 		}
 		
-		@XmlAttribute(name = "group")
-		public void setGroup(String value) {
-			this.group = value;
+		/******************************************************************************
+		 * Setter method for online_id of transaction.
+		 *
+		 */
+		@XmlAttribute(name = "online_id", required = true)
+		public void setOnlineId(String onlineId) {
+			this.onlineId = onlineId;
+		}
+		
+		/******************************************************************************
+		 * Getter method for date of transaction.
+		 *
+		 * @return String
+		 */
+		public String getDate() {
+			return date;
+		}
+		
+		/******************************************************************************
+		 * Setter method for date of transaction.
+		 *
+		 */
+		@XmlAttribute(name = "date", required = true)
+		public void setDate(String date) {
+			this.date = date;
+		}
+		
+		/******************************************************************************
+		 * Getter method for account of user doing transaction.
+		 *
+		 * @return String
+		 */
+		public String getAccount() {
+			return account;
+		}
+		
+		/******************************************************************************
+		 * Setter method for account of user doing transaction.
+		 *
+		 */
+		@XmlAttribute(name = "account", required = true)
+		public void setAccount(String account) {
+			this.account = account;
+		}
+		
+		/******************************************************************************
+		 * Getter method for type of transaction.
+		 *
+		 * @return String
+		 */
+		public String getTransactionType() {
+			return transactionType;
+		}
+		
+		/******************************************************************************
+		 * Setter method for type of transaction.
+		 *
+		 */
+		@XmlAttribute(name = "transaction_type", required = true)
+		public void setTransactionType(String transactionType) {
+			this.transactionType = transactionType;
+		}
+		
+		/******************************************************************************
+		 * Getter method for description related to transaction.
+		 *
+		 * @return String
+		 */
+		public String getDescription() {
+			return description;
+		}
+		
+		/******************************************************************************
+		 * Setter method for description related to transaction.
+		 *
+		 */
+		@XmlAttribute(name = "description", required = true)
+		public void setDescription(String description) {
+			this.description = description;
 		}
 	}
 }
