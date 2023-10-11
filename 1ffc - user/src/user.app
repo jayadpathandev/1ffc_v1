@@ -57,6 +57,7 @@ application [
 		// 1FFC 
 		fffcRenewNow
 		fffcViewDocument
+		fffcTransactionHistory 
  	]
  	
  	roles [
