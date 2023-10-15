@@ -47,7 +47,8 @@ useCase fffcTransactionHistory [
         
         column amountCol("{Amount}") [
             elements: [sAmount]  
-            sort: [sAmount]                      
+            sort: [sAmount]    
+            tags: ["text-end"]                   
         ] 
      ]	
 	
