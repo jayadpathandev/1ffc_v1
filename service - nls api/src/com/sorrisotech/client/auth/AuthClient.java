@@ -63,8 +63,9 @@ public class AuthClient {
 	/**********************************************************************************************
 	 * Fetch user token.
 	 * 
-	 * @param szVersion Version of server.
-	 * @param szToken   Authorization token.
+	 * @param szBaseUrl           base URL of server.
+	 * @param cAccessTokenRequest user name and password
+	 * @param szVersion           Version of server.
 	 * 
 	 * @return The result of operation.
 	 * 
@@ -75,7 +76,7 @@ public class AuthClient {
 	 *                                 errors.
 	 */
 	public AuthResponse getToken(
-			String szBaseUrl,
+	        String szBaseUrl,
 	        AuthAccessTokenRequest cAccessTokenRequest,
 	        String szVersion) throws InvalidRequestException,
 	        RestClientException {
@@ -97,8 +98,9 @@ public class AuthClient {
 	/**********************************************************************************************
 	 * Refresh user token.
 	 * 
-	 * @param szVersion Version of server.
-	 * @param szToken   Authorization token.
+	 * @param szBaseUrl                base URL of server.
+	 * @param cAuthRefreshTokenRequest access and refresh token.
+	 * @param szVersion                Version of server.
 	 * 
 	 * @return The result of operation.
 	 * 
@@ -109,7 +111,7 @@ public class AuthClient {
 	 *                                 errors.
 	 */
 	public AuthResponse refreshToken(
-			String szBaseUrl,
+	        String szBaseUrl,
 	        AuthRefreshTokenRequest cAuthRefreshTokenRequest,
 	        String szVersion) throws InvalidRequestException,
 	        RestClientException {

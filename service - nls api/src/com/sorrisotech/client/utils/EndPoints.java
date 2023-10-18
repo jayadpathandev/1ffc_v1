@@ -46,39 +46,4 @@ public enum EndPoints {
 		}
 		return szFinalUrl;
 	}
-	
-	/**********************************************************************************************
-	 * This method is used to build URL using base URL and end points.
-	 * 
-	 * @param szBaseUrl      Base URL of server.
-	 * @param cPathVariables Path variable of end point.
-	 * @param cQueryParams   Query parameters of URL
-	 */
-	public String buildURL(
-	        String szBaseUrl,
-	        Map<String, String> cPathVariables,
-	        Map<String, String> cQueryParams) {
-		var szFinalUrl = szBaseUrl + m_szEndpoint;
-		for (var entry : cPathVariables.entrySet()) {
-			szFinalUrl = szFinalUrl.replace("{" + entry.getKey() + "}", entry.getValue());
-		}
-		
-		if (cQueryParams != null && !cQueryParams.isEmpty()) {
-			StringBuilder cQueryParamBuilder = new StringBuilder("?");
-			
-			boolean bIsFirst = true;
-			
-			for (var entry : cQueryParams.entrySet()) {
-				if (!bIsFirst) {
-					cQueryParamBuilder.append("&");
-				} else {
-					bIsFirst = false;
-				}
-				cQueryParamBuilder.append(entry.getKey()).append("=").append(entry.getValue());
-			}
-			
-			szFinalUrl += cQueryParamBuilder.toString();
-		}
-		return szFinalUrl;
-	}
 }

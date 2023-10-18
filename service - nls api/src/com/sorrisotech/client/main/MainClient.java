@@ -80,13 +80,14 @@ public class MainClient {
 	        String szToken) throws InvalidRequestException,
 	        RestClientException {
 		var szPathVariables = Map.of("version", szVersion);
-		var szQueryParams   = Map.of("documentid", cDocumentId);
 		
-		var szEndPointURL = EndPoints.DOCUMENT.buildURL(szBaseUrl, szPathVariables, szQueryParams);
+		var szEndPointURL = EndPoints.DOCUMENT.buildURL(szBaseUrl, szPathVariables);
 		LOG.info("Create Document Url : " + szEndPointURL);
 		
-		var cResponse = m_cApiUtils.executeApiRequest(null, HttpMethod.POST, szEndPointURL, szToken,
-		        SimpleNLSResponse.class);
+		var szRequestBody = String.format("\"%s\"", cDocumentId);
+		
+		var cResponse = m_cApiUtils.executeApiRequest(szRequestBody, HttpMethod.POST, szEndPointURL,
+		        szToken, SimpleNLSResponse.class);
 		LOG.info("Create Document Response:" + cResponse);
 		return cResponse;
 	}

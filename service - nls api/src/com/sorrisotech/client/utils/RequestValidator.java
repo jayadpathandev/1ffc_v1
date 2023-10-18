@@ -58,8 +58,7 @@ public class RequestValidator {
 	/**
 	 * Validates request's fields.
 	 * 
-	 * @param <RequestType>
-	 * @param cRequest      any request having Hibernate validations into it.
+	 * @param cRequest any request having Hibernate validations into it.
 	 * 
 	 * @throws InvalidRequestException When request validation failed.
 	 */

@@ -22,32 +22,41 @@ package com.sorrisotech.client.main.model.response;
 
 import java.util.ArrayList;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /******************************************************************************
  * Holds the information of the Main client response.
  * 
  * @author Asrar Saloda
  */
+@JsonInclude(Include.NON_NULL)
 public class SimpleNLSResponse {
 	
 	/**************************************************************************
 	 * HTTP status code of response
 	 */
-	public Integer statuscode;
+	@JsonProperty("statuscode")
+	private Integer m_iStatusCode;
 	
 	/**************************************************************************
 	 * Boolean property to know 3d party rest call successful or not
 	 */
-	public Boolean success;
+	@JsonProperty("success")
+	private Boolean m_bSuccess;
 	
 	/**************************************************************************
 	 * Pay load of response
 	 */
-	public String payload;
+	@JsonProperty("payload")
+	private String m_szPayLoad;
 	
 	/**************************************************************************
 	 * List of errors in response
 	 */
-	public ArrayList<String> errors;
+	@JsonProperty("errors")
+	private ArrayList<String> m_cErrors;
 	
 	/**************************************************************************
 	 * Overridden toString method.
@@ -56,8 +65,8 @@ public class SimpleNLSResponse {
 	 */
 	@Override
 	public String toString() {
-		return "MainResponse [statuscode=" + statuscode + ", success=" + success + ", payload="
-		        + payload + ", errors=" + errors + "]";
+		return "MainResponse [statuscode=" + m_iStatusCode + ", success=" + m_bSuccess + ", payload="
+		        + m_szPayLoad + ", errors=" + m_cErrors + "]";
 	}
 
 	/**************************************************************************
@@ -66,7 +75,7 @@ public class SimpleNLSResponse {
 	 * @return String pay load of response.
 	 */
 	public String getPayload() {
-		return payload;
+		return m_szPayLoad;
 	}
 
 	/**************************************************************************
@@ -75,7 +84,7 @@ public class SimpleNLSResponse {
 	 * @return Integer status code.
 	 */
 	public Integer getStatuscode() {
-		return statuscode;
+		return m_iStatusCode;
 	}
 
 	/**************************************************************************
@@ -84,7 +93,7 @@ public class SimpleNLSResponse {
 	 * @return Boolean success status.
 	 */
 	public Boolean getSuccess() {
-		return success;
+		return m_bSuccess;
 	}
 
 	/**************************************************************************
@@ -93,6 +102,6 @@ public class SimpleNLSResponse {
 	 * @return ArrayList<String> errors.
 	 */
 	public ArrayList<String> getErrors() {
-		return errors;
+		return m_cErrors;
 	}
 }
