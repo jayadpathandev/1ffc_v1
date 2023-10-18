@@ -20,10 +20,9 @@
  */
 package com.sorrisotech.client.auth.model.request;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.validation.constraints.NotEmpty;
 
@@ -33,20 +32,21 @@ import jakarta.validation.constraints.NotEmpty;
  * @author Asrar Saloda
  */
 @JsonInclude(Include.NON_NULL)
-@JsonAutoDetect(fieldVisibility = Visibility.PUBLIC_ONLY)
 public class AuthRefreshTokenRequest {
 	
 	/**************************************************************************
 	 * Access token
 	 */
 	@NotEmpty(message = "Access token can not be null")
-	public String accessToken;
+	@JsonProperty("accessToken")
+	private String m_szAccessToken;
 	
 	/**************************************************************************
 	 * Refresh token
 	 */
 	@NotEmpty(message = "Refresh token can not be null or empty")
-	public String refreshToken;
+	@JsonProperty("refreshToken")
+	private String m_szRefreshToken;
 	
 	/**************************************************************************
 	 * Overridden toString method.
@@ -55,8 +55,8 @@ public class AuthRefreshTokenRequest {
 	 */
 	@Override
 	public String toString() {
-		return "AuthRefreshTokenRequest [accessToken=" + accessToken + ", refreshToken="
-		        + refreshToken + "]";
+		return "AuthRefreshTokenRequest [accessToken=" + m_szAccessToken + ", refreshToken="
+		        + m_szRefreshToken + "]";
 	}
 	
 	/**************************************************************************
@@ -71,7 +71,26 @@ public class AuthRefreshTokenRequest {
 	 */
 	public AuthRefreshTokenRequest(String accessToken, String refreshToken) {
 		super();
-		this.accessToken = accessToken;
-		this.refreshToken = refreshToken;
+		this.m_szAccessToken = accessToken;
+		this.m_szRefreshToken = refreshToken;
 	}
+
+	/**************************************************************************
+	 * Getter method for access token.
+	 * 
+	 * @return String access token.
+	 */
+	public String getAccessToken() {
+		return m_szAccessToken;
+	}
+	
+	/**************************************************************************
+	 * Getter method for access token.
+	 * 
+	 * @return String refresh token.
+	 */
+	public String getRefreshToken() {
+		return m_szRefreshToken;
+	}
+	
 }

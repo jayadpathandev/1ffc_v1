@@ -22,32 +22,59 @@ package com.sorrisotech.client.auth.model.response;
 
 import java.util.ArrayList;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /******************************************************************************
  * Holds the information of the Authorization response.
  * 
  * @author Asrar Saloda
  */
+@JsonInclude(Include.NON_NULL)
 public class AuthResponse {
 	
 	/**************************************************************************
 	 * HTTP status code of response
 	 */
-	public Integer statuscode;
+	@JsonProperty("statuscode")
+	private Integer m_iStatusCode;
 	
 	/**************************************************************************
 	 * Boolean property to know 3d party rest call successful or not.
 	 */
-	public Boolean success;
+	@JsonProperty("success")
+	private Boolean m_bSuccess;
 	
 	/**************************************************************************
 	 * Pay load of response.
 	 */
-	public AuthPayload payload;
+	@JsonProperty("payload")
+	private AuthPayload m_cPayLoad;
 	
 	/**************************************************************************
 	 * List of errors in response.
 	 */
-	public ArrayList<String> errors;
+	@JsonProperty("errors")
+	private ArrayList<String> m_cErrors;
+	
+	/**********************************************************************************************
+	 * Constructor for creating the object.
+	 */
+	public AuthResponse() {
+		super();
+	}
+	
+	/**********************************************************************************************
+	 * Constructor for creating the object with all fields.
+	 */
+	public AuthResponse(Integer statuscode, Boolean success, AuthPayload payload,
+	        ArrayList<String> errors) {
+		this.m_iStatusCode = statuscode;
+		this.m_bSuccess = success;
+		this.m_cPayLoad = payload;
+		this.m_cErrors = errors;
+	}
 	
 	/**************************************************************************
 	 * Overridden toString method.
@@ -56,8 +83,8 @@ public class AuthResponse {
 	 */
 	@Override
 	public String toString() {
-		return "AuthResponse [statuscode=" + statuscode + ", success=" + success + ", payload="
-		        + payload + ", errors=" + errors + "]";
+		return "AuthResponse [statuscode=" + m_iStatusCode + ", success=" + m_bSuccess + ", payload="
+		        + m_cPayLoad + ", errors=" + m_cErrors + "]";
 	}
 	
 	/**************************************************************************
@@ -66,7 +93,7 @@ public class AuthResponse {
 	 * @return AuthPayload pay load with access token and refresh token.
 	 */
 	public AuthPayload getPayload() {
-		return payload;
+		return m_cPayLoad;
 	}
 	
 	/**************************************************************************
@@ -75,7 +102,7 @@ public class AuthResponse {
 	 * @return Integer status code.
 	 */
 	public Integer getStatuscode() {
-		return statuscode;
+		return m_iStatusCode;
 	}
 	
 	/**************************************************************************
@@ -84,7 +111,7 @@ public class AuthResponse {
 	 * @return Boolean success status.
 	 */
 	public Boolean getSuccess() {
-		return success;
+		return m_bSuccess;
 	}
 	
 	/**************************************************************************
@@ -93,7 +120,7 @@ public class AuthResponse {
 	 * @return ArrayList<String> errors.
 	 */
 	public ArrayList<String> getErrors() {
-		return errors;
+		return m_cErrors;
 	}
 	
 }

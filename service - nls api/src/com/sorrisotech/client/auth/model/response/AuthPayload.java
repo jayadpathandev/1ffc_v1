@@ -20,22 +20,44 @@
  */
 package com.sorrisotech.client.auth.model.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /******************************************************************************
- * Holds the information of the Authorization response.
+ * Holds the information of the Authorization response pay load.
  * 
  * @author Asrar Saloda
  */
+@JsonInclude(Include.NON_NULL)
 public class AuthPayload {
 	
 	/**************************************************************************
 	 * Access token.
 	 */
-	public String accessToken;
+	@JsonProperty("accessToken")
+	private String m_szAccessToken;
 	
 	/**************************************************************************
 	 * Refresh token.
 	 */
-	public String refreshToken;
+	@JsonProperty("refreshToken")
+	private String m_szRefreshToken;
+
+	/**************************************************************************
+	 * Default constructor
+	 */
+	public AuthPayload() {
+		super();
+	}
+
+	/**************************************************************************
+	 * All argument constructor.
+	 */
+	public AuthPayload(String accessToken, String refreshToken) {
+		this.m_szAccessToken = accessToken;
+		this.m_szRefreshToken = refreshToken;
+	}
 
 	/**************************************************************************
 	 * Overridden toString method.
@@ -44,7 +66,7 @@ public class AuthPayload {
 	 */
 	@Override
 	public String toString() {
-		return "AuthPayload [accessToken=" + accessToken + ", refrershToken=" + refreshToken + "]";
+		return "AuthPayload [accessToken=" + m_szAccessToken + ", refrershToken=" + m_szRefreshToken + "]";
 	}
 	
 	/**************************************************************************
@@ -53,7 +75,7 @@ public class AuthPayload {
 	 * @return String access token.
 	 */
 	public String getAccessToken() {
-		return accessToken;
+		return m_szAccessToken;
 	}
 	
 	/**************************************************************************
@@ -61,7 +83,7 @@ public class AuthPayload {
 	 * 
 	 * @return String refresh token.
 	 */
-	public String getRefrershToken() {
-		return refreshToken;
+	public String getRefreshToken() {
+		return m_szRefreshToken;
 	}
 }

@@ -20,10 +20,9 @@
  */
 package com.sorrisotech.client.auth.model.request;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.validation.constraints.NotEmpty;
 
@@ -33,20 +32,21 @@ import jakarta.validation.constraints.NotEmpty;
  * @author Asrar Saloda
  */
 @JsonInclude(Include.NON_NULL)
-@JsonAutoDetect(fieldVisibility = Visibility.PUBLIC_ONLY)
 public class AuthAccessTokenRequest {
 	
 	/**************************************************************************
 	 * User name of user.
 	 */
 	@NotEmpty(message = "User name can not be null or empty")
-	public String username;
+	@JsonProperty("username")
+	private String m_szUserName;
 	
 	/**************************************************************************
 	 * Password of user.
 	 */
 	@NotEmpty(message = "User name can not be null or empty")
-	public String password;
+	@JsonProperty("password")
+	private String m_szPassword;
 	
 	/**************************************************************************
 	 * Overridden toString method.
@@ -55,7 +55,7 @@ public class AuthAccessTokenRequest {
 	 */
 	@Override
 	public String toString() {
-		return "AuthAccessTokenRequest [username=" + username + ", password=" + password + "]";
+		return "AuthAccessTokenRequest [username=" + m_szUserName + ", password=" + m_szPassword + "]";
 	}
 	
 	/**************************************************************************
@@ -72,7 +72,26 @@ public class AuthAccessTokenRequest {
 	        @NotEmpty(message = "User name can not be null or empty") String username,
 	        @NotEmpty(message = "User name can not be null or empty") String password) {
 		super();
-		this.username = username;
-		this.password = password;
+		this.m_szUserName = username;
+		this.m_szPassword = password;
 	}
+	
+	/**************************************************************************
+	 * Getter method for user name.
+	 * 
+	 * @return String user name.
+	 */
+	public String getUsername() {
+		return m_szUserName;
+	}
+
+	/**************************************************************************
+	 * Getter method for password.
+	 * 
+	 * @return String password
+	 */
+	public String getPassword() {
+		return m_szPassword;
+	}
+	
 }

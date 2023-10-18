@@ -25,6 +25,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -51,6 +52,13 @@ public class ApiUtils {
 	public ApiUtils() {
 		
 		m_cRestTemplate = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
+		
+		// --------------------------------------------------------------------------------------
+		// Removing MappingJackson2XmlHttpMessageConverter due to XML format conversion,
+		// while our NLS server only accepts JSON format.
+		// Note: Jackson-dataformat-XML dependency is in some projects.
+		m_cRestTemplate.getMessageConverters()
+		        .removeIf(converter -> converter instanceof MappingJackson2XmlHttpMessageConverter);
 		
 	}
 	
