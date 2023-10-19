@@ -341,13 +341,7 @@ footer {
 h1 {
 	font-weight: 900;
 	font-size: 40px;
-	letter-spacing: -0.4px;
-	padding-bottom: 30px;
-	margin: 0;
 	border-bottom: 1px solid #c0c0c0;
-	margin-bottom: 30px;
-	float: left;
-    width: 100%;
 }
 
 h4 {
@@ -1271,8 +1265,6 @@ a:hover, .btn-link:hover {
     font-weight: 900;
     font-size: 40px;
     letter-spacing: -0.4px;
-    padding-top: 50px;
-    padding-bottom: 30px;
     color: #25408F;
     border-bottom: 1px solid #c0c0c0;
     margin-top: 0;
