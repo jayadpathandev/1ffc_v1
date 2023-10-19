@@ -38,7 +38,7 @@ header {
     position: fixed;
     top: 0px;
     left: 0px;
-	padding-bottom: 15px;
+	padding-bottom: 23px;
 	z-index: 1000;
 }
 
@@ -341,7 +341,11 @@ footer {
 h1 {
 	font-weight: 900;
 	font-size: 40px;
+	line-height: 40px;
+	padding-bottom: 30px;
+	margin: 0;
 	border-bottom: 1px solid #c0c0c0;
+	margin-bottom: 25px;
 }
 
 h4 {
@@ -607,7 +611,6 @@ input.st-date-control[readonly] {
 
 .toggle-on.btn-sm {
 	font-weight: 900;
-	letter-spacing: 1px;
 	padding-right: 30px !important;
 	border: 0;
 	box-shadow: none;
@@ -636,7 +639,6 @@ input.st-date-control[readonly] {
 .toggle-off.btn-sm:focus,
 .toggle-off.btn-sm:hover {
 	font-weight: 900;
-	letter-spacing: 1px;
 	padding-left: 30px !important;
 	border: 0;
 	box-shadow: none;
@@ -1261,16 +1263,6 @@ a:hover, .btn-link:hover {
 /**************************************************************************************************
  * Special classes for the login flows.
  *************************************************************************************************/
-.st-login h1 {
-    font-weight: 900;
-    font-size: 40px;
-    letter-spacing: -0.4px;
-    color: #25408F;
-    border-bottom: 1px solid #c0c0c0;
-    margin-top: 0;
-    margin-bottom: 30px;
-}
-
 .st-login h2  {
     font-weight: 900;
     font-size: 18px;

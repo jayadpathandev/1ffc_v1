@@ -109,7 +109,6 @@
 .st-dashboard-greeting {
     padding-bottom: 25px;
     font-weight: 900;
-    letter-spacing: -0.4px;
     font-size: 40px;
     line-height: 40px;
 }
@@ -941,7 +940,6 @@ table.dataTable thead .sorting:after {
 .st-summary-module-heading {
     padding-bottom: 25px;
     font-weight: 900;
-    letter-spacing: -0.4px;
     font-size: 40px;
     line-height: 40px;
 }
