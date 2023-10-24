@@ -37,7 +37,7 @@ useCase fffcReg08PersonalImage [
 	 
 	importJava UcSecurityImage(com.sorrisotech.uc.securityimage.UcSecurityImage) 
     
-    string sPageName = "{Registration - Choose Your Personal Image (step 8 of 8)}"        
+    string sPageName = "{Registration - Choose Personal Image (step 8 of 8)}"        
     string sMessage = "{Your personal image is used to help you recognize when a hacker has created a fake log-in and is \"phishing\" for your credentials. If you arrive at the password entry page and your personal image is not shown, DO NOT enter your password. Close your browser window and try to connect to the application again.}"                      
        
     persistent input groupId  = "1"       		
@@ -108,7 +108,7 @@ useCase fffcReg08PersonalImage [
     /**************************************************************************
     * 2. System displays the personal image screen.
     */        
-    noMenu xsltScreen regPersonalImageScreen("{Registration - Choose Your Personal Image (step 8 of 8)}") [
+    noMenu xsltScreen regPersonalImageScreen("{Registration - Choose Personal Image (step 8 of 8)}") [
     	        
 		form regPersonalImageForm [
 	    	class: "st-login"
