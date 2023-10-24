@@ -62,12 +62,10 @@ useCase fffcReg02SmsTnC [
 				    	class: "col-12 col-sm-8 col-md-6 col-lg-5 col-xl-4"
 					    display fMobileNumber [
 	            			control_attr_tabindex: "1"
-							control_attr_autofocus: ""				    	
 					    ]
 						
 	            		display fCheckBoxes [
-	            			item_control_attr_tabindex: "1"
-							control_attr_autofocus: ""
+	            			item_control_attr_tabindex: "2"
 	            		]
             		]
 				]
