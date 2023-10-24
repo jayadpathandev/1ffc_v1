@@ -1153,6 +1153,31 @@ f
     background-position: 58px 0px;
 }
 
+/**************************************************************************************************
+ * Contact icons for the contactPreferences.uc page.
+ *************************************************************************************************/
+#contactPreferences_sIconMail{
+	margin-left:-2px;
+    width: 32px;
+    height: 32px;
+}
+
+#contactPreferences_sIconEmail {
+	margin-left:3px;
+    width: 32px;
+    height: 32px;
+}
+
+#contactPreferences_sIconText {
+	margin-left:0px;
+    width: 32px;
+    height: 32px;
+}
+
+#contactPreferences_contactRight {
+	display: none;
+}
+
 /*************************************************************************************************
 * Payment Tabs
 **************************************************************************************************/
