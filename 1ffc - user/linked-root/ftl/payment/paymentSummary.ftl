@@ -68,7 +68,7 @@
 
 <#-- ***************************** LET THE GAMES BEGIN ******************************************** -->
 
-<div class="st-payment-summary border border-5 rounded-3 border-primary p-3">
+<div class="st-payment-summary border border-5 rounded-3 border-primary p-3 mb-3">
 
 	<div class="row">
 		<div class="col-10">
