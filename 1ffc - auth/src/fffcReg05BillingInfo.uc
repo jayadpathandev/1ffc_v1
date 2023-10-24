@@ -274,7 +274,7 @@ useCase fffcReg05BillingInfo [
 			
 			div content1 [
 				logic: [
-            		if sStreamCount  == "one" then "remove"
+            		if sStreamCount  == "one" || sFlag == "true" then "remove"
             	] 		             					
 				div row2 [
 					class: "row"
@@ -283,10 +283,6 @@ useCase fffcReg05BillingInfo [
 						class: "col-6 col-md-4 col-lg-3"
 						
 						display fBillType [
-							logic: [
-								if sStreamCount != "one" && sFlag == "true" then "disable"
-							]
-							
 							control_attr_tabindex: "1"
 							control_attr_autofocus: ""
 						]
@@ -326,7 +322,7 @@ useCase fffcReg05BillingInfo [
 			div borderLine [
 				class: "st-border-bottom" 
 				logic: [
-					if sStreamCount  == "one" then "remove"
+					if sStreamCount  == "one" || sFlag == "true" then "remove"
 					if sStreamCount  != "one" && sFlag == "false" then "remove"
 				]  
 				display sDummy
