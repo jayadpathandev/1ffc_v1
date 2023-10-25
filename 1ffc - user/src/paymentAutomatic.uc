@@ -66,24 +66,24 @@ useCase paymentAutomatic [
 	string status
 	string futurePmtFlag
 
-	static msgPmtScheduled1_body = "{There are one or more payments scheduled for this account. Creating an automatic payment schedule will NOT override the upcoming payment(s). If you want to view or cancel the upcoming payments, click [a href='<1>']here[/a]}"
-	static msgPmtScheduled2_body = "{There are one or more payments scheduled for this account. Editing this automatic payment schedule will NOT override the upcoming payment(s). If you want to view or cancel the upcoming payments, click [a href='<1>']here[/a]}"
-	static msgPmtScheduled3_body = "{There is at least one existing payment scheduled for account(s) covered by this automatic payment schedule. These payment(s) will not be affected by this new schedule.}"
+	static msgPmtScheduled1_body = "{There are one or more payments scheduled for this account. Creating an recurring payment schedule will NOT override the upcoming payment(s). If you want to view or cancel the upcoming payments, click [a href='<1>']here[/a]}"
+	static msgPmtScheduled2_body = "{There are one or more payments scheduled for this account. Editing this recurring payment schedule will NOT override the upcoming payment(s). If you want to view or cancel the upcoming payments, click [a href='<1>']here[/a]}"
+	static msgPmtScheduled3_body = "{There is at least one existing payment scheduled for account(s) covered by this recurring payment schedule. These payment(s) will not be affected by this new schedule.}"
 
     static sMultipleAccounts = "Multiple accounts"  
         
-    string sAutomaticPaymentHeader    = "{Automatic Payments}"   
-    string sLabelPaymentHistory       = "{Automatic payment history}" 
+    string sAutomaticPaymentHeader    = "{Recurring Payments}"   
+    string sLabelPaymentHistory       = "{Recurring payment history}" 
     string sLabelPaymentEdit          = "{Edit payment}"
     string sLabelPaymentCancel        = "{Cancel payment}"
-    string szHistoryHeader            = "{Automatic payment history}"
+    string szHistoryHeader            = "{Recurring payment history}"
     string sEmptyWalletMsg            = "{Payment wallet is empty.}"                    
-    string sMessageCreate 		      = "{You have created a new automatic payment schedule using <1> to make the payments. This automatic payment schedule will apply to all bills due from this day forward. If you have an overdue bill, you will need to pay that separately.}"      
-	string sMessageEdit	              = "{You have successfully modified this automatic payment of <1>. This automatic payment schedule will apply to all bills due from this day forward.}"
-    string sMessageDelete             = "{Automatic payment has been successfully removed from <1>.}"  
+    string sMessageCreate 		      = "{You have created a new recurring payment schedule using <1> to make the payments. This recurring payment schedule will apply to all bills due from this day forward. If you have an overdue bill, you will need to pay that separately.}"      
+	string sMessageEdit	              = "{You have successfully modified this recurring payment of <1>. This recurring payment schedule will apply to all bills due from this day forward.}"
+    string sMessageDelete             = "{Recurring payment has been successfully removed from <1>.}"  
     string sNoChangeMsg               = "{You didn't change any option. The system took no action as a result.}"
     string sErrorMsg                  = "{An error occurred while trying to fulfill your request. Please try again later}"
-    string sConfirmDeleteText         = "{Are you sure you want to delete the automatic payment from <1>?}"
+    string sConfirmDeleteText         = "{Are you sure you want to delete the recurring payment from <1>?}"
     
     // Bring over from b2b    
     volatile string sSourceCreateMsg = I18n.translate ("paymentAutomatic_sMessageCreate", sNickName)
@@ -111,7 +111,7 @@ useCase paymentAutomatic [
     persistent native string sNickName   = ""
     persistent native string sPmtSourceId = ""
     
-    string sDeleteSourceTitle   = "{CONFIRM REMOVE AUTOMATIC PAYMENT}"
+    string sDeleteSourceTitle   = "{CONFIRM REMOVE RECURRING PAYMENT}"
  	volatile string sDeleteSourceText1 = I18n.translate ("paymentAutomatic_sConfirmDeleteText", sNickName)     
     string sDeleteSourceText2 = "{This action cannot be undone.}" 
     
@@ -141,7 +141,7 @@ useCase paymentAutomatic [
 	]
 	
     structure msgAutoAccAlreadyFound [
-        static sBody = "{One or more of the accounts selected have been removed since they are found in one of the automatic schedules for this user.}"
+        static sBody = "{One or more of the accounts selected have been removed since they are found in one of the recurring schedules for this user.}"
     ]
 
     structure msgAutoUnableComplete [
@@ -601,7 +601,7 @@ useCase paymentAutomatic [
 									if sShowCreateFlag == "false" then "remove"
 								]
 								
-				    	    	navigation createAutomaticPaymentLink(termsAndConditions, "{CREATE NEW AUTOMATIC PAYMENT}") [
+				    	    	navigation createAutomaticPaymentLink(termsAndConditions, "{CREATE NEW RECURRING PAYMENT}") [
 					                class: "btn btn-primary float-end"
 					                type: "popin"
 					                attr_st-pop-in-size: "lg"

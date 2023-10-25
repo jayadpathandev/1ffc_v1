@@ -60,22 +60,22 @@ useCase paymentUpdateAutomaticPayment [
     
 	native string sFormat = LocalizedFormat.toJsonString()
     
-    string sUpdateAutomaticHeader     = "{Update automatic payment}"
-    string sCreateAutomaticHeader	  = "{Create automatic payment}"
+    string sUpdateAutomaticHeader     = "{Update recurring payment}"
+    string sCreateAutomaticHeader	  = "{Create recurring payment}"
     string sScheduleTriggerHeader     = "{Schedule Trigger}"
-    string sScheduleTriggerHeaderHelp = "{Select the criteria that will trigger the automatic payment. Please allow up to 3 days for payment to be posted.}"    
+    string sScheduleTriggerHeaderHelp = "{Select the criteria that will trigger the recurring payment. Please allow up to 3 days for payment to be posted.}"    
     string sScheduleExpiryHeader      = "{Schedule Expiry}"
-    string sScheduleExpiryHeaderHelp  = "{Select when you would like the automatic payment to stop.}"
+    string sScheduleExpiryHeaderHelp  = "{Select when you would like the recurring payment to stop.}"
     string sPayAmountHeader           = "{Payment amount}"
     string sPayAmountHeaderHelp       = "{Select how much you want to pay.}"
     string sPaymentMethodHeader       = "{Payment method}"
-    string sPaymentMethodHeaderHelp   = "{Choose the payment method for this automatic payment}"
+    string sPaymentMethodHeaderHelp   = "{Choose the payment method for this recurring payment}"
     string sSelectedAutomaticId	      = ""
     string sGroupJson				  = ""	
     volatile string sSafeGroupJson	  =  UcPaymentAction.escapeGroupingJson(sGroupJson)
     
     native string sFuturePaymentsFound = "false"
-	native string sHistoryText          = "Automatic payment created." 
+	native string sHistoryText          = "Recurring payment created." 
 	native string sDays                 = ""
     native string sConfigChange         = ""
     native string sPayInvoicesOptionOld = ""
@@ -220,7 +220,7 @@ useCase paymentUpdateAutomaticPayment [
     string sMsgNumber2 = "{[span] 2 [/span]}" 
     string sMsgNumber3 = "{[span] 3 [/span]}"  
      
-    string sAutomaticConfigHeader = "{Setup automatic payments for selected accounts}"
+    string sAutomaticConfigHeader = "{Setup recurring payments for selected accounts}"
     
     static sPaymentSummaryHeaderPrefix = "{Payment summary - }"
     static sPaymentSummaryHeaderSuffix = "{ selected accounts}"
@@ -235,11 +235,11 @@ useCase paymentUpdateAutomaticPayment [
     ]
     
     structure msgAutoPmtScheduledCreate [
-		static sBody = "{There one or more payments schedule for the selected account(s). Creating an automatic payment schedule will NOT override the upcoming payment(s).}"
+		static sBody = "{There one or more payments schedule for the selected account(s). Creating an recurring payment schedule will NOT override the upcoming payment(s).}"
     ]
 
     structure msgAutoPmtScheduledEdit [
-		static sBody = "{There one or more payments schedule for the selected account(s). Editing this automatic payment schedule will NOT override the upcoming payment(s).}"
+		static sBody = "{There one or more payments schedule for the selected account(s). Editing this recurring payment schedule will NOT override the upcoming payment(s).}"
     ]
 
     structure msgAutoNote [
@@ -247,7 +247,7 @@ useCase paymentUpdateAutomaticPayment [
     ]
     
     structure msgAutoAccAlreadyFound [
-        static sBody = "{One or more of the accounts selected have been removed since they are found in one of the automatic schedules for this user.}"
+        static sBody = "{One or more of the accounts selected have been removed since they are found in one of the recurring schedules for this user.}"
     ]
 
     structure msgAutoUnableComplete [
@@ -259,12 +259,12 @@ useCase paymentUpdateAutomaticPayment [
     ]
 
     structure msgMakeAutoAccAlreadyFound [
-        static sBody = "{One or more accounts you have selected have automatic payments configured. Automatic payments pay bills on your behalf, but you can choose to proceed with this manual payment if you choose. Automatic payments will then just pay whatever balance remains.}"
+        static sBody = "{One or more accounts you have selected have recurring payments configured. Recurring payments pay bills on your behalf, but you can choose to proceed with this manual payment if you choose. Recurring payments will then just pay whatever balance remains.}"
     ]    
     
     structure msgScheduledPaymentWarning [
 		string sTitle = "{Payment warning}"  
-		static sBody = "{There is at least one existing payment scheduled for account(s) covered by this automatic payment schedule. These payment(s) will not be affected by this new schedule.}"
+		static sBody = "{There is at least one existing payment scheduled for account(s) covered by this recurring payment schedule. These payment(s) will not be affected by this new schedule.}"
 	] 
 	
     	
@@ -714,7 +714,7 @@ useCase paymentUpdateAutomaticPayment [
 						div buttonsContent_actions [
 							class: "col-12"
 
-							navigation updateAutomaticPaymentButton(checkMinAmtFlag, "{UPDATE AUTOMATIC PAYMENT}") [
+							navigation updateAutomaticPaymentButton(checkMinAmtFlag, "{UPDATE RECURRING PAYMENT}") [
 								logic: [
 									if sSelectedAutomaticId  == "" then "remove"
 								]
@@ -732,7 +732,7 @@ useCase paymentUpdateAutomaticPayment [
 			                    attr_tabindex: "14"
 			                ]  		               
 
-							navigation createAutomaticPaymentButton(checkMinAmtFlag, "{CREATE AUTOMATIC PAYMENT}") [
+							navigation createAutomaticPaymentButton(checkMinAmtFlag, "{CREATE RECURRING PAYMENT}") [
 								logic: [
 									if sSelectedAutomaticId  != "" then "remove"
 								]									

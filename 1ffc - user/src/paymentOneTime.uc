@@ -180,7 +180,7 @@ useCase paymentOneTime [
 	static type_sepa    = "{SEPA ACCOUNT}"
 	static type_unsaved = "{UNSAVED METHOD}"
 	
-    static msgAutoScheduled_body = "{There is an automatic payment set up for this <1>. Automatic payments pay bills on your behalf, but you can choose to proceed with this manual payment if you choose. Automatic payments will then just pay whatever balance remains. If you want to view, edit or cancel the automatic payment, click [a href='<2>']here[/a]}"
+    static msgAutoScheduled_body = "{There is an recurring payment set up for this <1>. Recurring payments pay bills on your behalf, but you can choose to proceed with this manual payment if you choose. Recurring payments will then just pay whatever balance remains. If you want to view, edit or cancel the recurring payment, click [a href='<2>']here[/a]}"
     static msgPmtScheduled_body = "{There is a future-scheduled payment configured for this <1>. These amounts should already have been taken into account, but be sure to only pay the 'Current balance' for bills to avoid over-paying. If you want to view or cancel the upcoming payments, click [a href='<2>']here[/a]}"
     
     static addSourceGenericError = "{Failed to add payment source.}"
@@ -244,7 +244,7 @@ useCase paymentOneTime [
     string sPaymentSuccessText = "{Thank you for your payment!}"
     string sAdditionalChargeInfo = "{Additional charges may apply if you do not pay the full balance by the due date.}"
 	string sMaxPaymentMethodsReached = "{The maximum number of payment methods have already been added to your wallet. Please remove some to add more.}"
-	string sAutomaticPaymentsHeader = "{Activate automatic payments for this account}"
+	string sAutomaticPaymentsHeader = "{Activate recurring payments for this account}"
 	string sAutomaticPaymentsBody = "{Save time and energy by scheduling repeating payments to occur automatically on a specific date, every month.}"
 	string sHeaderEdit = "{edit}"
 	
@@ -1628,7 +1628,7 @@ useCase paymentOneTime [
 					    				
 					    				div paymentSuccessAutomaticContentCol3 [
 					    					class: "col-md-12"
-											navigation automaticPaymentsLink(gotoAutomaticPayment, "{CREATE AUTOMATIC PAYMENT SCHEDULE}") [
+											navigation automaticPaymentsLink(gotoAutomaticPayment, "{CREATE RECURRING PAYMENT SCHEDULE}") [
 												class: "btn btn-primary st-margin-top10"
 												attr_tabindex: "7"
 											]
