@@ -104,11 +104,11 @@
     </target>
 
     <target name="package" depends="-package-init, compile">
-        <copy file="${module.artifacts.dir}/1ffc.js" todir="${output.dir}/admin/linked-root/js"/>
-        <copy file="${module.artifacts.dir}/1ffc.js" todir="${output.dir}/auth/linked-root/js"/>
-        <copy file="${module.artifacts.dir}/1ffc.js" todir="${output.dir}/auth/linked-root/b2b/js"/>
-        <copy file="${module.artifacts.dir}/1ffc.js" todir="${output.dir}/auth/linked-root/b2c/js"/>
-        <copy file="${module.artifacts.dir}/1ffc.js" todir="${output.dir}/auth/linked-root/csr/js"/>
-        <copy file="${module.artifacts.dir}/1ffc.js" todir="${output.dir}/user/linked-root/js"/>
+        <copy file="${module.artifacts.dir}/1ffc.js" todir="${output.dir}/apps/admin/linked-root/js"/>
+        <copy file="${module.artifacts.dir}/1ffc.js" todir="${output.dir}/apps/auth/linked-root/js"/>
+        <copy file="${module.artifacts.dir}/1ffc.js" todir="${output.dir}/apps/auth/linked-root/b2b/js"/>
+        <copy file="${module.artifacts.dir}/1ffc.js" todir="${output.dir}/apps/auth/linked-root/b2c/js"/>
+        <copy file="${module.artifacts.dir}/1ffc.js" todir="${output.dir}/apps/auth/linked-root/csr/js"/>
+        <copy file="${module.artifacts.dir}/1ffc.js" todir="${output.dir}/apps/user/linked-root/js"/>
     </target>
 </project>
