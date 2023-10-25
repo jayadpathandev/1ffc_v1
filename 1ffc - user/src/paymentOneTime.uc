@@ -375,7 +375,7 @@ useCase paymentOneTime [
 	]
 	
 	structure(message) msgZeroBalanceError [
-		string(title) sTitle = "{Error}"
+		string(title) sTitle = "{Bill amount due}"
 		string(body) sBody = "{This account currently has zero balance so no payments can be made.}"
 	]
 	
