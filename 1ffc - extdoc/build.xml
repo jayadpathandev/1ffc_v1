@@ -1,0 +1,56 @@
+<project name="library-nls-api" default="package" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
+
+    <!-- ######################################################################
+	     # Verify that all needed properties are defined.
+         ################################################################## -->
+    <target name="-init">
+		<loadproperties srcFile="../build.properties"/>
+
+        <property name="moduleName" value="extdoc/nls"/>
+
+    	<property name="mod.output.dir"    value="${output.dir}/${moduleName}"/>
+    	<property name="mod.artifacts.dir" value="${artifacts.dir}/${moduleName}"/>
+
+    	<mkdir dir="${mod.output.dir}"/>
+    	<mkdir dir="${mod.artifacts.dir}"/>
+
+    	<ivy:settings/>
+    	<ivy:resolve/>
+
+    	<ivy:retrieve type="jar" pattern="${mod.output.dir}/[artifact]-[revision].[ext]" setId="jars"/>
+
+    	<path id="classpath">
+    	    <fileset refid="jars"/>
+    	</path>
+    </target>
+
+    <!-- ######################################################################
+         # Compile the java files.
+         ################################################################## -->
+    <target name="compile" depends="-init">
+    	<javac destdir="${mod.artifacts.dir}" classpathref="classpath" includeAntRuntime="false">
+			<classpath>
+				<pathelement location="${artifacts.dir}}/package/library/nls/libraryNls.jar"/>
+				<pathelement location="${artifacts.dir}}/package/service/nls/serviceNls.jar"/>
+				<pathelement location="${devkit.dir}/app - extdoc/lib/extDocApi.jar"/>
+			</classpath>
+    	    <src>
+    	        <pathelement location="src"/>
+    		</src>
+    	</javac>
+    </target>
+
+    <!-- ######################################################################
+         # Package everything up.
+         ################################################################## -->
+	<target name="package" depends="-init, compile">
+		<jar destfile="${mod.output.dir}/driverNls.jar">
+		    <fileset dir="${mod.artifacts.dir}"/>
+		</jar>
+		<copy todir="${mod.output.dir}">
+			<fileset dir="${artifacts.dir}/package/library/nls" includes="*.jar"/>
+			<fileset dir="${artifacts.dir}/package/service/nls" includes="*.jar"/>
+			<fileset dir="." includes="nls.properties"/>
+		</copy>
+	</target>
+</project>

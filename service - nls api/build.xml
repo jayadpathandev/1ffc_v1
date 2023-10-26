@@ -1,0 +1,47 @@
+<project name="service-nls-api" default="package" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
+
+    <!-- ######################################################################
+	     # Verify that all needed properties are defined.
+         ################################################################## -->
+    <target name="-init">
+		<loadproperties srcFile="../build.properties"/>
+
+        <property name="moduleName" value="service/nls"/>
+
+    	<property name="mod.output.dir"    value="${artifacts.dir}/package/${moduleName}"/>
+    	<property name="mod.artifacts.dir" value="${artifacts.dir}/${moduleName}"/>
+
+    	<mkdir dir="${mod.output.dir}"/>
+    	<mkdir dir="${mod.artifacts.dir}"/>
+
+    	<ivy:settings/>
+    	<ivy:resolve/>
+
+    	<ivy:retrieve type="jar,bundle" pattern="${mod.output.dir}/[artifact]-[revision].[ext]" setId="jars"/>
+
+    	<path id="classpath">
+    	    <fileset refid="jars"/>
+    	</path>
+    </target>
+
+    <!-- ######################################################################
+         # Compile the java files.
+         ################################################################## -->
+    <target name="compile" depends="-init">
+    	<javac destdir="${mod.artifacts.dir}" classpathref="classpath" includeAntRuntime="false">
+    	    <src>
+    	        <pathelement location="src"/>
+    		</src>
+    	</javac>
+    </target>
+
+    <!-- ######################################################################
+         # Package everything up.
+         ################################################################## -->
+	<target name="package" depends="-init, compile">
+
+		<jar destfile="${mod.output.dir}/serviceNls.jar">
+		    <fileset dir="${mod.artifacts.dir}"/>
+		</jar>
+	</target>
+</project>
