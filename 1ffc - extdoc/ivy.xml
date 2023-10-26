@@ -4,6 +4,5 @@
     
  <dependencies>    
          <dependency org="org.slf4j" name="slf4j-api" rev="2.0.0"/>
-         <dependency org="org.springframework" name="spring-web" rev="6.0.7"/>
     </dependencies>
 </ivy-module>

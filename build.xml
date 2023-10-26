@@ -19,6 +19,13 @@
         <delete dir="${artifacts.dir}"/>
     </target>
 
+    <target name="package-libraries">
+        <ant dir="service - nls api" inheritAll="false" inheritRefs="false"/>
+        <ant dir="library - nls api" inheritAll="false" inheritRefs="false"/>
+        <ant dir="1ffc - extdoc" inheritAll="false" inheritRefs="false"/>
+        <ant dir="batch - transaction history" inheritAll="false" inheritRefs="false"/>
+    </target>
+
     <target name="-build.admin.uc" depends="-init">
         <delete dir="${artifacts.dir}/admin"/>
         <mkdir  dir="${output.dir}/apps/admin"/>
@@ -235,8 +242,6 @@
             <fileset dir="1ffc - user" includes="linked-root/**/*"/>
         </copy>
 
-		<copy todir="${output.dir}/apps/user/classes" file="1ffc - user/src/app-config.properties" overwrite="true"/>
-
         <propertyfile file="${output.dir}/apps/user/classes/app-config.properties">
             <entry key="user.app.url" value="https://1ffc.server2.sorrisoqa.com/personaWeb/user/"/>
             <entry key="epayment.url" value="http://localhost:8080/payment-core-2.0/"/>
@@ -251,10 +256,25 @@
                 </fileset>
             </classpath>
         </javac>
+		<copy todir="${output.dir}/apps/user/classes" file="1ffc - user/src/app-config.properties" overwrite="true"/>
+        <copy todir="${output.dir}/apps/user/classes/">
+            <fileset dir="1ffc - user/src">
+                <exclude name="*.uc"/>
+                <exclude name="app-config.properties"/>
+                <exclude name="**/*.java"/>
+                <exclude name="logback.xml"/>
+                <exclude name="user.app"/>
+            </fileset>
+        </copy>
     </target>
 
-    <target name="package" depends="build.admin, build.auth, build.user">
+    <target name="package" depends="build.admin, build.auth, build.user, package-libraries">
         <delete file="${output.dir}/package.zip"/>
+        <propertyfile file="${output.dir}/extdoc/nls/nls.properties">
+            <entry key="nls.api.client.id" value="${nls.api.client.id}"/>
+            <entry key="nls.api.client.secret" value="${nls.api.client.secret}"/>
+        </propertyfile>
+
         <zip destfile="${output.dir}/package.zip" basedir="${output.dir}"/>
     </target>
 </project>

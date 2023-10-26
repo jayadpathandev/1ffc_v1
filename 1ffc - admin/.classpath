@@ -47,15 +47,15 @@
 	<classpathentry kind="lib" path="/app - admin/lib/httpcore5-h2-5.2.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/istack-commons-runtime-4.1.1.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/j2objc-annotations-2.8.jar"/>
-	<classpathentry kind="lib" path="/app - admin/lib/jackson-annotations-2.15.3.jar"/>
-	<classpathentry kind="lib" path="/app - admin/lib/jackson-core-2.15.3.jar"/>
-	<classpathentry kind="lib" path="/app - admin/lib/jackson-databind-2.15.3.jar"/>
-	<classpathentry kind="lib" path="/app - admin/lib/jackson-dataformat-xml-2.15.3.jar"/>
+	<classpathentry kind="lib" path="/app - admin/lib/jackson-annotations-2.16.0-rc1.jar"/>
+	<classpathentry kind="lib" path="/app - admin/lib/jackson-core-2.16.0-rc1.jar"/>
+	<classpathentry kind="lib" path="/app - admin/lib/jackson-databind-2.16.0-rc1.jar"/>
+	<classpathentry kind="lib" path="/app - admin/lib/jackson-dataformat-xml-2.16.0-rc1.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/jackson-dataformat-yaml-2.15.2.jar"/>
-	<classpathentry kind="lib" path="/app - admin/lib/jackson-datatype-joda-2.15.3.jar"/>
-	<classpathentry kind="lib" path="/app - admin/lib/jackson-jaxrs-base-2.15.3.jar"/>
-	<classpathentry kind="lib" path="/app - admin/lib/jackson-jaxrs-json-provider-2.15.3.jar"/>
-	<classpathentry kind="lib" path="/app - admin/lib/jackson-module-jaxb-annotations-2.15.3.jar"/>
+	<classpathentry kind="lib" path="/app - admin/lib/jackson-datatype-joda-2.16.0-rc1.jar"/>
+	<classpathentry kind="lib" path="/app - admin/lib/jackson-jaxrs-base-2.16.0-rc1.jar"/>
+	<classpathentry kind="lib" path="/app - admin/lib/jackson-jaxrs-json-provider-2.16.0-rc1.jar"/>
+	<classpathentry kind="lib" path="/app - admin/lib/jackson-module-jaxb-annotations-2.16.0-rc1.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/jai-imageio-core-1.4.0.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/jakarta.activation-2.0.1.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/jakarta.activation-api-2.1.1.jar"/>

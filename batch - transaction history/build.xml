@@ -3,46 +3,27 @@
     <!-- ######################################################################
 	     # Verify that all needed properties are defined.
          ################################################################## -->
-    <target name="-init" depends="-uptodate">
+    <target name="-init">
 		<loadproperties srcFile="../build.properties"/>
 
         <property name="moduleName" value="batch/transaction_history"/>
 
-    	<property name="output.dir"    value="${build.output.dir}/${moduleName}"/>
-    	<property name="artifacts.dir" value="${build.artifacts.dir}/${moduleName}"/>
+    	<property name="mod.artifacts.dir" value="${artifacts.dir}/${moduleName}"/>
 
-    	<mkdir dir="${output.dir}"/>
-    	<mkdir dir="${artifacts.dir}"/>
+    	<mkdir dir="${mod.artifacts.dir}"/>
 
     	<path id="classpath">
-    		<fileset dir="${build.output.dir}">
-    			 <include name="batch/common/*.jar"/>
-				 <include name="service/beans/*.jar"/>
-    			 <include name="service/utils/*.jar"/>
-                 <include name="jars/batch/*.jar"/>
+    		<fileset dir="${devkit.dir}/batch - common/lib">
+    			 <include name="*.jar"/>
     		</fileset>
     	</path>
-    </target>
-
-    <!-- ######################################################################
-         # Make sure the build.properties is up to date.
-         ################################################################## -->
-    <target name="-uptodate">
-        <uptodate property="uptodate"
-            srcfile="../build.properties.template"
-            targetfile="../build.properties"/>
-
-        <fail unless="uptodate">
-            There is a newer build.properties.template file, please copy it to build.properties
-            and update it for your system.
-        </fail>
     </target>
 
     <!-- ######################################################################
          # Compile the java files.
          ################################################################## -->
     <target name="compile" depends="-init">
-    	<javac destdir="${artifacts.dir}" classpathref="classpath" includeAntRuntime="false" debug="${javac.debug}" debuglevel="${javac.flags}">
+    	<javac destdir="${mod.artifacts.dir}" classpathref="classpath" includeAntRuntime="false">
     	    <src>
     	        <pathelement location="src"/>
     		</src>
@@ -50,24 +31,93 @@
     </target>
 
     <!-- ######################################################################
+         # Package the xfer job.
+         ################################################################## -->
+	<target name="package-xfer" depends="-init, compile">
+		<mkdir dir="${output.dir}/batch/transaction_xfer/resources"/>
+
+        <copy todir="${output.dir}/batch/transaction_xfer/resources">
+             <fileset dir="resources">
+			 	<exclude name="loader.*"/>
+				<exclude name="purge.*"/>
+			 </fileset>
+        </copy>
+		<copy file="control_xfer.xml" tofile="${output.dir}/batch/transaction_xfer/build.xml"/>
+        <echo file="${output.dir}/batch/transaction_xfer/paths.properties">
+log.dir  = ${install.dir}/logs
+log.file = transaction_history_xfer
+
+common.config.dir = ${install.dir}/config
+jar.dir           = ${install.dir}/batch/lib
+		</echo>
+
+		<propertyfile file="${output.dir}/batch/transaction_xfer/resources/xfer.properties">
+			<entry key="move.method" value="RENAME"/>
+			<entry key="thftj.dir.source" value="${install.dir}/data/incoming"/>
+			<entry key="thftj.dir.dest" value="${install.dir}/data/load"/>
+			<entry key="thftj.dir.dup" value="${install.dir}/data/error"/>
+		</propertyfile>
+	</target>
+
+    <!-- ######################################################################
+         # Package the loader job.
+         ################################################################## -->
+	<target name="package-loader" depends="-init, compile">
+		<mkdir dir="${output.dir}/batch/transaction_loader/resources"/>
+
+        <copy todir="${output.dir}/batch/transaction_loader/resources">
+             <fileset dir="resources">
+			 	<exclude name="xfer.*"/>
+				<exclude name="purge.*"/>
+			 </fileset>
+        </copy>
+		<copy file="control_loader.xml" tofile="${output.dir}/batch/transaction_loader/build.xml"/>
+        <echo file="${output.dir}/batch/transaction_loader/paths.properties">
+log.dir  = ${install.dir}/logs
+log.file = transaction_history_loader
+
+common.config.dir = ${install.dir}/config
+jar.dir           = ${install.dir}/batch/lib
+		</echo>
+
+		<propertyfile file="${output.dir}/batch/transaction_loader/resources/loader.properties">
+			<entry key="move.method" value="RENAME"/>
+			<entry key="thlj.dir.archive" value="${install.dir}/data/archive"/>
+			<entry key="thlj.dir.error" value="${install.dir}/data/error"/>
+		</propertyfile>
+	</target>
+
+    <!-- ######################################################################
+         # Package the loader job.
+         ################################################################## -->
+	<target name="package-purge" depends="-init, compile">
+		<mkdir dir="${output.dir}/batch/transaction_purge/resources"/>
+
+        <copy todir="${output.dir}/batch/transaction_purge/resources">
+             <fileset dir="resources">
+			 	<exclude name="xfer.*"/>
+				<exclude name="loader.*"/>
+				<exclude name="transactionhistory/*.*"/>
+			 </fileset>
+        </copy>
+		<copy file="control_purge.xml" tofile="${output.dir}/batch/transaction_purge/build.xml"/>
+        <echo file="${output.dir}/batch/transaction_purge/paths.properties">
+log.dir  = ${install.dir}/logs
+log.file = transaction_history_purge
+
+common.config.dir = ${install.dir}/config
+jar.dir           = ${install.dir}/batch/lib
+		</echo>
+	</target>
+
+    <!-- ######################################################################
          # Package everything up.
          ################################################################## -->
-	<target name="package" depends="-init, compile">
-		<mkdir dir="${output.dir}/resources"/>
+	<target name="package" depends="-init, compile, package-xfer, package-loader, package-purge">
+		<mkdir dir="${output.dir}/batch/lib"/>
 
-		<jar destfile="${output.dir}/batchTransactionHistory.jar">
-		    <fileset dir="${artifacts.dir}"/>
+		<jar destfile="${output.dir}/batch/lib/batchTransactionHistory.jar">
+		    <fileset dir="${mod.artifacts.dir}"/>
 		</jar>
-
-        <copy todir="${output.dir}/resources">
-             <fileset dir="resources"/>
-        </copy>
-
-		<copy file="assemble.xml" todir="${output.dir}"/>
-		<copy todir="${output.dir}">
-			<fileset dir=".">
-				<include name="control_*.xml"/>
-			</fileset>
-		</copy>
 	</target>
 </project>

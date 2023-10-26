@@ -5,7 +5,7 @@
     
     <target name="-init">
         <loadproperties srcfile="paths.properties"/>
-        <loadproperties srcfile="${common.config.dir}/common/file_path.properties"/>
+        <loadproperties srcfile="resources/xfer.properties"/>
     </target>
 	
 	<target name="run" depends="-init">
