@@ -118,7 +118,7 @@ useCase paymentUpdateAutomaticPayment [
     native string sStatusFlag   = ""
                                                    
     field fPayInvoices [
-        string(label) sLabel = "{Pay invoices *}"        
+        string(label) sLabel = "{Pay bills *}"        
         radioSet(control) rInput = option2 [        
             option1: "{of every month}"
             option2: "{prior to 'Due Date'}"              
@@ -146,12 +146,13 @@ useCase paymentUpdateAutomaticPayment [
     field fPayAmount1 [
         string(label) sLabel = "{Pay *}"        
         radioSet(control) rInput = option1 [        
-            option1: "{Bill balance}"
+            option1: "{Bill amount}"
 //            option2: "{Minimum due}"    
  //           option3: "{Up to}"            
         ]
         input (option3_suffix) pInput("^(\\d{1,5}|\\d{0,5}\\.\\d{1,2})$", fPayAmount1.sValidation) = "1"   
         
+		string(help) sHelp = "{The outstanding balance from the last bill or statement less any payments made since.}"
         string sPayUptoValidationText = "{Enter a number between 1 and <1> (up to 2 decimal values allowed)}"
         volatile string(pInput_validation) sValidation = I18n.translate ("paymentUpdateAutomaticPayment_fPayAmount1.sPayUptoValidationText", sPayUpto)  
         volatile string(error) sError = I18n.translate ("paymentUpdateAutomaticPayment_fPayAmount1.sPayUptoValidationText", sPayUpto)  
@@ -164,11 +165,10 @@ useCase paymentUpdateAutomaticPayment [
         string(label) sLabel = "{Pay *}"        
         radioSet(control) rInput = option1 [        
             option1: "{Bill amount}"
-//            option2: "{Minimum due}"    
-//            option3: "{Up to}"             
         ]
         input (option3_suffix) pInput("^(\\d{1,5}|\\d{0,5}\\.\\d{1,2})$", fPayAmount2.sValidation) = "1"   
         
+        string(help) sHelp = "{The outstanding balance from the last bill or statement less any payments made since.}"
         string sPayUptoValidationText = "{Enter a number between 1 and <1> (up to 2 decimal values allowed)}"
         volatile string(pInput_validation) sValidation = I18n.translate ("paymentUpdateAutomaticPayment_fPayAmount2.sPayUptoValidationText", sPayUpto)  
         volatile string(error) sError = I18n.translate ("paymentUpdateAutomaticPayment_fPayAmount2.sPayUptoValidationText", sPayUpto)  
