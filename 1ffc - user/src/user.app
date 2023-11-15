@@ -20,8 +20,12 @@ application [
 			
 		item menuPayment("{Make a Payment}", payment) [
 			class: "menu"
-	    ]	    
-
+	    ]	
+	    
+ /*	    item menuStatusTest("{Account Status}", statusTest) [
+	    	class: "menu"
+	    ]    
+*/
 		// 1FFC 
 	    // item menuRenew("{Renew Now}", fffcRenewNow) [
 	    //     class: "renew"
@@ -58,6 +62,9 @@ application [
 		fffcRenewNow
 		fffcViewDocument
 		fffcTransactionHistory 
+		
+		
+		statusTest
  	]
  	
  	roles [
