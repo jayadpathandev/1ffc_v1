@@ -8,6 +8,7 @@
 	   2023-Sep-11	jak-- first major iteration, handles all the messages we can
 	   						think of today.. unit tested without all the use case data
 	   						but with 1st Franklin styled bill data. 
+	   2023-Oct-24	jak-- update for new flex field settings.
 
   -->
 
@@ -32,15 +33,19 @@
 
 <#--  ** CONTROLS SCHEDULED AND AUTOMATIC PAYMENT MESSAGES ** passed in to the template by use case -->
 <#assign sScheduledPaymentCount = "none"> 			<#-- not really a count but an enum "none", "one", "multiple" -->
-<#assign dScheduledPaymentDate = "09/11/2023">		<#-- the last schedule payment date for all one time scheduled payments before due date-->
-<#assign nScheduledPaymentAmount = "1022.00">		<#-- the total amount of all scheduled payments -->
+<#assign dScheduledPaymentDate = "01/01/1978">		<#-- the last schedule payment date for all one time scheduled payments before due date-->
+<#assign nScheduledPaymentAmount = "0.00">		<#-- the total amount of all scheduled payments -->
 <#assign bScheduledPaymentsLate = true> 			<#-- true if the total of all scheduled payments before payment due date + the automatic payment won't work -->
 <#assign bAutomaticPaymentScheduled = false>		<#-- true if there's an automatic payment scheduled for this account -->
-<#assign dAutomaticPaymentDate = "09/15/2023">		<#-- date of the automatic payment -->
-<#assign nAutomaticPaymentAmount = "995.10">		<#-- amount of the automatic payment -->
+<#assign dAutomaticPaymentDate = "01/01/1978">		<#-- date of the automatic payment -->
+<#assign nAutomaticPaymentAmount = "0.00">		<#-- amount of the automatic payment -->
 
 <#--  ** ACCOUNT STATUS INFORMATION FOR STATEMENT MESSAGES ** passed nto the template by use case -->
-<#assign sBillAvailable = "yes"> <#-- "yes", "no-NewAccount", "no-PaidOff", "no-Unknown" -->
+<#if bill.isAccountClosed>
+	<#assign sBillAvailable = "no-PaidOff">
+<#else>
+	<#assign sBillAvailable = "yes"> <#-- "yes", "no-NewAccount", "no-PaidOff", "no-Unknown" -->
+</#if>
 
 <#--  ********************************************************************************************
 	  END - Settings for testing that should come from use case 
@@ -54,14 +59,14 @@
 
 		The test returns 0(false) if due date is is today or in the future, 1(true) if we are passed the due date -->
 <#assign bPastDueDate = bill.dueDate?date < .now?string["MM/dd/yyyy"]?date />
-<#assign bBillHasOverdue = overdue>
+<#assign bBillHasOverdue = bill.isBillOverdue>
 
 
 <#--  ** DATA VALUES USED IN THE TEMPLATE BUT MAY CHANGE WHERE THEY COME FROM IN THE FUTURE ** -->
 <#assign nAmountDue = amount> 				<#--  probably want to change what the use case sends down -->
 <#assign dDueDate = bill.dueDate?date>		<#--  we use this everywhere so make it a variable -->
-<#if bill.flex12?has_content && bill.flex12?string?trim != ''>  <#-- checks to see if loan amount exists -->
-	<#assign nLoanAmount = bill.flex12>
+<#if bill.flex9?has_content && bill.flex9?string?trim != ''>  <#-- checks to see if loan amount exists -->
+	<#assign nLoanAmount = bill.flex9>
 <#else>
 	<#assign nLoanAmount = "0.00">
 </#if>
@@ -151,7 +156,7 @@
 							Contratulations! your final payment of 
 							<span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nAmountDue?number)}</span>
 							is due on <span class="fw-bold text-decoration-underline">${dDueDate?date}</span> and includes an
-							overdue amount of <span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(bill.flex17?number)}</span>.
+							overdue amount of <span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(bill.flex5?number)}</span>.
 							Visit your local branch now to make this payment, close your account, and avoid addiitonal charges.
 						</div>
 					</#if>
@@ -247,10 +252,10 @@
 						is due for payment on <span class="fw-bold text-decoration-underline">${dDueDate?date}</span> 
 						and includes an overdue amount of 
 						<span class="fw-bold text-decoration-underline">
-							<#if bill.flex17??>
-								${formatUtils.formatAmount(bill.flex17?number)}
+							<#if bill.flex5??>
+								${formatUtils.formatAmount(bill.flex5?number)}
 							<#else>
-								Flex 17
+								Flex5 missing
 							</#if>								
 						</span>.
 						Please pay now to avoid additional charges.
