@@ -1,0 +1,241 @@
+/**
+  *  author: John A. Kowalonek
+  *  created: 24-Sep-2023
+  *
+  *  Purpose:
+  *       API to provide account status information that various parts of the application can
+  * 		use to modify the behavior.  Areas where this is used:
+  * 
+  * 			1. At Login -- to determine if the user has access to the portal.
+  * 			2. When presenting the Overview (Payment.ftl) -- to control the on screen
+  * 				presentation and messaging for an account.
+  * 			3. When presenting the account selector and baby overview on other parts of the
+  * 				application to decide if there's really anything to present for a selected account.
+  * 			4. When presenting the make payment and create automatic payment screens -- to determine if
+  * 				the user can make payments for the selected account.
+  * 			5. When presenting payment options -- to determine if this user has been disabled from paying
+  * 				via ACH.
+  * 	  
+  * 	  The API is designed to make it easy for use cases in each of these situations to get the information
+  * 			they need quickly and easily.
+  * 
+  * 	  NOTE:  This does not handle the situation where Future ACH Payments and ACH Automatic Payment
+  * 		schedules need to be removed because ACH is turned off. There will be a separate batch job 
+  * 		that does that right after the status load occurs.
+  * 
+  *                     
+  *   Major Versions:
+  *        1.0 24-Sep-2023		First Version Jak	
+*/
+
+
+define service AccountStatus(com.sorrisotech.app.serviceapi.uc.UcRequestClient) [
+    
+    generate [
+       category: accountstatus    						
+    ]
+
+	// --------------------------------------------------------------------
+	// -- use GetStatus to return all the important status information used
+	//		 by the Overview (Payment) template --
+    define method GetStatus  [
+		string		user			// ID for the current user
+    	string		paymentGroup	// Payment Group for this account				
+    	string 		account			// Account for which status is requested
+    	
+    ] returns [
+		
+		// ----------------------------------------------------------------
+		// -- returns status of this account which determines how the
+		//		overview will work
+    	list 		accountStatus	[					
+    		
+    		// ------------------------------------------------------------
+    		// -- this is a new account and there no bills yet --
+    		newAccount
+    		
+    		// ------------------------------------------------------------
+			// -- this is a closed account and there are no active bills --
+    		closedAccount
+    		
+    		// ------------------------------------------------------------
+			// -- this is an active account for which there are bills --
+    		activeAccount
+    	]					
+		
+		// ----------------------------------------------------------------
+		// -- returns detailed information on payment providing reasons for
+		//		why its disabled if it indeed is --
+		list		paymentEnabled [
+    		// ------------------------------------------------------------
+    		// -- user can pay against this account --
+    		enabled
+    		
+    		// ------------------------------------------------------------
+			// -- payment is disabled because this is the last bill --
+    		disabledLastPayment
+    		
+    		// ------------------------------------------------------------
+			// -- payment is disabled because the customer is delinquent
+			// -- at 1FFC, this means they need to make a minimum payment
+			//		but does NOT disable payment --
+    		disabledDelinquent
+    		
+    		// ------------------------------------------------------------
+    		// -- payment is disabled because the account is closed --
+    		disabledClosed
+    		
+    		// ------------------------------------------------------------
+    		// -- payment is disabled by legal --
+    		disabledLegal
+    		
+    		// ------------------------------------------------------------
+    		// -- payment is disabled because of repossession --
+    		disabledRepo
+    		
+    		// ------------------------------------------------------------
+    		// -- payment is disabled becuse of a dispute --
+    		disabledAccountDispute
+    		
+    		// ------------------------------------------------------------
+    		// -- payment is disabled becuse of a retraction --
+    		disabledPendingRetraction
+ 		]	
+
+		// ----------------------------------------------------------------
+		// -- ACH payments can be disabled because of 3 or more
+		//		Non-Sufficient Funds... there may be more reasons in the 
+		//		future, so this is future-proofed --
+		list 		achEnabled [
+			// ------------------------------------------------------------
+			// -- user can use ACH to pay against this account --
+			enabled
+			
+			// ------------------------------------------------------------
+			// -- disabled because of at last 3 times Non-Sufficient Funds --
+			disabledNSF
+			
+			// ------------------------------------------------------------
+			// -- disabled because of a stop payment --
+			disabledStopACH
+			
+			// ------------------------------------------------------------
+			// -- disabled because of an account charge off --
+			disabledChargeOff
+		]
+
+		// ----------------------------------------------------------------
+		//	-- determines if a user has access to this account or even if
+		//		they have access to the portal at all --
+		list		viewAccount [
+			
+			// ------------------------------------------------------------
+			// -- portal is enabled for this user and this account --
+			enabled
+			
+			// ------------------------------------------------------------
+			// -- View disabled for fraud --
+			disabledFraud
+			
+			// ------------------------------------------------------------
+			// -- View disabled due to bankruptcy --
+			disabledBankruptcy
+			
+			// ------------------------------------------------------------
+			// -- Disabled Account for this user --
+			disabledAccount
+			
+			// ------------------------------------------------------------
+			// -- Portal disabled for this user --
+			disabledPortal
+			
+		] 
+	] // -- end of GetStatus --
+
+	// --------------------------------------------------------------------
+ 	// -- Use GetBasicStatus to decide what the account overview child
+ 	//		use case (on pages other than the overview) be presented --
+ 	define method GetBasicStatus [
+		string		user			// ID for the current user
+    	string		paymentGroup	// Payment Group for status information					
+    	string 		account			// Account for which status is requested
+    ] returns [
+		// ----------------------------------------------------------------
+		// -- returns status of this account which determines how the
+		//		overview will work
+    	list 		accountStatus	[					
+    		
+    		// ------------------------------------------------------------
+    		// -- this is a new account and there no bills yet --
+    		newAccount
+    		
+    		// ------------------------------------------------------------
+			// -- this is a closed account and there are no active bills --
+    		closedAccount
+    		
+    		// ------------------------------------------------------------
+			// -- this is an active account for which there are bills --
+    		activeAccount
+    	]					
+    ] // -- end GetBasicStatus --
+ 	
+	// --------------------------------------------------------------------
+ 	// -- use IsPaymentDisabled to determine if the payment pages should
+ 	//		show --
+ 	define method IsPaymentEnabled [
+		string		user			// ID for the current user
+    	string		paymentGroup	// Payment Group for for this account number			
+    	string 		account			// Account for which status is requested
+ 	] returns [
+		// ----------------------------------------------------------------
+		// -- returns true if payment enabled, otherwise false --
+   		boolean bPaymentEnabled
+		
+ 	] // -- end IsPaymentEnabled --
+ 	
+	// --------------------------------------------------------------------
+ 	// -- use IsAchDisabled to determine if ACH can be used in any
+ 	//		payments --
+ 	define method IsAchEnabled [
+		string		user			// ID for the current user
+    	string		paymentGroup	// Payment Group for this account number
+   	] returns [
+		// ----------------------------------------------------------------
+		// -- returns true if ACH enabled, otherwise false --
+   		boolean bAchEnabled
+		
+ 	] // -- end IsAchEnabled --
+ 	
+	// --------------------------------------------------------------------
+ 	// -- use IsMinimumPaymentRequired to determine if a monthly 
+ 	//		minimum is required and if so, how much that minium is --
+ 	define method IsMinimumPaymentRequired [
+		string		user			// ID for the current user
+    	string		paymentGroup	// Payment Group for this account number					
+    	string 		account			// Account for which status is requested
+ 	] returns [
+ 		boolean bMinimumRequired
+ 		string	sAmountRequired
+ 	]
+	// --------------------------------------------------------------------
+ 	// -- use hasAccountAccess to determine if the user has online access
+ 	//		to this account (ignoring reasons) .. used in processing account
+ 	//		list on overview, documents, and payment pages --
+ 	define method HasAccountAccess [
+		string		user			// ID for the current user
+    	string		paymentGroup	// Payment Group for this account number					
+    	string 		account			// Account for which status is requested
+	] returns [
+		boolean		bAccessEnabled	// Returns true if user can view this account		
+ 	] // -- end hasAccountAccess
+ 	
+	// --------------------------------------------------------------------
+ 	// -- use hasPortalAccess to determine if the user can in fact have
+ 	//		ANY access to the portal for any of their accounts --
+ 	define method HasPortalAccess [
+		string		user			// ID for the current user
+    	string		paymentGroup	// Payment Group for this account number					
+ 	] returns [
+ 		boolean		bAccessEnabled	// returns True if portal is available for this user
+ 	] // -- end hasPorta]Access
+ ]

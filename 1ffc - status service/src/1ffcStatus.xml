@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:context="http://www.springframework.org/schema/context"
+xsi:schemaLocation="http://www.springframework.org/schema/beans 
+http://www.springframework.org/schema/beans/spring-beans.xsd
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+	<!-- ************************************************************************* -->
+    <!-- ********      Import the Database Pool Bean                   *********** -->
+    <!-- ************************************************************************* -->
+    <context:annotation-config />
+    
+    <import resource="classpath:/db/common_config.xml"/>   
+    
+    <!--  ************************************************************************ --> 
+    <!--  ****** Import the SQL Statement 									****** --> 
+    <!--  ************************************************************************ --> 
+    
+	<bean id="getUserAccountsStatusSql" class="java.lang.String">
+        <constructor-arg>
+            <value>
+				WITH accountlist AS -- First, get the list of accounts for this user
+					( SELECT
+						tm_account.account_number,
+						concat ('STATUS_', tm_account.bill_group) as status_group,	
+						tm_account.bill_group as payment_group,
+						tm_account.company_id as customer_id
+					FROM
+						prof_company_account,
+						prof_company_user,
+						tm_account
+					WHERE
+						prof_company_user.userid =  CAST(:user_id AS DECIMAL)   -- user id that's passed in
+						AND prof_company_user.companyid = prof_company_account.company_id
+						AND  tm_account.id = prof_company_account.account_id )
+				SELECT -- second, construct all the status we need for those accounts
+					accountlist.status_group,
+					accountList.payment_group,
+					accountlist.account_number,
+					accountlist.customer_id,
+					status_summary.final_bill,
+					status_summary.account_closed,
+					status_summary.payment_disabled,
+					status_info.flex6 AS payment_disabled_reason,
+					status_info.flex7 AS ach_disabled_reason,
+					status_info.flex8 AS portal_access_disabled_reason,
+					status_info.flex9 AS original_loan_amount,
+					status_info.self_reg3 AS monthly_payment_amount,
+					status_info.flex10 AS total_num_payments,
+					status_info.flex11 AS num_payments_remaining,
+					status_info.flex12 AS billing_periodicity,
+					status_info.flex13 AS nickname,	
+					MAX(status_info.bill_date) as most_recent -- only take the most recent for acct
+				FROM
+					bill status_info,
+					bill_summary status_summary,
+					bill_file_meta_data bfmd,
+					accountlist
+				WHERE
+					bfmd.status in ('PUBLISHED','MERGED') 				       -- look only at properly published files
+					AND bfmd.payment_group = accountlist.status_group 	 -- make sure we get the correct payment group
+					AND status_info.bill_file_id = bfmd.bill_file_id     -- look only at bills in those published files
+					AND status_info.account = accountList.account_number -- and account number matches the user’s accts
+					AND status_info.bill_id = status_summary.bill_id		 -- and bill summary tables are same id
+				GROUP BY
+					accountlist.status_group,
+					accountList.payment_group,
+					accountlist.account_number,
+					accountlist.customer_id,
+					status_summary.final_bill,
+					status_summary.account_closed,
+					status_summary.payment_disabled,
+					payment_disabled_reason,
+					ach_disabled_reason,
+					portal_access_disabled_reason,
+					original_loan_amount,
+					monthly_payment_amount,
+					billing_periodicity,
+					nickname,
+					total_num_payments,
+					num_payments_remaining
+   
+			</value>
+        </constructor-arg>   
+    </bean>    
+    <bean id="userAccountsStatusDao" class="com.sorrisotech.svcs.accountstatus.dao.AccountStatusDaoImpl">
+    </bean>
+</beans>
