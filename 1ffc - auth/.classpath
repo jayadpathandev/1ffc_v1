@@ -163,5 +163,6 @@
 	<classpathentry kind="lib" path="/app - auth/lib/xmlbeans-5.1.1.jar"/>
 	<classpathentry kind="lib" path="/app - auth/lib/xmlsec-3.0.2.jar"/>
 	<classpathentry kind="lib" path="/app - auth/lib/xmltooling-1.4.4.jar"/>
+	<classpathentry kind="lib" path="/app - admin/lib/serviceOrgId.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

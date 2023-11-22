@@ -68,6 +68,12 @@
 	</target>
 	
     <target name="deploy" depends="-init, -base, -common">
+        <copy todir="deploy/${app}/classes">
+            <fileset dir="${install.dir}/app - admin/resources">
+            	<include name="org-id/*.xml"/>
+            </fileset>            
+        </copy>
+    	
 		<copy todir="deploy/${app}" overwrite="true">
 			<fileset dir="." includes="layout-pages/**/*"/>
 			<fileset dir="." includes="linked-root/**/*"/>
