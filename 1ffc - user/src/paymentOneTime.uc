@@ -617,16 +617,6 @@ useCase paymentOneTime [
 			attr_role: "alert"				
 			display msgMultiplePmtGroupError 
 		]
-		/*
-		div message3 [
-			logic: [						
-				if sPmtGroupConfigResult != "manyaccounts" then "hide"						
-			]				
-			class: "alert alert-danger"
-			attr_role: "alert"				
-			display msgMultipleAccountsError 
-		]
-		*/
 		div messageMultipleInvoicesError [
 			logic: [						
 				if sPmtGroupConfigResult == "nopaygroup" then "hide"
@@ -652,7 +642,6 @@ useCase paymentOneTime [
 			logic: [
 				if sPmtGroupConfigResult == "nopaygroup" then "remove"
 				if sPmtGroupConfigResult == "manypaygroups" then "remove"
-				/* if sPmtGroupConfigResult == "manyaccounts" then "remove" */
 				if sCurrentBalanceFlag == "zero" then "remove"
 				if sPmtGroupConfigResult == "success" &&  sMostRecentDocsResult == "multipleDocs" then "remove"									
 			]
@@ -2220,4 +2209,5 @@ useCase paymentOneTime [
     action gotoOverview [
         gotoModule(OVERVIEW)
     ]
+    
 ]
