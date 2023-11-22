@@ -1,6 +1,15 @@
 <project name="1ffc" default="package" basedir=".">
 
     <target name="-init">
+        <available property="has.build.properties" file="build.properties"/>
+        <fail unless="has.build.properties">
+            Please copy build.properties.template to build.properties and edit it for your system.
+        </fail>
+        <uptodate property="uptodate.build.properties" srcfile="build.properties.template" targetfile="build.properties"/>
+        <fail unless="uptodate.build.properties">
+            The build.properties.template file has been updated. Please merge and edit any changes over.
+        </fail>
+
         <loadproperties srcFile="build.properties"/>
 
         <mkdir dir="${output.dir}"/>
@@ -18,6 +27,21 @@
         <delete dir="${output.dir}"/>
         <delete dir="${artifacts.dir}"/>
     </target>
+
+    <target name="update" depends="-init">
+        <mkdir dir="${artifacts.dir}/update"/>
+        <javac srcdir="1ffc - update/src" 
+               destdir="${artifacts.dir}/update" 
+               includeAntRuntime="false" includeJavaRuntime="false"/>
+        <java classname="com.sorrisotech.devkit.Run" fork="true">
+            <arg value="${devkit.dir}"/>
+            <classpath>
+                <pathelement path="${artifacts.dir}/update"/>
+            </classpath>
+        </java>
+              
+    </target>
+
 
     <target name="package-libraries">
         <ant dir="service - nls api" inheritAll="false" inheritRefs="false"/>

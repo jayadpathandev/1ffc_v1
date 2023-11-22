@@ -40,8 +40,8 @@ useCase fffcReg99B2C [
 	importJava NotifUtil(com.sorrisotech.common.app.NotifUtil)
 	importJava Session(com.sorrisotech.app.utils.Session)
 	importJava UcBillRegistration(com.sorrisotech.uc.billstream.UcBillRegistration) 
-	importJava UcUserAssignmentAction(com.sorrisotech.app.registration.UcUserAssignmentAction)
 	importJava UserProfile(com.sorrisotech.app.utils.UserProfile) 
+	importJava FffcRegistration(com.sorrisotech.fffc.auth.FffcRegistration)
 	 
 	import regCompleteEnrollment.sAppType
 	   
@@ -233,7 +233,7 @@ useCase fffcReg99B2C [
      * 7. System links the user with their account.     
      */
     action assignUserToAccountWithNewCompany [    
-        switch UcUserAssignmentAction.assignUserToAccountWithNewCompany(sUserAccountId, sUserId) [        
+        switch FffcRegistration.assignUserToAccountWithNewCompany(sUserAccountId, sUserId) [        
             case "success" setAccountStatus
             case "error"  deleteUserProfile
             default deleteUserProfile
