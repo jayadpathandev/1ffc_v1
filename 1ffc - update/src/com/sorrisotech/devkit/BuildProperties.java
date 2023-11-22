@@ -39,7 +39,7 @@ public class BuildProperties {
 			final PrintWriter out = new PrintWriter(
 				new File(path, "build.properties")
 			);
-			out.println("install.dir = " + devkit.toAbsolutePath());
+			out.println("install.dir = " + devkit.toAbsolutePath().toString().replace('\\', '/'));
 			out.close();
 		}
 	}
