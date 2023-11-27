@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" 
+       xmlns:batch="http://www.springframework.org/schema/batch"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+        
+       	
+    <!-- ********************************************************************************** -->
+	<!-- ******** This file contains bean definitions that are specific to and        ***** -->
+	<!-- ******** required by the status processor job                                ***** -->
+	<!-- ********************************************************************************** -->
+	
+	
+	<!-- ********************************************************************************** -->
+	<!-- ******** Import common definitions like dataSource, jdbcTemplate,            ***** -->
+	<!-- ******** jobRepository, simpleStep.                                          ***** -->
+	<!-- ********************************************************************************** -->
+	<import resource="classpath:common-context.xml"/>	
+	
+	<!-- ********************************************************************************** -->
+    <!-- *** Batch Job config for removing future diabled payment                       *** -->
+    <!-- ********************************************************************************** -->
+	<batch:job id="disableFuturePaymentsJob" parent="simpleJob">
+    	<batch:step id="processorStep" parent="simpleStep">
+    	    <batch:tasklet>
+				<batch:chunk 
+					reader="paymentDisabledStatusReader" 
+					processor="paymentDisabledScheduledRemover" 
+					writer="noopItemWriter" 
+					commit-interval="1"/>               
+			</batch:tasklet>
+			<batch:listeners>
+				<batch:listener ref="defaultProcessingListener"/>
+			</batch:listeners>
+        </batch:step>    
+    </batch:job>
+    
+	<!-- ********************************************************************************** -->
+    <!-- *** The bean to read in the diabled payment user ids for processing            *** -->
+    <!-- ********************************************************************************** -->    
+    <bean id="paymentDisabledStatusReader" class="org.springframework.batch.item.database.JdbcCursorItemReader" scope="step">  
+        <property name="dataSource" ref="dataSource"/>
+        <property name="rowMapper" ref="userRowMapper"/>
+        <property name="sql">
+            <value>
+				WITH latest_status_feeds AS (		-- get all latest status feed for daily basis
+					SELECT
+						bfmd.bill_file_id 
+					FROM
+						bill_file_meta_data bfmd
+					WHERE
+						bfmd.status = 'PUBLISHED'
+						AND bfmd.bill_file_name LIKE 'b2c%.ubf.%'
+						and bfmd.status_update_date::date = NOW()::date
+					ORDER BY
+						bfmd.status_update_date
+				), pmt_disabled_accounts AS (		-- get  all the diabled account from the `latest_status_feeds`
+					SELECT
+						DISTINCT ON (b.account)
+						b.account,
+						CASE WHEN (b.flex6 IS NOT NULL AND b.flex6 NOT IN ('enabled', 'disabledDelinquent')) THEN 'Y' ELSE 'N'
+				   		END AS payment_disabled,
+				    	CASE WHEN (b.flex7 IS NOT NULL AND b.flex7 NOT IN ('enabled')) THEN 'Y' ELSE 'N'
+				    	END AS ach_disabled
+					FROM
+						bill_summary bs
+					JOIN bill b ON
+						b.bill_id = bs.bill_id
+					WHERE
+						bs.bill_file_id in (
+							SELECT * FROM latest_status_feeds
+						) AND (
+							b.flex6 IS NOT NULL AND b.flex6 NOT IN ('enabled', 'disabledDelinquent')	-- payment disable reason.
+							OR b.flex7 IS NOT NULL AND b.flex7 NOT IN ('enabled') 						-- ach disable reason.
+						)
+				) SELECT							-- get all user_id related to the account numbers of `pmt_disabled_accounts`
+					pcu.userid::varchar,
+					pda.payment_disabled,
+					pda.ach_disabled
+				FROM
+					prof_company_user pcu
+				JOIN prof_company_account pca ON
+					pca.company_id = pcu.companyid
+				JOIN tm_account ta ON
+					ta.id = pca.account_id
+				JOIN pmt_disabled_accounts pda ON ta.account_number_display = pda.account
+            </value>
+        </property>
+    </bean>
+    
+    <!-- ********************************************************************************** -->
+    <!-- *** User row mapper class bean.                                                *** -->
+    <!-- ********************************************************************************** -->
+    <bean id="userRowMapper" class="com.sorrisotech.fffc.batch.status.processor.mapper.UserMapper"/>
+    
+    <!-- ********************************************************************************** -->
+    <!-- *** The bean for paymentDisabledScheduledRemover processor                     *** -->
+    <!-- ********************************************************************************** -->    
+    <bean id="paymentDisabledScheduledRemover" class="com.sorrisotech.fffc.batch.status.processor.Processor">
+   		<property name="dataSource" ref="dataSource"/>
+	    <property name="deleteScheduled" value="DELETE FROM pmt_schedule WHERE online_trans_id IN (:ids)"/>
+	    <property name="deleteRecurring" value="DELETE FROM pmt_automatic WHERE automatic_id IN (:ids)"/>
+	    <property name="scheduledPaymentMapper" ref="scheduledPaymentMapper"/>
+	    <property name="recurringPaymentMapper" ref="recurringPaymentMapper"/>
+	    <property name="getScheduledInfoByUserId">
+	    	<value>
+	    		select
+					ps.online_trans_id, 
+					ta.account_number_display as account_number,
+					ps.pay_date as payment_date,
+					pw.source_num as wallet_name,
+					ps.pay_amt as amount,
+					pw.source_type 
+				from
+					pmt_schedule ps
+				join pmt_wallet pw on
+					ps.source_id = pw.source_id
+				join prof_company_user pcu on ps.user_id = pcu.userid::varchar
+				join prof_company_account pca  on pcu.companyid = pca.company_id 
+				join tm_account ta on ta.id = pca.account_id 
+				where
+					ps.user_id = :userId
+	    	</value>
+	    </property>
+	    <property name="getRecurringInfoByUserId">
+	    	<value>
+	    		select
+					pa.automatic_id, 
+					ta.account_number_display as account_number,
+					pw.source_num  as wallet_name,
+					pw.source_type 
+				from
+					pmt_automatic pa
+				join pmt_wallet pw on
+					pa.source_id = pw.source_id
+				join prof_company_user pcu on pa.user_id = pcu.userid::varchar
+				join prof_company_account pca  on pcu.companyid = pca.company_id 
+				join tm_account ta on ta.id = pca.account_id 
+				where
+					pa.user_id = :userId
+	    	</value>
+	    </property>
+    </bean>
+    
+    <!-- ********************************************************************************** -->
+    <!-- *** RowMapper implementation for ScheduledPayment                              *** -->
+    <!-- ********************************************************************************** -->  
+    <bean id="scheduledPaymentMapper" class="com.sorrisotech.fffc.batch.status.processor.mapper.ScheduledPaymentMapper"/>
+    
+    <!-- ********************************************************************************** -->
+    <!-- *** RowMapper implementation for RecurringPayment                              *** -->
+    <!-- ********************************************************************************** --> 
+    <bean id="recurringPaymentMapper" class="com.sorrisotech.fffc.batch.status.processor.mapper.RecurringPaymentMapper"/>
+    
+    <!-- ********************************************************************************** -->
+    <!-- *** No operations writer Implementation                                        *** -->
+    <!-- ********************************************************************************** --> 
+    <bean id="noopItemWriter" class="com.sorrisotech.fffc.batch.status.processor.NoopWriter"/>
+    
+    <!-- ********************************************************************************** -->
+    <!-- *** The process listener bean which send the notification after processing     *** -->
+    <!-- ********************************************************************************** -->  
+	<bean id="defaultProcessingListener" class="com.sorrisotech.fffc.batch.status.processor.ProcessListener"/>
+</beans>
