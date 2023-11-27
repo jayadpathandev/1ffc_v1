@@ -80,18 +80,18 @@ public class AuthClient {
 	        AuthAccessTokenRequest cAccessTokenRequest,
 	        String szVersion) throws InvalidRequestException,
 	        RestClientException {
-		LOG.info("Access Token Request : " + cAccessTokenRequest);
+		LOG.debug("Access Token Request : " + cAccessTokenRequest);
 		
 		RequestValidator.ValidateRequest(cAccessTokenRequest);
 		
 		var cPathVariables = Map.of("version", szVersion);
 		
 		var szEndPointURL = EndPoints.AUTH_GET_TOKEN.buildURL(szBaseUrl, cPathVariables);
-		LOG.info("Access Token Url : " + szEndPointURL);
+		LOG.debug("Access Token Url : " + szEndPointURL);
 		
 		var szResponse = m_cApiUtils.executeApiRequest(cAccessTokenRequest, HttpMethod.POST,
 		        szEndPointURL, null, AuthResponse.class);
-		LOG.info("Access Token Response : " + szResponse);
+		LOG.debug("Access Token Response : " + szResponse);
 		return szResponse;
 	}
 	
@@ -115,18 +115,18 @@ public class AuthClient {
 	        AuthRefreshTokenRequest cAuthRefreshTokenRequest,
 	        String szVersion) throws InvalidRequestException,
 	        RestClientException {
-		LOG.info("Refresh Token Request : " + cAuthRefreshTokenRequest);
+		LOG.debug("Refresh Token Request : " + cAuthRefreshTokenRequest);
 		
 		RequestValidator.ValidateRequest(cAuthRefreshTokenRequest);
 		
 		var cPathVariables = Map.of("version", szVersion);
 		
 		var szEndPointURL = EndPoints.AUTH_REFRESH.buildURL(szBaseUrl, cPathVariables);
-		LOG.info("Refresh Token Url : " + szEndPointURL);
+		LOG.debug("Refresh Token Url : " + szEndPointURL);
 		
 		var cResponse = m_cApiUtils.executeApiRequest(cAuthRefreshTokenRequest, HttpMethod.POST,
 		        szEndPointURL, null, AuthResponse.class);
-		LOG.info("Refresh Token Response : " + cResponse);
+		LOG.debug("Refresh Token Response : " + cResponse);
 		return cResponse;
 	}
 }
