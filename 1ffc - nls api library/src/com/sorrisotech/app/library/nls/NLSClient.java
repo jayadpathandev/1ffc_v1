@@ -29,8 +29,18 @@ import org.springframework.http.HttpStatus;
 
 import com.sorrisotech.client.auth.AuthClient;
 import com.sorrisotech.client.auth.model.request.AuthAccessTokenRequest;
+import com.sorrisotech.client.auth.model.request.AuthRefreshTokenRequest;
+import com.sorrisotech.client.auth.model.response.AuthResponse;
 import com.sorrisotech.client.main.MainClient;
+import com.sorrisotech.client.main.model.request.ContactPreferencesRequest;
+import com.sorrisotech.client.main.model.request.LoanNicknameRequest;
+import com.sorrisotech.client.main.model.response.BranchResponse;
+import com.sorrisotech.client.main.model.response.ContactPrefrences;
+import com.sorrisotech.client.main.model.response.ConvenienceFeeResponse;
+import com.sorrisotech.client.main.model.response.CreateContactPrefrencesResponse;
+import com.sorrisotech.client.main.model.response.CurrentBalanceResponse;
 import com.sorrisotech.client.main.model.response.SimpleNLSResponse;
+import com.sorrisotech.client.main.model.response.UpdatedContactPrefrencesResponse;
 
 /******************************************************************************
  * Service NLS API Client library. Can be used to call NLS APIs.
@@ -126,8 +136,8 @@ public class NLSClient {
 	 * 
 	 * @return The binary file of a document of user.(Simple NLS response with
 	 *         status code, success, pay load and error )
-	 * @throws Exception
-	 * 		
+	 * @throws Exception This exception is thrown when any errors received from NLS
+	 *                   server.
 	 */
 	public static SimpleNLSResponse getDocument(String szDocumentId) throws Exception {
 		
@@ -147,6 +157,248 @@ public class NLSClient {
 		}
 		
 		return createDocumentResponse;
+	}
+	
+	/**********************************************************************************************
+	 * Fetch the current principal balance and any upcoming payments with their due
+	 * dates when the user accesses the overview page.
+	 * 
+	 * @param szLoanId Loan id of user
+	 * 
+	 * @return The current balance and upcoming payment due dates of user as a pay
+	 *         load.(Current balance response with status code, success, pay load and
+	 *         errors).
+	 * 
+	 * @throws Exception This exception is thrown when any errors received from NLS
+	 *                   server.
+	 */
+	public static CurrentBalanceResponse getCurrentBalance(String szLoanId) throws Exception {
+		
+		if (!Boolean.valueOf(isConfigured())) {
+			LOG.error("NLS Client Library is not configured yet!");
+			throw new IllegalStateException("NLS Client Library is not configured yet");
+		}
+		
+		var szAuthToken = NLSClient.fetchAuthToken();
+		
+		var currentBalanceResponse = m_cMainClient.getCurrentBalance(m_szBaseUrl, m_szVersion,
+		        szLoanId, szAuthToken);
+		
+		if (!currentBalanceResponse.getSuccess()
+		        && !HttpStatus.valueOf(currentBalanceResponse.getStatuscode()).is2xxSuccessful()) {
+			handleError(currentBalanceResponse.getErrors());
+		}
+		
+		return currentBalanceResponse;
+	}
+	
+	/**********************************************************************************************
+	 * Updates the nickname associated with a loan.
+	 * 
+	 * @param cLoanNicknameRequest Nickname and loan id of borrower.
+	 * @param szLoanId             Loan id of user
+	 * 
+	 * @return The response of NLS API with updated nickname (Simple NLS response
+	 *         with status code, success, pay load and errors).
+	 * 		
+	 * @throws Exception This exception is thrown when any errors received from NLS
+	 *                   server.
+	 */
+	public static SimpleNLSResponse updateBorrowerNickName(LoanNicknameRequest cLoanNicknameRequest)
+	        throws Exception {
+		if (!Boolean.valueOf(isConfigured())) {
+			LOG.error("NLS Client Library is not configured yet!");
+			throw new IllegalStateException("NLS Client Library is not configured yet");
+		}
+		
+		var szAuthToken = NLSClient.fetchAuthToken();
+		
+		var updateBorrowerNicknameResponse = m_cMainClient.updateBorrowerNickname(m_szBaseUrl,
+		        cLoanNicknameRequest, m_szVersion, szAuthToken);
+		
+		if (!updateBorrowerNicknameResponse.getSuccess() && !HttpStatus
+		        .valueOf(updateBorrowerNicknameResponse.getStatuscode()).is2xxSuccessful()) {
+			handleError(updateBorrowerNicknameResponse.getErrors());
+		}
+		
+		return updateBorrowerNicknameResponse;
+	}
+	
+	/**********************************************************************************************
+	 * Fetch Convenience Fee
+	 * 
+	 * @param szLoanId Loan id of user
+	 * 
+	 * @return The result of operation(Simple NLS response with status code,
+	 *         success, pay load and errors).
+	 * 		
+	 * @throws Exception This exception is thrown when any errors received from NLS
+	 *                   server.
+	 *
+	 */
+	public static ConvenienceFeeResponse getConvenienceFee(String szLoanId) throws Exception {
+		
+		if (!Boolean.valueOf(isConfigured())) {
+			LOG.error("NLS Client Library is not configured yet!");
+			throw new IllegalStateException("NLS Client Library is not configured yet");
+		}
+		
+		var szAuthToken = NLSClient.fetchAuthToken();
+		
+		var convenienceFeeResponse = m_cMainClient.getConvenienceFee(m_szBaseUrl, m_szVersion,
+		        szLoanId, szAuthToken);
+		
+		if (!convenienceFeeResponse.getSuccess()
+		        && !HttpStatus.valueOf(convenienceFeeResponse.getStatuscode()).is2xxSuccessful()) {
+			handleError(convenienceFeeResponse.getErrors());
+		}
+		
+		return convenienceFeeResponse;
+	}
+	
+	/**********************************************************************************************
+	 * Provides basic information for all branches in NLS.
+	 * 
+	 * @return all branches in NLS. operation(Branches NLS response with status
+	 *         code, success, pay load and errors).
+	 * @throws Exception if error in response.
+	 */
+	public static BranchResponse getAllBranches() throws Exception {
+		
+		if (!Boolean.valueOf(isConfigured())) {
+			LOG.error("NLS Client Library is not configured yet!");
+			throw new IllegalStateException("NLS Client Library is not configured yet");
+		}
+		
+		var szAuthToken = NLSClient.fetchAuthToken();
+		
+		var cBranchResponse = m_cMainClient.getBranches(m_szBaseUrl, m_szVersion, szAuthToken);
+		
+		if (!cBranchResponse.getSuccess()
+		        && !HttpStatus.valueOf(cBranchResponse.getStatuscode()).is2xxSuccessful()) {
+			handleError(cBranchResponse.getErrors());
+		}
+		
+		return cBranchResponse;
+	}
+	
+	/**********************************************************************************************
+	 * Get all updated contact preferences of user that have been updated since the
+	 * previous date.
+	 * 
+	 * @param cContactPreferencesRequest Contact preferences request.
+	 * 
+	 * @return The contact preferences updates of user.
+	 * 
+	 * @throws Exception in case of any errors.
+	 */
+	public static UpdatedContactPrefrencesResponse getAllUpdatedContactPreferences(
+	        ContactPreferencesRequest cContactPreferencesRequest) throws Exception {
+		
+		if (!Boolean.valueOf(isConfigured())) {
+			LOG.error("NLS Client Library is not configured yet!");
+			throw new IllegalStateException("NLS Client Library is not configured yet");
+		}
+		
+		var szAuthToken = NLSClient.fetchAuthToken();
+		
+		var cContactPreferenceUpdates = m_cMainClient.getAllContactPreferenceUpdates(
+		        cContactPreferencesRequest, m_szBaseUrl, m_szVersion, szAuthToken);
+		
+		if (!cContactPreferenceUpdates.getSuccess() && !HttpStatus
+		        .valueOf(cContactPreferenceUpdates.getStatuscode()).is2xxSuccessful()) {
+			handleError(cContactPreferenceUpdates.getErrors());
+		}
+		
+		return cContactPreferenceUpdates;
+	}
+	
+	/**********************************************************************************************
+	 * Obtain the user's preferred method of contact.
+	 * 
+	 * @param cContactPreferencesRequest Contact preferences request.
+	 * 
+	 * @return The contact preferences of user.
+	 * 
+	 * @throws Exception in case of any errors.
+	 */
+	public static CreateContactPrefrencesResponse getContactPreferencesofUser(
+	        ContactPreferencesRequest cContactPreferencesRequest) throws Exception {
+		
+		if (!Boolean.valueOf(isConfigured())) {
+			LOG.error("NLS Client Library is not configured yet!");
+			throw new IllegalStateException("NLS Client Library is not configured yet");
+		}
+		
+		var szAuthToken = NLSClient.fetchAuthToken();
+		
+		var cContactPreferenceUpdates = m_cMainClient.getContactPreferencesOfUser(
+		        cContactPreferencesRequest, m_szBaseUrl, m_szVersion, szAuthToken);
+		
+		if (!cContactPreferenceUpdates.getSuccess() && !HttpStatus
+		        .valueOf(cContactPreferenceUpdates.getStatuscode()).is2xxSuccessful()) {
+			handleError(cContactPreferenceUpdates.getErrors());
+		}
+		
+		return cContactPreferenceUpdates;
+	}
+	
+	/**********************************************************************************************
+	 * Update the user's contact preferences.
+	 * 
+	 * @param cContactPrefrences Contact preferences request.
+	 * 
+	 * @return The contact preferences of user.
+	 * 
+	 * @throws Exception in case of any errors.
+	 */
+	public static SimpleNLSResponse updateContactPreferences(ContactPrefrences cContactPrefrences)
+	        throws Exception {
+		
+		if (!Boolean.valueOf(isConfigured())) {
+			LOG.error("NLS Client Library is not configured yet!");
+			throw new IllegalStateException("NLS Client Library is not configured yet");
+		}
+		
+		var szAuthToken = NLSClient.fetchAuthToken();
+		
+		var cContactPreferenceUpdates = m_cMainClient.updateContactPreferences(cContactPrefrences,
+		        m_szBaseUrl, m_szVersion, szAuthToken);
+		
+		if (!cContactPreferenceUpdates.getSuccess() && !HttpStatus
+		        .valueOf(cContactPreferenceUpdates.getStatuscode()).is2xxSuccessful()) {
+			handleError(cContactPreferenceUpdates.getErrors());
+		}
+		
+		return cContactPreferenceUpdates;
+	}
+	
+	/**********************************************************************************************
+	 * Refresh user token.
+	 * 
+	 * @param szAuthToken    authorization token.
+	 * @param szRefreshToken refresh token.
+	 * 
+	 * @return The result of operation.
+	 * 
+	 * @throws Exception if error in response.
+	 */
+	public static AuthResponse refreshAuthToken(String szAuthToken, String szRefreshToken)
+	        throws Exception {
+		
+		if (!Boolean.valueOf(isConfigured())) {
+			LOG.error("NLS Client Library is not configured yet!");
+			throw new IllegalStateException("NLS Client Library is not configured yet");
+		}
+		
+		var refreshTokenResponse = m_cAuthClient.refreshToken(m_szBaseUrl,
+		        new AuthRefreshTokenRequest(szAuthToken, szRefreshToken), m_szVersion);
+		
+		if (!refreshTokenResponse.getSuccess()
+		        && !HttpStatus.valueOf(refreshTokenResponse.getStatuscode()).is2xxSuccessful()) {
+			handleError(refreshTokenResponse.getErrors());
+		}
+		return refreshTokenResponse;
 	}
 	
 	/**********************************************************************************************

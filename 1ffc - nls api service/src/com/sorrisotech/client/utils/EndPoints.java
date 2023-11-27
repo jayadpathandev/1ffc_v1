@@ -10,17 +10,13 @@ import java.util.Map;
 public enum EndPoints {
 	
 	AUTH_GET_TOKEN("/api/v{version}/Auth/getToken"), AUTH_REFRESH("/api/v{version}/Auth/refresh"),
-    // PAYMENT_RECONCILIATION("/api/v{version}/Main/PaymentReconciliation"),
-    // ACCOUNT_FEED("/api/v{version}/Main/AccountFeed"),
-    // CONTACT_PREFERENCES("/api/v{version}/Main/ContactPreferences"),
-    // PAYMENT_HISTORY("/api/v{version}/Main/PaymentHistory"),
-    // CONTACT_PREFERENCE_UPDATES("/api/v{version}/Main/ContactPreferenceUpdates"),
-    // TRANSACTIONS("/api/v{version}/Main/Transactions"),
+	CONTACT_PREFERENCES("/api/v{version}/Main/ContactPreferences"),
+	CONTACT_PREFERENCE_UPDATES("/api/v{version}/Main/UpdatedPreferences"),
 	DOCUMENT("/api/v{version}/Main/Document"),
-	// CURRENT_BALANCE("/api/v{version}/Main/{loanid}/CurrentBalance"),
-	// BORROWER_NICKNAME("/api/v{version}/Main/{loanid}/BorrowerNickname"),
-	// CONVENIENCE_FEE("/api/v{version}/Main/{loanid}/ConvenienceFee")
-	;
+	CURRENT_BALANCE("/api/v{version}/Main/CurrentBalance"),
+	BORROWER_NICKNAME("/api/v{version}/Main/LoanNickname"),
+	CONVENIENCE_FEE("/api/v{version}/Main/ConvenienceFee"),
+	BRANCHES("/api/v{version}/Main/Branches");
 	
 	private String m_szEndpoint;
 	
