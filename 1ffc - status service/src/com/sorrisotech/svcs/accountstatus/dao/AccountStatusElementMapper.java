@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowMapper;
 
+import com.sorrisotech.svcs.accountstatus.cache.EnumConst.AcctStatus;
 import com.sorrisotech.svcs.accountstatus.cache.EnumConst.AchEnabled;
 import com.sorrisotech.svcs.accountstatus.cache.EnumConst.PayEnabled;
 import com.sorrisotech.svcs.accountstatus.cache.EnumConst.ViewAcct;
@@ -66,6 +67,14 @@ public class AccountStatusElementMapper implements RowMapper<AccountStatusElemen
 		lAcctStats.setMostRecentUpdate(getSafeInteger(arg0.getString("most_recent"),
 				"most_recent", lAcctStats));
 		
+		// -- this one is a little odd because we "infer the status baesed on query results returned --
+		if (lAcctStats.isAcctClosed())
+			lAcctStats.setAcctStatus(AcctStatus.closedAccount);
+		else if (arg0.getString("total_num_payments").equalsIgnoreCase(arg0.getString("num_payments_remaining")))
+			 // this doesn't tell us there are no bills, but tells us there aren't any payments yet. We need to check for bills in the use case. --
+			lAcctStats.setAcctStatus(AcctStatus.newAccount);  // this doesn't tell us there are no bills, but tells us there aren't any payments yet.
+		else
+			lAcctStats.setAcctStatus(AcctStatus.activeAccount);
 		
 		LOG.debug("AccountStatusElement mapping complete ", lAcctStats);
 		
