@@ -52,6 +52,9 @@ define service AccountStatus(com.sorrisotech.app.serviceapi.uc.UcRequestClient) 
     		
     		// ------------------------------------------------------------
     		// -- this is a new account and there no bills yet --
+    		//		NOTE: for 1st Franklin, this tells us that there have 
+    		//		never been any payments on the account. We need to
+    		//		check for no bills separately and adjust accordingly --
     		newAccount
     		
     		// ------------------------------------------------------------

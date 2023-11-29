@@ -115,6 +115,7 @@ public class AccountStatusElement {
 	public void setAcctClosed(final Boolean cbAcctClosed) {
 		this.m_bAcctClosed = cbAcctClosed;
 	}
+	
 	public AcctStatus getAcctStatus() {
 		return m_AcctStatus;
 	}
