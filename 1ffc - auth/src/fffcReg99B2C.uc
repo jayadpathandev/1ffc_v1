@@ -88,10 +88,15 @@ useCase fffcReg99B2C [
 	native string sUserAccountId =  UcBillRegistration.getUserAccountId()		
 	native string sNameSpace = CreateSaml.getNameSpace()	
 	native string sAppName = AppName.getAppName(sAppType)	
+	native string sEmailChannel = "email"
+	native string sSmsChannel = "sms"
 
 	serviceStatus srStatus			
 	serviceParam(Profile.AddPasswordHistory) srAddReq
     serviceResult (Profile.AddPasswordHistory) srAddResp
+    
+    serviceStatus status
+	serviceParam(Notifications.SetUserAddress) setData
 			
     // -- message strings for display when use case completes. 			
     structure(message) msgDuplicateAccount [    
@@ -211,9 +216,7 @@ useCase fffcReg99B2C [
         	firstName: fFirstName.pInput
         	lastName: fLastName.pInput        	
         	appType: sAppType
-        	emailAddress: fUserEmail.pInput
             phoneNumber: fPhoneNumber.pInput  
-            mobileNumber: fMobileNumber.pInput
             secretQuestion1: dSecretQuestion1
         	secretQuestion2: dSecretQuestion2
         	secretQuestion3: dSecretQuestion3
@@ -225,12 +228,25 @@ useCase fffcReg99B2C [
             securityImage: imageId   
             paperBillingEnabled: "false"   
             )
-        if success then assignUserToAccountWithNewCompany
+        if success then saveEmailAddress
         if failure then deleteUserProfile    
     ]  
-        
+    
     /**************************************************************************
-     * 7. System links the user with their account.     
+     * 7. Initialize user's contact preferences - email.     
+     */
+	action saveEmailAddress [
+		setData.userid = sUserId
+		setData.channel = sEmailChannel
+		setData.address = fUserEmail.pInput
+	    switch apiCall Notifications.SetUserAddress(setData, status) [
+		    case apiSuccess assignUserToAccountWithNewCompany
+		    default deleteUserProfile
+		]
+	]
+	        
+    /**************************************************************************
+     * 9. System links the user with their account.     
      */
     action assignUserToAccountWithNewCompany [    
         switch FffcRegistration.assignUserToAccountWithNewCompany(sUserAccountId, sUserId) [        
@@ -241,7 +257,7 @@ useCase fffcReg99B2C [
     ] 
        
     /**************************************************************************
-     * 8. Set status of user account.     
+     * 10. Set status of user account.     
      */
     action setAccountStatus [    
         updateProfile(        	
@@ -254,7 +270,7 @@ useCase fffcReg99B2C [
     ] 
     
     /**************************************************************************
-     * 9. Generate authorization code.     
+     * 11. Generate authorization code.     
      */
     action generateAuthCode [    	  	   	
         switch AuthUtil.generateAuthCode(sAuthCode) [        
@@ -265,7 +281,7 @@ useCase fffcReg99B2C [
     ] 
     
     /**************************************************************************
-     * 10. Get current timestamp.     
+     * 12. Get current timestamp.     
      */
     action getCurrentTimeStamp [    
         switch AuthUtil.getCurrentTime(sCurrentTime) [        
@@ -276,7 +292,7 @@ useCase fffcReg99B2C [
     ]  
     
     /**************************************************************************
-     * 11. Save auth code details.     
+     * 13. Save auth code details.     
      */
     action saveAuthCodeDetails [
     	 updateProfile(        	
@@ -289,7 +305,7 @@ useCase fffcReg99B2C [
     ]    
     
     /**************************************************************************
-     * 12. Send validation email.     
+     * 14. Send validation email.     
      */
     action sendValidationEmail [    
         switch NotifUtil.sendAuthCode(sUserId, sAppName, fUserName.pInput, fPassword.pInput, sAuthCode, fFirstName.pInput, fLastName.pInput) [        
@@ -300,7 +316,7 @@ useCase fffcReg99B2C [
     ]   
     
     /**************************************************************************
-	 * 13. Go to the registration validation email address usecase.
+	 * 15. Go to the registration validation email address usecase.
 	 */
     action gotoRegValidateEmailAddress [
     	sReqWorkflow = ""

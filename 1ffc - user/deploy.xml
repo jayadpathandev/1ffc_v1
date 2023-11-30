@@ -72,5 +72,12 @@
     		<fileset dir="src-gen" includes="usecases/*.xml"/>
     		<fileset dir="src-gen" includes="internationalization/*.properties"/>
     	</copy>
+    	<propertyfile file="deploy/${app}/internationalization/topics_en.properties">
+    		<entry key="topics_100_bills_documents" value="Electronic Document Delivery"/>
+    		<entry key="topics_150_marketing" value="Marketing Messages"/>
+    		<entry key="topics_200_payment" value="Account Servicing"/>
+    		<entry key="topics_250_collections" value="Collections"/>
+    		<entry key="topics_300_system" value="System Alerts"/>
+    	</propertyfile>
     </target>
 </project> 
