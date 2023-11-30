@@ -11,7 +11,7 @@
 	<classpathentry kind="lib" path="/app - admin/lib/angus-activation-2.0.0.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/antlr-2.7.2.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/antlr4-runtime-4.13.1.jar"/>
-	<classpathentry kind="lib" path="/app - admin/lib/aspectjweaver-1.9.20.1.jar"/>
+	<classpathentry kind="lib" path="/app - admin/lib/aspectjweaver-1.9.21.M1.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/authnet_cim_api.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/bcprov-jdk15on-1.51.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/checker-qual-3.37.0.jar"/>
@@ -20,14 +20,14 @@
 	<classpathentry kind="lib" path="/app - admin/lib/commons-codec-1.16.0.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/commons-collections-3.2.2.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/commons-collections4-4.4.jar"/>
-	<classpathentry kind="lib" path="/app - admin/lib/commons-compress-1.24.0.jar"/>
+	<classpathentry kind="lib" path="/app - admin/lib/commons-compress-1.25.0.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/commons-dbcp2-2.11.0.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/commons-digester-2.1.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/commons-httpclient-3.1.jar"/>
-	<classpathentry kind="lib" path="/app - admin/lib/commons-io-2.15.0.jar"/>
+	<classpathentry kind="lib" path="/app - admin/lib/commons-io-2.15.1.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/commons-jexl-2.0.1.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/commons-lang-2.6.jar"/>
-	<classpathentry kind="lib" path="/app - admin/lib/commons-lang3-3.13.0.jar"/>
+	<classpathentry kind="lib" path="/app - admin/lib/commons-lang3-3.14.0.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/commons-logging-1.2.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/commons-math3-3.6.1.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/commons-pool2-2.12.0.jar"/>
@@ -47,15 +47,15 @@
 	<classpathentry kind="lib" path="/app - admin/lib/httpcore5-h2-5.2.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/istack-commons-runtime-4.1.1.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/j2objc-annotations-2.8.jar"/>
-	<classpathentry kind="lib" path="/app - admin/lib/jackson-annotations-2.16.0-rc1.jar"/>
-	<classpathentry kind="lib" path="/app - admin/lib/jackson-core-2.16.0-rc1.jar"/>
-	<classpathentry kind="lib" path="/app - admin/lib/jackson-databind-2.16.0-rc1.jar"/>
-	<classpathentry kind="lib" path="/app - admin/lib/jackson-dataformat-xml-2.16.0-rc1.jar"/>
+	<classpathentry kind="lib" path="/app - admin/lib/jackson-annotations-2.16.0.jar"/>
+	<classpathentry kind="lib" path="/app - admin/lib/jackson-core-2.16.0.jar"/>
+	<classpathentry kind="lib" path="/app - admin/lib/jackson-databind-2.16.0.jar"/>
+	<classpathentry kind="lib" path="/app - admin/lib/jackson-dataformat-xml-2.16.0.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/jackson-dataformat-yaml-2.15.2.jar"/>
-	<classpathentry kind="lib" path="/app - admin/lib/jackson-datatype-joda-2.16.0-rc1.jar"/>
-	<classpathentry kind="lib" path="/app - admin/lib/jackson-jaxrs-base-2.16.0-rc1.jar"/>
-	<classpathentry kind="lib" path="/app - admin/lib/jackson-jaxrs-json-provider-2.16.0-rc1.jar"/>
-	<classpathentry kind="lib" path="/app - admin/lib/jackson-module-jaxb-annotations-2.16.0-rc1.jar"/>
+	<classpathentry kind="lib" path="/app - admin/lib/jackson-datatype-joda-2.16.0.jar"/>
+	<classpathentry kind="lib" path="/app - admin/lib/jackson-jaxrs-base-2.16.0.jar"/>
+	<classpathentry kind="lib" path="/app - admin/lib/jackson-jaxrs-json-provider-2.16.0.jar"/>
+	<classpathentry kind="lib" path="/app - admin/lib/jackson-module-jaxb-annotations-2.16.0.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/jai-imageio-core-1.4.0.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/jakarta.activation-2.0.1.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/jakarta.activation-api-2.1.1.jar"/>
@@ -99,7 +99,7 @@
 	<classpathentry kind="lib" path="/app - admin/lib/libraryUtils.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/libraryVideoManage.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar"/>
-	<classpathentry kind="lib" path="/app - admin/lib/log4j-api-2.20.0.jar"/>
+	<classpathentry kind="lib" path="/app - admin/lib/log4j-api-2.21.1.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/logback-classic-1.4.0.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/logback-core-1.4.0.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/micrometer-commons-1.10.4.jar"/>
@@ -119,10 +119,10 @@
 	<classpathentry kind="lib" path="/app - admin/lib/persona-jetty.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/persona-saml-5.1.20231009.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/persona-service-loader-5.1.20231009.jar"/>
-	<classpathentry kind="lib" path="/app - admin/lib/poi-5.2.4.jar"/>
-	<classpathentry kind="lib" path="/app - admin/lib/poi-ooxml-5.2.4.jar"/>
-	<classpathentry kind="lib" path="/app - admin/lib/poi-ooxml-lite-5.2.4.jar"/>
-	<classpathentry kind="lib" path="/app - admin/lib/postgresql-42.6.0.jar"/>
+	<classpathentry kind="lib" path="/app - admin/lib/poi-5.2.5.jar"/>
+	<classpathentry kind="lib" path="/app - admin/lib/poi-ooxml-5.2.5.jar"/>
+	<classpathentry kind="lib" path="/app - admin/lib/poi-ooxml-lite-5.2.5.jar"/>
+	<classpathentry kind="lib" path="/app - admin/lib/postgresql-42.7.0.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/reflections-0.10.2.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/serviceAPI.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/serviceBill.jar"/>
@@ -171,7 +171,7 @@
 	<classpathentry kind="lib" path="/app - admin/lib/velocity-1.7.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/velocity-tools-2.0.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/woodstox-core-6.5.1.jar"/>
-	<classpathentry kind="lib" path="/app - admin/lib/xmlbeans-5.1.1.jar"/>
+	<classpathentry kind="lib" path="/app - admin/lib/xmlbeans-5.2.0.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/xmlsec-3.0.2.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/xmltooling-1.4.4.jar"/>
 	<classpathentry kind="output" path="bin"/>

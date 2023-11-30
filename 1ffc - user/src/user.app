@@ -37,7 +37,7 @@ application [
 		DASHBOARD => dashboard
 		BILLING => billSummary
 		CORRESPONDENCE => document
-		NOTIFICATIONS => notifications
+		NOTIFICATIONS => contactPreferences
 		PAYMENT => payment	
 		PROFILE => profile
 		LOGIN => saml		
