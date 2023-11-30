@@ -46,20 +46,6 @@ public class ContactPrefrences {
 	private String m_szCustomerId;
 	
 	/**************************************************************************
-	 * Smart suite user name.
-	 */
-	@JsonProperty("smartsuite_username")
-	@NotNull(message = "Smart suite user name can not be null")
-	private String m_szSmartsuiteUsername;
-	
-	/**************************************************************************
-	 * Smart suite ID.
-	 */
-	@JsonProperty("smartsuite_id")
-	@NotNull(message = "Smart suite ID can not be null")
-	private String m_szSmartsuiteId;
-	
-	/**************************************************************************
 	 * Date and time.
 	 */
 	@JsonProperty("date_time")
@@ -87,24 +73,6 @@ public class ContactPrefrences {
 	 */
 	public String getCustomerId() {
 		return m_szCustomerId;
-	}
-	
-	/**************************************************************************
-	 * Getter for smart suite user name.
-	 * 
-	 * @return String smart suite user name.
-	 */
-	public String getSmartsuiteUsername() {
-		return m_szSmartsuiteUsername;
-	}
-	
-	/**************************************************************************
-	 * Getter for smart suite user id.
-	 * 
-	 * @return String smart suite id.
-	 */
-	public String getSmartsuiteId() {
-		return m_szSmartsuiteId;
 	}
 	
 	/**************************************************************************
@@ -140,54 +108,33 @@ public class ContactPrefrences {
 	public void setCustomerId(String m_szCustomerId) {
 		this.m_szCustomerId = m_szCustomerId;
 	}
-
-	/**************************************************************************
-	 * Setter for smart suite user name.
-	 */
-	public void setSmartsuiteUsername(String m_szSmartsuiteUsername) {
-		this.m_szSmartsuiteUsername = m_szSmartsuiteUsername;
-	}
-
-	/**************************************************************************
-	 * Setter for smart suite user ID.
-	 */
-	public void setSmartsuiteId(String m_szSmartsuiteId) {
-		this.m_szSmartsuiteId = m_szSmartsuiteId;
-	}
-
+	
 	/**************************************************************************
 	 * Setter for Date and time.
 	 */
 	public void setDateTime(String m_szDateTime) {
 		this.m_szDateTime = m_szDateTime;
 	}
-
+	
 	/**************************************************************************
 	 * Setter for list of channel addresses.
 	 */
 	public void setChannelAddresses(List<ChannelAddress> m_szChannelAddresses) {
 		this.m_szChannelAddresses = m_szChannelAddresses;
 	}
-
+	
 	/**************************************************************************
 	 * Setter for list of topic preferences.
 	 */
 	public void setTopicPreferences(List<TopicPreference> m_szTopicPreferences) {
 		this.m_szTopicPreferences = m_szTopicPreferences;
 	}
-
-	/**************************************************************************
-	 * Overridden toString method.
-	 * 
-	 * @return a string representation of the object.
-	 */
+	
 	@Override
 	public String toString() {
-		return "ContactPrefrences{" + "customerId='" + m_szCustomerId + '\''
-		        + ", smartsuiteUsername='" + m_szSmartsuiteUsername + '\'' + ", smartsuiteId='"
-		        + m_szSmartsuiteId + '\'' + ", dateTime='" + m_szDateTime + '\''
-		        + ", channelAddresses=" + m_szChannelAddresses + ", topicPreferences="
-		        + m_szTopicPreferences + '}';
+		return "ContactPrefrences [m_szCustomerId=" + m_szCustomerId + ", m_szDateTime="
+		        + m_szDateTime + ", m_szChannelAddresses=" + m_szChannelAddresses
+		        + ", m_szTopicPreferences=" + m_szTopicPreferences + "]";
 	}
 	
 	/**************************************************************************
@@ -202,19 +149,15 @@ public class ContactPrefrences {
 	 */
 	public ContactPrefrences(
 	        @NotEmpty(message = "Customer ID can not be null or empty") String m_szCustomerId,
-	        @NotNull(message = "Smart suite user name can not be null or empty") String m_szSmartsuiteUsername,
-	        @NotNull(message = "Smart suite ID can not be null or empty") String m_szSmartsuiteId,
 	        @NotEmpty(message = "Date and time can not be null or empty") String m_szDateTime,
 	        @NotEmpty(message = "Channel addresses can not be null or empty") List<ChannelAddress> m_szChannelAddresses,
 	        @NotEmpty(message = "Topic prefrences can not be null or empty") List<TopicPreference> m_szTopicPreferences) {
 		this.m_szCustomerId = m_szCustomerId;
-		this.m_szSmartsuiteUsername = m_szSmartsuiteUsername;
-		this.m_szSmartsuiteId = m_szSmartsuiteId;
 		this.m_szDateTime = m_szDateTime;
 		this.m_szChannelAddresses = m_szChannelAddresses;
 		this.m_szTopicPreferences = m_szTopicPreferences;
 	}
-
+	
 	/**************************************************************************
 	 * Inner class that holds Channel Address.
 	 */
@@ -319,42 +262,42 @@ public class ContactPrefrences {
 		public void setChannelName(String m_szChannelName) {
 			this.m_szChannelName = m_szChannelName;
 		}
-
+		
 		/**************************************************************************
 		 * Setter for consent address.
 		 */
 		public void setConsentAddress(String m_szConsentAddress) {
 			this.m_szConsentAddress = m_szConsentAddress;
 		}
-
+		
 		/**************************************************************************
 		 * Setter for source IP address.
 		 */
 		public void setSourceIpAddress(String m_szSourceIpAddress) {
 			this.m_szSourceIpAddress = m_szSourceIpAddress;
 		}
-
+		
 		/**************************************************************************
 		 * Setter for consent date.
 		 */
 		public void setConsentDate(String m_szConsentDate) {
 			this.m_szConsentDate = m_szConsentDate;
 		}
-
+		
 		/**************************************************************************
 		 * Setter for latitude.
 		 */
 		public void setLatitude(String m_szLatitude) {
 			this.m_szLatitude = m_szLatitude;
 		}
-
+		
 		/**************************************************************************
 		 * Setter for longitude.
 		 */
 		public void setLongitude(String m_szLongitude) {
 			this.m_szLongitude = m_szLongitude;
 		}
-
+		
 		/**************************************************************************
 		 * Overridden toString method.
 		 * 
@@ -367,7 +310,7 @@ public class ContactPrefrences {
 			        + m_szSourceIpAddress + '\'' + ", consentDate='" + m_szConsentDate + '\''
 			        + ", latitude=" + m_szLatitude + ", longitude=" + m_szLongitude + '}';
 		}
-
+		
 		/**************************************************************************
 		 * Default constructor
 		 */
@@ -430,7 +373,7 @@ public class ContactPrefrences {
 		public List<TopicChannel> getTopicChannels() {
 			return m_cTopicChannels;
 		}
-
+		
 		/**************************************************************************
 		 * Setter for topic name.
 		 */
@@ -453,7 +396,7 @@ public class ContactPrefrences {
 		@Override
 		public String toString() {
 			return "TopicPreference{" + "topicName='" + m_szTopicName + '\'' + ", topicChannels="
-					+ m_cTopicChannels + '}';
+			        + m_cTopicChannels + '}';
 		}
 		
 		/**************************************************************************
@@ -461,7 +404,7 @@ public class ContactPrefrences {
 		 */
 		public TopicPreference() {
 		}
-
+		
 		/**************************************************************************
 		 * All argument constructor.
 		 */
@@ -522,7 +465,7 @@ public class ContactPrefrences {
 			return "TopicChannel{" + "channelName='" + m_szChannelName + '\'' + ", selected="
 			        + m_bSelected + '}';
 		}
-
+		
 		/**************************************************************************
 		 * Default constructor
 		 */
@@ -539,7 +482,7 @@ public class ContactPrefrences {
 			this.m_szChannelName = m_szChannelName;
 			this.m_bSelected = m_bSelected;
 		}
-
+		
 		/**************************************************************************
 		 * Setter for channel name.
 		 */

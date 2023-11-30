@@ -25,7 +25,6 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 
 /**************************************************************
  * Holds the information of the Contact Preferences request
@@ -43,44 +42,26 @@ public class ContactPreferencesRequest {
 	private String szCustomerId;
 	
 	/**************************************************************************
-	 * Smart suite user name.
-	 */
-	@NotNull(message = "Smartsuite username can not be null")
-	@JsonProperty("smartsuite_username")
-	private String szSmartsuiteUsername;
-	
-	/**************************************************************************
-	 * Smart suite user id.
-	 */
-	@NotNull(message = "Smartsuite id can not be null")
-	@JsonProperty("smartsuite_id")
-	private String szSmartsuiteId;
-	
-	/**************************************************************************
 	 * Date and time.
 	 */
 	@NotEmpty(message = "Date and time can not be null or empty")
 	@JsonProperty("date_time")
 	private String szDateTime;
-
+	
 	/**************************************************************************
 	 * Default constructor
 	 */
 	public ContactPreferencesRequest() {
 		super();
 	}
-
+	
 	/**************************************************************************
 	 * All argument constructor.
 	 */
 	public ContactPreferencesRequest(
 	        @NotEmpty(message = "Customer id can not be null or empty") String szCustomerId,
-	        @NotNull(message = "Smartsuite username can not be null") String szSmartsuiteUsername,
-	        @NotNull(message = "Smartsuite id can not be null") String szSmartsuiteId,
 	        @NotEmpty(message = "Date and time can not be null or empty") String szDateTime) {
 		this.szCustomerId = szCustomerId;
-		this.szSmartsuiteUsername = szSmartsuiteUsername;
-		this.szSmartsuiteId = szSmartsuiteId;
 		this.szDateTime = szDateTime;
 	}
 	
@@ -91,11 +72,10 @@ public class ContactPreferencesRequest {
 	 */
 	@Override
 	public String toString() {
-		return "ContactPreferencesRequest [szCustomerId=" + szCustomerId + ", szSmartsuiteUsername="
-				+ szSmartsuiteUsername + ", szSmartsuiteId=" + szSmartsuiteId + ", szDateTime="
-				+ szDateTime + "]";
+		return "ContactPreferencesRequest [szCustomerId=" + szCustomerId + ", szDateTime="
+		        + szDateTime + "]";
 	}
-
+	
 	/**************************************************************************
 	 * Getter method for customer id.
 	 * 
@@ -104,25 +84,7 @@ public class ContactPreferencesRequest {
 	public String getCustomerId() {
 		return szCustomerId;
 	}
-
-	/**************************************************************************
-	 * Getter method for smart suite user name.
-	 * 
-	 * @return String Smart suite user name.
-	 */
-	public String getSmartsuiteUsername() {
-		return szSmartsuiteUsername;
-	}
-
-	/**************************************************************************
-	 * Getter method for smart suite id.
-	 * 
-	 * @return String Smart suite id.
-	 */
-	public String getSmartsuiteId() {
-		return szSmartsuiteId;
-	}
-
+	
 	/**************************************************************************
 	 * Date and time.
 	 * 
@@ -131,5 +93,4 @@ public class ContactPreferencesRequest {
 	public String getDateTime() {
 		return szDateTime;
 	}
-
 }
