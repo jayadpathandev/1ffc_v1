@@ -13,22 +13,14 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
     
     <import resource="classpath:/db/common_config.xml"/>    
     
-	<bean id="translate1ffcAccount" class="java.lang.String">
+	<bean id="accountIdToOrgId" class="java.lang.String">
         <constructor-arg>
-            <value>
-				with original as (
-					select account_number, bill_group as pay_group from tm_account where id = :account_id
-				) 
-				select
-					id, 
-					org_id
-				from 
-					tm_account, original
-				where
-					tm_account.account_number = original.account_number and
-					bill_group = :bill_group and
-					end_date is null					
-			</value>
+            <value>select org_id from tm_account where id = :account_id</value>
+        </constructor-arg>   
+    </bean>    
+	<bean id="accountIdsFromOrgId" class="java.lang.String">
+        <constructor-arg>
+            <value>select id from tm_account where org_id = :org_id and end_date is null and bill_group != :ignore_group</value>
         </constructor-arg>   
     </bean>    
     
