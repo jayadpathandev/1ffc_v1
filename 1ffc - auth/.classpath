@@ -10,7 +10,7 @@
 	<classpathentry kind="lib" path="/app - auth/lib/angus-activation-2.0.0.jar"/>
 	<classpathentry kind="lib" path="/app - auth/lib/antlr-2.7.2.jar"/>
 	<classpathentry kind="lib" path="/app - auth/lib/antlr4-runtime-4.13.1.jar"/>
-	<classpathentry kind="lib" path="/app - auth/lib/aspectjweaver-1.9.20.1.jar"/>
+	<classpathentry kind="lib" path="/app - auth/lib/aspectjweaver-1.9.21.M1.jar"/>
 	<classpathentry kind="lib" path="/app - auth/lib/authnet_cim_api.jar"/>
 	<classpathentry kind="lib" path="/app - auth/lib/bcprov-jdk15on-1.51.jar"/>
 	<classpathentry kind="lib" path="/app - auth/lib/checker-qual-3.37.0.jar"/>
@@ -19,14 +19,14 @@
 	<classpathentry kind="lib" path="/app - auth/lib/commons-codec-1.16.0.jar"/>
 	<classpathentry kind="lib" path="/app - auth/lib/commons-collections-3.2.2.jar"/>
 	<classpathentry kind="lib" path="/app - auth/lib/commons-collections4-4.4.jar"/>
-	<classpathentry kind="lib" path="/app - auth/lib/commons-compress-1.24.0.jar"/>
+	<classpathentry kind="lib" path="/app - auth/lib/commons-compress-1.25.0.jar"/>
 	<classpathentry kind="lib" path="/app - auth/lib/commons-dbcp2-2.11.0.jar"/>
 	<classpathentry kind="lib" path="/app - auth/lib/commons-digester-2.1.jar"/>
 	<classpathentry kind="lib" path="/app - auth/lib/commons-httpclient-3.1.jar"/>
-	<classpathentry kind="lib" path="/app - auth/lib/commons-io-2.15.0.jar"/>
+	<classpathentry kind="lib" path="/app - auth/lib/commons-io-2.15.1.jar"/>
 	<classpathentry kind="lib" path="/app - auth/lib/commons-jexl-2.0.1.jar"/>
 	<classpathentry kind="lib" path="/app - auth/lib/commons-lang-2.6.jar"/>
-	<classpathentry kind="lib" path="/app - auth/lib/commons-lang3-3.13.0.jar"/>
+	<classpathentry kind="lib" path="/app - auth/lib/commons-lang3-3.14.0.jar"/>
 	<classpathentry kind="lib" path="/app - auth/lib/commons-logging-1.2.jar"/>
 	<classpathentry kind="lib" path="/app - auth/lib/commons-math3-3.6.1.jar"/>
 	<classpathentry kind="lib" path="/app - auth/lib/commons-pool2-2.12.0.jar"/>
@@ -46,15 +46,15 @@
 	<classpathentry kind="lib" path="/app - auth/lib/httpcore5-h2-5.2.jar"/>
 	<classpathentry kind="lib" path="/app - auth/lib/istack-commons-runtime-4.1.1.jar"/>
 	<classpathentry kind="lib" path="/app - auth/lib/j2objc-annotations-2.8.jar"/>
-	<classpathentry kind="lib" path="/app - auth/lib/jackson-annotations-2.16.0-rc1.jar"/>
-	<classpathentry kind="lib" path="/app - auth/lib/jackson-core-2.16.0-rc1.jar"/>
-	<classpathentry kind="lib" path="/app - auth/lib/jackson-databind-2.16.0-rc1.jar"/>
-	<classpathentry kind="lib" path="/app - auth/lib/jackson-dataformat-xml-2.16.0-rc1.jar"/>
+	<classpathentry kind="lib" path="/app - auth/lib/jackson-annotations-2.16.0.jar"/>
+	<classpathentry kind="lib" path="/app - auth/lib/jackson-core-2.16.0.jar"/>
+	<classpathentry kind="lib" path="/app - auth/lib/jackson-databind-2.16.0.jar"/>
+	<classpathentry kind="lib" path="/app - auth/lib/jackson-dataformat-xml-2.16.0.jar"/>
 	<classpathentry kind="lib" path="/app - auth/lib/jackson-dataformat-yaml-2.15.2.jar"/>
-	<classpathentry kind="lib" path="/app - auth/lib/jackson-datatype-joda-2.16.0-rc1.jar"/>
-	<classpathentry kind="lib" path="/app - auth/lib/jackson-jaxrs-base-2.16.0-rc1.jar"/>
-	<classpathentry kind="lib" path="/app - auth/lib/jackson-jaxrs-json-provider-2.16.0-rc1.jar"/>
-	<classpathentry kind="lib" path="/app - auth/lib/jackson-module-jaxb-annotations-2.16.0-rc1.jar"/>
+	<classpathentry kind="lib" path="/app - auth/lib/jackson-datatype-joda-2.16.0.jar"/>
+	<classpathentry kind="lib" path="/app - auth/lib/jackson-jaxrs-base-2.16.0.jar"/>
+	<classpathentry kind="lib" path="/app - auth/lib/jackson-jaxrs-json-provider-2.16.0.jar"/>
+	<classpathentry kind="lib" path="/app - auth/lib/jackson-module-jaxb-annotations-2.16.0.jar"/>
 	<classpathentry kind="lib" path="/app - auth/lib/jai-imageio-core-1.4.0.jar"/>
 	<classpathentry kind="lib" path="/app - auth/lib/jakarta.activation-2.0.1.jar"/>
 	<classpathentry kind="lib" path="/app - auth/lib/jakarta.activation-api-2.1.1.jar"/>
@@ -93,7 +93,7 @@
 	<classpathentry kind="lib" path="/app - auth/lib/librarySysConfig.jar"/>
 	<classpathentry kind="lib" path="/app - auth/lib/libraryUtils.jar"/>
 	<classpathentry kind="lib" path="/app - auth/lib/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar"/>
-	<classpathentry kind="lib" path="/app - auth/lib/log4j-api-2.20.0.jar"/>
+	<classpathentry kind="lib" path="/app - auth/lib/log4j-api-2.21.1.jar"/>
 	<classpathentry kind="lib" path="/app - auth/lib/logback-classic-1.4.0.jar"/>
 	<classpathentry kind="lib" path="/app - auth/lib/logback-core-1.4.0.jar"/>
 	<classpathentry kind="lib" path="/app - auth/lib/micrometer-commons-1.10.4.jar"/>
@@ -113,10 +113,10 @@
 	<classpathentry kind="lib" path="/app - auth/lib/persona-jetty.jar"/>
 	<classpathentry kind="lib" path="/app - auth/lib/persona-saml-5.1.20231009.jar"/>
 	<classpathentry kind="lib" path="/app - auth/lib/persona-service-loader-5.1.20231009.jar"/>
-	<classpathentry kind="lib" path="/app - auth/lib/poi-5.2.4.jar"/>
-	<classpathentry kind="lib" path="/app - auth/lib/poi-ooxml-5.2.4.jar"/>
-	<classpathentry kind="lib" path="/app - auth/lib/poi-ooxml-lite-5.2.4.jar"/>
-	<classpathentry kind="lib" path="/app - auth/lib/postgresql-42.6.0.jar"/>
+	<classpathentry kind="lib" path="/app - auth/lib/poi-5.2.5.jar"/>
+	<classpathentry kind="lib" path="/app - auth/lib/poi-ooxml-5.2.5.jar"/>
+	<classpathentry kind="lib" path="/app - auth/lib/poi-ooxml-lite-5.2.5.jar"/>
+	<classpathentry kind="lib" path="/app - auth/lib/postgresql-42.7.0.jar"/>
 	<classpathentry kind="lib" path="/app - auth/lib/reflections-0.10.2.jar"/>
 	<classpathentry kind="lib" path="/app - auth/lib/serviceAPI.jar"/>
 	<classpathentry kind="lib" path="/app - auth/lib/serviceBill.jar"/>
@@ -160,7 +160,7 @@
 	<classpathentry kind="lib" path="/app - auth/lib/velocity-1.7.jar"/>
 	<classpathentry kind="lib" path="/app - auth/lib/velocity-tools-2.0.jar"/>
 	<classpathentry kind="lib" path="/app - auth/lib/woodstox-core-6.5.1.jar"/>
-	<classpathentry kind="lib" path="/app - auth/lib/xmlbeans-5.1.1.jar"/>
+	<classpathentry kind="lib" path="/app - auth/lib/xmlbeans-5.2.0.jar"/>
 	<classpathentry kind="lib" path="/app - auth/lib/xmlsec-3.0.2.jar"/>
 	<classpathentry kind="lib" path="/app - auth/lib/xmltooling-1.4.4.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/serviceOrgId.jar"/>

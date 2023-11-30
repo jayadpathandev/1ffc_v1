@@ -16,7 +16,7 @@ application [
 
 	modules [
 		DASHBOARD => dashboard
-		NOTIFICATIONS => notifications
+		NOTIFICATIONS => contactPreferences
 		PROFILE => profile
 		ASSIST_BUSINESS_CUSTOMERS => assistBusinessCustomers
 	]
