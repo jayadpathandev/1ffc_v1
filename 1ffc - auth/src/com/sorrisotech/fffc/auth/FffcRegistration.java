@@ -21,7 +21,6 @@
 package com.sorrisotech.fffc.auth;
 
 import com.sorrisotech.app.registration.UcUserAssignmentAction;
-import com.sorrisotech.fffc.auth.queries.AccountTranslate;
 import com.sorrisotech.persona.comgmt.api.CompanyManagementFactory;
 import com.sorrisotech.persona.comgmt.api.ICompany;
 import com.sorrisotech.persona.usercompanylink.api.UserCompanyLinkFactory;
@@ -30,6 +29,7 @@ import com.sorrisotech.utils.AppConfig;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,9 +58,8 @@ public class FffcRegistration {
 	        ) {
 		// ----------------------------------------------------------------------------------------
 		// Grab the information we need for 1ffc IF this is a 1ffc status payment group.
-		AccountTranslate.Data data = Queries.lookupOrgId(
-    		new BigDecimal(accountId),
-    		AppConfig.get("1ffc.payment.group")
+		final String orgId = Queries.lookupOrgId(
+    		new BigDecimal(accountId)
     	);
 		
 		// ----------------------------------------------------------------------------------------
@@ -68,6 +67,8 @@ public class FffcRegistration {
         String szResult = "error";
         
         try {
+            // ------------------------------------------------------------------------------------
+            // Create the "company" for the user. 
         	final ICompany cCompany = CompanyManagementFactory.createCompany();                      
             cCompany.setName("B2CUSER:" + userId);
             cCompany.setDescription(null);
@@ -77,30 +78,34 @@ public class FffcRegistration {
             final BigDecimal companyId = CompanyManagementFactory.getCompanyRepository().create(cCompany);            
             
             // ------------------------------------------------------------------------------------
-            // Back to your regularly scheduled program.
+            // Add the OrgId to the company.
+			ArrayList<String> orgIds = new ArrayList<String>();
+			orgIds.add(orgId);			
+			OrgIdFactory.getOrgIdRepository().setOrgIds(
+				companyId, 
+	            orgIds
+	        );			
+
+            // ------------------------------------------------------------------------------------
+            // Add the OrgId(s) to the company.
             final UcUserAssignmentAction standard = new UcUserAssignmentAction();
+            final String                 ignore   = AppConfig.get("1ffc.ignore.group");
+            final List<BigDecimal>       accounts = Queries.findAccounts(orgId, ignore); 
             
-            szResult = standard.assignAccountToCompany(
-            	data != null ? data.accountId.toString() : accountId, 
-            	companyId.toString()
-            );
-            
-            UserCompanyLinkFactory.getUserCompanyLinkRepository().linkUserToCompany(
-                new BigDecimal(userId), 
-                companyId
-            );
+            for(final BigDecimal id : accounts) {
+            	szResult = standard.assignAccountToCompany(id.toPlainString(), companyId.toPlainString());
+            	if (!szResult.equals("success")) break;
+            }
             
             // ------------------------------------------------------------------------------------
-            // Add the org_id to the company to handle any other accounts. 
-    		if (data != null) {
-    			ArrayList<String> orgIds = new ArrayList<String>();
-    			orgIds.add(data.orgId);
-    			
-    			OrgIdFactory.getOrgIdRepository().setOrgIds(
-    				companyId, 
-    	            orgIds
-    	        );			
-    		}            
+            // Add the OrgId(s) to the company.
+            if (szResult.equals("success")) {
+                UserCompanyLinkFactory.getUserCompanyLinkRepository().linkUserToCompany(
+                    new BigDecimal(userId), 
+                    companyId
+                );            	
+            }
+            
         } catch(Exception e) {
         	LOG.error("FffcRegistration.....assignUserToAccountWithNewCompany()...An exception was thrown", e);          
         }

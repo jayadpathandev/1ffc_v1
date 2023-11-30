@@ -22,13 +22,12 @@ package com.sorrisotech.fffc.auth;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-
-import com.sorrisotech.fffc.auth.queries.AccountTranslate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,26 +64,44 @@ public class Queries {
 	private NamedParameterJdbcTemplate mJdbc = null;
 
 	/**********************************************************************************************
-     * Query to get the org_id given an account and payment group.
+     * SQL to take an account ID and find the OrgId it belongs to.
      */	
 	@Autowired
-	@Qualifier("translate1ffcAccount")  
-	private String mTranslateAccount;	
+	@Qualifier("accountIdToOrgId")  
+	private String mGetOrId;	
 
+	/**********************************************************************************************
+     * SQL to take an org ID and find all it's accounts.
+     */	
+	@Autowired
+	@Qualifier("accountIdsFromOrgId")  
+	private String mGetAccounts;	
+	
 	/***************************************************************************
-	 * Given an account ID find the org_id.
+	 * Given an account ID find the OrgId.
 	 */
-	static public AccountTranslate.Data lookupOrgId(
-				final BigDecimal accountId,
-				final String     billGroup
+	static public String lookupOrgId(
+				final BigDecimal accountId
 			) {
 		final HashMap<String, Object> params = new HashMap<String, Object>();
 		
 		params.put("account_id", accountId);
-		params.put("bill_group", billGroup);
 		
-		return mSingleton.mJdbc.queryForObject(
-			mSingleton.mTranslateAccount, params, new AccountTranslate()
-		);		
+		return mSingleton.mJdbc.queryForObject(mSingleton.mGetOrId, params, String.class);
+	}
+
+	/***************************************************************************
+	 * Given an OrgId find all the account IDs belonging to it..
+	 */
+	static public List<BigDecimal> findAccounts(
+				final String orgId,
+				final String ignore
+			) {
+		final HashMap<String, Object> params = new HashMap<String, Object>();
+		
+		params.put("org_id", orgId);
+		params.put("ignore_group", ignore);
+		
+		return mSingleton.mJdbc.queryForList(mSingleton.mGetAccounts, params, BigDecimal.class);
 	}
 }
