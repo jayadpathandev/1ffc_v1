@@ -42,7 +42,7 @@ useCase accountSummaryChild [
 	importJava AppConfig(com.sorrisotech.utils.AppConfig)
 	importJava LocalizedFormat(com.sorrisotech.common.LocalizedFormat)	
 	importJava UcBillingAction(com.sorrisotech.uc.bill.UcBillingAction)
-	importJava Overview(com.sorrisotech.fffc.user.Overview)
+	importJava FlexFieldInfo(com.sorrisotech.fffc.user.FlexFieldInformation)
 				
     import billCommon.sBillAccountInternal
     import billCommon.sBillAccountExternal
@@ -86,8 +86,11 @@ useCase accountSummaryChild [
 	native string sBalanceType	 
 	native string sPaymentFlag      = Session.arePaymentsEnabled()
 	native string sMultipleAccounts = Session.multipleAccounts()
-	native string sLoanAmount 	    = Overview.getFlex12 (sUserId, srBillOverviewParam.account, 
-		                                                  sBillSelectedDate, srBillOverviewParam.payGroup)
+	native string cszFlexNumber = "9"
+	string cszGetFlexAsAmountFailed = "failed"
+	native string sLoanAmount 	    = FlexFieldInfo.getFlexFieldAsAmount (sUserId, srBillOverviewParam.account, 
+		                                                  sBillSelectedDate, srBillOverviewParam.payGroup,
+		                                                  cszFlexNumber, cszGetFlexAsAmountFailed)
 	
 	volatile string sOlderThanXMonths = UcBillingAction.checkBillAge(maxAge, srBillOverviewParam.billDate)
 	
