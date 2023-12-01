@@ -42,12 +42,12 @@
               
     </target>
 
-
     <target name="package-libraries">
-        <ant dir="service - nls api" inheritAll="false" inheritRefs="false"/>
-        <ant dir="library - nls api" inheritAll="false" inheritRefs="false"/>
+        <ant dir="1ffc - nls api service" inheritAll="false" inheritRefs="false"/>
+        <ant dir="1ffc - nls api library" inheritAll="false" inheritRefs="false"/>
         <ant dir="1ffc - extdoc" inheritAll="false" inheritRefs="false"/>
-        <ant dir="batch - transaction history" inheritAll="false" inheritRefs="false"/>
+        <ant dir="1ffc - transaction history batch" inheritAll="false" inheritRefs="false"/>
+        <ant dir="1ffc - status service" inheritAll="false" inheritRefs="false"/>
     </target>
 
     <target name="-build.admin.uc" depends="-init">
@@ -152,7 +152,17 @@
             <fileset dir="${devkit.dir}/app - auth/resources">
             	<exclude name="linked-root/**"/>
             	<exclude name="layout-pages/**"/>
-            </fileset>            
+                <exclude name="app-config.properties"/>
+            </fileset>      
+            <fileset dir="1ffc - auth/src">
+                <exclude name="**/*.java"/>
+                <exclude name="*.uc"/>
+                <exclude name="*.app"/>
+                <exclude name="logback.xml"/>
+            </fileset>
+            <fileset dir="${devkit.dir}/app - admin/resources">
+                <include name="org-id/**.*"/>
+            </fileset>
         </copy>
 
 		<!-- Usecases/I18N/services from the base application. -->
@@ -160,6 +170,7 @@
         	<fileset dir="${devkit.dir}/app - auth/resources" includes="config.properties"/>
         	<fileset dir="${devkit.dir}/app - auth/resources" includes="services/*.xml"/>
             <fileset dir="${devkit.dir}/app - auth" includes="lib/*.jar" excludes="lib/persona-jetty.jar"/>
+            <fileset dir="${devkit.dir}/app - admin" includes="lib/serviceOrgId.jar"/>
         </copy>
 
     	<!-- Copy the linked-root and layout-pages from the base application. -->
@@ -194,6 +205,9 @@
                 <fileset dir="${devkit.dir}/app - auth/lib">
                     <include name="*.jar"/>
                 </fileset>
+                <fileset dir="${devkit.dir}/app - admin/lib">
+                    <include name="serviceOrgId.jar"/>
+                </fileset>
             </classpath>
         </javac>
 
@@ -213,6 +227,9 @@
                 <include name="*.app"/>
                 <include name="*.uc"/>
             </fileset>
+            <fileset dir="1ffc - status service/src">
+                <include name="*.api"/>
+            </fileset>
         </copy>
 
         <ant dir="${devkit.dir}/build" antfile="persona.xml" inheritAll="false" inheritRefs="false">
@@ -223,7 +240,7 @@
         <delete dir="${output.dir}/apps/user/com"/>
     </target>
 
-    <target name="build.user" depends="-init, -build.user.uc">
+    <target name="build.user" depends="-init, -build.user.uc, package-libraries">
         <mkdir dir="${output.dir}/apps/user"/>
 
         <!-- Copy the classpath from the base application -->
@@ -280,6 +297,7 @@
                 </fileset>
             </classpath>
         </javac>
+
 		<copy todir="${output.dir}/apps/user/classes" file="1ffc - user/src/app-config.properties" overwrite="true"/>
         <copy todir="${output.dir}/apps/user/classes/">
             <fileset dir="1ffc - user/src">
@@ -290,6 +308,22 @@
                 <exclude name="user.app"/>
             </fileset>
         </copy>
+        <copy todir="${output.dir}/apps/user/lib/">
+            <fileset dir="${artifacts.dir}/package/service/status"/>
+        </copy>
+    	<propertyfile file="${output.dir}/apps/user/internationalization/topics_en.properties">
+    		<entry key="topics_100_bills_documents" value="Electronic Document Delivery"/>
+    		<entry key="topics_150_marketing" value="Marketing Messages"/>
+    		<entry key="topics_200_payment" value="Account Servicing"/>
+    		<entry key="topics_250_collections" value="Collections"/>
+    		<entry key="topics_300_system" value="System Alerts"/>
+    	</propertyfile>
+    	<propertyfile file="${output.dir}/apps/user/classes/app-config.properties">
+    		<entry key="user.app.url" value="${base.public.url}personaWeb/user/"/>
+            <entry key="epayment.url" value="${base.local.url}payment-core-2.0/"/>
+            <entry key="epayment.public.url" value="${base.public.url}payment-core-2.0/"/>
+            <entry key="extdoc.url" value="${base.local.url}personaWeb/extdoc/"/>
+    	</propertyfile>
     </target>
 
     <target name="package" depends="build.admin, build.auth, build.user, package-libraries">
