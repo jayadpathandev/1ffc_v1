@@ -1,9 +1,9 @@
 output.dir    = 
-
 devkit.dir    = 
 artifacts.dir = 
 
-nls.api.client.id=
+nls.api.client.id     =
+nls.api.client.secret =
 
-nls.api.client.secret=
-
+base.local.url  = http://localhost:8080/
+base.public.url = https://1ffc.server2.sorrisoqa.com/

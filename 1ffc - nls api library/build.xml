@@ -30,7 +30,7 @@
     <target name="compile" depends="-init">
     	<javac destdir="${mod.artifacts.dir}" classpathref="classpath" includeAntRuntime="false">
 			<classpath>
-				<pathelement location="${output.dir}/service/nls/serviceNls.jar"/>
+				<pathelement location="${artifacts.dir}/package/service/nls/serviceNls.jar"/>
 			</classpath>
     	    <src>
     	        <pathelement location="src"/>
