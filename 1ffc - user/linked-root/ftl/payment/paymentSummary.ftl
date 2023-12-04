@@ -61,7 +61,7 @@
 <#assign nScheduledPaymentAmount = scheduledPayment.oneTimePmtTotalAmt>
 
 <#-- date of the last (and probably only) automatic payment -->
-<#assign dAutomaticPaymentDate = scheduledPayment.automaticPmtDate?date>>	
+<#assign dAutomaticPaymentDate = scheduledPayment.automaticPmtDate?date>	
 
 <#--  total amount of all (and probably only automatic payment -->	
 <#assign nAutomaticPaymentAmount = scheduledPayment.automaticPmtTotalAmt>
@@ -185,6 +185,8 @@
 	</#if>
 
 	<div class="row">
+		<#assign bPmtDisabled = !((("enabled" == status.paymentEnabled) || ("paymentDQ" == status.paymentEnabled)) &&
+								  ("activeAccount" == accountStatus) )>
 		<div class="col-10">
 			<div class="mb-2">
 				<span class="fw-bold">Account #:</span> <span class="fw-bold">${displayAccount}</span>
@@ -199,20 +201,26 @@
 							<#-- All links enabled -->
 							<a class="me-4" target="_blank" href="fffcViewDoc?sAccount=${bill.internalAccountNo}&sDate=${bill.dateNum?c}&sStreamId=${bill.stream}&sDocId=${bill.id?c}&sExtDocId=${bill.extDocId}">View statement</a>
 							<a class="me-4 text-nowrap" href="#" st-pop-in="fffcViewTransactions?offset=${jumpToOffset}">Transaction History</a>
-							<a class="text-nowrap" href="startAutomaticPayment">Set&nbsp;up&nbsp;recurring&nbsp;payments</a>				
+
+							<#if bPmtDisabled>
+								<#--  payment is disabled -->
+								<a class="text-nowrap disabled pe-none opacity-50" aria-disabled="true">Set&nbsp;up&nbsp;recurring&nbsp;payment</a>				
+							<#else>
+								<#--  payment is enabled -->
+								<a class="text-nowrap" href="startAutomaticPayment">Set&nbsp;up&nbsp;recurring&nbsp;payments</a>				
+							</#if>
 							<#break>
 						<#case "newAccount">
-							<#-- All links disabled -->
-							<a class="me-4 disabled" aria-disabled="true" target="_blank" href="fffcViewDoc?sAccount=${bill.internalAccountNo}&sDate=${bill.dateNum?c}&sStreamId=${bill.stream}&sDocId=${bill.id?c}&sExtDocId=${bill.extDocId}">View statement</a>
-							<a class="me-4 text-nowrap disabled" aria-disabled="true" href="#" st-pop-in="fffcViewTransactions?offset=${jumpToOffset}">Transaction History</a>
-							
-							<a class="text-nowrap disabled" aria-disabled="true"href="startAutomaticPayment">Set&nbsp;up&nbsp;recurring&nbsp;payment</a>				
+							<#--  All links disabled -->
+							<a class="me-4 disabled pe-none opacity-50" aria-disabled="true">View statement</a>
+							<a class="me-4 text-nowrap disabled pe-none opacity-50" aria-disabled="true" >Transaction History</a>
+							<a class="text-nowrap disabled pe-none opacity-50" aria-disabled="true">Set&nbsp;up&nbsp;recurring&nbsp;payment</a>				
 							<#break>
 						<#case "closedAccount">
-							<#--  bill linke and automatic payment link disabled -->
-							<a class="me-4 disabled" aria-disabled="true" target="_blank" href="fffcViewDoc?sAccount=${bill.internalAccountNo}&sDate=${bill.dateNum?c}&sStreamId=${bill.stream}&sDocId=${bill.id?c}&sExtDocId=${bill.extDocId}">View statement</a>
+							<#-- Other links enabled, payment link disabled -->
+							<a class="me-4 disabled pe-none opacity-50" aria-disabled="true">View statement</a>
 							<a class="me-4 text-nowrap" href="#" st-pop-in="fffcViewTransactions?offset=${jumpToOffset}">Transaction History</a>
-							<a class="text-nowrap disabled" aria-disabled="true"href="startAutomaticPayment">Set&nbsp;up&nbsp;recurring&nbsp;payment</a>				
+							<a class="text-nowrap disabled pe-none opacity-50" aria-disabled="true">Set&nbsp;up&nbsp;recurring&nbsp;payment</a>				
 							<#break>
 						<#case "unknown">
 						<#default>
@@ -222,8 +230,8 @@
 			</div>
 		</div>
 		<div class="col-2">
-			<#assign bPmtDisabled = !(("enabled" == status.paymentEnabled) || ("paymentDQ" == status.paymentEnabled))>
-			<a class="btn btn-primary float-end <#if bPmtDisabled>disabled</#if>" href="startMakePayment" <#if bPmtDisabled>aria-disabled="true"</#if>>PAY THIS BILL</a>
+			<a class="btn btn-primary <#if bPmtDisabled>disabled</#if>" href="startMakePayment" 
+										<#if bPmtDisabled>disabled="true"</#if>>PAY THIS BILL</a>
 		</div>
 	</div>
 	
