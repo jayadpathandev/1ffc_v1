@@ -48,6 +48,7 @@
         <ant dir="1ffc - extdoc" inheritAll="false" inheritRefs="false"/>
         <ant dir="1ffc - transaction history batch" inheritAll="false" inheritRefs="false"/>
         <ant dir="1ffc - status service" inheritAll="false" inheritRefs="false"/>
+		<ant dir="1ffc - nls notify" inheritAll="false" inheritRefs="false"/>
     </target>
 
     <target name="-build.admin.uc" depends="-init">
@@ -230,6 +231,9 @@
             <fileset dir="1ffc - status service/src">
                 <include name="*.api"/>
             </fileset>
+			<fileset dir="1ffc - nls notify/src">
+                <include name="*.api"/>
+            </fileset>
         </copy>
 
         <ant dir="${devkit.dir}/build" antfile="persona.xml" inheritAll="false" inheritRefs="false">
@@ -331,6 +335,12 @@
         <propertyfile file="${output.dir}/extdoc/nls/nls.properties">
             <entry key="nls.api.client.id" value="${nls.api.client.id}"/>
             <entry key="nls.api.client.secret" value="${nls.api.client.secret}"/>
+        </propertyfile>
+		<propertyfile file="${output.dir}/user/classes/app-config.properties">
+            <entry key="nls.api.client.id" value="${nls.api.client.id}"/>
+            <entry key="nls.api.client.secret" value="${nls.api.client.secret}"/>
+			<entry key="nls.api.base.url" value="${nls.api.base.url}"/>
+			<entry key="nls.api.version" value="${nls.api.version}"/>
         </propertyfile>
 
         <zip destfile="${output.dir}/package.zip" basedir="${output.dir}"/>

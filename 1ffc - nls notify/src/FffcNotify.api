@@ -1,0 +1,32 @@
+//*****************************************************************************
+// The purpose of this interface is to provide methods for configuring the 
+// notifications in the NTF_PREFERENCES table.   
+define service FffcNotify(com.sorrisotech.app.serviceapi.uc.UcRequestClient) [
+	
+	 generate [
+       category: fffcnotify    
+    ]
+    
+	define method SetUserAddressNLs [
+		
+		// The ID of the user we are setting the address for
+		string userid
+		
+		// The name of the channel the user is setting the address for.
+		string channel
+		
+		// The address the user wants to use for the channel. 
+		optional string address
+	]
+	
+	define method SetContactSettingsNls [
+		
+		// The ID of the user we are setting the address for.
+		string userid
+		
+		// The configuration for the user.
+		string jsonConfig
+		
+	]
+	
+]

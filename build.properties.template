@@ -4,6 +4,8 @@ artifacts.dir =
 
 nls.api.client.id     =
 nls.api.client.secret =
+nls.api.base.url= 
+nls.api.version=
 
 base.local.url  = http://localhost:8080/
 base.public.url = https://1ffc.server2.sorrisoqa.com/
