@@ -79,6 +79,11 @@ useCase fffcReg05BillingInfo [
 	native string sServiceLabel = UcBillStream.getLabelDisp(sorrisoLanguage, sorrisoCountry, sSvcNumAttr)
 	native string sBillLabel = UcBillStream.getLabelDisp(sorrisoLanguage, sorrisoCountry, sBillDateAttr)  
 	native string sAmountLabel = UcBillStream.getLabelDisp(sorrisoLanguage, sorrisoCountry, sBillAmountAttr)
+	native string sSelfReg0Label = UcBillStream.getLabelDisp(sorrisoLanguage, sorrisoCountry, sSelfReg0Attr)
+	native string sSelfReg1Label = UcBillStream.getLabelDisp(sorrisoLanguage, sorrisoCountry, sSelfReg1Attr)
+	native string sSelfReg2Label = UcBillStream.getLabelDisp(sorrisoLanguage, sorrisoCountry, sSelfReg2Attr)  
+	native string sSelfReg3Label = UcBillStream.getLabelDisp(sorrisoLanguage, sorrisoCountry, sSelfReg3Attr)
+	
 	native string sStreamType = UcBillStream.getStreamType(sorrisoLanguage, sorrisoCountry, sBillAmountAttr)
 	native string sSingleBillStream = UcBillStreams.getSelectedName(fBillType, sorrisoLanguage, sorrisoCountry)	
 	native string sRegType
@@ -430,16 +435,55 @@ useCase fffcReg05BillingInfo [
                     class: "row st-spacing-bottom"
                     
                     ul items [
-                       display sAccountLabel [class: "st-bullet" ]
+                       display sAccountLabel [
+                       	   class: "st-bullet"
+                       	   logic: [
+                       	   	if sFlagShowAccountNumber != "true" then "remove"
+                       	   ]
+                       ]
                        display sServiceLabel [
 	                   		class: "st-bullet"
 	                   		logic: [		                		
 		                		if sRegType != "service" || sFlagShowServiceNumber != "true" then "remove"	    		                
 		                	]
                        ]
-                       display sBillLabel [class: "st-bullet" ]
-                       display sAmountLabel [class: "st-bullet" ]
-                       display sItemEmail [class: "st-bullet" ]
+                       display sBillLabel [
+                       	    class: "st-bullet"
+                       	    logic: [
+                       	   		if sFlagShowBillingDate != "true" then "remove"
+                       	   ]                      	    
+                       ]
+                       display sAmountLabel [
+	                       	class: "st-bullet"
+	                  	    logic: [
+	                   	   		if sFlagShowAmount != "true" then "remove"
+	                   	   ]                       	
+                       ]                                         
+                       display sSelfReg0Label [
+	                       	class: "st-bullet"
+	                  	    logic: [
+	                   	   		if sFlagShowSelfReg0 != "true" then "remove"
+	                   	   ]                       	
+                       ]
+                       display sSelfReg1Label [
+	                       	class: "st-bullet"
+	                  	    logic: [
+	                   	   		if sFlagShowSelfReg1 != "true" then "remove"
+	                   	   ]                       	
+                       ]
+                       display sSelfReg2Label [
+	                       	class: "st-bullet"
+	                  	    logic: [
+	                   	   		if sFlagShowSelfReg2 != "true" then "remove"
+	                   	   ]                       	
+                       ]                       
+                       display sSelfReg3Label [
+	                       	class: "st-bullet"
+	                  	    logic: [
+	                   	   		if sFlagShowSelfReg3 != "true" then "remove"
+	                   	   ]                       	
+                       ]                       
+                       display sItemEmail [class: "st-bullet" ]              
                     ]				    
 				]
 					
@@ -649,6 +693,7 @@ useCase fffcReg05BillingInfo [
 		
 		 switch UcBillRegistration.isAccountAvailable() [		 
 		 	case "success" determineNextUseCaseB2C
+		 	case "registered" duplicateAccountMsg
 		 	case "duplicate_account" clearFields					
 			default invalidBillDetailsB2CMsg
 		]
