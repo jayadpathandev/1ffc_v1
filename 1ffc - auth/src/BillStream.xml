@@ -1,0 +1,523 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+	
+	 <!-- ********************************************************************************** -->
+    <!-- ********                  Import the common beans                      *********** -->
+    <!-- ********************************************************************************** -->
+    <import resource="classpath:/db/common_config.xml"/>
+    
+    <bean id="billStream" class="com.sorrisotech.app.service.billstream.BillStream" scope="prototype"/>
+	
+    <bean id="billStreamFactory" class="com.sorrisotech.app.service.billstream.BillStreamFactory" scope="prototype">
+        <constructor-arg>
+            <bean class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate">
+			<constructor-arg>
+				<ref bean="dataSource"/>
+			</constructor-arg>
+            </bean>            
+        </constructor-arg>
+
+        <property name="addBillStreams">
+            <value>
+				INSERT INTO bill_streams 
+				            (display_name, 
+				             b2b, 
+				             b2c, 
+				             self_reg, 
+				             bill_stream, 
+				             language_code, 
+				             country_code, 
+				             date_error, 
+				             amount_error) 
+				VALUES      ( :display_name, 
+				              :b2b, 
+				              :b2c, 
+				              :self_reg, 
+				              :bill_stream, 
+				              :language_code, 
+				              :country_code, 
+				              :date_error, 
+				              :amount_error )             
+			</value>
+        </property>
+        
+        <property name="deleteBillStreams">
+            <value>            
+				DELETE FROM bill_streams   						   
+            </value>
+        </property>
+         
+		<property name="getBillStreams">
+        	<value>
+        		SELECT DISTINCT( bs.bill_stream ) 
+				FROM   bill_streams bs, 
+				       bill_streams_register bsr 
+				WHERE  bs.bill_stream = bsr.bill_stream 		 			 
+        	</value>
+        </property>
+        
+        <property name="getAllBillStreams">
+        	<value>        		   
+				SELECT DISTINCT( bill_stream ) 
+				FROM   bill_file_meta_data 
+				UNION 
+				SELECT DISTINCT( bill_stream ) 
+				FROM   bill_streams 		 			 
+        	</value>
+        </property>
+        
+        <property name="getBillsLoaded">
+        	<value>        		   
+        		SELECT Count(*) 
+				FROM   bill_streams BIS, 
+				       bill_streams_register BSR, 
+				       bill B, 
+				       bill_summary BS, 
+				       bill_file_meta_data BFMD 
+				WHERE  BIS.bill_stream = BSR.bill_stream 
+				       AND BSR.bill_stream = BFMD.bill_stream 
+				       AND B.bill_id = BS.bill_id 
+				       AND B.bill_file_id = BFMD.bill_file_id 
+				       AND BFMD.status IN ( 'PUBLISHED', 'MERGED' )  		 			 
+        	</value>
+        </property>
+        
+        <property name="verifyBillsLoaded">
+        	<value>        		   
+        		SELECT Count(*) 
+				FROM   bill B, 
+				       bill_summary BS, 
+				       bill_file_meta_data BFMD 
+				WHERE  BFMD.bill_stream = :bill_stream 
+				       AND B.bill_id = BS.bill_id 
+				       AND B.bill_file_id = BFMD.bill_file_id 
+				       AND BFMD.status IN ( 'PUBLISHED', 'MERGED' )  		 			 
+        	</value>
+        </property>
+        
+        <property name="getBillNames">
+        	<value>        		   
+				SELECT bill_stream, 
+				       display_name 
+				FROM   bill_streams
+				WHERE  language_code = :language_code 
+				       AND country_code = :country_code 
+				       AND b2b = :b2b 
+				       AND b2c = :b2c		 			 
+        	</value>
+        </property>
+       
+       <property name="getBillStreamFields">
+        	<value>
+				SELECT b2b, 
+				       b2c, 
+				       self_reg,
+				       language_code, 
+				       country_code, 
+				       display_name, 
+				       date_error, 
+				       amount_error 
+				FROM   bill_streams 
+				WHERE  bill_stream = :bill_stream 
+        	</value>
+        </property> 
+        
+        <property name="getBillStreamRegisterFields">
+        	<value>
+				SELECT bill_stream, 
+				       language_code, 
+				       country_code, 
+				       field_name, 
+				       field_require, 
+				       field_label, 
+				       field_order, 
+				       field_help 
+				FROM   bill_streams_register 
+				WHERE  bill_stream = :bill_stream     		 			 
+        	</value>
+        </property> 
+        
+        <property name="getBillDetailsByRegFieldsAccountLevel">
+        	 <value>
+        	    SELECT BS.display_name, 
+        	    	   TA.company_id,
+        	    	   TA.org_id,
+				       B.self_reg0, 
+				       B.self_reg1, 
+				       B.self_reg2, 
+				       B.self_reg3, 
+				       B.self_reg4 
+				FROM   bill B, 
+				       bill_summary BS, 
+				       bill_file_meta_data BFMD,
+				       tm_account TA 
+				WHERE  BFMD.bill_stream = :bill_stream 
+					   AND B.bill_id = BS.bill_id  
+				       AND B.bill_file_id = BFMD.bill_file_id 
+				       AND B.account = TA.account_number
+				       AND TA.end_date is NULL
+				       AND BFMD.status IN ( 'PUBLISHED', 'MERGED' )
+					   @@QUERY@@ 
+        	</value>
+        </property>	
+        
+        <property name="getBillDetailsByRegFieldsServiceLevel">
+        	 <value>
+				SELECT BS.display_name, 
+				       TA.company_id,
+        	    	   TA.org_id, 
+				       B.self_reg0, 
+				       B.self_reg1, 
+				       B.self_reg2, 
+				       B.self_reg3, 
+				       B.self_reg4 
+				FROM   bill B, 
+				       bill_summary BS, 
+				       bill_file_meta_data BFMD, 
+				       asset_summary ASU, 
+				       tm_account TA, 
+				       tm_phone TP 
+				WHERE  BFMD.bill_stream = :bill_stream 
+				       AND BS.display_name = :account_number 
+				       AND ASU.asset = :service_number 
+				       AND B.bill_date = :bill_date 
+				       AND ASU.total_charges = :bill_amount 
+				       AND B.bill_id = BS.bill_id 
+				       AND BS.bill_id = ASU.bill_id 
+				       AND BFMD.bill_file_id = B.bill_file_id 
+				       AND B.bill_file_id = ASU.bill_file_id 
+				       AND B.account = TA.account_number 
+				       AND TA.account_number = TP.account_number 
+				       AND TA.org_id = TP.org_id 
+				       AND TA.end_date is NULL
+				       AND ASU.asset = TP.phone_number_display 
+				       AND BFMD.status IN ( 'PUBLISHED', 'MERGED' ) 
+        	</value>
+        </property>	      
+                
+        <property name="getUserCountByBillDetails">
+        	 <value>       	 
+			with target as (
+				select distinct 
+				    tm_account.account_number, 
+				    tm_account.bill_group, 
+				    tm_account.company_id
+				from
+				    BILL_FILE_META_DATA,
+				    BILL,
+				    BILL_SUMMARY,
+				    TM_ACCOUNT
+				where
+				    BILL_FILE_META_DATA.BILL_FILE_ID = BILL.BILL_FILE_ID and
+				    BILL.BILL_ID = BILL_SUMMARY.BILL_ID and
+				    BILL.ACCOUNT = TM_ACCOUNT.ACCOUNT_NUMBER and
+				    BILL_FILE_META_DATA.PAYMENT_GROUP = TM_ACCOUNT.BILL_GROUP and
+				    BILL_FILE_META_DATA.BILL_STREAM = :bill_stream
+	    			@@QUERY@@
+			)  
+			select 
+				target.account_number, 
+				tm_account.bill_group, 
+				tm_account.company_id
+			from 
+				tm_account, 
+				target
+			where
+				tm_account.account_number = target.account_number
+				and tm_account.bill_group != 'STATUS_1FFC-ea0f1923-255f-4f12-a603-16a1ed4f950c'
+				    
+         	</value>         	
+        </property>	   
+                
+        <property name="getUserAccountId">
+        	<value>
+				SELECT DISTINCT A.id 
+				FROM   tm_account A  
+				WHERE  A.end_date IS NULL
+				       AND A.account_number = :account_number  
+				       AND A.bill_group = :bill_group 
+        	</value>
+        </property>  
+        
+        <property name="getUserPhoneId">
+        	<value>
+				SELECT DISTINCT P.id 
+				FROM   bill B, 
+				       bill_summary BS, 
+				       tm_phone P, 
+				       bill_file_meta_data BFMD 
+				WHERE  B.bill_id = BS.bill_id 
+				       AND P.account_number = B.account
+				       AND P.end_date IS NULL 
+				       AND P.phone_number_display = :phone_number
+				       AND BS.display_name = :account_number 
+				       AND B.bill_file_id = BFMD.bill_file_id 
+				       AND BFMD.status IN ( 'PUBLISHED', 'MERGED' ) 
+				       AND BFMD.bill_stream = :bill_stream 
+        	</value>
+        </property>  
+        
+        <!-- Queries for the 'profile' application START-->
+        <property name="getBillStreamsAndAccounts">
+        	<value>
+				SELECT bill_streams.display_name bs_name, 
+				       bill_streams.bill_stream  bill_stream, 
+				       Count(*)                  num_accounts 
+				FROM   bill, 
+				       (SELECT account        lb_account, 
+				               Max(bill_date) lb_date 
+				        FROM   bill 
+				        GROUP  BY account) zzz, 
+				       bill_file_meta_data, 
+				       bill_streams 
+				WHERE  account = lb_account 
+				       AND bill_date = lb_date 
+				       AND bill.bill_file_id = bill_file_meta_data.bill_file_id 
+				       AND bill_streams.bill_stream = bill_file_meta_data.bill_stream 
+				       AND lb_account NOT IN (SELECT account_number 
+				                              FROM   tm_account 
+				                              WHERE  company_id IS NOT NULL) 
+				GROUP  BY bill_streams.display_name, 
+				          bill_streams.bill_stream 
+				ORDER  BY bill_streams.display_name 
+        	</value>
+        </property>   
+        
+        <property name="getBillsInBillStream">
+        	<value>
+				SELECT self_reg0, 
+				       self_reg1, 
+				       self_reg2, 
+				       self_reg3, 
+				       self_reg4, 
+				       display_name, 
+				       amount_due, 
+				       bill_date 
+				FROM   (SELECT bill_id, 
+				               bill_date, 
+				               self_reg0, 
+				               self_reg1, 
+				               self_reg2, 
+				               self_reg3, 
+				               self_reg4 
+				        FROM   bill b, 
+				               (SELECT account, 
+				                       Max(bill_date) last_date 
+				                FROM   bill b, 
+				                       bill_file_meta_data bfmd 
+				                WHERE  b.bill_file_id = bfmd.bill_file_id 
+				                       AND bfmd.status IN ( 'PUBLISHED', 'MERGED' ) 
+				                GROUP  BY account) f, 
+				               bill_file_meta_data bfmd 
+				        WHERE  b.account = f.account 
+				               AND b.bill_date = last_date 
+				               AND b.account NOT IN (SELECT TA.account_number 
+				                                     FROM   prof_company_account PCA, 
+				                                            tm_account TA 
+				                                     WHERE  PCA.account_id = TA.id) 
+				               AND bfmd.bill_file_id = b.bill_file_id 
+				               AND bfmd.status IN ( 'PUBLISHED', 'MERGED' ) 
+				               AND bfmd.bill_stream = :bill_stream) b, 
+				       bill_summary s 
+				WHERE  b.bill_id = s.bill_id 
+				ORDER  BY display_name 
+        	</value>
+        </property>   
+        
+        <property name="getBillsInAccount">
+        	<value>
+				SELECT b.self_reg0, 
+				       b.self_reg1, 
+				       b.self_reg2, 
+				       b.self_reg3, 
+				       b.self_reg4, 
+				       display_name, 
+				       amount_due, 
+				       bill_date 
+				FROM   bill b, 
+				       bill_summary s, 
+				       bill_file_meta_data bfmd 
+				WHERE  b.bill_file_id = bfmd.bill_file_id 
+				       AND ( bfmd.status = 'PUBLISHED' 
+				              OR bfmd.status = 'MERGED' ) 
+				       AND b.bill_id = s.bill_id 
+				       AND s.display_name = :account_number 
+				ORDER  BY b.bill_date DESC 
+        	</value>
+        </property>   
+        
+        <property name="getAccountAssignments">
+        	<value>
+				SELECT TA.account_number_display ACCOUNT_NUMBER, 
+				       AU.username 
+				FROM   auth_users AU, 
+				       prof_company_user PCU, 
+				       prof_company_account PCA, 
+				       tm_account TA 
+				WHERE  AU.userid = PCU.userid 
+				       AND PCU.companyid = PCA.company_id 
+				       AND TA.id = PCA.account_id 
+        	</value>
+        </property>         
+        
+        <property name="getImmediateQueue">
+            <value>
+				SELECT NOTIF.notification_type, 
+				       NOTIF.request, 
+				       NOTIF.created_date, 
+				       STAT.name, 
+				       '' AS ERROR 
+				FROM   ntf_immediate_queue NOTIF, 
+				       ntf_status STAT 
+				WHERE  NOTIF.status = STAT.id 
+            </value>
+        </property>
+        
+        <property name="getDelayedQueue">
+            <value>
+				SELECT NOTIF.notification_type, 
+				       NOTIF.request, 
+				       NOTIF.created_date, 
+				       STAT.name, 
+				       '' AS ERROR 
+				FROM   ntf_delayed_queue NOTIF, 
+				       ntf_status STAT 
+				WHERE  NOTIF.status = STAT.id 
+            </value>
+        </property>
+        
+        <property name="getHistory">
+            <value>
+				SELECT NOTIF.notification_type, 
+				       NOTIF.request, 
+				       NOTIF.created_date, 
+				       STAT.name, 
+				       NOTIF.error 
+				FROM   ntf_history NOTIF, 
+				       ntf_status STAT 
+				WHERE  NOTIF.status = STAT.id
+            </value>
+        </property>  
+        
+        <property name="getAccountId">
+            <value>
+				SELECT id 
+				FROM   tm_account 
+				WHERE  account_number = :account_number 
+				       AND bill_group = :pay_group 
+				       AND end_date IS NULL 
+            </value>
+        </property>
+        
+        <property name="getAssignedAccountId">
+            <value>
+				SELECT id 
+				FROM   tm_account 
+				WHERE  account_number = :account_number 
+				       AND bill_group = :pay_group 
+				       AND end_date IS NULL 
+				       AND company_id IS NOT NULL 
+            </value>
+        </property>
+        
+        <property name="getUnassignedAccountId">
+            <value>
+				SELECT id 
+				FROM   tm_account 
+				WHERE  account_number = :account_number 
+				       AND bill_group = :pay_group 
+				       AND end_date IS NULL 
+				       AND company_id IS NULL 
+            </value>
+        </property>         
+	</bean>			
+		
+	<bean id="checkListFactory" class="com.sorrisotech.app.service.checklist.CheckListFactory" scope="prototype">
+        <constructor-arg>
+            <bean class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate">
+			<constructor-arg>
+				<ref bean="dataSource"/>
+			</constructor-arg>
+            </bean>            
+        </constructor-arg>
+        
+        <property name="getAllChecklists">
+        	<value>
+				SELECT list_language, 
+				       list_index, 
+				       list_message 
+				FROM   bill_checklist        	
+			</value>
+        </property>
+        
+        <property name="getCountChecklist">
+            <value>                
+				SELECT Count(*) 
+				FROM   bill_checklist                    
+            </value>
+        </property>
+	</bean>		
+	
+	<bean id="selfRegistrationFactory" class="com.sorrisotech.app.service.selfregister.SelfRegistrationFactory" scope="prototype">
+        <constructor-arg>
+            <bean class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate">
+			<constructor-arg>
+				<ref bean="dataSource"/>
+			</constructor-arg>
+            </bean>            
+        </constructor-arg>
+
+		<property name="addBillStreamsRegistration">
+            <value>
+				INSERT INTO bill_streams_register 
+				            (bill_stream, 
+				             language_code, 
+				             country_code, 
+				             field_name, 
+				             field_require, 
+				             field_label, 
+				             field_order, 
+				             field_help) 
+				VALUES      ( :bill_stream, 
+				              :language_code, 
+				              :country_code, 
+				              :field_name, 
+				              :field_require, 
+				              :field_label, 
+				              :field_order, 
+				              :field_help ) 
+            </value>
+        </property>
+        
+        <property name="deleteBillStreamsRegistration">
+            <value>            
+				DELETE FROM bill_streams_register                  						   
+            </value>
+        </property>     
+        
+        <property name="addTermsNConditions">
+            <value>
+				INSERT INTO terms 
+				            (tc_date, 
+				             tc_language, 
+				             tc_text) 
+				VALUES      ( :tc_date, 
+				              :tc_language, 
+				              :tc_text )             
+			</value>
+        </property>
+        
+        <property name="deleteTermsNConditions">
+            <value>            
+				DELETE FROM terms    						   
+            </value>
+        </property>    
+	</bean>	
+</beans>
