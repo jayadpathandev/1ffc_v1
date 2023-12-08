@@ -7,6 +7,8 @@
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/app - auth"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/1ffc - nls notify"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/1ffc - nls api library"/>
 	<classpathentry kind="lib" path="/app - auth/lib/angus-activation-2.0.0.jar"/>
 	<classpathentry kind="lib" path="/app - auth/lib/antlr-2.7.2.jar"/>
 	<classpathentry kind="lib" path="/app - auth/lib/antlr4-runtime-4.13.1.jar"/>

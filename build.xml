@@ -134,6 +134,9 @@
                 <include name="*.app"/>
                 <include name="*.uc"/>
             </fileset>
+			<fileset dir="1ffc - nls notify/src">
+                <include name="*.api"/>
+            </fileset>
         </copy>
 
         <ant dir="${devkit.dir}/build" antfile="persona.xml" inheritAll="false" inheritRefs="false">
@@ -144,7 +147,7 @@
         <delete dir="${output.dir}/apps/auth/com"/>
     </target>
 
-    <target name="build.auth" depends="-init, -build.auth.uc">
+    <target name="build.auth" depends="-init, -build.auth.uc, package-libraries">
         <mkdir dir="${output.dir}/apps/auth"/>
 
         <!-- Copy the classpath from the base application -->

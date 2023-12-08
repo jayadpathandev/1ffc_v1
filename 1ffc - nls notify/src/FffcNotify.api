@@ -7,10 +7,10 @@ define service FffcNotify(com.sorrisotech.app.serviceapi.uc.UcRequestClient) [
        category: fffcnotify    
     ]
     
-	define method SetUserAddressNLs [
+	define method SetUserAddressNls [
 		
 		// The ID of the user we are setting the address for
-		string userid
+		string customerId
 		
 		// The name of the channel the user is setting the address for.
 		string channel
@@ -22,7 +22,7 @@ define service FffcNotify(com.sorrisotech.app.serviceapi.uc.UcRequestClient) [
 	define method SetContactSettingsNls [
 		
 		// The ID of the user we are setting the address for.
-		string userid
+		string customerId
 		
 		// The configuration for the user.
 		string jsonConfig

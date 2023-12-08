@@ -25,6 +25,7 @@ import com.sorrisotech.persona.comgmt.api.CompanyManagementFactory;
 import com.sorrisotech.persona.comgmt.api.ICompany;
 import com.sorrisotech.persona.usercompanylink.api.UserCompanyLinkFactory;
 import com.sorrisotech.saas.orgid.api.OrgIdFactory;
+import com.sorrisotech.svcs.itfc.data.IStringData;
 import com.sorrisotech.utils.AppConfig;
 
 import java.math.BigDecimal;
@@ -54,7 +55,8 @@ public class FffcRegistration {
      */    
 	public static String assignUserToAccountWithNewCompany(
 		        final String accountId,
-		        final String userId
+		        final String userId,
+		        final IStringData saveOrgId
 	        ) {
 		// ----------------------------------------------------------------------------------------
 		// Grab the information we need for 1ffc IF this is a 1ffc status payment group.
@@ -67,6 +69,11 @@ public class FffcRegistration {
         String szResult = "error";
         
         try {
+        	
+        	// ----------------------------------------------------------------------------------------
+    		// Setting(saving) orgId(customerId) 
+        	saveOrgId.putValue(orgId);
+        	
             // ------------------------------------------------------------------------------------
             // Create the "company" for the user. 
         	final ICompany cCompany = CompanyManagementFactory.createCompany();                      
