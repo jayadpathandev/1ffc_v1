@@ -10,7 +10,7 @@
 	<classpathentry kind="lib" path="/app - user/lib/angus-activation-2.0.0.jar"/>
 	<classpathentry kind="lib" path="/app - user/lib/antlr-2.7.2.jar"/>
 	<classpathentry kind="lib" path="/app - user/lib/antlr4-runtime-4.13.1.jar"/>
-	<classpathentry kind="lib" path="/app - user/lib/aspectjweaver-1.9.21.M1.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/aspectjweaver-1.9.21.RC1.jar"/>
 	<classpathentry kind="lib" path="/app - user/lib/authnet_cim_api.jar"/>
 	<classpathentry kind="lib" path="/app - user/lib/bcprov-jdk15on-1.51.jar"/>
 	<classpathentry kind="lib" path="/app - user/lib/checker-qual-3.37.0.jar"/>

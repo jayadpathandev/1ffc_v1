@@ -99,6 +99,7 @@ useCase fffcReg99B2C [
     
     serviceStatus status
 	serviceParam(Notifications.SetUserAddress) setData
+	serviceParam(Notifications.RegisterUser)   setRegData
 	serviceParam(FffcNotify.SetUserAddressNls) setDataFffc
 			
     // -- message strings for display when use case completes. 			
@@ -256,13 +257,24 @@ useCase fffcReg99B2C [
     	setData.channel = sSmsChannel
     	setData.address = fMobileNumber.pInput
         switch apiCall Notifications.SetUserAddress(setData, status) [
-		    case apiSuccess assignUserToAccountWithNewCompany
+		    case apiSuccess enableNotifications
 		    default deleteUserProfile
 		]		
 	]
+	
+    /**************************************************************************
+     * 9a. System links the user with their account.     
+     */
+	action enableNotifications [
+		setRegData.userid = sUserId
+	    switch apiCall Notifications.RegisterUser(setRegData, status) [
+		    case apiSuccess assignUserToAccountWithNewCompany
+		    default deleteUserProfile
+		]
+	]
 	        
     /**************************************************************************
-     * 9. System links the user with their account.     
+     * 9b. System links the user with their account.     
      */
     action assignUserToAccountWithNewCompany [    
         switch FffcRegistration.assignUserToAccountWithNewCompany(sUserAccountId, sUserId, sOrgId) [        
