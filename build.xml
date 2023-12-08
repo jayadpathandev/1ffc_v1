@@ -112,6 +112,14 @@
 			<fileset dir="1ffc - admin" includes="layout-pages/**/*"/>
         </copy>
 
+    	<propertyfile file="${output.dir}/apps/admin/internationalization/topics_en.properties">
+    		<entry key="topics_100_bills_documents" value="Electronic Document Delivery"/>
+    		<entry key="topics_150_marketing" value="Marketing Messages"/>
+    		<entry key="topics_200_payment" value="Account Servicing"/>
+    		<entry key="topics_250_collections" value="Collections"/>
+    		<entry key="topics_300_system" value="System Alerts"/>
+            <entry key="topics_order" value="300_system|250_collections|200_payment|150_marketing|100_bills_documents"/>
+    	</propertyfile>
         <propertyfile file="${output.dir}/apps/admin/classes/app-config.properties">
             <entry key="app.telco_b2c" value="https://1ffc.server2.sorrisoqa.com/personaWeb/user/"/>
             <entry key="app.telco_b2b" value="https://1ffc.server2.sorrisoqa.com/personaWeb/user/"/>
@@ -324,6 +332,7 @@
     		<entry key="topics_200_payment" value="Account Servicing"/>
     		<entry key="topics_250_collections" value="Collections"/>
     		<entry key="topics_300_system" value="System Alerts"/>
+            <entry key="topics_order" value="300_system|250_collections|200_payment|150_marketing|100_bills_documents"/>
     	</propertyfile>
     	<propertyfile file="${output.dir}/apps/user/classes/app-config.properties">
     		<entry key="user.app.url" value="${base.public.url}personaWeb/user/"/>

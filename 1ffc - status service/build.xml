@@ -1,0 +1,57 @@
+<project name="service-status" default="package" basedir=".">
+
+    <!-- ######################################################################
+	     # Verify that all needed properties are defined.
+         ################################################################## -->
+    <target name="-init">
+		<loadproperties srcFile="../build.properties"/>
+
+        <property name="moduleName" value="service/status"/>
+
+    	<property name="mod.output.dir"    value="${artifacts.dir}/package/${moduleName}"/>
+    	<property name="mod.artifacts.dir" value="${artifacts.dir}/${moduleName}"/>
+
+    	<mkdir dir="${mod.output.dir}"/>
+    	<mkdir dir="${mod.artifacts.dir}"/>
+    </target>
+
+    <!-- ######################################################################
+         # Compile the java files.
+         ################################################################## -->
+    <target name="compile" depends="-init">
+
+		<mkdir dir="${mod.artifacts.dir}/api"/>
+		<copy file="src/AccountStatus.api" todir="${mod.artifacts.dir}/api"/>
+
+    	<ant antfile="persona.xml" dir="${devkit.dir}/build" inheritAll="false"  inheritRefs="false">
+            <property name="persona.compiler.dir" value="${mod.artifacts.dir}/compiler"/>
+            <property name="usecase.directories"  value="${mod.artifacts.dir}/api"/>
+            <property name="usecase.output"       value="${mod.artifacts.dir}/src-gen"/>
+        </ant>
+
+		<mkdir dir="${mod.artifacts.dir}/classes"/>
+    	<javac destdir="${mod.artifacts.dir}/classes" includeAntRuntime="false">
+    	    <src>
+    	        <pathelement location="src"/>
+                <pathelement location="${mod.artifacts.dir}/src-gen"/>
+    		</src>
+			<classpath>
+				<fileset dir="${devkit.dir}/app - user/lib">
+					<include name="*.jar"/>
+				</fileset>
+			</classpath>
+    	</javac>
+    </target>
+
+    <!-- ######################################################################
+         # Package everything up.
+         ################################################################## -->
+	<target name="package" depends="-init, compile">
+
+		<jar destfile="${mod.output.dir}/serviceStatus.jar">
+		    <fileset dir="${mod.artifacts.dir}/classes"/>
+			<fileset dir="${mod.artifacts.dir}/src-gen"/>
+			<fileset dir="src" includes="*.xml"/>
+		</jar>
+	</target>
+</project>
