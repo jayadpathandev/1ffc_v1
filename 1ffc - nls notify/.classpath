@@ -7,89 +7,85 @@
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="con" path="org.apache.ivyde.eclipse.cpcontainer.IVYDE_CONTAINER/?project=1ffc+service+-+status&amp;ivyXmlPath=ivy.xml&amp;confs=*"/>
-	<classpathentry kind="lib" path="/batch - common/lib/serviceAPI.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/batch - config"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/1ffc - nls api service"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/1ffc - nls api library"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/batch - common"/>
 	<classpathentry kind="lib" path="/app - user/lib/accountServices.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\angus-activation-2.0.0.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\antlr-2.7.2.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\antlr4-runtime-4.13.1.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\aspectjweaver-1.9.21.M1.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/angus-activation-2.0.0.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/antlr-2.7.2.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/antlr4-runtime-4.13.1.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/aspectjweaver-1.9.21.M1.jar"/>
 	<classpathentry kind="lib" path="/app - user/lib/authnet_cim_api.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\bcprov-jdk15on-1.51.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\checker-qual-3.37.0.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\commons-beanutils-1.9.4.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\commons-chain-1.1.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\commons-codec-1.16.0.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\commons-collections-3.2.2.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\commons-collections4-4.4.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\commons-compress-1.25.0.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\commons-dbcp2-2.11.0.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\commons-digester-2.1.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\commons-httpclient-3.1.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\commons-io-2.15.1.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\commons-jexl-2.0.1.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\commons-lang-2.6.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\commons-lang3-3.14.0.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\commons-logging-1.2.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\commons-math3-3.6.1.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\commons-pool2-2.12.0.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\commons-validator-1.7.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\core-3.5.2.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\curvesapi-1.08.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\dom4j-1.1.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\e2Vault-7.2.0.19-RELEASE.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\error_prone_annotations-2.21.1.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\esapi-2.0.1.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\failureaccess-1.0.1.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\freemarker-2.3.32.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\googleauth-1.5.0.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\guava-32.1.3-android.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\httpclient5-5.2.1.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\httpcore5-5.2.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\httpcore5-h2-5.2.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\istack-commons-runtime-4.1.1.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\j2objc-annotations-2.8.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\jackson-annotations-2.16.0.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\jackson-core-2.16.0.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\jackson-databind-2.16.0.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\jackson-dataformat-xml-2.16.0.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\jackson-dataformat-yaml-2.15.2.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\jackson-datatype-joda-2.16.0.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\jackson-jaxrs-base-2.16.0.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\jackson-jaxrs-json-provider-2.16.0.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\jackson-module-jaxb-annotations-2.16.0.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\jai-imageio-core-1.4.0.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\jakarta.activation-2.0.1.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\jakarta.activation-api-2.1.1.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\jakarta.annotation-api-1.3.5.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\jakarta.inject-2.6.1.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\jakarta.mail-2.0.1.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\jakarta.transaction-api-1.3.3.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\jakarta.validation-api-2.0.2.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\jakarta.ws.rs-api-2.1.6.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\jakarta.xml.bind-api-4.0.0.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\jakarta-regexp-1.4.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\javase-3.5.2.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\javassist-3.29.2-GA.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\javax.ws.rs-api-2.1.1.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\jaxb-core-4.0.2.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\jaxb-runtime-4.0.2.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\jcommander-1.82.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\jersey-client-2.39.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\jersey-common-2.39.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\jersey-container-servlet-core-2.39.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\jersey-media-multipart-2.39.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\jersey-server-2.39.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\jettison-1.5.4.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\joda-time-2.12.5.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\json-20231013.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\jsr305-3.0.2.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\jxls-core-1.0.6.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\jxls-reader-1.0.6.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/bcprov-jdk15on-1.51.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/checker-qual-3.37.0.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/commons-beanutils-1.9.4.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/commons-chain-1.1.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/commons-codec-1.16.0.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/commons-collections-3.2.2.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/commons-collections4-4.4.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/commons-compress-1.25.0.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/commons-dbcp2-2.11.0.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/commons-digester-2.1.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/commons-httpclient-3.1.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/commons-io-2.15.1.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/commons-jexl-2.0.1.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/commons-lang-2.6.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/commons-lang3-3.14.0.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/commons-logging-1.2.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/commons-math3-3.6.1.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/commons-pool2-2.12.0.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/commons-validator-1.7.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/core-3.5.2.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/curvesapi-1.08.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/dom4j-1.1.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/e2Vault-7.2.0.19-RELEASE.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/error_prone_annotations-2.21.1.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/esapi-2.0.1.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/failureaccess-1.0.1.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/freemarker-2.3.32.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/googleauth-1.5.0.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/guava-32.1.3-android.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/httpclient5-5.2.1.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/httpcore5-5.2.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/httpcore5-h2-5.2.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/istack-commons-runtime-4.1.1.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/j2objc-annotations-2.8.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/jackson-annotations-2.16.0.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/jackson-core-2.16.0.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/jackson-databind-2.16.0.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/jackson-dataformat-xml-2.16.0.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/jackson-dataformat-yaml-2.15.2.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/jackson-datatype-joda-2.16.0.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/jackson-jaxrs-base-2.16.0.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/jackson-jaxrs-json-provider-2.16.0.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/jackson-module-jaxb-annotations-2.16.0.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/jai-imageio-core-1.4.0.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/jakarta.activation-2.0.1.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/jakarta.activation-api-2.1.1.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/jakarta.annotation-api-1.3.5.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/jakarta.inject-2.6.1.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/jakarta.mail-2.0.1.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/jakarta.transaction-api-1.3.3.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/jakarta.validation-api-2.0.2.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/jakarta.ws.rs-api-2.1.6.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/jakarta.xml.bind-api-4.0.0.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/jakarta-regexp-1.4.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/javase-3.5.2.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/javassist-3.29.2-GA.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/javax.ws.rs-api-2.1.1.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/jaxb-core-4.0.2.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/jaxb-runtime-4.0.2.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/jcommander-1.82.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/jersey-client-2.39.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/jersey-common-2.39.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/jersey-container-servlet-core-2.39.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/jersey-media-multipart-2.39.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/jersey-server-2.39.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/jettison-1.5.4.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/joda-time-2.12.5.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/json-20231013.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/jsr305-3.0.2.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/jxls-core-1.0.6.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/jxls-reader-1.0.6.jar"/>
 	<classpathentry kind="lib" path="/app - user/lib/libraryAccountBalance.jar"/>
 	<classpathentry kind="lib" path="/app - user/lib/libraryAccountOverview.jar"/>
 	<classpathentry kind="lib" path="/app - user/lib/libraryApplicationIntegration.jar"/>
@@ -110,32 +106,32 @@
 	<classpathentry kind="lib" path="/app - user/lib/librarySysConfig.jar"/>
 	<classpathentry kind="lib" path="/app - user/lib/libraryUtils.jar"/>
 	<classpathentry kind="lib" path="/app - user/lib/libraryVideoClient.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\log4j-api-2.21.1.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\logback-classic-1.4.0.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\logback-core-1.4.0.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\micrometer-commons-1.10.4.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\micrometer-observation-1.10.4.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\mimepull-1.9.15.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\mysql-connector-j-8.2.0.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\not-yet-commons-ssl-0.3.9.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/log4j-api-2.21.1.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/logback-classic-1.4.0.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/logback-core-1.4.0.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/micrometer-commons-1.10.4.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/micrometer-observation-1.10.4.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/mimepull-1.9.15.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/mysql-connector-j-8.2.0.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/not-yet-commons-ssl-0.3.9.jar"/>
 	<classpathentry kind="lib" path="/app - user/lib/ntfRequest-api.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\opensaml-2.6.4.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\openws-1.5.4.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\oro-2.0.8.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\osgi-resource-locator-1.0.3.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\payment-api-2.0.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\persona-aaa-5.1.20231009.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\persona-audit-5.1.20231009.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\persona-i18n-5.1.20231009.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/opensaml-2.6.4.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/openws-1.5.4.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/oro-2.0.8.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/osgi-resource-locator-1.0.3.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/payment-api-2.0.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/persona-aaa-5.1.20231009.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/persona-audit-5.1.20231009.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/persona-i18n-5.1.20231009.jar"/>
 	<classpathentry kind="lib" path="/app - user/lib/persona-jetty.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\persona-saml-5.1.20231009.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\persona-service-loader-5.1.20231009.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\poi-5.2.5.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\poi-ooxml-5.2.5.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\poi-ooxml-lite-5.2.5.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\postgresql-42.7.0.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\reflections-0.10.2.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/persona-saml-5.1.20231009.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/persona-service-loader-5.1.20231009.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/poi-5.2.5.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/poi-ooxml-5.2.5.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/poi-ooxml-lite-5.2.5.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/postgresql-42.7.0.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/reflections-0.10.2.jar"/>
 	<classpathentry kind="lib" path="/app - user/lib/serviceAPI.jar"/>
 	<classpathentry kind="lib" path="/app - user/lib/serviceBill.jar"/>
 	<classpathentry kind="lib" path="/app - user/lib/serviceBillStream.jar"/>
@@ -152,38 +148,38 @@
 	<classpathentry kind="lib" path="/app - user/lib/serviceUserSearch.jar"/>
 	<classpathentry kind="lib" path="/app - user/lib/serviceUtils.jar"/>
 	<classpathentry kind="lib" path="/app - user/lib/serviceVideo.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\snakeyaml-2.2.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\SparseBitSet-1.3.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\spring-aop-6.0.7.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\spring-beans-6.0.7.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\spring-context-6.0.7.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\spring-context-support-6.0.7.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\spring-core-6.0.7.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\spring-expression-6.0.7.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\spring-jcl-6.0.7.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\spring-jdbc-6.0.7.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\spring-oxm-6.0.7.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\spring-tx-6.0.7.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\spring-web-6.0.7.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\sslext-1.2-0.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\stax2-api-4.2.1.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\struts-core-1.3.8.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\struts-taglib-1.3.8.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\struts-tiles-1.3.8.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/snakeyaml-2.2.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/SparseBitSet-1.3.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/spring-aop-6.0.7.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/spring-beans-6.0.7.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/spring-context-6.0.7.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/spring-context-support-6.0.7.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/spring-core-6.0.7.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/spring-expression-6.0.7.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/spring-jcl-6.0.7.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/spring-jdbc-6.0.7.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/spring-oxm-6.0.7.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/spring-tx-6.0.7.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/spring-web-6.0.7.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/sslext-1.2-0.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/stax2-api-4.2.1.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/struts-core-1.3.8.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/struts-taglib-1.3.8.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/struts-tiles-1.3.8.jar"/>
 	<classpathentry kind="lib" path="/app - user/lib/svcRequest-api.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\swagger-annotations-2.0.0-rc2.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\swagger-core-1.6.12.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\swagger-jaxrs-1.6.12.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\swagger-jersey2-jaxrs-1.6.12.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\swagger-models-1.6.12.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\txw2-4.0.2.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/swagger-annotations-2.0.0-rc2.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/swagger-core-1.6.12.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/swagger-jaxrs-1.6.12.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/swagger-jersey2-jaxrs-1.6.12.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/swagger-models-1.6.12.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/txw2-4.0.2.jar"/>
 	<classpathentry kind="lib" path="/app - user/lib/ubf.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\validation-api-1.1.0.Final.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\velocity-1.7.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\velocity-tools-2.0.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\woodstox-core-6.5.1.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\xmlbeans-5.2.0.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\xmlsec-3.0.2.jar"/>
-	<classpathentry kind="lib" path="/app - user\lib\xmltooling-1.4.4.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/validation-api-1.1.0.Final.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/velocity-1.7.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/velocity-tools-2.0.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/woodstox-core-6.5.1.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/xmlbeans-5.2.0.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/xmlsec-3.0.2.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/xmltooling-1.4.4.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

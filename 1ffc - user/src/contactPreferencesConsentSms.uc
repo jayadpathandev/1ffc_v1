@@ -42,7 +42,7 @@ useCase contactPreferencesConsentSms [
 	
 	serviceStatus status
 	serviceParam(Notifications.SetUserAddress) setData
-	serviceParam(FffcNotify.SetUserAddressNLs) setDataFffc
+	serviceParam(FffcNotify.SetUserAddressNls) setDataFffc
 	
     import validation.validationCodeRegex
     import profile.sAppName
@@ -57,6 +57,7 @@ useCase contactPreferencesConsentSms [
     native string sNewSms    
     native string sSmsChannel = "sms"                                                  
     native string sSmsValidationCode
+    native string sOrgId
     
     native string sUserId            = Session.getUserId()
     native string sProfileUpdateFlag = UcNotificationsAction.isEmailNotifPrefEnabled(sUserId)
@@ -270,10 +271,13 @@ useCase contactPreferencesConsentSms [
 	
 	/* Saves the new sms address via NLS API service */
     action saveSmsAddressAtNls [
-    	setDataFffc.userid = sUserId
+    	loadProfile(            
+            fffcCustomerId: sOrgId   
+            )
+    	setDataFffc.customerId = sOrgId
     	setDataFffc.channel = sSmsChannel
     	setDataFffc.address = sNewSms
-    	switch apiCall FffcNotify.SetUserAddressNLs(setDataFffc, status) [
+    	switch apiCall FffcNotify.SetUserAddressNls(setDataFffc, status) [
     		case apiSuccess checkProfileUpdateNotificationFlag
     		default saveContactDetailsError
     	]

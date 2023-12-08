@@ -42,6 +42,7 @@ useCase fffcReg99B2C [
 	importJava UcBillRegistration(com.sorrisotech.uc.billstream.UcBillRegistration) 
 	importJava UserProfile(com.sorrisotech.app.utils.UserProfile) 
 	importJava FffcRegistration(com.sorrisotech.fffc.auth.FffcRegistration)
+	importJava Initialize(com.sorrisotech.fffc.auth.Initialize)
 	 
 	import regCompleteEnrollment.sAppType
 	   
@@ -90,6 +91,7 @@ useCase fffcReg99B2C [
 	native string sAppName = AppName.getAppName(sAppType)	
 	native string sEmailChannel = "email"
 	native string sSmsChannel = "sms"
+	native string sOrgId
 
 	serviceStatus srStatus			
 	serviceParam(Profile.AddPasswordHistory) srAddReq
@@ -97,6 +99,7 @@ useCase fffcReg99B2C [
     
     serviceStatus status
 	serviceParam(Notifications.SetUserAddress) setData
+	serviceParam(FffcNotify.SetUserAddressNls) setDataFffc
 			
     // -- message strings for display when use case completes. 			
     structure(message) msgDuplicateAccount [    
@@ -240,37 +243,84 @@ useCase fffcReg99B2C [
 		setData.channel = sEmailChannel
 		setData.address = fUserEmail.pInput
 	    switch apiCall Notifications.SetUserAddress(setData, status) [
-		    case apiSuccess assignUserToAccountWithNewCompany
+		    case apiSuccess saveSmsAddress
 		    default deleteUserProfile
 		]
+	]
+	
+	/**************************************************************************
+     * 8. Initialize user's contact preferences - sms.     
+     */
+	action saveSmsAddress [
+    	setData.userid = sUserId
+    	setData.channel = sSmsChannel
+    	setData.address = fMobileNumber.pInput
+        switch apiCall Notifications.SetUserAddress(setData, status) [
+		    case apiSuccess assignUserToAccountWithNewCompany
+		    default deleteUserProfile
+		]		
 	]
 	        
     /**************************************************************************
      * 9. System links the user with their account.     
      */
     action assignUserToAccountWithNewCompany [    
-        switch FffcRegistration.assignUserToAccountWithNewCompany(sUserAccountId, sUserId) [        
+        switch FffcRegistration.assignUserToAccountWithNewCompany(sUserAccountId, sUserId, sOrgId) [        
             case "success" setAccountStatus
             case "error"  deleteUserProfile
             default deleteUserProfile
         ]   
-    ] 
-       
+    ]
+    
     /**************************************************************************
      * 10. Set status of user account.     
      */
     action setAccountStatus [    
         updateProfile(        	
-        	userId: sUserId    
+        	userId: sUserId
+        	fffcCustomerId: sOrgId   
         	accountStatus: "open"        	
         	registrationStatus: "pending" 
             )
-        if success then generateAuthCode
+        if success then saveEmailAddressNls
         if failure then deleteUserProfile    
-    ] 
+    ]
     
     /**************************************************************************
-     * 11. Generate authorization code.     
+     * 11. Save user's contact preferences - email. (NLS side)     
+     */
+	action saveEmailAddressNls [
+		Initialize.init()
+		loadProfile(            
+            fffcCustomerId: sOrgId   
+            )
+		setDataFffc.customerId = sOrgId
+		setDataFffc.channel = sEmailChannel
+		setDataFffc.address = fUserEmail.pInput
+	    switch apiCall FffcNotify.SetUserAddressNls(setDataFffc, status) [
+		    case apiSuccess saveSmsAddressNls
+		    default deleteUserProfile
+		]
+	] 
+	
+	/**************************************************************************
+     * 12. Save user's contact preferences - sms. (NLS side)     
+     */
+	action saveSmsAddressNls [
+		loadProfile(            
+            fffcCustomerId: sOrgId   
+            )
+		setDataFffc.customerId = sOrgId
+		setDataFffc.channel = sSmsChannel
+		setDataFffc.address = fMobileNumber.pInput
+	    switch apiCall FffcNotify.SetUserAddressNls(setDataFffc, status) [
+		    case apiSuccess generateAuthCode
+		    default deleteUserProfile
+		]
+	]  
+    
+    /**************************************************************************
+     * 13. Generate authorization code.     
      */
     action generateAuthCode [    	  	   	
         switch AuthUtil.generateAuthCode(sAuthCode) [        
@@ -281,7 +331,7 @@ useCase fffcReg99B2C [
     ] 
     
     /**************************************************************************
-     * 12. Get current timestamp.     
+     * 14. Get current timestamp.     
      */
     action getCurrentTimeStamp [    
         switch AuthUtil.getCurrentTime(sCurrentTime) [        
@@ -292,7 +342,7 @@ useCase fffcReg99B2C [
     ]  
     
     /**************************************************************************
-     * 13. Save auth code details.     
+     * 15. Save auth code details.     
      */
     action saveAuthCodeDetails [
     	 updateProfile(        	
@@ -305,7 +355,7 @@ useCase fffcReg99B2C [
     ]    
     
     /**************************************************************************
-     * 14. Send validation email.     
+     * 16. Send validation email.     
      */
     action sendValidationEmail [    
         switch NotifUtil.sendAuthCode(sUserId, sAppName, fUserName.pInput, fPassword.pInput, sAuthCode, fFirstName.pInput, fLastName.pInput) [        
@@ -316,7 +366,7 @@ useCase fffcReg99B2C [
     ]   
     
     /**************************************************************************
-	 * 15. Go to the registration validation email address usecase.
+	 * 17. Go to the registration validation email address usecase.
 	 */
     action gotoRegValidateEmailAddress [
     	sReqWorkflow = ""

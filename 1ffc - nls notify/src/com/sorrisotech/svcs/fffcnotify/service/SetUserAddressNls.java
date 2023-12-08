@@ -31,7 +31,6 @@ import com.sorrisotech.client.main.model.request.ContactPreferencesRequest;
 import com.sorrisotech.client.main.model.response.ContactPrefrences.ChannelAddress;
 import com.sorrisotech.client.main.model.response.CreateContactPrefrencesResponse;
 import com.sorrisotech.svcs.fffcnotify.api.IApiFffcNotify;
-import com.sorrisotech.svcs.fffcnotify.dao.FffcNotificationDao;
 import com.sorrisotech.svcs.serviceapi.api.IRequestInternal;
 import com.sorrisotech.svcs.serviceapi.api.ServiceAPIErrorCode;
 
@@ -40,7 +39,7 @@ import com.sorrisotech.svcs.serviceapi.api.ServiceAPIErrorCode;
  * 
  * @author Asrar Saloda
  */
-public class SetUserAddressNls extends SetUserAddressNLsBase {
+public class SetUserAddressNls extends SetUserAddressNlsBase {
 
 	/**************************************************************************
 	 * The UID for this class.
@@ -52,8 +51,6 @@ public class SetUserAddressNls extends SetUserAddressNLsBase {
 	 */
 	private static final Logger LOG = LoggerFactory.getLogger(SetUserAddressNls.class);
 
-	private static final FffcNotificationDao m_cDaoFffc = FffcNotificationDao.get();
-
 	/**************************************************************************
 	 * 1. Turn the request around. 2. Insert all the configuration parameters. 3.
 	 * Return the request with success.
@@ -63,11 +60,11 @@ public class SetUserAddressNls extends SetUserAddressNLsBase {
 
 		ServiceAPIErrorCode eReturnCode = ServiceAPIErrorCode.Failure;
 
-		final String szUserId = request.getString(IApiFffcNotify.SetUserAddressNLs.userid);
+		final String szCustomerId = request.getString(IApiFffcNotify.SetUserAddressNls.customerId);
 
-		final String szChannel = request.getString(IApiFffcNotify.SetUserAddressNLs.channel);
+		final String szChannel = request.getString(IApiFffcNotify.SetUserAddressNls.channel);
 
-		final String szAddress = request.getString(IApiFffcNotify.SetUserAddressNLs.address);
+		final String szAddress = request.getString(IApiFffcNotify.SetUserAddressNls.address);
 
 		CreateContactPrefrencesResponse contactPreferencesofUser = null;
 
@@ -81,10 +78,6 @@ public class SetUserAddressNls extends SetUserAddressNLsBase {
 			request.setStatus(eReturnCode);
 			return eReturnCode;
 		}
-		
-		// --------------------------------------------------------------------------------------
-		// Fetching orgId (customerId) using userId from tm_account table.
-		final String szCustomerId = m_cDaoFffc.queryOrgId(szUserId);
 
 		if (null != szCustomerId && null != szDateTime) {
 			LOG.debug(
@@ -125,7 +118,7 @@ public class SetUserAddressNls extends SetUserAddressNLsBase {
 
 			// --------------------------------------------------------------------------------------
 			// If channel is not present at NLS side then adding this channel and address
-			// and setting consent new Date() and remaining field is kept null as of now
+			// and setting consent date as new Date() and remaining field is kept null as of now
 			// TODO Need to confirm.
 			if (isNewChannel) {
 				contactPreferencesofUser.getPayload().getChannelAddresses()

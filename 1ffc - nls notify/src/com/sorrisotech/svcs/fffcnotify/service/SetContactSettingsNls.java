@@ -34,7 +34,6 @@ import com.sorrisotech.client.main.model.response.ContactPrefrences.TopicChannel
 import com.sorrisotech.client.main.model.response.ContactPrefrences.TopicPreference;
 import com.sorrisotech.client.main.model.response.CreateContactPrefrencesResponse;
 import com.sorrisotech.svcs.fffcnotify.api.IApiFffcNotify;
-import com.sorrisotech.svcs.fffcnotify.dao.FffcNotificationDao;
 import com.sorrisotech.svcs.notifications.data.UserConfig;
 import com.sorrisotech.svcs.notifications.service.NotificationsDao;
 import com.sorrisotech.svcs.serviceapi.api.IRequestInternal;
@@ -63,8 +62,6 @@ public class SetContactSettingsNls extends SetContactSettingsNlsBase {
 	 */
 	private static final NotificationsDao m_cDao = NotificationsDao.get();
 
-	private static final FffcNotificationDao m_cDaoFffc = FffcNotificationDao.get();
-
 	/**************************************************************************
 	 * 1. Turn the request around. 2. Insert all the configuration parameters. 3.
 	 * Return the request with success.
@@ -74,7 +71,7 @@ public class SetContactSettingsNls extends SetContactSettingsNlsBase {
 
 		ServiceAPIErrorCode eReturnCode = ServiceAPIErrorCode.Failure;
 
-		final String szUserId = request.getString(IApiFffcNotify.SetContactSettingsNls.userid);
+		final String szCustomerId = request.getString(IApiFffcNotify.SetContactSettingsNls.customerId);
 
 		final String szJsonConfig = request.getString(IApiFffcNotify.SetContactSettingsNls.jsonConfig);
 
@@ -82,24 +79,9 @@ public class SetContactSettingsNls extends SetContactSettingsNlsBase {
 
 		ContactPrefrences cContactPrefrencesRequest = null;
 
-		String szCustomerId = null;
-
+		LOG.debug("SetContactSettingsNls:processInternal ..... entered method for customer id: {}, JSON config: {}",
+				szCustomerId, szJsonConfig);
 		try {
-
-			// --------------------------------------------------------------------------------------
-			// Fetching orgId (customerId) using userId from tm_account table.
-			szCustomerId = m_cDaoFffc.queryOrgId(szUserId);
-
-			if (null == szCustomerId) {
-				LOG.error(
-						"SetContactSettingsNls:processInternal ..... Customer id (orgId) is not associated with user: "
-								+ szCustomerId);
-
-				throw new Exception("Customer id (orgId) is not associated with user: " + szUserId);
-			}
-
-			LOG.debug("SetContactSettingsNls:processInternal ..... entered method for customer id: {}, JSON config: {}",
-					szCustomerId, szJsonConfig);
 
 			final String szDateTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(new Date());
 

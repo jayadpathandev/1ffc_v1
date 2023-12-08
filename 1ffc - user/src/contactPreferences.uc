@@ -79,6 +79,7 @@ useCase contactPreferences [
     native string sUnverifiedEmailAddress                                         
 	native string sNewSms
 	native string sSmsChannel = "sms"
+	native string sOrgId
 	
 	native string sUserId            = Session.getUserId()
     native string sNameSpace         = AuthUtil.getAppNameSpace()
@@ -502,7 +503,10 @@ useCase contactPreferences [
     ]
  	
  	action saveNotificationAtNls [
-    	setDataFffc.userid = sUserId
+ 		loadProfile(            
+            fffcCustomerId: sOrgId   
+            )
+    	setDataFffc.customerId = sOrgId
     	ContactPrefs.toJson(setDataFffc.jsonConfig)
     	
     	switch apiCall FffcNotify.SetContactSettingsNls(setDataFffc, status) [

@@ -42,7 +42,7 @@ useCase contactPreferencesConsentEmail [
 	
 	serviceStatus status
 	serviceParam(Notifications.SetUserAddress) setData
-	serviceParam(FffcNotify.SetUserAddressNLs) setDataFffc
+	serviceParam(FffcNotify.SetUserAddressNls) setDataFffc
 	
     import validation.validationCodeRegex
     import profile.sAppName
@@ -60,6 +60,7 @@ useCase contactPreferencesConsentEmail [
     
     native string sUserId            = Session.getUserId()
     native string sProfileUpdateFlag = UcNotificationsAction.isEmailNotifPrefEnabled(sUserId)
+    native string sOrgId
     
     tag hTermsText = UcTermsConditions.getTermsConditions(sorrisoLanguage, sorrisoCountry)
     
@@ -270,10 +271,13 @@ useCase contactPreferencesConsentEmail [
     
     /* Saves the new email address via NLS API service */
     action saveEmailAddressAtNls [
-    	setDataFffc.userid = sUserId
+    	loadProfile(            
+            fffcCustomerId: sOrgId   
+            )
+    	setDataFffc.customerId = sOrgId
     	setDataFffc.channel = sEmailChannel
     	setDataFffc.address = sNewEmail
-    	switch apiCall FffcNotify.SetUserAddressNLs(setDataFffc, status) [
+    	switch apiCall FffcNotify.SetUserAddressNls(setDataFffc, status) [
     		case apiSuccess checkProfileUpdateNotificationFlag
     		default saveContactDetailsError
     	]
