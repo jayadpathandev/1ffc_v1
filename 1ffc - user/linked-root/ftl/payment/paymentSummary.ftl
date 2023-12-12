@@ -9,6 +9,9 @@
 	   						think of today.. unit tested without all the use case data
 	   						but with 1st Franklin styled bill data. 
 	   2023-Oct-24	jak-- update for new flex field settings.
+	   
+	   2023-Dec-11	jak-- simplified based on separating out new, closed, and view disabled
+	   						accounts into a different template.
 
   -->
 
@@ -211,17 +214,7 @@
 							</#if>
 							<#break>
 						<#case "newAccount">
-							<#--  All links disabled -->
-							<a class="me-4 disabled pe-none opacity-50" aria-disabled="true">View statement</a>
-							<a class="me-4 text-nowrap disabled pe-none opacity-50" aria-disabled="true" >Transaction History</a>
-							<a class="text-nowrap disabled pe-none opacity-50" aria-disabled="true">Set&nbsp;up&nbsp;recurring&nbsp;payment</a>				
-							<#break>
 						<#case "closedAccount">
-							<#-- Other links enabled, payment link disabled -->
-							<a class="me-4 disabled pe-none opacity-50" aria-disabled="true">View statement</a>
-							<a class="me-4 text-nowrap" href="#" st-pop-in="fffcViewTransactions?offset=${jumpToOffset}">Transaction History</a>
-							<a class="text-nowrap disabled pe-none opacity-50" aria-disabled="true">Set&nbsp;up&nbsp;recurring&nbsp;payment</a>				
-							<#break>
 						<#case "unknown">
 						<#default>
 							<#--  IF THERE ARE NO STATUS FOR BILL AVAILABLE THAT MAKES SENSE, DON'T SHOW THE LINKS -->
@@ -413,32 +406,10 @@
 				<span class="float-end">Statement amount due</span>
 			</div>
 		</div>
-	<#elseif "newAccount" == accountStatus >
-		<h2 class="mt-3 pt-3 border-top border-dark row">
-			<div class="col fw-bold text-center">
-				Congratulations, and thank you for opening your loan account with 1st Franklin! 
-			</div>
-		</h2>
-		<div class="row">
-			<div class="col text-center">
-				You don't have a statement yet, we'll notify you by email when your first statement is available.
-			</div>
-		</div>
-	<#elseif "closedAccount" == accountStatus >
-		<h2 class="mt-3 pt-3 border-top border-dark row">
-			<div class="col fw-bold text-center">
-				Congratulations! You've paid off this loan and the account is now closed.
-			</div>
-		</h2>
-		<div class="row">
-			<div class="col text-center">
-				Your account history is still available.
-			</div>
-		</div>
 	<#else>
 		<h2 class="mt-3 pt-3 border-top border-dark row">
 			<div class="col text-center">
-				Unknown bill status, please contact your local branch.
+				Unknown account status, please contact your local branch.
 			</div>
 		</h2>
 	</#if> <#-- bAccessDisabledcollections -->

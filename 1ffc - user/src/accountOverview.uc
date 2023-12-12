@@ -1,7 +1,7 @@
 useCase accountOverview [
    /**
     *  original author: Maybelle Johnsy Kanjirapallil
-    *  refacoted and expanded by: John A. Kowalonek
+    *  refactored and expanded by: John A. Kowalonek
     *  created: 07-Feb-2017
     *  copied to 1st Franklin Project (1ffc-user): 2023-Nov-24
     *
@@ -61,6 +61,7 @@ useCase accountOverview [
     *   Major Versions:
     *        1.0 07-Feb-2017 First Version Coded [Maybelle Johnsy Kanjirapallil]
     * 		 2.0 2023-Nov-24 	JAK	Updated for 1st Franklin and future use.
+    * 			 2023-Dec-11	JAK Updated to handle no bills situations.
     */
 
     documentation [
@@ -123,6 +124,11 @@ useCase accountOverview [
     serviceStatus srGetSchedPmtSummaryStatus
     serviceParam (Payment.GetScheduledPaymentSummaryForAccount) srGetSchedPmtSummaryParam
     serviceResult (Payment.GetScheduledPaymentSummaryForAccount) srGetSchedPmtSummaryResult
+    
+    // -- Simplied FreeMarker template management for situations that
+    //		don't require all the bill stuff (although it probably could
+    //		be used for that as well --
+    importJava FtlTemplate(com.sorrisotech.ftlrender.UcFtlDisplay)
     
     // -- session object gives us the user id and other session based informtion --
     native string sUserId = Session.getUserId()    
@@ -210,6 +216,16 @@ useCase accountOverview [
         sPayGroup,				
 		sMessage) 	
 
+	// -- gets a Template Identifier (session) for the template first time
+	//		accessed --
+	native string TemplateIdNoBills = FtlTemplate.initializeTemplate(
+											sorrisoLanguage,
+											sorrisoCountry,
+											"paymentSummaryNoBills.ftl",
+											sPayGroup)
+											
+	native string AccountOffset = Session.getAccountOffset(sAccount, sPayGroup) 
+	tag hDontShowBills = FtlTemplate.renderTemplate(TemplateIdNoBills)
 
 	// -- previousAmt does not work for 1st Franklin because we've warped
 	//		the meaning of ubf:amountDue to be the principal and we've used ubf:amountDue as the 
@@ -217,7 +233,7 @@ useCase accountOverview [
 	//
 	//		You might ask WHY?  Well that's because we can keep payment thinking straight.
 	//
-	//			ubf.billAmount (TotalDue here) -- is the current principal balance on the day the statement was issued
+	//			ubf.billAmount (totalDue here) -- is the current principal balance on the day the statement was issued
 	//			ubf.amountDue  (docAmount here) -- is the amount due now, including overdue amount
 	//			ubf.minimumDue (minDue here) -- is the standard monthly payment
 	//
@@ -252,22 +268,99 @@ useCase accountOverview [
 		srGetStatusParams.account = sAccount
 		// -- retrieve the status information --
    		switch apiCall AccountStatus.GetStatus(srGetStatusParams, srGetStatusResult, srAccountStatusCode) [
-    		case apiSuccess oKToAsignStatusVariablesToTemplate
+    		case apiSuccess switchOnViewStatus
     		default errorRetrievingStatus
     	]
  	]
  	
  	/**
- 	 *	2a. If we've been able to initialize the variables, then continue
- 	 *  	and clear the group elements just in case.
+ 	 * 2a. If we can't view this bill then we're going to use the NoBillTemplate... and it will
+ 	 *		have viewAccount disabled so get that sorted */
+ 	action switchOnViewStatus [
+ 		switch srGetStatusResult.viewAccount [
+ 			case "enabled" 	switchOnAccountStatus
+ 			default			setNoBillTemplateData
+ 		]
+ 	]
+ 
+ 	/**
+ 	 * 3a. A new or closed account is another reason for the no bill template
+ 	 */	
+ 	action switchOnAccountStatus [
+ 		switch srGetStatusResult.accountStatus [
+ 			case "activeAccount"	checkActiveAccountNoBills
+ 			case "newAccount" 		checkForTransition
+ 			default					setNoBillTemplateData
+ 		]
+ 	]
+ 	
+ 	/**
+ 	 * 4a. Check to see if a new account has a bill and needs to
+ 	 *		transition to an active account
  	 */
- 	action oKToAsignStatusVariablesToTemplate [
+ 	action checkForTransition [
+	 	if "0" == sBillCount then
+	 		setNoBillTemplateData
+	 	else
+	 		transitionNewAccount
+	]
+	
+	/**
+	 * 5a. Transition a new account to an active account
+	 */
+	action transitionNewAccount [
+		srGetStatusResult.accountStatus = "activeAccount"
+		goto(oKToAssignStatusToBillTemplate)
+	]
+
+	/**
+	 * 6a. If an active account doesn't have bills, we still
+	 * 			use the no bill template, it shows a message
+	 * 			telling the user to contact their branch.
+	 */
+	action checkActiveAccountNoBills [
+		if "0" == sBillCount then
+			setNoBillTemplateData
+		else
+			oKToAssignStatusToBillTemplate
+	]
+
+ 	/**
+ 	 * 7a. If we are going to show the no bill template, set status information
+ 	 *		and display account in the template
+ 	 */
+  	action setNoBillTemplateData [
+ 		// -- values for new account --
+		FtlTemplate.setItemValue(TemplateIdNoBills, "status",
+					"viewAccount", "string", srGetStatusResult.viewAccount)
+		FtlTemplate.setItemValue(TemplateIdNoBills, "status",
+					"accountStatus", "string", srGetStatusResult.accountStatus)
+		FtlTemplate.setItemValue(TemplateIdNoBills, "root",
+					"displayAccount", "string", sAccountDisplay)
+		FtlTemplate.setItemValue(TemplateIdNoBills, "root",
+					"jumpToOffset", "string", AccountOffset)
+		
+		goto (showNoBillTemplate)
+ 	]	
+ 
+ 	/**
+ 	 * 8a. Show the no bill template
+ 	 */
+ 	xsltScreen showNoBillTemplate [
+ 		display hDontShowBills
+ 	]
+ 	
+ 	/**
+ 	 *	9a. We're using the paymentSummary template now... the rest assumes that's
+ 	 *		the case. Clear the group elements just in case.
+ 	 */
+ 	action oKToAssignStatusToBillTemplate [
  		UcPaymentAction.InitializeExtraGroupElements()
   		goto(setStatusGroupVariables)
 	]
 	
  	/**
- 	 *	3a. Assign the status information to the parameters sent down
+ 	 *	10a. Assign the status information to the parameters sent down
  	 * 		to the bill overview template which is oddly named "payment.ftl"... I don't
  	 * 		know why.
  	 */ 
@@ -277,60 +370,9 @@ useCase accountOverview [
 		UcPaymentAction.addExtraGroupElement(sStatusGroupName, "paymentEnabled", srGetStatusResult.paymentEnabled)
 		UcPaymentAction.addExtraGroupElement(sStatusGroupName, "achEnabled", srGetStatusResult.achEnabled)
 		UcPaymentAction.addExtraGroupElement(sStatusGroupName, "viewAccount", srGetStatusResult.viewAccount)
-		goto (checkAgainstNoBills)
-
+		goto (doWeHaveBillsOrJustDocuments)
 	]
 
-	/** 
-	 *  4a. The 1st Franklin status feed will allow us to create a bill template without any
-	 *			bill under two circumstances, if this is a new account or this is a closed
-	 *			account as determined by accountStatus. if bill count = 0 and we aren't in
-	 *			either of those states, then there's no current bill available... that's
-	 *			an error condition
-	 */
-	 action checkAgainstNoBills [
-	 	if "0" == sBillCount then
-	 		CheckAccountStatusWhenNoBills
-	 	else
-	 		checkForNewAccountTransition
-	 ]
-	 
-	 /**
-	  * 5a. Status doesn't know if bills have come in for a new account, so we need to
-	  *			check for that. If we are in "newAccount status, we know now we have bills
-	  *			and we need to change to active. 
-	  */
-	 action checkForNewAccountTransition [
-	 	if "newAccount" == srGetStatusResult.accountStatus then
-	 		changeAccountStatus
-	 	else
-	 		doWeHaveBillsOrJustDocuments
-	 ]
-	 
-	 /**
-	  * 6a. We thought it was a new account, but we must have just
-	  *		received a bill, so make it an active account.
-	  */
-	 action changeAccountStatus [
-	 	srGetStatusResult.accountStatus = "activeAccount"
-	 	goto (doWeHaveBillsOrJustDocuments)
-	 ]
-	 
-	 /**
-	 *  7a. Here's where we switch based on the account status (see 4A)and decide if we have an 
-	 * 			actual error condition. Skip over the check for bills or documents because with
-	 * 			1st Franklin we know this is for bills and it doesn't matter if we have none
-     *
-	 */
-	 action CheckAccountStatusWhenNoBills [
-	 	
-	 	switch srGetStatusResult.accountStatus [
-		 	case "newAccount" getConfigurationForCurrentBalance
-		 	case "closedAccount" getConfigurationForCurrentBalance
-		 	case "activeAccount" errorNoBills
-	 	default	errorNoBills
-	 	]
-	 ]
 	/**************************************************************************************
 	 * END 1ST FRANKLIN SPECIFIC
 	 ************************************************************************************** */
@@ -340,7 +382,9 @@ useCase accountOverview [
 	 ************************************************************************************** */
 	
 	/**
-	 *	1. We need to determine if this is once of three kinds of displays:
+	 *	1. Some of this is preparing for a day when we summarize even document
+	 *		information for a customer. We need to determine if this is once
+	 *		of three kinds of displays:
 	 * 
 	 * 		Statement Summary -- 		for statement based account
 	 * 		Document Summary -- 		ok no bills, but documents
@@ -421,7 +465,9 @@ useCase accountOverview [
 	 */
 	 action setInvoiceSummaryInfo [
 	 	goto (getConfigurationForCurrentBalance)
-	 ]    
+	 ] 
+	 
+  
 	/**************************************************************************************
 	 * END GET SUMMARY INFO FOR BILLS OR STATEMENTS
 	 ************************************************************************************** */
@@ -433,19 +479,19 @@ useCase accountOverview [
 	 * 6. This next sequence of steps is targeted at getting the current balance for use
 	 *		in the templates. Steps are:
 	 * 
-	 *			step 3 (this step) -- calls to see if current balance is configured
+	 *			step 6 (this step) -- calls to see if current balance is configured
 	 * 				in the system. it then branches on that configuration.
-	 * 			step 4 -- decides based on return from step 3, where we'll get the
+	 * 			step 7 -- decides based on return from step 3, where we'll get the
 	 * 				current balance information from
-	 * 			step 5 -- finds current balance if it came from a file load and stored
+	 * 			step 8 -- finds current balance if it came from a file load and stored
 	 * 						in PMT_ACCOUNT_BALANCE table
-	 *			step 6 -- for internal calculations, statement and invoice based balances
+	 *			step 9 -- for internal calculations, statement and invoice based balances
 	 *						are calculated differently so switch on which mode we are in
-	 * 			step 7 -- statement based internal calculates balance from the statement
+	 * 			step 10 -- statement based internal calculates balance from the statement
 	 *						 and payment history
-	 * 			step 8 -- invoice balance based on internal calculation of all open
+	 * 			step 11 -- invoice balance based on internal calculation of all open
 	 * 						 invoices and accounting for partial payments.
-	 * 			step 9 -- gets it from a web services call (real-time) if it can, if not
+	 * 			step 12 -- gets it from a web services call (real-time) if it can, if not
 	 * 						it presents the last known value (using PMT_ACCOUNT_BALANCE)
 	 */
 	action getConfigurationForCurrentBalance [		
@@ -461,8 +507,7 @@ useCase accountOverview [
 	 * 			I - Internal calculation -- based on what WE know about payments including
 	 * 					external payment history feed
 	 * 			F - File -- based on a current balance file coming from the billing system
-	 * 			R - Statement Balance -- we don't have a real current balance feed here
-	 * 			W - Via a web service call to the billing system (future)
+	 * 			R - Via a web service call to the billing system (future)
 	 */
 	action processCurrentBalanceResults [		
 	    switch srGetComm.RSP_CURBALTYPE [	    	
@@ -473,8 +518,9 @@ useCase accountOverview [
 	    ]
 	]  
 	
-	/* 8. Gets the current account balance from the PMT_ACCOUNT_BALANCE table. This
-	 * 		table is populated by a current balance file feed */
+	/* 8. BALANCE FROM FILE FEED --Gets the current account balance from the PMT_ACCOUNT_BALANCE table.
+	 * 		This table is populated by a current balance file feed 
+	 */
 	action getCurrentBalanceFromFile [
 		UcPaymentAccountBalance.init(sUserId, sAccount, sPayGroup)		
 		UcPaymentAccountBalance.getAmountEdit(sCurrentBalance) // balance placed in sCurrentBalance				
@@ -482,8 +528,8 @@ useCase accountOverview [
 	]
 	
 	/**
-	 *  9. We do internal balance calculation differently if we are statement based
-	 *		or invoice based
+	 *  9. INTERNAL CALCULATION -- We do internal balance calculation differently if we are statement
+	 *		based or invoice based
 	 */
 	action internalCurrentBalanceStatementOrInvoice [
 		switch sBillingType [
@@ -493,8 +539,8 @@ useCase accountOverview [
 		]
 	]
 
-	/* 10. Calculates the current balance using the current statement less any
-	 * 		payments we've seen in the payment history feed (which includes online)
+	/* 10. INTERNAL CALCULATION FOR STATEMENTS -- Calculates the current balance using the current
+	 * 		statement less any payments we've seen in the payment history feed (which includes online)
 	 *		since the current statement was created.
 	 */
 	action calculateCurrentBalanceInternallyForStatements [
@@ -510,8 +556,8 @@ useCase accountOverview [
 	]
 	
 	/* 
-	 * 11. Calculates the current balance using the total of all open invoices
-	 * 		and their current open amount; important if we allow partical payment
+	 * 11. INTERNAL CALCULATION FOR INVOICES -- Calculates the current balance using the total of all
+	 *		open invoices and their current open amount; important if we allow partial payment
 	 *		against and invoice.
 	 * 
 	 */
@@ -520,9 +566,9 @@ useCase accountOverview [
 	 	goto(errorInvoiceCurrentBalanceNotSupported)
 	 ]
 	
-	/* 12. Get current balance from web services call (real-time). If real-time
-	 * 		fails, it retrieves it from the PMT_ACCOUNT_BALANCE table which 
-	 *		will contain the last known statement balance from real-time
+	/* 12. WEB SERVICES CALL -- Get current balance from web services call (real-time).
+	 * 		If real-time fails, it retrieves it from the PMT_ACCOUNT_BALANCE table which 
+	 *		will contain the last known statement balance from real-time.
 	 */
 	 action getCurrentBalanceFromWebSvcCall [
 		// ------------------------------------------------------
@@ -530,7 +576,7 @@ useCase accountOverview [
 		// ------------------------------------------------------
 		switch sBillingType [
 	 		case "invoice" 		calculateCurrentBalanceInternallyforInvoices
-	 		case "statement" 	calculateCurrentBalanceInternallyForStatements
+	 		case "statement" 	calculateCurrentBalanceInternallyForStatements // -- do internal for now --
 	 		default 			errorBillingTypeConfiguration
 		]
 	 ]
@@ -543,6 +589,7 @@ useCase accountOverview [
 	 * BEGIN GET SCHEDULED AND RECURRING PAYMENT INFORMATION
 	 ************************************************************************************** */
 	
+
 	/** 
 	 * 13. Get Summary Information on all scheduled and recurring payment rules. Here's
 	 *		what we're going to supply to the template:

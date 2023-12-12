@@ -11,6 +11,11 @@ useCase dashboard [
      *
      * Major Versions:
      *    1.0      28-jul-2016  First Version Coded
+     * 
+     * ADAPTED FOR 1ST FRANKLIN
+     * 	- as  2023-Dec-11 ADDED INIT FOR CONNECTION TO NLS
+     *  - jak 2023-Dec-11 FORCED ACTOR FOR OVERVIEW SINCE THEY CAN VIEW THE OVERVIEW EVEN IF THEY HAVE NO BILLS
+     *
      */
      documentation [
 		triggers: [[
@@ -91,8 +96,13 @@ useCase dashboard [
      * 2. System checks if the assist bill actor is enabled.
      *===========================================================================================*/
     action actionCheckBills [
-    	sHasBills = srLatestResult.sFlag
-    	
+//		---------------------------------------------------------------------------
+//		jak 2023-Dec-11
+//
+//		for 1st Franklin, we always set the actor for overview which is controlled
+//			by the value of sHasBills
+//    	sHasBills = srLatestResult.sFlag
+  		sHasBills = "Y"  	
     	Session.setAppType("b2c")
     	evalActors()
     	
