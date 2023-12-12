@@ -59,6 +59,14 @@ useCase accountSummaryChild [
 	import billCommon.sPayGroup
 	import billCommon.sPayIsBill
 	import billCommon.sPaySelectedDate
+
+    // -- GetStatus returns the status for all major conditions --
+    serviceStatus srAccountStatusCode
+    serviceParam (AccountStatus.GetStatus) srGetStatusParams
+    serviceResult (AccountStatus.GetStatus) srGetStatusResult
+    native string sAccountState = "accountClosed"
+	native string sPaymentButtonOn = "false"
+	 
     
 	serviceStatus srStatus	
     serviceResult(SystemConfig.GetCurrentBalanceConfig) srGetComm
@@ -105,6 +113,12 @@ useCase accountSummaryChild [
         string(title) sTitle = "{Error}"
         string(body) sBody = "{There was an error while trying to access your most recent bill, please try again later.}"
     ]
+    
+    structure(message) msgStatusError [
+        string(title) sTitle = "{Error}"
+        string(body) sBody = "{There was an error retrieving status information for your account, please try again later.}"
+    ]
+    
 	
 	/*************************
 	* MAIN SUCCESS SCENARIOS
@@ -121,16 +135,104 @@ useCase accountSummaryChild [
 		goto (getBillOverview)
 	]
 
+	
 	/* 2. System retrieves the most recent document.*/			
 	action getBillOverview [		
 		srBillOverviewParam.user = sUserId
 		
 	    switch apiCall Documents.BillOverview(srBillOverviewParam, srBillOverviewResult, srBillOverviewStatus) [
-		   case apiSuccess checkResult
+		   case apiSuccess getAccountStatus
 	       default actionBillProblem
 	    ]			
 	]	
+
+	/**************************************************************************************
+	 * BEGIN 1ST FRANKLIN SPECIFIC
+	 ************************************************************************************** */
+	 
+	/**
+	 *	2a. Retrieve status information associated with this account. This status information
+	 * 		will be used to drive the behavior of this sues case and the behavior of 
+	 * 		the screen that's displayed.  The status information is specific to 1st 
+	 * 		Franklin.
+	 */ 
+	action getAccountStatus [
 		
+		srGetStatusParams.user = sUserId
+		srGetStatusParams.paymentGroup = srBillOverviewParam.payGroup
+		srGetStatusParams.account = srBillOverviewParam.account
+		// -- retrieve the status information --
+   		switch apiCall AccountStatus.GetStatus(srGetStatusParams, srGetStatusResult, srAccountStatusCode) [
+    		case apiSuccess checkStatusOfAccount
+    		default errorRetrievingStatus
+    	]
+ 	]
+ 	
+ 	/**
+ 	 *  2b. What's the result. Our basic account state?  That determines
+ 	 * 		what we need going forward.
+ 	 */
+ 	action checkStatusOfAccount [
+ 		sAccountState = srGetStatusResult.accountStatus
+ 		switch sAccountState [
+ 			// -- we might get a bill before status update --
+ 			case "newAccount" checkForNewAccountTransition 
+ 			// -- we know its an active account so we should have a bill --
+ 			case "activeAccount" checkPaymentState
+ 			// -- its closed, the screen knows! :-) --
+ 			case "closedAccount" screenShowInfo
+ 			default	errorRetrievingStatus
+ 		]
+ 	]
+ 	
+ 	/**
+ 	 *  2c. Currently "newAccount" status. But it might be in that transition
+ 	 * 		where we've received a bill and the status is not yet up to date.
+ 	 * 		If we've got a bill it isn't new anymore
+ 	 */
+ 	 action checkForNewAccountTransition [
+ 		if "noDocs" != srBillOverviewResult.result then 
+ 			setActiveState // -- got a bill, then we are really active
+ 		else
+ 			screenShowInfo  // -- just opened... show welcome
+ 	]
+ 	
+ 	/**
+ 	 *  2d. Action above determined  we've changed state from newAccount but status feed
+ 	 * 		has not seen that yet.. change state to active.
+ 	 */
+ 	action setActiveState [
+ 		sAccountState = "activeAccount"
+ 		goto (checkPaymentState)
+ 	]
+ 	
+
+ 	/**
+ 	 *  2e. Got here because we are an activeAccount, need to see
+ 	 * 			if payment button is enabled
+ 	 */
+ 	 action checkPaymentState [
+ 		sPaymentButtonOn = "true"
+ 		switch srGetStatusResult.paymentEnabled [
+ 			case "enabled"	checkResult
+ 			case "disabledDelinquent" checkResult // -- delinquent isn't really turned off, just limits on what we can pay
+ 			default turnOffPaymentButton
+ 		]
+ 	]
+ 	
+ 	/**
+ 	 *  2f. Got here because payment enabled status says we need
+ 	 * 		 to turn off payment
+ 	 */
+ 	action turnOffPaymentButton [
+ 		sPaymentButtonOn = "false"
+ 		goto(checkResult)
+ 	]
+
+	/**************************************************************************************
+	 * END 1ST FRANKLIN SPECIFIC
+	 ************************************************************************************** */
+
 	/* 3. Get results from BillOverview call */
 	action checkResult [
 	    switch srBillOverviewResult.result [
@@ -225,9 +327,9 @@ useCase accountSummaryChild [
        		
        div summary [
             class: "row st-dashboard-summary"
-	        logic: [		                	
-				if sIsBill != "true" then "hide"
-	        ]	
+//	        logic: [		                	
+//				if sIsBill != "true" then "hide"
+//	        ]	
             
             div info [
             	class: "col-8 col-sm-9 col-lg-10 row"
@@ -260,7 +362,7 @@ useCase accountSummaryChild [
 	            
 	            div loanState [
 	            	class: "row col-12 col-lg-3 st-summary-loan-state text-lg-center"
-
+					logic: [ if "activeAccount" != sAccountState then "remove"]
 	            	display sLoanAmount [
 	            		class: "h3 st-dashboard-summary-value"
 	                ]
@@ -272,6 +374,7 @@ useCase accountSummaryChild [
 				    
 				div payDate [
 					class: "row col-12 col-lg-3 st-summary-date text-lg-center"
+					logic: [ if "activeAccount" != sAccountState then "remove"]
 
 					display sInvDueDateValue [
 	            		class: "h3 st-dashboard-summary-value d-lg-block"
@@ -285,6 +388,7 @@ useCase accountSummaryChild [
 	
 				div payAmount [
 					class: "row col-12 col-lg-3 st-summary-amount text-lg-center"
+					logic: [ if "activeAccount" != sAccountState then "remove"]
 
 	                display  sTotalAmountDue [
 	            		class: "h3 st-dashboard-summary-value d-lg-block"
@@ -294,6 +398,8 @@ useCase accountSummaryChild [
 	                	class: "st-dashboard-summary-label d-lg-block"
 	                ]
 				]
+				
+				
 			]  
 			      
 			div payNow [
@@ -302,18 +408,19 @@ useCase accountSummaryChild [
 				logic: [
                 	if sParent == "payment_onetime" then "hide"			                	
                 ]
-            	
+            	display sPaymentButtonOn
         		navigation payNowLink(gotoPaymentOnetime, "{Pay Now}") [
 					class: "btn btn-primary"
 													
 					logic: [
-	                	if sOlderThanXMonths == "true"  then "hide"
-	                	if sPaymentFlag      != "true"  then "hide"	                	
+						if sPaymentButtonOn == "false" then "disabled"
+//	                	if sOlderThanXMonths == "true"  then "hide"
+//	                	if sPaymentFlag      != "true"  then "hide"	                	
 	                ]
 	                attr_tabindex: "2"
 				]
-			]        
-        ]
+			]  // -- end div payNow --      
+        ] // -- end div summary
 	 ]
     ]		    
 
@@ -381,4 +488,9 @@ useCase accountSummaryChild [
 
         goto(screenShowInfo) 
 	]	
+	
+	action errorRetrievingStatus [
+		displayMessage (type: "danger" msg: msgStatusError)
+		goto(screenShowInfo)
+	]
 ]

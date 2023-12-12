@@ -22,8 +22,10 @@ application [
 			class: "menu"
 	    ]	
 	    
- /*	    item menuStatusTest("{Account Status}", statusTest) [
+ /*	    menu menuTest("{Tests}") [
 	    	class: "menu"
+	    	item statusTest ("Status", statusTest)
+	    	item ftlTest ("FreeMarker", testFtlTemplating)
 	    ]    
 */
 		// 1FFC 
@@ -65,6 +67,7 @@ application [
 		
 		
 		statusTest
+		testFtlTemplating
  	]
  	
  	roles [
