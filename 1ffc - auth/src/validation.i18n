@@ -1,0 +1,10 @@
+strings validation [
+    static passwordRegex = "(?=.*\\d)(?=.*\\p{Ll})(?=.*\\p{Lu})(?=.*[\\p{S}\\p{P}])[\\d\\p{Ll}\\p{Lu}\\p{S}\\p{P}]{10,20}"
+    static usernameRegex = "(?=.*\\d)(?=.*\\p{Ll})(?=.*\\p{Lu})[\\d\\p{Ll}\\p{Lu}]{8,50}"
+    static emailRegex = "^(?!.{51})([\\d\\p{L}]+([_\\+\\-\\.\\d\\p{L}*])*@([\\d\\p{L}\\-_*]+\\.)+[\\d\\-\\p{L}]{2,20})$"
+    static validationCodeRegex = "^[0-9]{6,6}$"
+    
+    static brandNameRegex = "^[a-zA-Z0-9_ \\(\\)\\-\\{\\}@!@#$%^*]{2,60}$"    
+    
+    static dateValidation = "{Entry must be in standard date format: MM/DD/YYYY.}"    
+]
