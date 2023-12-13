@@ -63,16 +63,18 @@ useCase fffcReg06LoginInfo [
         string(label) sLabel = "{* Create user name:}"      
 		input (control) pInput(usernameRegex, fUserName.sValidation)
 		string(required) sRequired = "{This field is required.}"
-		string(validation) sValidation = "{User name can be up to 50 characters in length, contain no spaces, and include solely the following special characters: underscore (_), comma (,), period (.), atsign(@), and hyphen (-).}"
+		string(validation) sValidation = "{User name can be up to 50 characters in length, and it must consist of at least eight characters and include one upper-case, one lower-case letter, and one number.}"
 		string(error) sError = "{Another user already has this user name. Please select another.}"
+		string(help) sHelp = "{User name should contain at least 1 upper-case, 1 lower-case, 1 number and must be at least eight characters in length.}"
     ]
    	
     persistent field fPassword [
         string(label) sLabel = "{* Create password:}"        
         password input(control) pInput(passwordRegex, fPassword.sValidation)
         string(required) sRequired = "{This field is required.}"        
-        string(validation) sValidation = "{Password must be 7-20 characters in length and include at least one uppercase character, one lowercase character, and one numeric digit. No spaces are allowed.}" 
+        string(validation) sValidation = "{Password can be up to 20 characters in length, and it must consist of at least ten characters and include one upper-case, one lower-case, one number and one special character.}" 
         string(validation) sRestricted = "{The password appears to be a variation of a common password.  Please choose a password harder to guess.}"  
+		string(help) sHelp = "{Password should contain at least 1 upper-case, 1 lower-case, 1 number, 1 special character and must be at least ten characters in length.}"
     ]
  
     persistent field fConfirmPassword [
