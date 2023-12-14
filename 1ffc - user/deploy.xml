@@ -73,11 +73,12 @@
     		<fileset dir="src-gen" includes="internationalization/*.properties"/>
     	</copy>
     	<propertyfile file="deploy/${app}/internationalization/topics_en.properties">
-    		<entry key="topics_100_bills_documents" value="Electronic Document Delivery"/>
-    		<entry key="topics_150_marketing" value="Marketing Messages"/>
-    		<entry key="topics_200_payment" value="Account Servicing"/>
-    		<entry key="topics_250_collections" value="Collections"/>
-    		<entry key="topics_300_system" value="System Alerts"/>
+    		<entry key="topics_bills_documents" value="Electronic Document Delivery"/>
+    		<entry key="topics_marketing" value="Marketing Messages"/>
+    		<entry key="topics_payment" value="Account Servicing"/>
+    		<entry key="topics_collections" value="Collections"/>
+    		<entry key="topics_system" value="System Alerts"/>
+    		<entry key="topics_order" value="system|collections|payment|marketing|bills_documents"/>
     	</propertyfile>
     </target>
 </project> 
