@@ -11,6 +11,9 @@ useCase accountSummaryChild [
 	*
 	* Major Versions:
 	* 1.0 10-Feb-2016 First Version Coded [Maybelle Johnsy Kanjirapallil]
+	* 2.0 2023-Dec-11 jak 	Modified from the interim version that Yvette updated
+	* 						so it meets 1st Franklin data variability and status 
+	* 						requirements.
 	*/
 
     documentation [
@@ -30,6 +33,10 @@ useCase accountSummaryChild [
         view_bill
     ]
 
+	actorRules [
+		if "accessDenied" == sLocalAccountStatus removeActor account_access_enabled
+		if "accessDenied" != sLocalAccountStatus addActor account_access_enabled
+	]
     startAt selectAccount[sParent]   
 
     /*************************
@@ -60,11 +67,12 @@ useCase accountSummaryChild [
 	import billCommon.sPayIsBill
 	import billCommon.sPaySelectedDate
 
-    // -- GetStatus returns the status for all major conditions --
+    // -- GetStatus returns the status for all major conditions and business
+    //		drivers --
     serviceStatus srAccountStatusCode
     serviceParam (AccountStatus.GetStatus) srGetStatusParams
     serviceResult (AccountStatus.GetStatus) srGetStatusResult
-    native string sAccountState = "accountClosed"
+    native string sLocalAccountStatus = "accountClosed"
 	native string sPaymentButtonOn = "false"
 	 
     
@@ -119,6 +127,11 @@ useCase accountSummaryChild [
         string(body) sBody = "{There was an error retrieving status information for your account, please try again later.}"
     ]
     
+    // -- message for screen when we don't have any data or showing data is inappropriate --
+    string sMessageClosedAccount = "Congratulations! You've paid off this loan and the account is now closed."
+    string sMessageNewAccount = "Thank you for opening your loan with 1st Franklin, we'll notify you when your first statement is available."
+    string sMessageAccessDenied = "Your online account access is disabled. Visit or call your local branch immediately to make payment arrangements."
+    string sMessageNoBillFound = "Our apologies, we can't find an online bill for your account."
 	
 	/*************************
 	* MAIN SUCCESS SCENARIOS
@@ -132,97 +145,150 @@ useCase accountSummaryChild [
 		Session.getPayGroup(dAccounts, srBillOverviewParam.payGroup)
 		Session.getIsBill(dAccounts, srBillOverviewParam.isBill)
 		Session.getLatestBillDate(dAccounts, srBillOverviewParam.billDate)
-		goto (getBillOverview)
+		goto (getAccountStatus)
 	]
-
-	
-	/* 2. System retrieves the most recent document.*/			
-	action getBillOverview [		
-		srBillOverviewParam.user = sUserId
-		
-	    switch apiCall Documents.BillOverview(srBillOverviewParam, srBillOverviewResult, srBillOverviewStatus) [
-		   case apiSuccess getAccountStatus
-	       default actionBillProblem
-	    ]			
-	]	
 
 	/**************************************************************************************
 	 * BEGIN 1ST FRANKLIN SPECIFIC
 	 ************************************************************************************** */
 	 
 	/**
-	 *	2a. Retrieve status information associated with this account. This status information
-	 * 		will be used to drive the behavior of this sues case and the behavior of 
+	 *	1a. System retrieves status information associated with this account. This status 
+	 * 		information is used to drive the behavior of this sues case and the behavior of 
 	 * 		the screen that's displayed.  The status information is specific to 1st 
 	 * 		Franklin.
 	 */ 
 	action getAccountStatus [
-		
+		sLocalAccountStatus = "enabled"	// initialize status variable
 		srGetStatusParams.user = sUserId
 		srGetStatusParams.paymentGroup = srBillOverviewParam.payGroup
 		srGetStatusParams.account = srBillOverviewParam.account
 		// -- retrieve the status information --
    		switch apiCall AccountStatus.GetStatus(srGetStatusParams, srGetStatusResult, srAccountStatusCode) [
-    		case apiSuccess checkStatusOfAccount
-    		default errorRetrievingStatus
+    		case apiSuccess checkAccountViewStatus
+    		default actionBillProblem
     	]
  	]
  	
  	/**
- 	 *  2b. What's the result. Our basic account state?  That determines
- 	 * 		what we need going forward.
+ 	 * 2a. System assigns a local status so it can be used to drive application behavior around account access.
+ 	 * 		System evaluates actors to set the initial state, then determines ifthe user can view this account.
+ 	 * 		If yes, then continue. If not, then the page is disabled and we don't really care why. 
+ 	 * 		If disabled, nothing else matters... .
+ 	 * 
  	 */
- 	action checkStatusOfAccount [
- 		sAccountState = srGetStatusResult.accountStatus
- 		switch sAccountState [
- 			// -- we might get a bill before status update --
- 			case "newAccount" checkForNewAccountTransition 
- 			// -- we know its an active account so we should have a bill --
- 			case "activeAccount" checkPaymentState
- 			// -- its closed, the screen knows! :-) --
- 			case "closedAccount" screenShowInfo
- 			default	errorRetrievingStatus
+ 	 action checkAccountViewStatus [
+ 	 	sLocalAccountStatus = srGetStatusResult.accountStatus
+		evalActors()
+ 	 	if "enabled" == srGetStatusResult.viewAccount then
+ 	 		isThereALatestBill
+ 	 	else 
+ 	 		setStatusAccessDenied
+ 	 ]
+ 	 
+ 	 /**
+ 	  * 3a. System determined that account access is denied, nothing else matters at this point. System
+ 	  * 	sets a virtual account status, evaluates actors based on the change and branches to show
+ 	  * 	to the access denied screen.
+ 	  */
+ 	 action setStatusAccessDenied [
+ 	 	sLocalAccountStatus = "accessDenied"
+ 	 	evalActors()
+ 	 	goto (screenShowInfo)
+ 	 ]
+ 	 
+ 	 /** 
+ 	  * 4a. System checks latest bill date for 0 as a proxy for no documents available. This is
+ 	  * 	 because Documents.getBillOveriew throws an exception if there are no documents.
+ 	  * 	 billDate (is zero when there aren't any recent bills). ?? should we fix getBillOverview ??
+ 	  */
+ 	 action isThereALatestBill [
+ 	 	if "0" == srBillOverviewParam.billDate then
+ 	 		IsActiveNoBill
+ 	 	else
+ 	 		getBillOverview
+ 	 ]
+ 	 
+ 	 /**
+ 	  * 5a. System determines if the account is active and there are no recent bills.
+ 	  * 		This sets a special state.  Other states are automatic.
+ 	  */
+ 	 action IsActiveNoBill [
+ 	 	if "active" == sLocalAccountStatus then 
+ 	 		setActiveNoBill
+ 	 	else
+ 	 		screenShowInfo
+ 	 ]
+ 	 
+ 	 /**
+ 	  * 4a. System sets status to activeNoBill (a "virtual" account status) to drive the 
+ 	  * 		message screen differently than a standard account status. 
+ 	  */
+ 	 action setActiveNoBill [
+ 	 	sLocalAccountStatus = "activeNoBill"
+ 	 	goto(screenShowInfo)
+ 	 ]
+	
+	/**
+	 *  4a. System retrieves the most recent or multiple, or marks as "nodocs".
+	 */			
+	action getBillOverview [		
+		srBillOverviewParam.user = sUserId
+		
+	    switch apiCall Documents.BillOverview(srBillOverviewParam, srBillOverviewResult, srBillOverviewStatus) [
+		   case apiSuccess howManyDocs
+	       default actionBillProblem
+	    ]	
+	]		
+ 	
+ 	/**
+ 	 * 5a. System expects a single recent bill. If there's more than one, that's an issue.
+ 	 */
+ 	action howManyDocs [
+ 		switch srBillOverviewResult.result [
+			case "noDocs" 		screenShowInfo
+			case "singleDoc"	checkStatusOneDoc
+			default actionBillProblem
  		]
  	]
- 	
- 	/**
- 	 *  2c. Currently "newAccount" status. But it might be in that transition
- 	 * 		where we've received a bill and the status is not yet up to date.
- 	 * 		If we've got a bill it isn't new anymore
- 	 */
- 	 action checkForNewAccountTransition [
- 		if "noDocs" != srBillOverviewResult.result then 
- 			setActiveState // -- got a bill, then we are really active
- 		else
- 			screenShowInfo  // -- just opened... show welcome
- 	]
- 	
- 	/**
- 	 *  2d. Action above determined  we've changed state from newAccount but status feed
- 	 * 		has not seen that yet.. change state to active.
- 	 */
- 	action setActiveState [
- 		sAccountState = "activeAccount"
- 		goto (checkPaymentState)
- 	]
- 	
+
+	
+	/**
+	 * 6a. System found "singleDoc" if account status is newAccount or activeAccount, 
+	 * 		system needs to determine if payment is enabled for this account (next step). 
+	 * 		If account is closed, system goes right to the message screen.
+	 */ 
+	action checkStatusOneDoc [
+		switch sLocalAccountStatus [
+			case "newAccount" 		checkPaymentState	
+			case "activeAccount" 	checkPaymentState
+			case "closedAccount"	screenShowInfo
+			default actionBillProblem
+		]
+	] 	
 
  	/**
- 	 *  2e. Got here because we are an activeAccount, need to see
- 	 * 			if payment button is enabled
+ 	 *  7a. System asserts this is an active account since there is a new document.
+ 	 * 		  system checks to see if payment is enabled and will disabled the payment
+ 	 * 		  button (next step) if it is not enabled.
+ 	 * 
+ 	 * 		Note, the system can assert that this is an activeAccount since
+ 	 * 			it only arrived at theis action because it is active or new and we
+ 	 * 			have a single most recent doc. A newAccount with a
+ 	 * 			doc transitions to an active account.
  	 */
  	 action checkPaymentState [
+ 	 	sLocalAccountStatus = "activeAccount"
  		sPaymentButtonOn = "true"
  		switch srGetStatusResult.paymentEnabled [
  			case "enabled"	checkResult
- 			case "disabledDelinquent" checkResult // -- delinquent isn't really turned off, just limits on what we can pay
+ 			case "disabledDelinquent" checkResult // -- delinquent isn't really turned off, just sets minimum payment amount
  			default turnOffPaymentButton
  		]
  	]
  	
  	/**
- 	 *  2f. Got here because payment enabled status says we need
- 	 * 		 to turn off payment
+ 	 *  8a. System identified one of the "disabled states" and turns payment button off.
  	 */
  	action turnOffPaymentButton [
  		sPaymentButtonOn = "false"
@@ -233,6 +299,7 @@ useCase accountSummaryChild [
 	 * END 1ST FRANKLIN SPECIFIC
 	 ************************************************************************************** */
 
+		
 	/* 3. Get results from BillOverview call */
 	action checkResult [
 	    switch srBillOverviewResult.result [
@@ -362,7 +429,7 @@ useCase accountSummaryChild [
 	            
 	            div loanState [
 	            	class: "row col-12 col-lg-3 st-summary-loan-state text-lg-center"
-					logic: [ if "activeAccount" != sAccountState then "remove"]
+					logic: [ if "activeAccount" != sLocalAccountStatus then "remove"]
 	            	display sLoanAmount [
 	            		class: "h3 st-dashboard-summary-value"
 	                ]
@@ -374,7 +441,7 @@ useCase accountSummaryChild [
 				    
 				div payDate [
 					class: "row col-12 col-lg-3 st-summary-date text-lg-center"
-					logic: [ if "activeAccount" != sAccountState then "remove"]
+					logic: [ if "activeAccount" != sLocalAccountStatus then "remove"]
 
 					display sInvDueDateValue [
 	            		class: "h3 st-dashboard-summary-value d-lg-block"
@@ -388,7 +455,7 @@ useCase accountSummaryChild [
 	
 				div payAmount [
 					class: "row col-12 col-lg-3 st-summary-amount text-lg-center"
-					logic: [ if "activeAccount" != sAccountState then "remove"]
+					logic: [ if "activeAccount" != sLocalAccountStatus then "remove"]
 
 	                display  sTotalAmountDue [
 	            		class: "h3 st-dashboard-summary-value d-lg-block"
@@ -399,24 +466,73 @@ useCase accountSummaryChild [
 	                ]
 				]
 				
+				// -- messages only, no data for accounts. Shows a message based on the account status
+				//		including a couple of status values that are set ONLY inside this use case. -- 
+				div showMessage [
+					class: "row col-12 col-lg-12 st-summary-amount text lg-center"
+					
+					logic: [ if "activeAccount" == sLocalAccountStatus then "remove"]
+					
+					// -- message for a new account --
+					display sMessageNewAccount [
+	            		class: "st-dashboard-summary-value text-center"
+	            		logic: [if "newAccount" != srGetStatusResult.accountStatus then "remove"]
+					]
+					
+					// -- message for a closed account --
+					display sMessageClosedAccount [
+	            		class: "st-dashboard-summary-value text-center"
+	            		logic: [if "closedAccount" != sLocalAccountStatus then "remove"]
+					]
+					
+					// -- message for an account with access denied ("virtual" account status set
+					//		by the use case, not from api call) --
+					display sMessageAccessDenied [
+	            		class: "st-dashboard-summary-value text-center"
+	            		logic: [if "accessDenied" != sLocalAccountStatus then "remove"]
+					]
+					
+					// -- message for case where no bill is found but account is active ("virtual
+					//		account status set by the use case, not from api call) --
+					display sMessageNoBillFound [
+						logic: [if "activeNoBill" != sLocalAccountStatus then "remove"]
+	            		class: "st-dashboard-summary-value text-center"
+					]
+						
+				]
 				
 			]  
-			      
+			
+			// -- we need two payNow buttons because the "disabled" logic doesn't
+			//		seem to work on buttons right now --      
 			div payNow [
 				class: "col-4 col-sm-3 col-lg-2 st-summary-pay-now float-end"
  
-				logic: [
-                	if sParent == "payment_onetime" then "hide"			                	
-                ]
-            	display sPaymentButtonOn
+				logic: [ 
+					if sPaymentButtonOn == "false" then "remove"
+					if sParent == "payment_onetime" then "hide"
+				]
         		navigation payNowLink(gotoPaymentOnetime, "{Pay Now}") [
 					class: "btn btn-primary"
+					
 													
 					logic: [
 						if sPaymentButtonOn == "false" then "disabled"
-//	                	if sOlderThanXMonths == "true"  then "hide"
-//	                	if sPaymentFlag      != "true"  then "hide"	                	
 	                ]
+	                attr_tabindex: "2"
+				]
+			]  // -- end div payNow --      
+
+			div payNowDisabled[
+				class: "col-4 col-sm-3 col-lg-2 st-summary-pay-now float-end"
+ 
+				logic: [
+					if sPaymentButtonOn == "true" then "remove"
+                	if sParent == "payment_onetime" then "hide"			                	
+                ]
+				
+        		navigation payNowLinkDisabled(gotoPaymentOnetime, "{Pay Now}") [
+					class: "btn btn-primary disabled"
 	                attr_tabindex: "2"
 				]
 			]  // -- end div payNow --      
@@ -461,7 +577,14 @@ useCase accountSummaryChild [
     	gotoUc(document)
     ] 
 
-	/* 12C. Action to go to payment.*/
+	/** 12C. Action to go to payment. Payment is treated differently
+	* 		from other use cases because we want to come back to the 
+	*		subtab we were on after switching accounts. So the child
+	* 		use case is started AFTER the sub-tab on payment is 
+	* 		started becoming its 'virtual parent' even
+	* 		though the real parent of the use case is the PAYMENT module
+	* 		and starting use case which is payment.uc.
+	*/
     action gotoPayment [
     	gotoModule(PAYMENT)[sActive:sParent]
     ] 
@@ -474,21 +597,23 @@ useCase accountSummaryChild [
 	/*************************
 	* EXTENSION SCENARIOS
 	*************************/
-	/* 3A. There was either no Vault document found for the bill, or more than 1 was found. In that
-	 * case we will hide the "View pdf" link. */ 
+	/** 1A. There was either no Vault document found for the bill, or more than 1 was found. In that
+	 * 			case we will hide the "View pdf" link. 
+	 */ 
 	action hidePdfLink [
 		sBillsFound = "false"
 		
 		goto (loadLatestBill)
 	]
 	
-	/* 1A. There was a problem trying to get the initialize the bill data. */
+	/** 2A. There was a problem trying to get the initialize the bill data. */
 	 action actionBillProblem [
 		displayMessage(type: "danger" msg: msgBillError)
 
         goto(screenShowInfo) 
 	]	
 	
+	/** 3A. There was a problem trying to retrieve status information. */
 	action errorRetrievingStatus [
 		displayMessage (type: "danger" msg: msgStatusError)
 		goto(screenShowInfo)
