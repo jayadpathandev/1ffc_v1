@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+
+	<!-- ********************************************************************************** -->
+	<!-- ******** Import the common beans									    *********** -->
+	<!-- ********************************************************************************** -->
+	<context:annotation-config />
+	<import resource="classpath:/db/common_config.xml" />
+	
+	<!--  ********************************************************************************** --> 
+    <!--  ****** Import the SQL Statement 									**************** --> 
+    <!--  ********************************************************************************** --> 
+	<bean id="sqlUserIdFromAttrNameAndValue" class="java.lang.String">
+		<constructor-arg>
+			<value> 	
+				SELECT 
+					aup.id 
+				FROM 
+					auth_user_profile aup 
+				WHERE 
+					aup.attrname = :attrName     
+				AND 
+					aup.attrvalue = :attrValue  
+			</value>
+		</constructor-arg>
+	</bean>
+
+	<bean id="dao" class="com.sorrisotech.svcs.fffcnotify.dao.FffcNotifyDao">
+	</bean>
+
+</beans>
