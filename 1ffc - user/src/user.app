@@ -64,7 +64,7 @@ application [
 		fffcRenewNow
 		fffcViewDocument
 		fffcTransactionHistory 
-		
+		fffcContactPreferencesApi
 		
 		statusTest
 		testFtlTemplating
