@@ -6,7 +6,7 @@ define service FffcNotify(com.sorrisotech.app.serviceapi.uc.UcRequestClient) [
 	 generate [
        category: fffcnotify    
     ]
-    
+    // Setting user address setting in NLS
 	define method SetUserAddressNls [
 		
 		// The ID of the user we are setting the address for
@@ -18,7 +18,7 @@ define service FffcNotify(com.sorrisotech.app.serviceapi.uc.UcRequestClient) [
 		// The address the user wants to use for the channel. 
 		optional string address
 	]
-	
+	// Setting user contact setting in NLS
 	define method SetContactSettingsNls [
 		
 		// The ID of the user we are setting the address for.
@@ -29,4 +29,30 @@ define service FffcNotify(com.sorrisotech.app.serviceapi.uc.UcRequestClient) [
 		
 	]
 	
+	//*************************************************************************
+    // Get userId from customerId(orgId)
+    // 
+	define method FetchUserId [
+		// CustomerId(orgId) of user
+		string customerId
+		
+	] returns [
+		// Unique identifier of user.	
+		string userid
+	]
+	
+	//*************************************************************************
+    // Set contact preferences of user to database
+    // 
+	define method SetContactPreferences [
+		// Unique identifier of user.
+		string userid
+		// Date and time.
+		string dateTime
+		// All channel address settings JSON of user.
+		string channelAddresses
+		// All topic preferences settings JSON of user.
+		string topicPrefrences
+		
+	]
 ]
