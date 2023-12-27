@@ -34,6 +34,7 @@ import org.springframework.batch.core.ItemProcessListener;
 import com.sorrisotech.fffc.batch.status.processor.bean.RecurringPayment;
 import com.sorrisotech.fffc.batch.status.processor.bean.ScheduledPayment;
 import com.sorrisotech.fffc.batch.status.processor.bean.User;
+import com.sorrisotech.persona.notification.api.NotificationTypes;
 
 /**************************************************************************************************
  * Implementation of ItemProcessListener, which sends notificaiton to user after 
@@ -67,18 +68,16 @@ public class ProcessListener implements ItemProcessListener<User, User>{
 				LOG.info("Sending payment disabled notification for record : {}", cPayment.getId());
 				
 				NotificationDispatcher.dispatchNotification(
-						cParams, 
-						"payment_scheduled_payment_disabled_cancelled",
-//						NotificationTypes.PAYMENT_SCHEDULED_PAYMENT_DISABLED_CANCELLED, 
+						cParams,
+						NotificationTypes.PAYMENT_SCHEDULED_PAYMENT_DISABLED_CANCELLED, 
 						cOutput.getUserId()
 				);
 			} else {
 				LOG.info("Sending ach disabled notification for record : {}", cPayment.getId());
 				
 				NotificationDispatcher.dispatchNotification(
-						cParams, 
-						"payment_scheduled_ach_disabled_cancelled",
-//						NotificationTypes.PAYMENT_SCHEDULED_ACH_DISABLED_CANCELLED, 
+						cParams,
+						NotificationTypes.PAYMENT_SCHEDULED_ACH_DISABLED_CANCELLED, 
 						cOutput.getUserId()
 				);
 			}
@@ -95,18 +94,16 @@ public class ProcessListener implements ItemProcessListener<User, User>{
 				LOG.info("Sending payment disabled notification for record : {}", cPayment.getId());
 				
 				NotificationDispatcher.dispatchNotification(
-						cParams, 
-						"payment_recurring_payment_disabled_rule_cancelled",
-//						NotificationTypes.PAYMENT_RECURRING_PAYMENT_DISABLED_RULE_CANCELLED, 
+						cParams,
+						NotificationTypes.PAYMENT_RECURRING_PAYMENT_DISABLED_RULE_CANCELLED, 
 						cOutput.getUserId()
 				);
 			} else {
 				LOG.info("Sending ach disabled notification for record : {}", cPayment.getId());
 				
 				NotificationDispatcher.dispatchNotification(
-						cParams, 
-						"payment_recurring_ach_disabled_rule_cancelled",
-//						NotificationTypes.PAYMENT_RECURRING_ACH_DISABLED_RULE_CANCELLED, 
+						cParams,
+						NotificationTypes.PAYMENT_RECURRING_ACH_DISABLED_RULE_CANCELLED, 
 						cOutput.getUserId()
 				);
 			}
