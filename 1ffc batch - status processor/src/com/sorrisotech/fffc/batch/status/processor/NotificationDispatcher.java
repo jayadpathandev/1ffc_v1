@@ -27,6 +27,7 @@ import java.util.Map;
 
 import com.sorrisotech.persona.notification.api.INotificationUtils;
 import com.sorrisotech.persona.notification.api.NotificationFactory;
+import com.sorrisotech.persona.notification.api.NotificationTypes;
 
 /**************************************************************************************************
  * Dispatcher for payment cancelled notificaiton types
@@ -36,7 +37,7 @@ import com.sorrisotech.persona.notification.api.NotificationFactory;
  */
 public class NotificationDispatcher {
 	
-	public static void dispatchNotification(Map<String, String> params, String type, String userId) {
+	public static void dispatchNotification(Map<String, String> params, NotificationTypes type, String userId) {
 		INotificationUtils cNotificationUtils = NotificationFactory.getNotificationUtils();
 	    cNotificationUtils.queueRegisteredUserMessage(
 	    	userId,
