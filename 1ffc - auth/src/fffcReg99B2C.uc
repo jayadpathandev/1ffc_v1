@@ -230,7 +230,7 @@ useCase fffcReg99B2C [
         	secretQuestionAnswer3: fSecretAnswer3.pInput
             secretQuestionAnswer4: fSecretAnswer4.pInput
             securityImage: imageId   
-            paperBillingEnabled: "false"   
+            eSignConsentEnabled: "true"   
             )
         if success then saveEmailAddress
         if failure then deleteUserProfile    

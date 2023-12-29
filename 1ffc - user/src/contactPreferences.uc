@@ -12,6 +12,7 @@ useCase contactPreferences [
     *   Major Versions:
     *        1.0 01-Jun-2023 First Version Coded [James M. Looney]
     * 		 2.0 01-Nov-2023 Updated Version Coded [James M. Looney]
+    * 		 3.0 01-Dec-2023 Updated Version Coded [James M. Looney]
     */
     
     documentation [
@@ -39,6 +40,7 @@ useCase contactPreferences [
     importJava ContactPrefs(com.sorrisotech.app.profile.ContactPrefs)
     importJava LoginUtil(com.sorrisotech.app.common.utils.LoginUtil)
     importJava NotifUtil(com.sorrisotech.common.app.NotifUtil)
+    importJava PersonaData(com.sorrisotech.app.utils.PersonaData)
     importJava Session(com.sorrisotech.app.utils.Session)	     
     importJava UcProfileAction(com.sorrisotech.app.profile.UcProfileAction)
     import validation.emailRegex
@@ -47,7 +49,6 @@ useCase contactPreferences [
 	serviceParam(Notifications.GetUserAddresses) getData
 	serviceResult(Notifications.GetUserAddresses) getResponse
 	serviceParam(Notifications.SetContactSettings) channels
-	serviceParam(FffcNotify.SetContactSettingsNls) setDataFffc
      
     /**********************************************************************************************
      * DATA ITEMS SECTION
@@ -64,8 +65,7 @@ useCase contactPreferences [
     string(p) sIconTextTitle   = "{Text}"
     image sIconText = "img/mobile.svg"
     
-    string sESignTitle = "{E-Sign consent}"
-    string sConsentMessage = "{By signing this form electronically, you are agreeing to the terms and conditions.}"
+    string sConsentMessage = "{E-Sign consent: By signing this form electronically, you are agreeing to the terms and conditions.}"
     
     string reactJsTopics = "JavaScript error, topics cannot be displayed."
     
@@ -79,14 +79,12 @@ useCase contactPreferences [
     native string sUnverifiedEmailAddress                                         
 	native string sNewSms
 	native string sSmsChannel = "sms"
-	native string sOrgId
 	
 	native string sUserId            = Session.getUserId()
     native string sNameSpace         = AuthUtil.getAppNameSpace()
 	native string sAppType           = AuthUtil.getAppType()
 	
 	native string sImpersonateFlag 	 = "false"
-	
 	
     field fUserEmail [  													                                             
 	    string(label) sLabel = "{Update E-Mail message alert}"
@@ -103,11 +101,11 @@ useCase contactPreferences [
         string(required) sRequired = "{This field is required.}"
 	]
 	
-	field fCheckBoxes [        												  
-    	checkBoxes(control) sField [
-        	Agree: "{I consent to E-Sign documents.}"            
-        ]        
-    ]
+	native string sESignPrevious
+	native string sESignCurrent
+    checkBoxes cEnableESignConsent [
+		true : "{I consent to E-Sign documents.}"	
+	]
     
     structure(message) oMsgNoEmailChangeMade [    
         string(title) sTitle = "{No change was made}"
@@ -154,15 +152,32 @@ useCase contactPreferences [
         string(body) sBody = "{An error occurred while trying to retrieve contact details. Please try again later}"
     ]
     
+    structure(message) oMsgESignConsentEnabled [
+        string(title) sTitle = "{E-Sign consent update complete.}"
+        string(body) sBody = "{Your E-Sign consent has been enabled successfully.}"
+    ]
+    
+    structure(message) oMsgESignConsentDisabled [
+        string(title) sTitle = "{E-Sign consent update complete.}"
+        string(body) sBody = "{Your E-Sign consent has been disabled successfully.}"
+    ]
+    
+    structure(message) oMsgESignConsentNoChangesMade [
+        string(title) sTitle = "{No changes made.}"
+        string(body) sBody = "{There were no E-Sign consent changes made to the system.}"
+    ]
+    
     /**********************************************************************************************
 	 * MAIN SUCCESS SCENARIOS
      *********************************************************************************************/
 	
-	/* Loads user profile account status and json object. */       
+	/* Loads user profile account and consent status and json object. */       
     action getUserDetails [   
         loadProfile(            
-            accountStatus: sAccountStatus   
+            accountStatus: sAccountStatus
+            eSignConsentEnabled: sESignPrevious
             )
+		PersonaData.selectItem(cEnableESignConsent, sESignPrevious)
         getData.userid = sUserId
         switch apiCall Notifications.GetUserAddresses(getData, getResponse, status) [
 		    case apiSuccess checkUserDetailsResult
@@ -247,7 +262,7 @@ useCase contactPreferences [
 				]
 			]
 			          
-	        form contactPreferencesForm [
+	        div contactPreferencesForm [
 	                      
 	            div content [
 	                class: "st-notifications-body"
@@ -256,7 +271,7 @@ useCase contactPreferences [
 	                	
 	                	class: "row st-border-bottom pb-4 mb-4"
 	                	
-	                	div contactLeft [
+	                	form contactLeft [
 	                		class: "row col-md-4"
 	                		
 	                		div contactLeftRow1 [
@@ -279,7 +294,7 @@ useCase contactPreferences [
 									logic: [
 										if sImpersonateFlag == "true" then "remove"
 									]
-									navigation consentValidateEmail(verifyNewEmail, "{CONSENT AND VALIDATE}") [
+									navigation consentValidateEmail(verifyNewEmail, "{Consent and Validate}") [
 										type: "popin"
 										class: "btn btn-primary"
 										popin_controller: "ChangeAuthCtl"
@@ -287,14 +302,13 @@ useCase contactPreferences [
 										attr_tabindex: "400"
 										require: [
 											fUserEmail
-											fCheckBoxes
 										]
 									]
 								]
 							]
 	                	]
 	                	
-	                	div contactMiddle [
+	                	form contactMiddle [
 	                		class: "row col-md-4"
 	                		
 	                		div contactMiddleRow1 [
@@ -311,12 +325,12 @@ useCase contactPreferences [
 							div buttonsMiddleRow1 [ 
 								class: "row"
 								
-								div buttonsCol1 [
+								div buttonsCol2 [
 									class: "col-md-12"
 									logic: [
 										if sImpersonateFlag == "true" then "remove"
 									]
-									navigation consentValidateSms(verifyNewSms, "{CONSENT AND VALIDATE}") [
+									navigation consentValidateSms(verifyNewSms, "{Consent and Validate}") [
 										type: "popin"
 										class: "btn btn-primary"
 										popin_controller: "ChangeAuthCtl"
@@ -324,34 +338,42 @@ useCase contactPreferences [
 										attr_tabindex: "400"
 										require: [
 											fUserMobile
-											fCheckBoxes
 										]
 									]
 								]
 							]
 	                	]
 	                	
-	                	div contactRight [
+	                	form contactRight [
 	                		class: "col-md-4"
 	                		
-	                		p contactRightRow1 [
+	                		div contactRightRow1 [
 								class: "mt-3"
-								display sESignTitle
-							]
-							
-							p contactRightRow2 [
-								
 								display sConsentMessage
 							]
 							
-							p contactRightRow3 [
-								
-								display fCheckBoxes [
-		                			class: "st-spacing-top"
-		                			control_attr_tabindex: "1"
+							div contactRightRow2 [
+	                			display cEnableESignConsent [
+	                				control_attr_tabindex: "1"
 									control_attr_autofocus: ""
 	                			]
 							]
+							
+		                	div buttonsRightRow [
+				                class: "row"
+				                                   	
+				                div buttonsCol3 [
+									class: "col-md-12 mt-4"
+									logic: [
+										if sImpersonateFlag == "true" then "remove"
+									]
+									navigation confirmESign (confirmESign, "{Submit}") [
+										class: "btn btn-primary"
+										attr_tabindex: "400"
+										data: [cEnableESignConsent]
+									]
+								]
+				            ]
 	                	]
 	                ]
 	                
@@ -411,6 +433,59 @@ useCase contactPreferences [
     ]
     
     /**********************************************************************************************
+     * E-SIGN CONSENT NOTIFICATION PREFERENCES ACTIONS
+     *********************************************************************************************/
+    
+    /* User clicks the "Submit" button. System first verifies if e-sign enabled or disabled.*/
+    action confirmESign [
+		PersonaData.getSelectedValue(cEnableESignConsent, sESignCurrent)
+		if sESignCurrent == "true" then eSignEnable else eSignDisable
+	]
+	
+	/* System is enabled and determines what messages should be displayed. */
+	action eSignEnable [
+		if sESignPrevious == "true" then consentNotChanged else showESignEnabled
+	]
+	
+	/* Display an e-sign consent enabled message. */
+	action showESignEnabled [
+		auditLog(audit_profile.notification_esign_enabled)
+		
+		displayMessage(type: "success" msg: oMsgESignConsentEnabled)
+		goto(saveESign)
+	]
+	
+	/* System is disabled and determines what messages should be displayed. */
+	action eSignDisable [
+		if sESignPrevious == "" then consentNotChanged else showESignDisabled
+	]
+	
+	/* Display an e-sign consent disabled message. */
+	action showESignDisabled [
+		auditLog(audit_profile.notification_esign_disabled)
+		
+		displayMessage(type: "success" msg: oMsgESignConsentDisabled)
+		goto(saveESign)
+	]
+	
+	/* System saves and updates the user profile's e-sign consent attribute. */
+	action saveESign [
+		PersonaData.getSelectedValue(cEnableESignConsent, sESignPrevious)
+		updateProfile(            
+            eSignConsentEnabled: sESignPrevious 
+            )
+		
+		goto(notificationsScreen)
+	]
+	
+	/* Display an e-sign consent no changes message. */
+	action consentNotChanged [
+		auditLog(audit_profile.notification_esign_no_changes)
+		
+		displayMessage(type: "success" msg: oMsgESignConsentNoChangesMade)
+		goto(notificationsScreen)
+	]
+    /**********************************************************************************************
      * E-MAIL NOTIFICATION PREFERENCES ACTIONS
      *********************************************************************************************/
     
@@ -423,7 +498,6 @@ useCase contactPreferences [
     		verifyEmail
     ]
     
-    //JAMES - DO WE STILL NEED TO RETURN OTHER 2 MESSAGES OTHER THAN SUCCESS?
     /* If the new email provided already exists, a duplicate email message is displayed on the popin.
      * If there is no change in the email, it displays no changes made message on the popin.*/
     action verifyEmail [
@@ -487,7 +561,7 @@ useCase contactPreferences [
   	action hasNotificationChanges [
   		switch ContactPrefs.hasChanges() [
   			case "true" saveNotificationSuccess
-  			case "false" NoNotificationChangesMadeMsg
+  			case "false" noNotificationChangesMadeMsg
   			default genericErrorMsg
   		]
   	]
@@ -497,24 +571,11 @@ useCase contactPreferences [
 		channels.userid = sUserId
 		ContactPrefs.toJson(channels.jsonConfig)
         switch apiCall Notifications.SetContactSettings(channels, status) [
-		    case apiSuccess saveNotificationAtNls
+		    case apiSuccess genericSuccessMsg
 		    default genericErrorMsg
 		]
     ]
- 	
- 	action saveNotificationAtNls [
- 		loadProfile(            
-            fffcCustomerId: sOrgId   
-            )
-    	setDataFffc.customerId = sOrgId
-    	ContactPrefs.toJson(setDataFffc.jsonConfig)
-    	
-    	switch apiCall FffcNotify.SetContactSettingsNls(setDataFffc, status) [
-    		case apiSuccess genericSuccessMsg
-    		default genericErrorMsg
-    	]
-    ]
- 	
+ 
     /* User clicks the "Cancel" button. */    
     action cancelNotification [                
         goto(notificationsScreen)
@@ -582,7 +643,7 @@ useCase contactPreferences [
     ]
     
     /* Display a no changes message. */
-    action NoNotificationChangesMadeMsg [
+    action noNotificationChangesMadeMsg [
     	auditLog(audit_profile.notification_no_changes)
     	
         displayMessage(type: "success" msg: oMsgNoChangesMade)               
