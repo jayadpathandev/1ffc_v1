@@ -433,59 +433,6 @@ useCase contactPreferences [
     ]
     
     /**********************************************************************************************
-     * E-SIGN CONSENT NOTIFICATION PREFERENCES ACTIONS
-     *********************************************************************************************/
-    
-    /* User clicks the "Submit" button. System first verifies if e-sign enabled or disabled.*/
-    action confirmESign [
-		PersonaData.getSelectedValue(cEnableESignConsent, sESignCurrent)
-		if sESignCurrent == "true" then eSignEnable else eSignDisable
-	]
-	
-	/* System is enabled and determines what messages should be displayed. */
-	action eSignEnable [
-		if sESignPrevious == "true" then consentNotChanged else showESignEnabled
-	]
-	
-	/* Display an e-sign consent enabled message. */
-	action showESignEnabled [
-		auditLog(audit_profile.notification_esign_enabled)
-		
-		displayMessage(type: "success" msg: oMsgESignConsentEnabled)
-		goto(saveESign)
-	]
-	
-	/* System is disabled and determines what messages should be displayed. */
-	action eSignDisable [
-		if sESignPrevious == "" then consentNotChanged else showESignDisabled
-	]
-	
-	/* Display an e-sign consent disabled message. */
-	action showESignDisabled [
-		auditLog(audit_profile.notification_esign_disabled)
-		
-		displayMessage(type: "success" msg: oMsgESignConsentDisabled)
-		goto(saveESign)
-	]
-	
-	/* System saves and updates the user profile's e-sign consent attribute. */
-	action saveESign [
-		PersonaData.getSelectedValue(cEnableESignConsent, sESignPrevious)
-		updateProfile(            
-            eSignConsentEnabled: sESignPrevious 
-            )
-		
-		goto(notificationsScreen)
-	]
-	
-	/* Display an e-sign consent no changes message. */
-	action consentNotChanged [
-		auditLog(audit_profile.notification_esign_no_changes)
-		
-		displayMessage(type: "success" msg: oMsgESignConsentNoChangesMade)
-		goto(notificationsScreen)
-	]
-    /**********************************************************************************************
      * E-MAIL NOTIFICATION PREFERENCES ACTIONS
      *********************************************************************************************/
     
@@ -551,6 +498,60 @@ useCase contactPreferences [
 		gotoUc(contactPreferencesConsentSms) [
 			sNewSms:sNewSms
 		]
+	]
+	
+	/**********************************************************************************************
+     * E-SIGN CONSENT NOTIFICATION PREFERENCES ACTIONS
+     *********************************************************************************************/
+    
+    /* User clicks the "Submit" button. System first verifies if e-sign enabled or disabled.*/
+    action confirmESign [
+		PersonaData.getSelectedValue(cEnableESignConsent, sESignCurrent)
+		if sESignCurrent == "true" then eSignEnable else eSignDisable
+	]
+	
+	/* System is enabled and determines what messages should be displayed. */
+	action eSignEnable [
+		if sESignPrevious == "true" then consentNotChanged else showESignEnabled
+	]
+	
+	/* Display an e-sign consent enabled message. */
+	action showESignEnabled [
+		auditLog(audit_profile.notification_esign_enabled)
+		
+		displayMessage(type: "success" msg: oMsgESignConsentEnabled)
+		goto(saveESign)
+	]
+	
+	/* System is disabled and determines what messages should be displayed. */
+	action eSignDisable [
+		if sESignPrevious == "" then consentNotChanged else showESignDisabled
+	]
+	
+	/* Display an e-sign consent disabled message. */
+	action showESignDisabled [
+		auditLog(audit_profile.notification_esign_disabled)
+		
+		displayMessage(type: "success" msg: oMsgESignConsentDisabled)
+		goto(saveESign)
+	]
+	
+	/* System saves and updates the user profile's e-sign consent attribute. */
+	action saveESign [
+		PersonaData.getSelectedValue(cEnableESignConsent, sESignPrevious)
+		updateProfile(            
+            eSignConsentEnabled: sESignPrevious 
+            )
+		
+		goto(notificationsScreen)
+	]
+	
+	/* Display an e-sign consent no changes message. */
+	action consentNotChanged [
+		auditLog(audit_profile.notification_esign_no_changes)
+		
+		displayMessage(type: "success" msg: oMsgESignConsentNoChangesMade)
+		goto(notificationsScreen)
 	]
 	
 	/**********************************************************************************************
