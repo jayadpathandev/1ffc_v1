@@ -34,6 +34,7 @@ useCase contactPreferencesConsentEmail [
 	]
 	
 	importJava AuthUtil(com.sorrisotech.app.common.utils.AuthUtil)
+	importJava CreateSaml(com.sorrisotech.app.^library.saml.CreateSaml)
 	importJava LoginUtil(com.sorrisotech.app.common.utils.LoginUtil)
 	importJava Session(com.sorrisotech.app.utils.Session)
 	importJava UcNotificationsAction(com.sorrisotech.app.notifications.UcNotificationsAction)
@@ -42,7 +43,6 @@ useCase contactPreferencesConsentEmail [
 	
 	serviceStatus status
 	serviceParam(Notifications.SetUserAddress) setData
-	serviceParam(FffcNotify.SetUserAddressNls) setDataFffc
 	
     import validation.validationCodeRegex
     import profile.sAppName
@@ -56,11 +56,11 @@ useCase contactPreferencesConsentEmail [
     native string sAccountStatus                                              
     native string sNewEmail
     native string sEmailChannel = "email"                                                   
-    native string sEmailValidationCode                                                                               
+    native string sEmailValidationCode  
+    native string sNameSpace = CreateSaml.getNameSpace()                                                                             
     
     native string sUserId            = Session.getUserId()
     native string sProfileUpdateFlag = UcNotificationsAction.isEmailNotifPrefEnabled(sUserId)
-    native string sOrgId
     
     tag hTermsText = UcTermsConditions.getTermsConditions(sorrisoLanguage, sorrisoCountry)
     
@@ -97,6 +97,11 @@ useCase contactPreferencesConsentEmail [
         string(body) sBody = "{An error occurred while trying to send an e-mail to the new address provided. Please try again later}"
     ]
     
+    structure(message) oMsgDuplicateEmail [
+        string(title) sTitle = "{Duplicate E-mail Address}"
+        string(body) sBody = "{This e-mail address has been used. Please enter a different one.}"
+    ]
+    
     structure(message) oMsgAccountLocked [    
         string(title) sTitle = "{Account locked}"
         string(body) sBody = "{Your account is locked. Please try again after 10 minutes.}"
@@ -121,7 +126,17 @@ useCase contactPreferencesConsentEmail [
         loadProfile(            
             accountStatus: sAccountStatus   
             )
-        goto(sendEmailValidationCode)                    
+        goto(verifyEmail)                    
+    ]
+    
+	/* Final check that the email address is unique before processing,
+	 * otherwise abort change email flow. */
+    action verifyEmail [    
+        switch UcProfileAction.isAddressAvailable(sNameSpace, sEmailChannel, sNewEmail) [        
+            case "yes" sendEmailValidationCode
+            case "no"  emailDuplicateMsg
+            default genericErrorMsg
+        ]
     ]
     
     /* System creates a validation code and sends the details.
@@ -264,23 +279,9 @@ useCase contactPreferencesConsentEmail [
     	setData.channel = sEmailChannel
     	setData.address = sNewEmail
         switch apiCall Notifications.SetUserAddress(setData, status) [
-		    case apiSuccess saveEmailAddressAtNls
+		    case apiSuccess checkProfileUpdateNotificationFlag
 		    default saveContactDetailsError
 		]
-    ]
-    
-    /* Saves the new email address via NLS API service */
-    action saveEmailAddressAtNls [
-    	loadProfile(            
-            fffcCustomerId: sOrgId   
-            )
-    	setDataFffc.customerId = sOrgId
-    	setDataFffc.channel = sEmailChannel
-    	setDataFffc.address = sNewEmail
-    	switch apiCall FffcNotify.SetUserAddressNls(setDataFffc, status) [
-    		case apiSuccess checkProfileUpdateNotificationFlag
-    		default saveContactDetailsError
-    	]
     ]
     
     /* Could not save contact details. */
@@ -338,6 +339,12 @@ useCase contactPreferencesConsentEmail [
     /* Displays a message that email sending failed. */
     action emailFailedMsg [
         displayMessage(type: "danger" msg: oMsgEmailFailed)            
+        gotoUc(contactPreferences)
+    ]
+    
+    /* Displays a message that the email address is already in use. */
+    action emailDuplicateMsg [
+        displayMessage(type: "danger" msg: oMsgDuplicateEmail)            
         gotoUc(contactPreferences)
     ]
     

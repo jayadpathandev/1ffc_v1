@@ -82,7 +82,6 @@ useCase contactPreferences [
 	
 	native string sUserId            = Session.getUserId()
     native string sNameSpace         = AuthUtil.getAppNameSpace()
-	native string sAppType           = AuthUtil.getAppType()
 	
 	native string sImpersonateFlag 	 = "false"
 	
@@ -117,14 +116,14 @@ useCase contactPreferences [
         string(body) sBody = "{There was no change in the mobile number. The system took no action as a result.}"
     ]
     
-    structure(message) oMsgFormatSmsChangeMade [    
-        string(title) sTitle = "{Format change was made}"
-        string(body) sBody = "{The system successfully reformatted the mobile number.}"
-    ]
-    
     structure(message) oMsgDuplicateEmail [    
         string(title) sTitle = "{E-mail error}"
         string(body) sBody = "{This e-mail address is in use. Please provide a different e-mail address.}"
+    ]
+    
+    structure(message) oMsgDuplicateSms [    
+        string(title) sTitle = "{Mobile error}"
+        string(body) sBody = "{This mobile number is in use. Please provide a different mobile number.}"
     ]
     
     structure(message) oMsgAccountLocked [    
@@ -283,6 +282,10 @@ useCase contactPreferences [
 									field_class: "col-8"
 									control_attr_tabindex: "1"
 									control_attr_autofocus: ""
+									pInput_attr_new-email-address: ""
+									pInput_attr_st-new-email: ""
+									sError_ng-show: "main['fUserEmail.pInput'].$invalid && !!main['fUserEmail.pInput'].$error.email && main['fUserEmail.pInput'].$dirty"
+									sError_attr_sorriso-error: "new-email"
 								]							
 							]
 							
@@ -436,7 +439,7 @@ useCase contactPreferences [
      * E-MAIL NOTIFICATION PREFERENCES ACTIONS
      *********************************************************************************************/
     
-    /* User clicks the "CONSENT AND VALIDATE" button. System first verifies if the new email provided 
+    /* User clicks the "Consent and Validate" button. System first verifies if the new email provided 
      * already exists.*/
     action verifyNewEmail [
     	if sMaskedEmail == fUserEmail.pInput then
@@ -445,12 +448,12 @@ useCase contactPreferences [
     		verifyEmail
     ]
     
-    /* If the new email provided already exists, a duplicate email message is displayed on the popin.
-     * If there is no change in the email, it displays no changes made message on the popin.*/
+    /* If the new email provided already exists, a duplicate email message is displayed.
+     * If there is no change with the email, a no changes made message is displayed.*/
     action verifyEmail [
         switch UcProfileAction.verifyEmail (
         	sNameSpace,
-        	sAppType,
+        	sEmailChannel,
             sCurrentEmail, 
             fUserEmail.pInput             
         ) [
@@ -474,18 +477,18 @@ useCase contactPreferences [
      * MOBILE NOTIFICATION PREFERENCES ACTIONS
      *********************************************************************************************/
 	
-	//JAMES - STILL NEED TO COMPLETE THE JAVA METHOD
-	/* User clicks the "CONSENT AND VALIDAT" button. System verifies the sms entered. 
-     * If there is no change in the sms, it displays no changes made message on the popin.*/
+	/* User clicks the "Consent and Validate" button. System verifies the sms entered. 
+     * If the new sms provided already exists, a duplicate sms message is displayed.
+     * If there is no change with the sms, a no changes made message is displayed.*/
     action verifyNewSms [
     	switch UcProfileAction.verifySms (
         	sNameSpace,
-        	sAppType,
+        	sSmsChannel,
         	sCurrentSms,
         	fUserMobile.pInput            
         ) [
             case "success" consentValidateSms
-            case "format_change" formatChangeSmsMsg            
+            case "duplicate" duplicateSmsMsg            
             case "no_change" noSmsChangeMadeMsg
         ]
     ]
@@ -626,6 +629,14 @@ useCase contactPreferences [
         goto(notificationsScreen)
     ]
     
+    /* Displays a message that the sms entered is a duplicate 
+     * that already exists in the database.
+     */  
+    action duplicateSmsMsg [       
+        displayMessage(type: "danger" msg: oMsgDuplicateSms)                    
+        goto(notificationsScreen)
+    ]
+    
     /* Displays a message that no changes were made to the email address. */
     action noEmailChangeMadeMsg [    
         displayMessage(type: "warning" msg: oMsgNoEmailChangeMade)                           
@@ -636,11 +647,6 @@ useCase contactPreferences [
     action noSmsChangeMadeMsg [    
         displayMessage(type: "warning" msg: oMsgNoSmsChangeMade)                           
          goto(notificationsScreen)          
-    ]
-    
-    action formatChangeSmsMsg [
-    	displayMessage(type: "warning" msg: oMsgFormatSmsChangeMade)                           
-         goto(notificationsScreen) 
     ]
     
     /* Display a no changes message. */
