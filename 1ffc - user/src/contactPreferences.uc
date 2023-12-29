@@ -147,7 +147,7 @@ useCase contactPreferences [
         string(body) sBody = "{There were no notification changes made to the system.}"
     ]
     
-     structure(message) oMsgRetrieveContactDetailsError [
+    structure(message) oMsgRetrieveContactDetailsError [
         string(title) sTitle = "{Something wrong happened}"
         string(body) sBody = "{An error occurred while trying to retrieve contact details. Please try again later}"
     ]
