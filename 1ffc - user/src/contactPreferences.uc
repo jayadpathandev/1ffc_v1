@@ -49,6 +49,7 @@ useCase contactPreferences [
 	serviceParam(Notifications.GetUserAddresses) getData
 	serviceResult(Notifications.GetUserAddresses) getResponse
 	serviceParam(Notifications.SetContactSettings) channels
+	serviceParam(FffcNotify.SetContactSettingsNls) setDataFffc
      
     /**********************************************************************************************
      * DATA ITEMS SECTION
@@ -79,6 +80,7 @@ useCase contactPreferences [
     native string sUnverifiedEmailAddress                                         
 	native string sNewSms
 	native string sSmsChannel = "sms"
+	native string sOrgId
 	
 	native string sUserId            = Session.getUserId()
     native string sNameSpace         = AuthUtil.getAppNameSpace()
@@ -575,9 +577,22 @@ useCase contactPreferences [
 		channels.userid = sUserId
 		ContactPrefs.toJson(channels.jsonConfig)
         switch apiCall Notifications.SetContactSettings(channels, status) [
-		    case apiSuccess genericSuccessMsg
+		    case apiSuccess saveNotificationAtNls
 		    default genericErrorMsg
 		]
+    ]
+    
+    /* Fetch the orgID from the user profile. */
+    action saveNotificationAtNls [
+ 		loadProfile(            
+            fffcCustomerId: sOrgId   
+            )
+    	setDataFffc.customerId = sOrgId
+    	ContactPrefs.toJson(setDataFffc.jsonConfig)
+    	switch apiCall FffcNotify.SetContactSettingsNls(setDataFffc, status) [
+    		case apiSuccess genericSuccessMsg
+    		default genericErrorMsg
+    	]
     ]
  
     /* User clicks the "Cancel" button. */    
