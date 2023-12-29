@@ -170,7 +170,7 @@ useCase fffcReg99B2C [
 	 * last checked.
 	 */     
     action verifyEmail [    
-        switch UserProfile.isEmailAvailable(sNameSpace, sAppType, fUserEmail.pInput) [        
+        switch UserProfile.isAddressAvailable(sNameSpace, "email", fUserEmail.pInput) [         
             case "yes" performEnrollment
             case "no"  resetContactInfoFields
             default genericErrorMsg
@@ -220,9 +220,7 @@ useCase fffcReg99B2C [
         	firstName: fFirstName.pInput
         	lastName: fLastName.pInput        	
         	appType: sAppType
-        	emailAddress: fUserEmail.pInput
             phoneNumber: fPhoneNumber.pInput
-            mobileNumber: fMobileNumber.pInput  
             secretQuestion1: dSecretQuestion1
         	secretQuestion2: dSecretQuestion2
         	secretQuestion3: dSecretQuestion3
