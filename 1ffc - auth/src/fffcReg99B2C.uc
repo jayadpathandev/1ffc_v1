@@ -220,7 +220,9 @@ useCase fffcReg99B2C [
         	firstName: fFirstName.pInput
         	lastName: fLastName.pInput        	
         	appType: sAppType
-            phoneNumber: fPhoneNumber.pInput  
+        	emailAddress: fUserEmail.pInput
+            phoneNumber: fPhoneNumber.pInput
+            mobileNumber: fMobileNumber.pInput  
             secretQuestion1: dSecretQuestion1
         	secretQuestion2: dSecretQuestion2
         	secretQuestion3: dSecretQuestion3
