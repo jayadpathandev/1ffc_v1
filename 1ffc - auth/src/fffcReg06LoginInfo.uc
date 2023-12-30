@@ -39,7 +39,6 @@ useCase fffcReg06LoginInfo [
 	import regCompleteEnrollment.sAppType
 	import regCompleteEnrollment.sLoginAction
 	
-	import validation.passwordRegex
 	import validation.usernameRegex
 	import regChecklist.sUserNameFailed
 	 		  
@@ -50,15 +49,6 @@ useCase fffcReg06LoginInfo [
 	native string sLastName = Session.getLastName()
 	native string sAppType = Session.getAppType()
 	
-    serviceStatus srStatus			
-    serviceParam(PwRestrict.Validate) srValidateReq
-    serviceResult(PwRestrict.Validate) srValidateResp
-    
-    structure(message) msgPasswordInvalid  [
-        string(title) sTitle = "{Insecure password}"
-        string(body) sBody = "{The password appears to be a variation of a common password.  Please choose a password harder to guess.}"
-    ]
-	
     persistent field fUserName [
         string(label) sLabel = "{* Create user name:}"      
 		input (control) pInput(usernameRegex, fUserName.sValidation)
@@ -67,22 +57,6 @@ useCase fffcReg06LoginInfo [
 		string(error) sError = "{Another user already has this user name. Please select another.}"
 		string(help) sHelp = "{User name should contain at least 1 upper-case, 1 lower-case, 1 number and must be at least eight characters in length.}"
     ]
-   	
-    persistent field fPassword [
-        string(label) sLabel = "{* Create password:}"        
-        password input(control) pInput(passwordRegex, fPassword.sValidation)
-        string(required) sRequired = "{This field is required.}"        
-        string(validation) sValidation = "{Password can be up to 20 characters in length, and it must consist of at least ten characters and include one upper-case, one lower-case, one number and one special character.}" 
-        string(validation) sRestricted = "{The password appears to be a variation of a common password.  Please choose a password harder to guess.}"  
-		string(help) sHelp = "{Password should contain at least 1 upper-case, 1 lower-case, 1 number, 1 special character and must be at least ten characters in length.}"
-    ]
- 
-    persistent field fConfirmPassword [
-	    string(label) sLabel = "{* Confirm password:}"               
-        password input(control) pInput
-        string(required) sRequired = "{This field is required.}"                
-        string(error) sError = "{Password and Confirm password fields should match.}" 
-	]
  	      
  	persistent field fFirstName [
         string(label) sLabel = "{* First name:}" 
@@ -139,85 +113,31 @@ useCase fffcReg06LoginInfo [
 	        div form [
 	        	class: "row"	
 	        	      
-	    		div formContentCol1 [
-					class: "col-sm-4"
+	    		div formContentCol [
+					class: "col-sm-4 row"
 				
+					div row1 [						
+						display fUserName[
+							pInput_attr_st-new-user-name: ""								
+							control_attr_tabindex: "1"
+							control_attr_autofocus: ""
+							sError_ng-show: "regLoginInfoForm['fUserName.pInput'].$invalid && !!regLoginInfoForm['fUserName.pInput'].$error.username && regLoginInfoForm['fUserName.pInput'].$dirty"
+							sError_attr_sorriso-error: "new-user-name"
+						]			
+					]
+					
 					div row2 [
-						class: "row"
-								
-						div col2 [
-							class: "col-md-12"
-						
-							display fUserName[
-								pInput_attr_st-new-user-name: ""								
-								control_attr_tabindex: "1"
-								control_attr_autofocus: ""
-								sError_ng-show: "regLoginInfoForm['fUserName.pInput'].$invalid && !!regLoginInfoForm['fUserName.pInput'].$error.username && regLoginInfoForm['fUserName.pInput'].$dirty"
-								sError_attr_sorriso-error: "new-user-name"
-							]		
-						]
-					]
-				
-					div row4 [
-						class: "row"
-
-						div col4 [
-							class: "col-md-12"
-						
-		                	display fPassword [
-		                		control_attr_tabindex: "2"
-	                    		control_attr_st-new-password: "regLoginInfoForm['fUserName.pInput'].$viewValue"
-	                    		sRestricted_ng-show: "regLoginInfoForm['fPassword.pInput'].$invalid && !!regLoginInfoForm['fPassword.pInput'].$error.stNewPassword && regLoginInfoForm['fPassword.pInput'].$dirty"
-	                    		control_attr_st-restricted-password: "#fUserName"
-	                    		sRestricted_attr_sorriso-error: "restricted-password"
-		                	]
-						]
-					]
-				
-					div row5 [
-						class: "row"
-
-						div col5 [
-							class: "col-md-12"
-		                
-		                	display fConfirmPassword [
-								pInput_attr_st-compare-to: "form.fPassword"
-								sError_ng-show: "!regLoginInfoForm.$error.stPattern && !!regLoginInfoForm.$error.stCompareTo"
-								sError_attr_sorriso-error: 'same-as'
-								pInput_attr_st-same-as: 'fPassword'
-								control_attr_tabindex: "3"
-                        	]
-						]
-					]
-				]
-			
-		    	div formContentCol2 [
-					class: "col-sm-4"	
-				
-					div row6 [
-						class: "row"
-		                
-						div col6 [
-							class: "col-md-12"
-		               
-		                	display fFirstName [
-		                		control_attr_tabindex: "4"
-		                	]
-						]
-                	]	 
-				
-					div row7 [
-						class: "row"
-
-						div col7 [
-							class: "col-md-12"
-		                
-		                	display fLastName [
-								control_attr_tabindex: "5"
-		                	]
+	                	display fFirstName [
+	                		control_attr_tabindex: "2"
 	                	]
-					]
-				]
+                	]
+                	
+                	div row3 [
+	                	display fLastName [
+							control_attr_tabindex: "3"
+	                	]
+					]               						
+				]			
 			]
 			
 			div buttons [
@@ -230,64 +150,36 @@ useCase fffcReg06LoginInfo [
 						
 						class: "col-md-12"
 						
-						navigation loginInfoSubmit(verifyPassword, "{Next}") [
+						navigation loginInfoSubmit(checkAppType, "{Next}") [
 		                    class: "btn btn-primary"
 		                    
 		                    data :[
 		                    	fUserName,
-								fPassword,
-								fConfirmPassword,
 								fFirstName,
 								fLastName	
 		                    ]
 		                    
-		                    require: [
+		                    require:[
 								fUserName => fUserName.sRequired,
-								fPassword => fPassword.sRequired,
-								fConfirmPassword => fConfirmPassword.sRequired,
 								fFirstName => fFirstName.sRequired,
 								fLastName => fLastName.sRequired
 							]
-							attr_tabindex: "6"	
+							attr_tabindex: "4"	
 						]
 		               
 		                navigation loginInfoCancel(gotoLogin, "{Cancel}") [
 							class: "btn btn-secondary"
-							attr_tabindex: "7"
+							attr_tabindex: "5"
 		                ]
 		                							
 						navigation loginInfoBack(checkAppTypeBack, "{Back}") [
-							attr_tabindex: "8"
+							attr_tabindex: "6"
 						]
 					]
 				]					
 			]			
         ]               
     ]      
-
-    action verifyPassword [
-		srValidateReq.rFor      = sAppType
-		srValidateReq.rUserName = fUserName.pInput
-		srValidateReq.rPassword = fPassword.pInput
-		
-		switch apiCall PwRestrict.Validate(srValidateReq, srValidateResp, srStatus) [
-		    case apiSuccess checkVerifyResult
-		    default verifyPasswordFailed
-		]
-				    	
-    ]
-    
-    action checkVerifyResult [
-		if srValidateResp.valid == "YES" then 
-			checkAppType 
-		else 
-			verifyPasswordFailed    	
-    ]
-    
-    action verifyPasswordFailed [
-    	displayMessage(type:"danger" msg: msgPasswordInvalid)
-    	goto(regLoginInfoScreen)
-    ]
 
 	/**************************************************************************
 	 * 3. Check application type b2b or b2c.

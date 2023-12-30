@@ -61,8 +61,6 @@ useCase fffcReg99B2C [
 	import fffcReg05BillingInfo.fSelfReg4
 		
 	import fffcReg06LoginInfo.fUserName
-	import fffcReg06LoginInfo.fPassword
-	import fffcReg06LoginInfo.fConfirmPassword
 	import fffcReg06LoginInfo.fFirstName
 	import fffcReg06LoginInfo.fLastName
 		
@@ -184,26 +182,15 @@ useCase fffcReg99B2C [
 	
         sUserId = enroll(
             username: fUserName.pInput
-            password: fPassword.pInput
+            password: "7c289e59-7f6d-4a6c-8254-8185c4ad69ad"
             namespace: sNameSpace
             role: "Role_Consumer_EndUser"
             )            
-        if success then addPasswordHistory
+        if success then addProfileDetails
         if duplicateUsername then resetLoginInfoFields
         if failure then deleteUserProfile
     ]   
 
-	action addPasswordHistory [
-		srAddReq.user        = sUserId
-		srAddReq.newPassword = fPassword.pInput
-		
-		switch apiCall Profile.AddPasswordHistory(srAddReq, srAddResp, srStatus) [
-		    case apiSuccess addProfileDetails
-		    default addProfileDetails
-		]		
-		
-	]
-	
     /**************************************************************************
      * 6. Save profile details.     
      */
@@ -370,7 +357,7 @@ useCase fffcReg99B2C [
      * 16. Send validation email.     
      */
     action sendValidationEmail [    
-        switch NotifUtil.sendAuthCode(sUserId, sAppName, fUserName.pInput, fPassword.pInput, sAuthCode, fFirstName.pInput, fLastName.pInput) [        
+        switch NotifUtil.sendAuthCode(sUserId, sNameSpace, "b2c", fUserName.pInput, sAuthCode, fFirstName.pInput, fLastName.pInput) [         
             case "success" gotoRegValidateEmailAddress
             case "error"  deleteUserProfile
             default deleteUserProfile
@@ -421,8 +408,6 @@ useCase fffcReg99B2C [
      */
 	action resetLoginInfoFields [
 		fUserName.pInput = ""  
-		fPassword.pInput = ""
-		fConfirmPassword.pInput = ""
 		sUserNameFailed = "true"      
         goto(duplicateUserMsg) 
 	] 

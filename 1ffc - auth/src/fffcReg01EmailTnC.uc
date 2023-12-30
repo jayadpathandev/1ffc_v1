@@ -38,8 +38,6 @@ useCase fffcReg01EmailTnC [
 	import fffcReg05BillingInfo.fSelfReg4
 	
     import fffcReg06LoginInfo.fUserName
-	import fffcReg06LoginInfo.fPassword
-	import fffcReg06LoginInfo.fConfirmPassword
 	import fffcReg06LoginInfo.fFirstName
 	import fffcReg06LoginInfo.fLastName
 
@@ -93,8 +91,6 @@ useCase fffcReg01EmailTnC [
 		fSelfReg4.pInput = ""
 			
 		fUserName.pInput = ""
-		fPassword.pInput = ""
-		fConfirmPassword.pInput = ""
 		fFirstName.pInput = ""
 		fLastName.pInput = ""
 			
