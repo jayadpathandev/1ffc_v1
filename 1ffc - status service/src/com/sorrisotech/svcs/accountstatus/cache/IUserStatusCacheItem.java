@@ -4,6 +4,10 @@
 package com.sorrisotech.svcs.accountstatus.cache;
 
 import java.math.BigDecimal;
+import java.util.Calendar;
+
+import com.sorrisotech.svcs.accountstatus.cache.EnumConst.AutoPmtStatus;
+import com.sorrisotech.svcs.accountstatus.cache.EnumConst.ContPrefsStats;
 
 /**
  * Interface to the result set that can be queried by calls
@@ -20,7 +24,7 @@ import java.math.BigDecimal;
  * 
  * @author John A. Kowalonek
  * @since 25-Sep-2023
- * @version 25-Sep-2023
+ * @version 01-Jan-2024
  * 
  */
 public interface IUserStatusCacheItem {
@@ -148,4 +152,64 @@ public interface IUserStatusCacheItem {
 	 * @throws AccountStatusException
 	 */
 	abstract public MinimumPaymentData getMinimumPaymentAmt(String cszPaymentGroup, String cszAcctIdentifier) throws AccountStatusException;
+	
+	/**
+	 * Returns true if this account is portal eligible
+	 * 
+	 * @param cszPaymentGroup
+	 * @param cszAcctIdentifier
+	 * @return
+	 * @throws AccountStatusException
+	 */
+	abstract public Boolean getEligibleForPortal(String cszPaymentGroup, String cszAcctIdentifier) throws AccountStatusException;
+	
+	/**
+	 * Returns the current automatic payment status for the specified account
+	 * 
+	 * @param cszPaymentGroup
+	 * @param cszAcctIdentifier
+	 * @return
+	 * @throws AccountStatusException
+	 */
+	abstract public AutoPmtStatus getAutoPaymentStatus(String cszPaymentGroup, String cszAcctIdentifier) throws AccountStatusException;
+	
+	/**
+	 * Returns the maximum amount that can be paid against this account
+	 * 
+	 * @param cszPaymentGroup
+	 * @param cszAcctIdentifier
+	 * @return
+	 * @throws AccountStatusException
+	 */
+	abstract public BigDecimal getMaxPaymentAmount (String cszPaymentGroup, String cszAcctIdentifier) throws AccountStatusException;
+	
+	/**
+	 * Returns status of contact preferences for this user
+	 * 
+	 * @param cszPaymentGroup
+	 * @return
+	 * @throws AccountStatusException
+	 */
+	abstract public ContPrefsStats getContactPreferenceStatus (String cszPaymentGroup) throws AccountStatusException;
+	
+	/**
+	 * Returns the current amount due for this account as of last night's run
+	 * 
+	 * @param cszPaymentGroup
+	 * @param cszAcctIdentifier
+	 * @return
+	 * @throws AccountStatusException
+	 */
+	abstract public BigDecimal getCurrentAmountDue (String cszPaymentGroup, String cszAcctIdentifier) throws AccountStatusException;
+	
+	/**
+	 * Returns the integer YYYYMMDD of the most recent update of status info
+	 * 
+	 * @param cszPaymentGroup
+	 * @param cszAcctIdentifier
+	 * @return
+	 * @throws AccountStatusException
+	 */
+	abstract public Integer getMostRecentUpdate  (String cszPaymentGroup, String cszAcctIdentifier) throws AccountStatusException;
+	
 }

@@ -51,6 +51,11 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 					status_info.flex11 AS num_payments_remaining,
 					status_info.flex12 AS billing_periodicity,
 					status_info.flex13 AS nickname,	
+					status_info.flex14 AS eligible_for_portal,
+					status_info.flex15 AS automatic_payment_status,
+					status_info.flex16 AS maximum_payment_amount,
+					status_info.flex17 AS contact_preferences_status,
+					status_info.flex18 AS current_amount_due,
 					MAX(status_info.bill_date) as most_recent -- only take the most recent for acct
 				FROM
 					bill status_info,
@@ -79,7 +84,12 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 					billing_periodicity,
 					nickname,
 					total_num_payments,
-					num_payments_remaining
+					num_payments_remaining,
+					eligible_for_portal,
+					automatic_payment_status,
+					maximum_payment_amount,
+					contact_preferences_status,
+					current_amount_due
    
 			</value>
         </constructor-arg>   
