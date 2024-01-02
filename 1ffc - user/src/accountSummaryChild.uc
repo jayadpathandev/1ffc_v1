@@ -624,7 +624,7 @@ useCase accountSummaryChild [
 					if sParent == "payment_history"	then "hide"
 					if sParent == "payment_wallet"	then "hide"
 				]
-        		navigation payNowLink(gotoPaymentOnetime, "{Pay Now}") [
+        		navigation payNowLink(gotoPaymentOnetime, "{Pay This Bill}") [
 					class: "btn btn-primary"
 					
 													
@@ -646,7 +646,7 @@ useCase accountSummaryChild [
 					if sParent == "payment_wallet"	then "hide"
                 ]
 				
-        		navigation payNowLinkDisabled(gotoPaymentOnetime, "{Pay Now}") [
+        		navigation payNowLinkDisabled(gotoPaymentOnetime, "{Pay This Bill}") [
 					class: "btn btn-primary disabled"
 	                attr_tabindex: "2"
 				]
