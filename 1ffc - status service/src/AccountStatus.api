@@ -82,7 +82,7 @@ define service AccountStatus(com.sorrisotech.app.serviceapi.uc.UcRequestClient) 
 			// -- payment is disabled because the customer is delinquent
 			// -- at 1FFC, this means they need to make a minimum payment
 			//		but does NOT disable payment --
-    		disabledDelinquent
+    		disableDQ
     		
     		// ------------------------------------------------------------
     		// -- payment is disabled because the account is closed --
@@ -103,6 +103,10 @@ define service AccountStatus(com.sorrisotech.app.serviceapi.uc.UcRequestClient) 
     		// ------------------------------------------------------------
     		// -- payment is disabled becuse of a retraction --
     		disabledPendingRetraction
+    		
+    		// ------------------------------------------------------------
+    		// -- payment is disabled for some other reason
+    		disabledOther
  		]	
 
 		// ----------------------------------------------------------------
@@ -153,6 +157,41 @@ define service AccountStatus(com.sorrisotech.app.serviceapi.uc.UcRequestClient) 
 			disabledPortal
 			
 		] 
+		
+		// ----------------------------------------------------------------
+		// -- true if this account is eligible for registration in
+		//		the portal, false otherwise. --
+		boolean eligibleForPortal
+		
+		// ----------------------------------------------------------------
+		// -- provides automatic payment status for this account
+		list automaticPaymentStatus [
+			eligible	// -- can sign up for recurring payment
+			enrolled	// -- already enrolled in a recurring payment 
+			disabled	// -- cannot enroll for recurring payment
+			disabledUntilCurrent // -- can enroll if they bring their account current
+		]
+		
+		// ----------------------------------------------------------------
+		// -- should contact preferences be enabled or disabled for this 
+		//		user (note this is on a user basis, not account --
+		list contactPreferencesEnabled [
+			enabled
+			disabled
+		]
+
+		// ----------------------------------------------------------------
+		// -- maximum the user can pay against this account at this time.
+		number maximumPaymentAmount
+
+		// ----------------------------------------------------------------
+		// -- current amount due for this account, updated daily				
+		number currentAmountDue
+		
+		// ----------------------------------------------------------------
+		// -- date status was received for this account --
+		string statusDate
+		
 	] // -- end of GetStatus --
 
 	// --------------------------------------------------------------------

@@ -14,27 +14,42 @@ public final class EnumConst {
 	 */
 	public enum AcctStatus {
 		newAccount, closedAccount, activeAccount
-	} 
+	}
 	
 	/**
 	 * Values for >code>paymentStatus</code> returned using <code>toString()</code>.
 	 */
 	public enum PayEnabled {
 		enabled, disabledLegal, disabledRepo, disabledLastPayment, 
-		disabledAccountDispute, disabledPendingRetration, disabledDelinquent
+		disabledAccountDispute, disabledPendingRetraction, disableDQ, disabledOther
 	}
 	
 	/**
-	 * Values for >code>achEnabled</code> returned using <code>toString()</code>.
+	 * Values for <code>achEnabled</code> returned using <code>toString()</code>.
 	 */
 	public enum AchEnabled {
 		enabled, disabledNSF, disabledStopACH, disabledChargeOff
 	}
 	
 	/**
-	 * Values for >code>viewAccount</code> returned using <code>toString()</code>.
+	 * Values for <code>viewAccount</code> returned using <code>toString()</code>.
 	 */
 	public enum ViewAcct {
 		enabled, disabledAccount, disabledPortal, disabledFraud, disabledBankruptcy
 	}
+	
+	/**
+	 * Values for <code>recurringPaymentStatus</code> returned using <code>toString()</code>.
+	 */
+	public enum AutoPmtStatus {
+		eligible, enrolled, disabled, disabledUntilCurrent
+	}
+
+	/**
+	 * Values for <code>contactPreferencesStatus</code> returned using <code>toString()</code>.
+	 */
+	public enum ContPrefsStats {
+		enabled, disabled
+	}
+
 }

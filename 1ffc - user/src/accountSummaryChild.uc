@@ -14,6 +14,7 @@ useCase accountSummaryChild [
 	* 2.0 2023-Dec-11 jak 	Modified from the interim version that Yvette updated
 	* 						so it meets 1st Franklin data variability and status 
 	* 						requirements.
+	* 2.1 2023-Dec-28 jak	Modified to set payment rules for payment use cases
 	*/
 
     documentation [
@@ -36,6 +37,12 @@ useCase accountSummaryChild [
 	actorRules [
 		if "accessDenied" == sLocalAccountStatus removeActor account_access_enabled
 		if "accessDenied" != sLocalAccountStatus addActor account_access_enabled
+		if "disabled" == sLocalCreatePaymentStatus removeActor create_new_payment_enabled
+		if "disabled" != sLocalCreatePaymentStatus addActor create_new_payment_enabled
+		if "false" == sAchEnabledStatus removeActor bank_payment_enabled
+		if "true" == sAchEnabledStatus addActor bank_payment_enabled
+		if "true" == bAccountDelinquent removeActor automatic_payment_enabled
+		if "false" == bAccountDelinquent addActor automatic_payment_enabled
 	]
     startAt selectAccount[sParent]   
 
@@ -60,6 +67,12 @@ useCase accountSummaryChild [
 	import billCommon.sBillingPeriod
 	import billCommon.sBillsFound
 	import billCommon.sSelectedDropDown
+	import billCommon.bAccountDelinquent
+	import billCommon.nMinimumPayment
+	import billCommon.nMaximumPayment
+	import billCommon.bMaximumPaymentEnabled
+	import billCommon.nMaximumFuturePaymentDays
+	
 	
 	import billCommon.sPayAccountInternal
 	import billCommon.sPayAccountExternal	
@@ -74,6 +87,8 @@ useCase accountSummaryChild [
     serviceResult (AccountStatus.GetStatus) srGetStatusResult
     native string sLocalAccountStatus = "accountClosed"
 	native string sPaymentButtonOn = "false"
+	native string sLocalCreatePaymentStatus = "disabled"
+	native string sAchEnabledStatus = "true"
 	 
     
 	serviceStatus srStatus	
@@ -83,35 +98,32 @@ useCase accountSummaryChild [
     serviceParam(Documents.BillOverview) 	srBillOverviewParam
     serviceResult(Documents.BillOverview) 	srBillOverviewResult    
     
-    native string maxAge            = AppConfig.get("recent.number.of.months", "3")
-    native string sBillDate         = Format.formatDateNumeric(srBillOverviewResult.docDate)
-    native string sInvDueDateValue  = Format.formatDateNumeric(srBillOverviewResult.dueDate)
-    native string sAccountBalance   = LocalizedFormat.formatAmount(srBillOverviewParam.payGroup, srBillOverviewResult.totalDue)
+    native string maxAge =			 		AppConfig.get("recent.number.of.months", "3")
+    native string sBillDate =		 		Format.formatDateNumeric(srBillOverviewResult.docDate)
+    native string sBillDueDateDisplay = 	Format.formatDateNumeric(srBillOverviewResult.dueDate)
+	number nCurrentBalanceCalculated		 // -- set by calls down to get balance based on balance calculation type 
+												 // --   set in the admin app --
+	native string sCurrentBalanceCalculatedValid // -- set to valid or zero --
+    volatile native string sBillAccountBalanceDisplayed = 	LocalizedFormat.formatAmount(srBillOverviewParam.payGroup, srBillOverviewResult.docAmount)
+    volatile native string sBillAmountDueDisplay = 			LocalizedFormat.formatAmount (srBillOverviewParam.payGroup, nCurrentBalanceCalculated)
     
 	string sUserId = Session.getUserId()
     string sAccNumLabel             = "{Account Number:}"
     string sTotDueHead      		= "{Statement Amount due}"   
 	string sInvDueDateLabel			= "{Monthly payment due date}"		
-	string sLoanAmountLabel         = "{Personal loan amount}"
+	string sLoanAmountLabel         = "{Statement loan balance}"
 	
-	native string sCurrBalDisplay
-	native string sCurrentBalance
-	native string sCurrentBalanceFlag
-	native string sTotalAmountDue
+
                 
 	native string sBalanceType	 
 	native string sPaymentFlag      = Session.arePaymentsEnabled()
 	native string sMultipleAccounts = Session.multipleAccounts()
-	native string cszFlexNumber = "9"
-	string cszGetFlexAsAmountFailed = "failed"
-	native string sLoanAmount 	    = FlexFieldInfo.getFlexFieldAsAmount (sUserId, srBillOverviewParam.account, 
-		                                                  sBillSelectedDate, srBillOverviewParam.payGroup,
-		                                                  cszFlexNumber, cszGetFlexAsAmountFailed)
 	
+	// -- since this is not referenced, I wonder if we are broken if bills are very old --
 	volatile string sOlderThanXMonths = UcBillingAction.checkBillAge(maxAge, srBillOverviewParam.billDate)
 	
 	native string sAccountDisplay
-	native string sIsBill
+	native string sIsBill		// not being used, does this mean if there's no bill we don't work?
 	
 	persistent native string sParent	
 		
@@ -131,7 +143,7 @@ useCase accountSummaryChild [
     string sMessageClosedAccount = "Congratulations! You've paid off this loan and the account is now closed."
     string sMessageNewAccount = "Thank you for opening your loan with 1st Franklin, we'll notify you when your first statement is available."
     string sMessageAccessDenied = "Your online account access is disabled. Visit or call your local branch immediately to make payment arrangements."
-    string sMessageNoBillFound = "Our apologies, we can't find an online bill for your account."
+    string sMessageNoBillFound = "Our apologies, we can't find a recent bill for your account."
 	
 	/*************************
 	* MAIN SUCCESS SCENARIOS
@@ -154,12 +166,13 @@ useCase accountSummaryChild [
 	 
 	/**
 	 *	1a. System retrieves status information associated with this account. This status 
-	 * 		information is used to drive the behavior of this sues case and the behavior of 
+	 * 		information is used to drive the behavior of this use case and the behavior of 
 	 * 		the screen that's displayed.  The status information is specific to 1st 
 	 * 		Franklin.
 	 */ 
 	action getAccountStatus [
 		sLocalAccountStatus = "enabled"	// initialize status variable
+		sLocalCreatePaymentStatus = "enabled" // initialize create payment status variable
 		srGetStatusParams.user = sUserId
 		srGetStatusParams.paymentGroup = srBillOverviewParam.payGroup
 		srGetStatusParams.account = srBillOverviewParam.account
@@ -172,7 +185,7 @@ useCase accountSummaryChild [
  	
  	/**
  	 * 2a. System assigns a local status so it can be used to drive application behavior around account access.
- 	 * 		System evaluates actors to set the initial state, then determines ifthe user can view this account.
+ 	 * 		System evaluates actors to set the initial state, then determines if the user can view this account.
  	 * 		If yes, then continue. If not, then the page is disabled and we don't really care why. 
  	 * 		If disabled, nothing else matters... .
  	 * 
@@ -181,7 +194,7 @@ useCase accountSummaryChild [
  	 	sLocalAccountStatus = srGetStatusResult.accountStatus
 		evalActors()
  	 	if "enabled" == srGetStatusResult.viewAccount then
- 	 		isThereALatestBill
+ 	 		getPaymentEnabled
  	 	else 
  	 		setStatusAccessDenied
  	 ]
@@ -197,8 +210,86 @@ useCase accountSummaryChild [
  	 	goto (screenShowInfo)
  	 ]
  	 
+ 	 /**
+ 	  * 4a. System evaluates payment status to determine if creating new payments should be disabled
+ 	  * 	and removes the create_payment actor from the user's list of current actors if payment is
+ 	  * 	disabled.
+ 	  */
+ 	 action getPaymentEnabled [
+		sLocalCreatePaymentStatus = "enabled"
+		bAccountDelinquent = "false"
+		nMinimumPayment = "0"
+		bMaximumPaymentEnabled = "false"
+		nMaximumPayment = "0"
+		nMaximumFuturePaymentDays = "45"		// -- 1st Franklin Specific
+		 	 	
+ 	 	switch srGetStatusResult.paymentEnabled [
+
+    		// -- user can pay against this account --
+    		case "enabled" isAchEnabled
+    		
+    		// ------------------------------------------------------------
+			// -- payment is disabled because this is the last bill --
+    		case "disabledLastPayment" setLastPaymentRules
+    		
+    		// ------------------------------------------------------------
+			// -- payment is disabled because the customer is delinquent
+			// -- at 1FFC, this means they need to make a minimum payment
+			//		but does NOT disable payment --
+    		case "disableDQ" setDelinquentPaymentRules
+    		
+ 	 		default setPaymentDisabled
+ 	 	]
+ 	 ]
+ 	 
+ 	 /**
+ 	  * 5a. For now, or disabledLastPayment rule is to disable payments.
+ 	  * 	This may change in the future, or this status will disappear.
+ 	  */
+ 	 action setLastPaymentRules [
+ 	 	goto (setPaymentDisabled)
+ 	 ]
+ 	 
+ 	 /**
+ 	  * 6a. Delinquent payments sets the minimum payment amount to the same amount
+ 	  * 	as the "contracted payment amount" for the loan.
+ 	  */
+ 	 action setDelinquentPaymentRules [
+ 	 	bAccountDelinquent = "true"
+ 	 	goto (isAchEnabled)
+ 	 ]
+ 	 
+ 	 /**
+ 	  * 7a. System determined that payment is disabled so it removes create new payments from the  
+ 	  * 	user's list of actors.
+ 	  */
+ 	 action setPaymentDisabled [
+ 	 	sLocalCreatePaymentStatus = "disabled"
+ 	 	evalActors()
+ 	 	goto (isAchEnabled)
+ 	 ]
+ 	 
+ 	 /**
+ 	  * 8a. System checks to see if ach is enabled.
+ 	  */
+ 	 action isAchEnabled [
+ 	 	switch srGetStatusResult.achEnabled [
+ 	 		case "enabled" isThereALatestBill
+ 	 		default disableAchPayments
+ 	 	]
+ 	 ]
+ 	 
+ 	 /**
+ 	  * 9a. ACH disabled, set the proper control and evaluate actors
+ 	  */
+ 	 action disableAchPayments [
+ 	 	sAchEnabledStatus = "false"
+ 	 	evalActors()
+ 	 	goto (isThereALatestBill)
+ 	 ]
+ 
  	 /** 
- 	  * 4a. System checks latest bill date for 0 as a proxy for no documents available. This is
+ 	  * 10a. System checks latest bill date for 0 as a proxy for no documents available. This is
  	  * 	 because Documents.getBillOveriew throws an exception if there are no documents.
  	  * 	 billDate (is zero when there aren't any recent bills). ?? should we fix getBillOverview ??
  	  */
@@ -206,11 +297,23 @@ useCase accountSummaryChild [
  	 	if "0" == srBillOverviewParam.billDate then
  	 		IsActiveNoBill
  	 	else
+ 	 		isTheBillTooOld
+ 	 ]
+ 	 
+ 	 /**
+ 	  * 11a. System found a "recent bill", but that's just what's in the database. App-config has a 
+ 	  * 	setting that the system checks against because the configuration can set a maximum
+ 	  * 	age for a valid recent bill.
+ 	  */
+ 	 action isTheBillTooOld [
+ 	 	if "true" == sOlderThanXMonths then
+ 	 		IsActiveNoBill
+ 	 	else
  	 		getBillOverview
  	 ]
  	 
  	 /**
- 	  * 5a. System determines if the account is active and there are no recent bills.
+ 	  * 12a. System determines if the account is active and there are no recent bills.
  	  * 		This sets a special state.  Other states are automatic.
  	  */
  	 action IsActiveNoBill [
@@ -221,7 +324,7 @@ useCase accountSummaryChild [
  	 ]
  	 
  	 /**
- 	  * 4a. System sets status to activeNoBill (a "virtual" account status) to drive the 
+ 	  * 13a. System sets status to activeNoBill (a "virtual" account status) to drive the 
  	  * 		message screen differently than a standard account status. 
  	  */
  	 action setActiveNoBill [
@@ -230,7 +333,7 @@ useCase accountSummaryChild [
  	 ]
 	
 	/**
-	 *  4a. System retrieves the most recent or multiple, or marks as "nodocs".
+	 *  14a. System retrieves the most recent bill overview or multiple, or marks as "nodocs".
 	 */			
 	action getBillOverview [		
 		srBillOverviewParam.user = sUserId
@@ -242,7 +345,7 @@ useCase accountSummaryChild [
 	]		
  	
  	/**
- 	 * 5a. System expects a single recent bill. If there's more than one, that's an issue.
+ 	 * 15a. System expects a single recent bill. If there's more than one, that's an issue.
  	 */
  	action howManyDocs [
  		switch srBillOverviewResult.result [
@@ -254,7 +357,7 @@ useCase accountSummaryChild [
 
 	
 	/**
-	 * 6a. System found "singleDoc" if account status is newAccount or activeAccount, 
+	 * 16a. System found "singleDoc" if account status is newAccount or activeAccount, 
 	 * 		system needs to determine if payment is enabled for this account (next step). 
 	 * 		If account is closed, system goes right to the message screen.
 	 */ 
@@ -268,7 +371,7 @@ useCase accountSummaryChild [
 	] 	
 
  	/**
- 	 *  7a. System asserts this is an active account since there is a new document.
+ 	 *  17a. System asserts this is an active account since there is a new document.
  	 * 		  system checks to see if payment is enabled and will disabled the payment
  	 * 		  button (next step) if it is not enabled.
  	 * 
@@ -282,13 +385,13 @@ useCase accountSummaryChild [
  		sPaymentButtonOn = "true"
  		switch srGetStatusResult.paymentEnabled [
  			case "enabled"	checkResult
- 			case "disabledDelinquent" checkResult // -- delinquent isn't really turned off, just sets minimum payment amount
+ 			case "disableDQ" checkResult // -- delinquent isn't really turned off, just sets minimum payment amount
  			default turnOffPaymentButton
  		]
  	]
  	
  	/**
- 	 *  8a. System identified one of the "disabled states" and turns payment button off.
+ 	 *  18a. System identified one of the "disabled states" and turns payment button off.
  	 */
  	action turnOffPaymentButton [
  		sPaymentButtonOn = "false"
@@ -311,19 +414,20 @@ useCase accountSummaryChild [
 	
 	/* 4. Load the latest bill data into screen elements. */
     action loadLatestBill [    
-        sBillAccountInternal         = srBillOverviewParam.account   // internalAccount
-        sBillAccountExternal 		 = sAccountDisplay               // externalAccount
-        sBillGroup         			 = srBillOverviewParam.payGroup
-        sBillingPeriod               = sBillDate
-        sCurrBalDisplay              = sAccountBalance        
-        sBillStream 				 = srBillOverviewResult.docStream
-        sBillVersion 				 = srBillOverviewResult.docVersion 
-        sIsBill						 = srBillOverviewParam.isBill
+        sBillAccountInternal         = srBillOverviewParam.account   	// internalAccount
+        sBillAccountExternal 		 = sAccountDisplay               	// externalAccount
+        sBillGroup         			 = srBillOverviewParam.payGroup		// payment group for this account
+        sBillingPeriod               = sBillDate					 	// ubf:billdate -- date the bill was published, formatted
+		nCurrentBalanceCalculated 	 = srBillOverviewResult.totalDue 	// ubf:amountDue -- initialize amount due to the bill amount due	
+
+        sBillStream 				 = srBillOverviewResult.docStream	// bill stream name for this account
+        sBillVersion 				 = srBillOverviewResult.docVersion  // document version for this account
+        sIsBill						 = srBillOverviewParam.isBill		// true if this is a bill, otherwise we are look at a doc.
         
-        sPayAccountInternal          = srBillOverviewParam.account   
-        sPayAccountExternal 		 = sAccountDisplay               
-        sPayGroup         		     = srBillOverviewParam.payGroup
-        sPaySelectedDate			 = srBillOverviewResult.docDate
+        sPayAccountInternal          = srBillOverviewParam.account 		// used when making payment?  
+        sPayAccountExternal 		 = sAccountDisplay                	// used when showing in payment?
+        sPayGroup         		     = srBillOverviewParam.payGroup		// used when making payment?
+        sPaySelectedDate			 = srBillOverviewResult.docDate		// used when making payment (unformatted)
         			
 		goto(checkPaymentFlag)
 	]
@@ -337,7 +441,11 @@ useCase accountSummaryChild [
 			screenShowInfo
 	]
 	
-	/* 6. System retrieves the current settings.*/
+	/**************************************************************************************
+	 * BEGIN DETERMINING CURRENT BALANCE TO SHOW BASED ON ADMIN APP CONFIGURATION
+	 ************************************************************************************** */
+	
+	/* 6. System retrieves the current balance settings. These are configured in the admin app*/
 	action retrieveSettings [		
 		switch apiCall SystemConfig.GetCurrentBalanceConfig (srGetComm, srStatus) [
 		    case apiSuccess getResults
@@ -345,48 +453,49 @@ useCase accountSummaryChild [
 		]
 	]
 	
-	/* 7. System gets the value and check the balance type.*/
-	action getResults [		
+	/* 7. System checks the method for calculating and showing current balance.*/
+	action getResults [
 		sBalanceType = srGetComm.RSP_CURBALTYPE	    
 	    switch sBalanceType [	    	
-	    	case "I" getCurrentBalanceForInternal
-	    	case "F" getCurrentBalance
+	    	case "I" getCurrentBalanceFromInternal
+	    	case "F" getCurrentBalanceFromFeed
 	    	case "R" screenShowInfo
 	    	default screenShowInfo
 	    ]
 	]  
 
-	/* 8. Call getDocumentCurrentBalance to get the most recent current balance */
-	action getCurrentBalanceForInternal [
+	/* 7a. CALCULATE BALANCE INTERNAL -- System calculates current balance INTERNALLY by subtracting payments in payment history 
+	 * 	  from the amount in the bill. The method getDocumentCurrentBalance does that. NOTICE THERE'S WORK TO DO -- THE METHOD
+	 *	  CALLED CURRENTLY USES THE DOCUMENT NUMBER tO DETERMINE IF THERE ARE ANY PAYMENTS SO ONLY WORKS FOR INVOICE MODE 
+	 */
+	action getCurrentBalanceFromInternal [
 	  	UcPaymentAction.getDocumentCurrentBalance(
 									srBillOverviewParam.account, 
 									srBillOverviewResult.docNumber, 
 									srBillOverviewParam.payGroup, 
-									srBillOverviewResult.docAmount, 
-									sCurrentBalance, 
-									sCurrentBalanceFlag)		
+									srBillOverviewResult.totalDue, 
+									nCurrentBalanceCalculated, 			// -- this is the amount due to display
+									sCurrentBalanceCalculatedValid)		// -- we will need to check this when its turned on properly	
 												  
-		goto(getTotalAmountDue)
+		goto(screenShowInfo)
 		
 	]
+	
 			
-	/* 8B. Gets the current balance from the PMT_ACCOUNT_BALANCE table.*/
-	action getCurrentBalance [
+	/* 7b. CALCULATE FROM FEED -- System calculates current balance from a CURRENT BALANCE FEED which sets the current balance in 
+	 * 		the PMT_ACCOUNT_BALANCE table. The method UCPaymentAccountBalance.getAmountDisplay does that.
+	 * 		NOTICE THERE'S WORK TO DO -- THE METHOD CALLED WORKS FOR INVOICE MODE, NOT SURE IF IT WORKS FOR STATMENT MODE. NEEDS
+	 *		MORE RESEARCH.
+	 */
+	action getCurrentBalanceFromFeed [
 		UcPaymentAccountBalance.init(sUserId, srBillOverviewParam.account, srBillOverviewParam.payGroup)
-		UcPaymentAccountBalance.getAmountDisplay(sCurrBalDisplay)
+		UcPaymentAccountBalance.getAmountDisplay(nCurrentBalanceCalculated)
 		
-		goto(getTotalAmountDue)
+		goto(screenShowInfo)
 		
 	]
 
-	/* 9. Get total amount due to display */
-	action getTotalAmountDue [
-		UcPaymentAction.getAmountDisplay (srBillOverviewParam.payGroup, srBillOverviewResult.totalDue, sTotalAmountDue)
-		
-		goto(screenShowInfo)
-	]
-	
-    /* 10. Show the user's greeting message and latest bill information (if found). */
+    /* 8. Show the user's greeting message and latest bill information (if found). */
     xsltScreen screenShowInfo("{Greeting and recent information}") [
 
     form accountSummaryForm [
@@ -400,7 +509,7 @@ useCase accountSummaryChild [
             
             div info [
             	class: "col-8 col-sm-9 col-lg-10 row"
-
+				
 	            div accountCol [
 	            	class: "col-12 col-lg-3 st-summary-account"	            	
  
@@ -430,7 +539,7 @@ useCase accountSummaryChild [
 	            div loanState [
 	            	class: "row col-12 col-lg-3 st-summary-loan-state text-lg-center"
 					logic: [ if "activeAccount" != sLocalAccountStatus then "remove"]
-	            	display sLoanAmount [
+	            	display sBillAccountBalanceDisplayed [  // -- this is the current account balance from the bill
 	            		class: "h3 st-dashboard-summary-value"
 	                ]
 	            	
@@ -443,7 +552,7 @@ useCase accountSummaryChild [
 					class: "row col-12 col-lg-3 st-summary-date text-lg-center"
 					logic: [ if "activeAccount" != sLocalAccountStatus then "remove"]
 
-					display sInvDueDateValue [
+					display sBillDueDateDisplay [ // -- this is the due date for this bill
 	            		class: "h3 st-dashboard-summary-value d-lg-block"
 	                ]				
 						            	
@@ -457,7 +566,7 @@ useCase accountSummaryChild [
 					class: "row col-12 col-lg-3 st-summary-amount text-lg-center"
 					logic: [ if "activeAccount" != sLocalAccountStatus then "remove"]
 
-	                display  sTotalAmountDue [
+	                display  sBillAmountDueDisplay [  // -- this should change when payments are made -- eventually we will drive this from status feed --
 	            		class: "h3 st-dashboard-summary-value d-lg-block"
 	                ]
 	            	
@@ -511,6 +620,9 @@ useCase accountSummaryChild [
 				logic: [ 
 					if sPaymentButtonOn == "false" then "remove"
 					if sParent == "payment_onetime" then "hide"
+					if sParent == "payment_automatic" then "hide"
+					if sParent == "payment_history"	then "hide"
+					if sParent == "payment_wallet"	then "hide"
 				]
         		navigation payNowLink(gotoPaymentOnetime, "{Pay Now}") [
 					class: "btn btn-primary"
@@ -529,6 +641,9 @@ useCase accountSummaryChild [
 				logic: [
 					if sPaymentButtonOn == "true" then "remove"
                 	if sParent == "payment_onetime" then "hide"			                	
+					if sParent == "payment_automatic" then "hide"
+					if sParent == "payment_history"	then "hide"
+					if sParent == "payment_wallet"	then "hide"
                 ]
 				
         		navigation payNowLinkDisabled(gotoPaymentOnetime, "{Pay Now}") [

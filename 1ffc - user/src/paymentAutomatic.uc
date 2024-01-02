@@ -202,12 +202,17 @@ useCase paymentAutomatic [
         link "" automaticPaymentHistory(getAutomaticPaymentHistory) [            
 			sSelectedAutomaticId: sAutomaticId
         ]
-               
-        link "" automaticPaymentEdit(updateAutomaticPaymentAction) [            
-			sSelectedAutomaticId: sAutomaticId
-			sPmtSourceId: sSourceId
-        ]
-        
+ 
+ /**
+  *		Removed for 1st Franklin Explicit requirement to not support
+  * 	edit of automatic payment
+  *
+  *              
+  *      link "" automaticPaymentEdit(updateAutomaticPaymentAction) [            
+  *			sSelectedAutomaticId: sAutomaticId
+  *			sPmtSourceId: sSourceId
+  *      ]
+  */       
         link "" automaticPaymentDelete(cancelAutomaticPaymentPopin) [            
 			sSelectedAutomaticId: sAutomaticId
         ]
@@ -258,10 +263,12 @@ useCase paymentAutomatic [
            			^type: "popin"      
            			attr_class: "payment-history-auto-img st-left-space"     			
            		],        
-            	automaticPaymentEdit: [           			    			
+/**  
+ *			REMOVED SPECIFICALLY FOR 1ST FRANKLIN BASED ON THEIR REQUIREMENTS 
+           	automaticPaymentEdit: [           			    			
            			attr_class: "payment-edit-img st-left-space"
            		],
-            	
+*/            	
             	automaticPaymentDelete: [
            			^type: "popin"    
            			attr_class: "payment-cancel-img st-left-space"       			

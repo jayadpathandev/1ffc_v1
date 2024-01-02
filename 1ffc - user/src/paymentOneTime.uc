@@ -27,6 +27,7 @@ useCase paymentOneTime [
     ]
     actors [ 
         create_payment
+        
     ]
     
     startAt init
@@ -210,8 +211,8 @@ useCase paymentOneTime [
 	native string sCurrentBalanceFlag      = ''
 	native string sMinDue                  = Format.formatAmountForEdit(srBillOverviewResult.minDue)
 	native string sMinDueDisplay           = LocalizedFormat.formatAmount(sPayGroup, srBillOverviewResult.minDue)
-	native string sStatementBalanceEdit    = Format.formatAmountForEdit(srBillOverviewResult.docAmount)
-	native string sStatementBalanceDisplay = LocalizedFormat.formatAmount(sPayGroup, srBillOverviewResult.docAmount)	
+	native string sStatementBalanceEdit    = Format.formatAmountForEdit(srBillOverviewResult.totalDue)
+	native string sStatementBalanceDisplay = LocalizedFormat.formatAmount(sPayGroup, srBillOverviewResult.totalDue)	
 	
 	native string sCurrentBalanceEdit
 	native string sMinAmountDueEdit	

@@ -94,17 +94,20 @@
 
 	
 
-<#--  ** DATA VALUES USED IN THE TEMPLATE BUT MAY CHANGE WHERE THEY COME FROM IN THE FUTURE ** -->
-<#if '' == amount>
-	<#assign nAmountDue = '0'>
+<#--  ** bill.amountDue is the current amount due at the time of this statement. This will
+		 change to something else when we implement payment history tracking -->
+<#if bill.amountDue?has_content && bill.amountDue?string?trim != "">
+	<#assign nAmountDue = bill.amountDue>
 <#else>
-	<#assign nAmountDue = amount> 				<#--  probably want to change what the use case sends down -->
+	<#assign nAmountDue = '0'> 	
 </#if>
 
+<#--  ** bill.dueDate is the due date for this bill -->
 <#assign dDueDate = bill.dueDate?date>		<#--  we use this everywhere so make it a variable -->
 
-<#if bill.flex9?has_content && bill.flex9?string?trim != ''>  <#-- checks to see if loan amount exists -->
-	<#assign nLoanAmount = bill.flex9>
+<#--  ** bill.amount is the current bill amount which is the principal remaining at time of statement -->
+<#if bill.amount?has_content && bill.amount?string?trim != ''>  <#-- checks to see if loan amount exists -->
+	<#assign nLoanAmount = bill.amount>
 <#else>
 	<#assign nLoanAmount = "0.00">
 </#if>
@@ -181,14 +184,18 @@
 		</tr>
 		<tr>
 			<td><span class="fw-bold">Statement Principal Balance:</span></td>
-			<td><span class="fw-bold">${bill.flex3?number}</span></td>
+			<#if bill.amount??>
+			<td><span class="fw-bold">${bill.amount?number}</span></td>
+			<#else>
+			<td><span class="fw-bold">not avail</span></td>
+			</#if>
 		</tr>
 		
 	 </table>
 	</#if>
 
 	<div class="row">
-		<#assign bPmtDisabled = !((("enabled" == status.paymentEnabled) || ("paymentDQ" == status.paymentEnabled)) &&
+		<#assign bPmtDisabled = !((("enabled" == status.paymentEnabled) || ("disableDQ" == status.paymentEnabled)) &&
 								  ("activeAccount" == accountStatus) )>
 		<div class="col-10">
 			<div class="mb-2">
@@ -244,7 +251,7 @@
 		<#--  HANDLE CASE WHERE PAYMENT HAS BEEN DISABLED FOR THIS ACCOUNT -->
 		<#switch status.paymentEnabled>
 			<#case "enabled">
-			<#case "disabledDQ"> <#--  to the overview a disabledDQ status is really enabled -->
+			<#case "disableDQ"> <#--  to the overview a disableDQ status is really enabled -->
 				<#-- HANDLE ACH STATUS ISSUES ENABLED, DISABLED, WHATEVER -->
 				<#switch status.achEnabled>
 					<#case "enabled">
@@ -385,7 +392,7 @@
 		
 		<h2 class="mt-3 pt-3 border-top border-dark row">
 			<div class="col fw-bold">
-				${formatUtils.formatAmount(nLoanAmount?number)} <!--  original loan amount -->
+				${formatUtils.formatAmount(nLoanAmount?number)} <!--  statement loan balance -->
 			</div>
 			<div class="col fw-bold text-center">
 				${dDueDate?date}
@@ -397,7 +404,7 @@
 		
 		<div class="row">
 			<div class="col">
-				Original personal loan amount
+				Statement loan balance
 			</div>
 			<div class="col text-center">
 				Monthly payment due date

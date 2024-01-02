@@ -1,10 +1,13 @@
 package com.sorrisotech.svcs.accountstatus.dao;
 
 import java.math.BigDecimal;
+import java.util.Calendar;
 
 import com.sorrisotech.svcs.accountstatus.cache.EnumConst.AcctStatus;
 import com.sorrisotech.svcs.accountstatus.cache.EnumConst.AchEnabled;
 import com.sorrisotech.svcs.accountstatus.cache.EnumConst.PayEnabled;
+import com.sorrisotech.svcs.accountstatus.cache.EnumConst.AutoPmtStatus;
+import com.sorrisotech.svcs.accountstatus.cache.EnumConst.ContPrefsStats;
 import com.sorrisotech.svcs.accountstatus.cache.EnumConst.ViewAcct;
 
 /**
@@ -24,26 +27,32 @@ import com.sorrisotech.svcs.accountstatus.cache.EnumConst.ViewAcct;
  * 
  * @author John A. Kowalonek
  * @since 25-Sep-2023
- * @version 09-Oct-2023 - moved out to DAO.
+ * @version 01-Jan-2024 - Added additional status information
  * 
  */
 public class AccountStatusElement {
 
-	private		String		m_szStatusGroupId = "";
-	private		String		m_szPaymentGroupId = "";
-	private 	String		m_szCustomerId = "";
-	private		String 	 	m_szAccountId = "";
-	private		Boolean		m_bFinalBill = false;
-	private 	Boolean 	m_bAcctClosed = false;
-	private 	AcctStatus 	m_AcctStatus = AcctStatus.activeAccount;
-	private 	PayEnabled 	m_PayEnabled = PayEnabled.enabled;
-	private 	AchEnabled 	m_AchEnabled = AchEnabled.enabled;
-	private 	ViewAcct	m_ViewAccount = ViewAcct.enabled;
-	private 	BigDecimal	m_dOrigLoanAmt = null;
-	private		BigDecimal	m_dMonthlyPayment = null;
-	private		Integer		m_iTotalNumPayments = 0;
-	private		Integer		m_iRemainingNumPayments = 0;
-	private		Integer		m_iMostRecentUpdate = 0;
+	private		String			m_szStatusGroupId = "";
+	private		String			m_szPaymentGroupId = "";
+	private 	String			m_szCustomerId = "";
+	private		String 	 		m_szAccountId = "";
+	private		Boolean			m_bFinalBill = false;
+	private 	Boolean 		m_bAcctClosed = false;
+	private 	AcctStatus 		m_AcctStatus = AcctStatus.activeAccount;
+	private 	PayEnabled 		m_PayEnabled = PayEnabled.enabled;
+	private 	AchEnabled 		m_AchEnabled = AchEnabled.enabled;
+	private 	ViewAcct		m_ViewAccount = ViewAcct.enabled;
+	private 	BigDecimal		m_dOrigLoanAmt = null;
+	private		BigDecimal		m_dMonthlyPayment = null;
+	private		Integer			m_iTotalNumPayments = 0;
+	private		Integer			m_iRemainingNumPayments = 0;
+	private		Integer			m_iMostRecentUpdate = 0;
+	private 	AutoPmtStatus 	m_AutoPmtStatus = AutoPmtStatus.eligible;
+	private 	Boolean			m_bPortalEligible = true;
+	private 	ContPrefsStats	m_ContPrefStatus = ContPrefsStats.enabled;
+	private		BigDecimal		m_dMaxPaymentAmount = null;
+	private 	BigDecimal		m_dCurrentAmtDue = null;
+	
 	
 	/**
 	 * Used by slf4J to log the contents of this object.
@@ -65,6 +74,11 @@ public class AccountStatusElement {
 					"    MonthlyPayment - " + m_dMonthlyPayment.toPlainString() + "\n" +
 					"    TotalNumPayments - " + m_iTotalNumPayments.toString() + "\n" +
 					"    RemainingNumPayments - " + m_iRemainingNumPayments.toString() + "\n" +
+					"    AutomaticPaymentStats - " + m_AutoPmtStatus.toString() + "\n" +
+					"    PortalEligible - " + m_bPortalEligible.toString() + "\n" +
+					"    ContactPrefsStats - " + m_ContPrefStatus.toString() + "\n" +
+					"    MaxPaymentAcount - " + m_dMaxPaymentAmount.toString() + "\n" +
+					"    CurrentAmtDue - " + m_dCurrentAmtDue.toString() + "\n" +
 					"    MostRecentUpdate - " + m_iMostRecentUpdate.toString() + "\n");
 	}
 	
@@ -188,4 +202,43 @@ public class AccountStatusElement {
 		this.m_iMostRecentUpdate = cMostRecentUpdate;
 	}
 	
+	public AutoPmtStatus getAutoPaymentStatus () {
+		return m_AutoPmtStatus;
+	}
+	
+	public void setAutoPaymentStatus(final AutoPmtStatus cAutoPayStatus) {
+		this.m_AutoPmtStatus = cAutoPayStatus;
+	}
+	
+	public Boolean getPortalEligible() {
+		return m_bPortalEligible;
+	}
+	
+	public void setPortalEligible(final Boolean cbPortalEligible) {
+		m_bPortalEligible = cbPortalEligible;
+	}
+	
+	public ContPrefsStats getContactPrefsStatus() {
+		return m_ContPrefStatus;
+	}
+	
+	public void setContactPrefsStatus(final ContPrefsStats cContactPrefsStats) {
+		m_ContPrefStatus = cContactPrefsStats;
+	}
+	
+	public BigDecimal getMaxPaymentAmount() {
+		return m_dMaxPaymentAmount;
+	}
+	
+	void setMaxPaymentAmount(final BigDecimal cMaxPaymentAmount) {
+		m_dMaxPaymentAmount = cMaxPaymentAmount;
+	}
+	
+	public BigDecimal getCurrentAmountDue() {
+		return m_dCurrentAmtDue;
+	}
+	
+	void setCurrentAmountDue(final BigDecimal cCurrAmountDue) {
+		m_dCurrentAmtDue = cCurrAmountDue;
+	}
 }

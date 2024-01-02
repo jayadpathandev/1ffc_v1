@@ -24,8 +24,14 @@ import com.sorrisotech.svcs.serviceapi.api.ServiceAPIErrorCode;
  *  		<li><b>paymentEnabled</b> -	can this account be paid, if not why: enabled, disabledDelinquency, disabledClosed.
  *  		<li><b>achEnabled</b> -		is ACH enabled and if not why: enabled, disabledNSF.
  *  		<li><b>viewAccount</b> -	can user view this account, if not at what level is it disabled: enabled, disableAccount, disablePortal.
+ *  		<li><b>eligibleForPortal</b> - is account eligible for access from portal
+ *  		<li><b>recurringPaymentStatus</b> - status of recurring payments for this acct
+ *  		<li><b>contactPreferencesEnabled</b> - are contact preferences enabled for this user
+ *  		<li><b>maximumPaymentAmount</b>	- maximum payment amount for this account
+ *  		<li><b>currentAmountDue</b> - current amount due on this account
+ *  		<li><b>statusDate</b> - date this status was updated
  *  
- *  @version 24-Sep-2023
+ *  @version 01-Jan-2024
  *  @since 24-Sep-2023
  *  @author John A. Kowalonek 
  */
@@ -51,14 +57,17 @@ public class GetStatus extends GetStatusBase {
 		if (null != cacheItem) {
 			try {
 				// -- return detailed status on the specified account -- 
-				request.set(IApiAccountStatus.GetStatus.accountStatus, 
-							cacheItem.getAccountStatus(sPaymentGroup, sAccount).toString());
-				request.set(IApiAccountStatus.GetStatus.paymentEnabled, 
-						cacheItem.getPaymentEnabled(sPaymentGroup, sAccount).toString());
-				request.set(IApiAccountStatus.GetStatus.achEnabled, 
-						cacheItem.getAchEnabled().toString());
-				request.set(IApiAccountStatus.GetStatus.viewAccount, 
-						cacheItem.getViewAccount(sPaymentGroup, sAccount).toString());
+				request.set(IApiAccountStatus.GetStatus.accountStatus, cacheItem.getAccountStatus(sPaymentGroup, sAccount).toString());
+				request.set(IApiAccountStatus.GetStatus.paymentEnabled, cacheItem.getPaymentEnabled(sPaymentGroup, sAccount).toString());
+				request.set(IApiAccountStatus.GetStatus.achEnabled, cacheItem.getAchEnabled().toString());
+				request.set(IApiAccountStatus.GetStatus.viewAccount, cacheItem.getViewAccount(sPaymentGroup, sAccount).toString());
+				request.set(IApiAccountStatus.GetStatus.eligibleForPortal, cacheItem.getEligibleForPortal(sPaymentGroup, sAccount));
+				request.set(IApiAccountStatus.GetStatus.automaticPaymentStatus, cacheItem.getAutoPaymentStatus(sPaymentGroup, sAccount).toString());
+				request.set(IApiAccountStatus.GetStatus.maximumPaymentAmount, cacheItem.getMaxPaymentAmount(sPaymentGroup, sAccount));
+				request.set(IApiAccountStatus.GetStatus.contactPreferencesEnabled, cacheItem.getContactPreferenceStatus(sPaymentGroup).toString());
+				request.set(IApiAccountStatus.GetStatus.currentAmountDue, cacheItem.getCurrentAmountDue(sPaymentGroup, sAccount));
+				request.set(IApiAccountStatus.GetStatus.statusDate, cacheItem.getMostRecentUpdate(sPaymentGroup, sAccount));
+				
 				rVal = ServiceAPIErrorCode.Success;
 			} catch (AccountStatusException e) {
 				LOG.error("GetStatus:processInternal -- failed to get status for user {}, group {}, acct {}",

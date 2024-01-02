@@ -2,6 +2,7 @@ package com.sorrisotech.svcs.accountstatus.cache;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
@@ -11,6 +12,8 @@ import org.slf4j.LoggerFactory;
 
 import com.sorrisotech.svcs.accountstatus.cache.EnumConst.AcctStatus;
 import com.sorrisotech.svcs.accountstatus.cache.EnumConst.AchEnabled;
+import com.sorrisotech.svcs.accountstatus.cache.EnumConst.AutoPmtStatus;
+import com.sorrisotech.svcs.accountstatus.cache.EnumConst.ContPrefsStats;
 import com.sorrisotech.svcs.accountstatus.cache.EnumConst.PayEnabled;
 import com.sorrisotech.svcs.accountstatus.cache.EnumConst.ViewAcct;
 import com.sorrisotech.svcs.accountstatus.dao.AccountStatusDaoImpl;
@@ -209,7 +212,7 @@ public class UserStatusCacheItem implements IUserStatusCacheItem, IUserStatusIte
 		//		the minimum as the monthly payment --
 		// *******************************************************************************
 		PayEnabled payStatus = getPaymentEnabled(cszPaymentGroup,cszAcctIdentifier);
-		if ((payStatus == PayEnabled.enabled) || (payStatus == PayEnabled.disabledDelinquent))
+		if ((payStatus == PayEnabled.enabled) || (payStatus == PayEnabled.disableDQ))
 			return true;
 		else
 			return false;
@@ -247,12 +250,70 @@ public class UserStatusCacheItem implements IUserStatusCacheItem, IUserStatusIte
 		case enabled: 
 			rData = new MinimumPaymentData(false, new BigDecimal(0));
 			break;
-		case disabledDelinquent:
+		case disableDQ:
 		default:
 			rData = new MinimumPaymentData(true, dMinPayment);
 			break;
 		}
 
 		return rData;
+	}
+
+	@Override
+	public Boolean getEligibleForPortal(String cszPaymentGroup, String cszAcctIdentifier)
+			throws AccountStatusException {
+
+		AccountStatusElement lStatusElement = getStatusElement(cszPaymentGroup, cszAcctIdentifier);
+		Boolean lbEligible = lStatusElement.getPortalEligible();
+		return lbEligible;
+	}
+
+	@Override
+	public AutoPmtStatus getAutoPaymentStatus(String cszPaymentGroup, String cszAcctIdentifier)
+			throws AccountStatusException {
+
+		AccountStatusElement lStatusElement = getStatusElement(cszPaymentGroup, cszAcctIdentifier);
+		AutoPmtStatus lAutoPmtStatus = lStatusElement.getAutoPaymentStatus();
+		return lAutoPmtStatus;
+	}
+
+	@Override
+	public BigDecimal getMaxPaymentAmount(String cszPaymentGroup, String cszAcctIdentifier)
+			throws AccountStatusException {
+
+		AccountStatusElement lStatusElement = getStatusElement(cszPaymentGroup, cszAcctIdentifier);
+		BigDecimal ldMaxPaymentAmount = lStatusElement.getMaxPaymentAmount();
+		return ldMaxPaymentAmount;
+	}
+
+	@Override
+	public ContPrefsStats getContactPreferenceStatus(String cszPaymentGroup) throws AccountStatusException {
+
+		// -- goes through list of accounts to see if any deny ach payments, if one
+		//		does then return false otherwise true --
+		for (HashMap.Entry< AccountKey, AccountStatusElement> entry :  AccountStatusMap.entrySet()) {
+			if (entry.getValue().getContactPrefsStatus() != ContPrefsStats.enabled) {
+				LOG.debug ("UserStatusCacheItem:isAchEnabled ACH Disabled for account {}", entry.getKey());
+				return ContPrefsStats.disabled;
+			}
+		}
+		return ContPrefsStats.enabled;
+	}
+
+	@Override
+	public BigDecimal getCurrentAmountDue(String cszPaymentGroup, String cszAcctIdentifier)
+			throws AccountStatusException {
+
+		AccountStatusElement lStatusElement = getStatusElement(cszPaymentGroup, cszAcctIdentifier);
+		BigDecimal ldCurAmountDue = lStatusElement.getCurrentAmountDue();
+		return ldCurAmountDue;
+	}
+
+	@Override
+	public Integer getMostRecentUpdate(String cszPaymentGroup, String cszAcctIdentifier)
+			throws AccountStatusException {
+		AccountStatusElement lStatusElement = getStatusElement(cszPaymentGroup, cszAcctIdentifier);
+		Integer lcMostRecentUpdate = lStatusElement.getMostRecentUpdate();
+		return lcMostRecentUpdate;
 	}
 }
