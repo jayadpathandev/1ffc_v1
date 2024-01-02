@@ -72,6 +72,10 @@
     		<fileset dir="src-gen" includes="usecases/*.xml"/>
     		<fileset dir="src-gen" includes="internationalization/*.properties"/>
     	</copy>
+    	<!-- pick up audit_config.xml and roles_config.xml  -->
+    	<copy todir="deploy/${app}/classes" overwrite="true">
+			<fileset dir="src-gen/classes" includes="*.xml" />
+		</copy>
     	<propertyfile file="deploy/${app}/internationalization/topics_en.properties">
     		<entry key="topics_bills_documents" value="Electronic Document Delivery"/>
     		<entry key="topics_marketing" value="Marketing Messages"/>
