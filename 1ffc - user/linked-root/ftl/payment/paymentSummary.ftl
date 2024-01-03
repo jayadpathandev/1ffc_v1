@@ -12,6 +12,7 @@
 	   
 	   2023-Dec-11	jak-- simplified based on separating out new, closed, and view disabled
 	   						accounts into a different template.
+	   2024-Jan-02  jak-- bug fixes for 1st Franklin based on moving data around.
 
   -->
 
@@ -98,6 +99,11 @@
 		 change to something else when we implement payment history tracking -->
 <#if bill.amountDue?has_content && bill.amountDue?string?trim != "">
 	<#assign nAmountDue = bill.amountDue>
+ 	<#if bBillHasOverdue == true && bill.minDue?has_content && bill.minDue?string?trim != "">
+		<#assign nAmountOverdue = bill.amountDue - bill.minDue>
+	<#else>
+		<#assign nAmountOverdue = "0">
+	</#if>
 <#else>
 	<#assign nAmountDue = '0'> 	
 </#if>
@@ -109,7 +115,7 @@
 <#if bill.amount?has_content && bill.amount?string?trim != ''>  <#-- checks to see if loan amount exists -->
 	<#assign nLoanAmount = bill.amount>
 <#else>
-	<#assign nLoanAmount = "0.00">
+	<#assign nLoanAmount = "0">
 </#if>
 
 <#-- ***************************** LET THE GAMES BEGIN ******************************************** -->
@@ -168,11 +174,11 @@
 		</tr>
 		<tr>
 			<td><span class="fw-bold">Statement Amount Due:</span></td>
-			<td><span class="fw-bold">${formatUtils.formatAmount(bill.amountDue?number)}</span></td>
+			<td><span class="fw-bold">${formatUtils.formatAmount(nLoanBalance)}</span></td>
 		</tr>
 		<tr>
 			<td><span class="fw-bold">Current Amount Due:</span></td>
-			<td><span class="fw-bold">${formatUtils.formatAmount(nAmountDue?number)}</span></td>
+			<td><span class="fw-bold">${formatUtils.formatAmount(nAmountDue)}</span></td>
 		</tr>
 		<tr>
 			<td><span class="fw-bold">Due Date:</span></td>
@@ -184,8 +190,8 @@
 		</tr>
 		<tr>
 			<td><span class="fw-bold">Statement Principal Balance:</span></td>
-			<#if bill.amount??>
-			<td><span class="fw-bold">${bill.amount?number}</span></td>
+			<#if nLoanAmount??>
+			<td><span class="fw-bold">${nLoanBalance}</span></td>
 			<#else>
 			<td><span class="fw-bold">not avail</span></td>
 			</#if>
@@ -313,11 +319,11 @@
 				<#if 0 < scheduledPayment.automaticPmtCount?number> <#--  The customer has an automatic payment that's scheduled -->
 					<div class="text-center mt-3 border border-2 rounded-pill <#if bScheduledPaymentsLate>border-danger<#else>border-info</#if> p-3">
 						You have an automatic payment of
-						<span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nAutomaticPaymentAmount?number)}</span>
+						<span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nAutomaticPaymentAmount)}</span>
 						scheduled for <span class="fw-bold text-decoration-underline">${dAutomaticPaymentDate?date}</span>.
 						<#if bScheduledPaymentsLate>
 							This payment and any other payments currently scheduled will not meet your obligation to pay
-							<span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nAmountDue?number)}</span> by
+							<span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nAmountDue)}</span> by
 							<span class="fw-bold text-decoration-underline">${dDueDate?date}</span>.
 						
 						</#if>
@@ -331,7 +337,7 @@
 					<#if bPastDueDate> 
 						<div class="text-center mt-3 border border-2 rounded-pill border-danger p-3">
 							We want to remind you that 
-							<span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nAmountDue?number)}</span>
+							<span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nAmountDue)}</span>
 							was due for payment on <span class="fw-bold text-decoration-underline">${dDueDate?date}</span>.
 							Please pay now.
 						</div>
@@ -339,14 +345,14 @@
 					<#elseif bBillHasOverdue>	
 						<div class="text-center mt-3 border border-2 rounded-pill border-danger p-3">
 							We want to remind you that 
-							<span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nAmountDue?number)}</span>
+							<span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nAmountDue)}</span>
 							is due for payment on <span class="fw-bold text-decoration-underline">${dDueDate?date}</span> 
 							and includes an overdue amount of 
 							<span class="fw-bold text-decoration-underline">
-								<#if bill.flex5??>
-									${formatUtils.formatAmount(bill.flex5?number)}
+								<#if nAmountOverdue??>
+									${formatUtils.formatAmount(nAmountOverdue)}
 								<#else>
-									Flex5 missing
+									missing overdue amount
 								</#if>								
 							</span>.
 							Please pay now to avoid additional charges.
@@ -355,7 +361,7 @@
 					<#else> 
 						<div class="text-center mt-3 border border-2 rounded-pill border-info p-3">
 							Your next payment of 
-							<span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nAmountDue?number)}</span>
+							<span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nAmountDue)}</span>
 							is due on <span class="fw-bold text-decoration-underline">${dDueDate?date}</span>. 
 						</div>
 					</#if>	
@@ -366,7 +372,7 @@
 					<#--  last payment with no overdue amount -->
 					<div class="text-center mt-3 border border-2 rounded-pill border-info p-3">
 						Contratulations! your final payment of 
-						<span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nAmountDue?number)}</span>
+						<span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nAmountDue)}</span>
 						is due on <span class="fw-bold text-decoration-underline">${dDueDate?date}</span>. Visit your local
 						branch to make this payment and close your account.
 					</div>
@@ -374,9 +380,9 @@
 				<#--  last payment with an overdue amount -->
 					<div class="text-center mt-3 border border-2 rounded-pill border-danger p-3">
 						Contratulations! your final payment of 
-						<span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nAmountDue?number)}</span>
+						<span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nAmountDue)}</span>
 						is due on <span class="fw-bold text-decoration-underline">${dDueDate?date}</span> and includes an
-						overdue amount of <span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(bill.flex5?number)}</span>.
+						overdue amount of <span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nAmountOverdue)}</span>.
 						Visit your local branch now to make this payment, close your account, and avoid addiitonal charges.
 					</div>
 				</#if>
@@ -392,13 +398,13 @@
 		
 		<h2 class="mt-3 pt-3 border-top border-dark row">
 			<div class="col fw-bold">
-				${formatUtils.formatAmount(nLoanAmount?number)} <!--  statement loan balance -->
+				${formatUtils.formatAmount(nLoanAmount)} <!--  statement loan balance -->
 			</div>
 			<div class="col fw-bold text-center">
 				${dDueDate?date}
 			</div>
 			<div class="col">
-				<span class="float-end fw-bold">${formatUtils.formatAmount(nAmountDue?number)}</span>
+				<span class="float-end fw-bold">${formatUtils.formatAmount(nAmountDue)}</span>
 			</div>
 		</h2>
 		
