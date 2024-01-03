@@ -21,15 +21,20 @@
 package com.sorrisotech.svcs.fffcnotify.service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringJoiner;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sorrisotech.client.main.model.response.ContactPrefrences;
 import com.sorrisotech.persona.notification.preferences.api.IPreferences;
 import com.sorrisotech.persona.notification.preferences.api.PreferencesFactory;
 import com.sorrisotech.svcs.fffcnotify.api.IApiFffcNotify;
+import com.sorrisotech.svcs.notifications.service.NotificationsDao;
 import com.sorrisotech.svcs.serviceapi.api.IRequestInternal;
 import com.sorrisotech.svcs.serviceapi.api.ServiceAPIErrorCode;
 
@@ -56,6 +61,11 @@ public class SetContactPreferences extends SetContactPreferencesBase {
 	 */
 	private static ObjectMapper m_cObjectMapper = new ObjectMapper();
 	
+	/**********************************************************************************************
+	 * Dao instance for accessing the database.
+	 */
+	private static final NotificationsDao m_cDao = NotificationsDao.get();
+	
 	/**************************************************************************
 	 * 1. Turn the request around. 2. Insert all the configuration parameters. 3.
 	 * Return the request with success.
@@ -68,6 +78,7 @@ public class SetContactPreferences extends SetContactPreferencesBase {
 		final String szUserId = request.getString(IApiFffcNotify.SetContactPreferences.userid);
 		
 		// TODO Need to confirm about validation of date.
+		// As per discussion as of now we are not doing validation of date.
 		@SuppressWarnings("unused")
 		final String szDateTime = request.getString(IApiFffcNotify.SetContactPreferences.dateTime);
 		
@@ -91,12 +102,24 @@ public class SetContactPreferences extends SetContactPreferencesBase {
 			// Getting instance of IPreferences interface.
 			final IPreferences cPreferences = PreferencesFactory.getPreferences();
 			
-			// Validation 
-			
 			// --------------------------------------------------------------------------------------
 			// Converting channelAddress JSON into java objects.
 			final ContactPrefrences.ChannelAddress[] cChannelAddressesList = m_cObjectMapper
 			        .readValue(szChannelAddresses, ContactPrefrences.ChannelAddress[].class);
+			
+			// --------------------------------------------------------------------------------------
+			// Converting topicPreferences JSON into java objects.
+			final List<ContactPrefrences.TopicPreference> cTopicPreferencesList = m_cObjectMapper
+			        .readValue(szTopicPreferences,
+			                new TypeReference<List<ContactPrefrences.TopicPreference>>() {
+			                });
+			
+			// Validating the topic preferences
+			if (!validateRequest(cTopicPreferencesList)) {
+				request.set(IApiFffcNotify.SetContactPreferences.status, "validationError");
+				request.setStatus(ServiceAPIErrorCode.Success);
+				return eReturnCode;
+			}
 			
 			// --------------------------------------------------------------------------------------
 			// Saving all channel addresses of user. If we receive null or empty channel
@@ -106,14 +129,11 @@ public class SetContactPreferences extends SetContactPreferencesBase {
 			saveUserAddresses(cUserId, cChannelAddressesList, cPreferences);
 			
 			// --------------------------------------------------------------------------------------
-			// Converting topicPreferences JSON into java objects.
-			final ContactPrefrences.TopicPreference[] cTopicPreferencesList = m_cObjectMapper
-			        .readValue(szTopicPreferences, ContactPrefrences.TopicPreference[].class);
-			
-			// --------------------------------------------------------------------------------------
 			// Saving all topic preferences of user to databse as per user setting received
 			// from JSON request.
 			saveUserTopicPreferences(cUserId, cTopicPreferencesList, cPreferences);
+			
+			request.set(IApiFffcNotify.SetContactPreferences.status, "good");
 			
 			eReturnCode = ServiceAPIErrorCode.Success;
 			
@@ -121,6 +141,7 @@ public class SetContactPreferences extends SetContactPreferencesBase {
 			        "SetContactPreferences:processInternal ..... success for userId: {}" + cUserId);
 			
 		} catch (Exception e) {
+			request.set(IApiFffcNotify.SetContactPreferences.status, "error");
 			LOG.error(
 			        "SetContactPreferences:processInternal ..... An exception was thrown while setting contact preferences to database",
 			        e, e);
@@ -173,7 +194,7 @@ public class SetContactPreferences extends SetContactPreferencesBase {
 	 * table based on userId
 	 */
 	private static void saveUserTopicPreferences(final BigDecimal cUserId,
-	        final ContactPrefrences.TopicPreference[] cTopicPreferencesList,
+	        final List<ContactPrefrences.TopicPreference> cTopicPreferencesList,
 	        final IPreferences cPreferences) {
 		
 		for (ContactPrefrences.TopicPreference topicPreferences : cTopicPreferencesList) {
@@ -205,6 +226,65 @@ public class SetContactPreferences extends SetContactPreferencesBase {
 			
 		}
 		
+	}
+	
+	private static boolean validateRequest(
+	        List<ContactPrefrences.TopicPreference> szTopicPreferences) {
+		
+		// --------------------------------------------------------------------------------------
+		// Fetching all the topic channels.
+		final var cTopicChannelsList = m_cDao.queryTopicChannels();
+		
+		boolean isValidRequest = true;
+		
+		List<String> errorsList = new ArrayList<>();
+		
+		for (ContactPrefrences.TopicPreference topicPreference : szTopicPreferences) {
+			
+			for (ContactPrefrences.TopicChannel channel : topicPreference.getTopicChannels()) {
+				
+				boolean hasTopicChannelPair = cTopicChannelsList.stream().anyMatch(
+				        topicChannel -> topicChannel.topic().equals(topicPreference.getTopicName())
+				                && topicChannel.channel().equals(channel.getChannelName()));
+				
+				if (!hasTopicChannelPair) {
+					isValidRequest = false;
+					errorsList.add(new StringJoiner("/", "\n",
+					        " - Topic or Channel name not found or is invalid")
+					        .add(topicPreference.getTopicName()).add(channel.getChannelName())
+					        .toString());
+				} else {
+					boolean isHardCodedViolation = cTopicChannelsList.stream()
+					        .filter(topicChannel -> topicChannel.topic()
+					                .equals(topicPreference.getTopicName())
+					                && topicChannel.channel().equals(channel.getChannelName()))
+					        .anyMatch(topicChannel -> {
+						        try {
+							        return !topicChannel.hasHardcoded()
+							                || !(topicChannel.isHardcoded() ^ channel.isSelected());
+						        } catch (Exception e) {
+							        return false;
+						        }
+					        });
+					
+					if (!isHardCodedViolation) {
+						isValidRequest = false;
+						errorsList.add(new StringJoiner("/", "\n",
+						        " - Not allowed to change hardcoded values")
+						        .add(topicPreference.getTopicName()).add(channel.getChannelName())
+						        .toString());
+					}
+				}
+				
+			}
+			
+		}
+		
+		if (!errorsList.isEmpty()) {
+			LOG.error("Bad request for topic/channel: " + errorsList.toString());
+		}
+		
+		return isValidRequest;
 	}
 	
 }

@@ -54,5 +54,16 @@ define service FffcNotify(com.sorrisotech.app.serviceapi.uc.UcRequestClient) [
 		// All topic preferences settings JSON of user.
 		string topicPrefrences
 		
+	] returns [
+		
+		//---------------------------------------------------------------------
+        // If the password does not appear in the user's recent history this
+        // will be set to "unique" otherwise it will be set to "exists".  If 
+        // there was an issue "error" will be returned.    	
+    	list status [
+    		good
+    		validationError
+    	    error
+    	]
 	]
 ]

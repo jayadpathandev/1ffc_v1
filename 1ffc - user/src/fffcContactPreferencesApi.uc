@@ -2,7 +2,7 @@ useCase fffcContactPreferencesApi
 [
 	startAt init
 
-	shortcut patchContactPreferences(init)
+	shortcut contactpreferences(init)
 
 	importJava Log(api.Log)
 	importJava JsonRequest(com.sorrisotech.app.common.JsonRequest)
@@ -15,6 +15,7 @@ useCase fffcContactPreferencesApi
     
     serviceStatus srSetContactPrefsStatus
     serviceParam  (FffcNotify.SetContactPreferences) srSetContactPrefsParam
+    serviceResult (FffcNotify.SetContactPreferences) srSetContactPrefsResult
 
     native string sServiceUserName    = Config.get("service.api.username")
     native string sServiceNameSpace   = Config.get("service.api.namespace")
@@ -24,7 +25,6 @@ useCase fffcContactPreferencesApi
     native string sdateTime			  = JsonRequest.value("date_time")
     native string sChannelAddresses   = JsonRequest.value("channel_addresses")
     native string sTopicPreferences   = JsonRequest.value("topic_preferences")
-    
 
    /*************************
      * MAIN SUCCESS SCENARIO
@@ -124,9 +124,20 @@ useCase fffcContactPreferencesApi
 		srSetContactPrefsParam.channelAddresses = sChannelAddresses
 		srSetContactPrefsParam.topicPrefrences  = sTopicPreferences
 		
-		switch apiCall FffcNotify.SetContactPreferences(srSetContactPrefsParam, srSetContactPrefsStatus)[
-			case apiSuccess actionSuccess
+		switch apiCall FffcNotify.SetContactPreferences(srSetContactPrefsParam, srSetContactPrefsStatus, srSetContactPrefsResult)[
+			case apiSuccess actionCheckStatus
 			default actionBadRequest
+		]
+	]
+	
+	/****************************************************************************************************
+	 * Checking status. 
+	 */
+	action actionCheckStatus [
+		switch srSetContactPrefsResult.status [
+			case good      		 actionSuccess
+    		case validationError actionBadRequestValidationError
+    		case error           actionBadRequest
 		]
 	]
 	
@@ -149,7 +160,7 @@ useCase fffcContactPreferencesApi
 		Log.warn("setContactPreferences", "*****", sCustomerId, "Success")
 		JsonResponse.setNumber("statuscode","200")
 		JsonResponse.setBoolean("success","true")
-		JsonResponse.setString("payload", "Successfully updated the contact preferences for given customerId")
+		JsonResponse.setString("payload", "Successfully updated the contact preferences for given customerId.")
 		JsonResponse.setNull("errors[+]")
 		foreignHandler JsonResponse.send()
 	]
@@ -175,9 +186,35 @@ useCase fffcContactPreferencesApi
 		JsonResponse.setNumber("statuscode","400")
 		JsonResponse.setBoolean("success","false")
 		JsonResponse.setNull("payload")
-		JsonResponse.setString("errors[+]","Bad request received")
+		JsonResponse.setString("errors[+]", "Bad request received.")
 		foreignHandler JsonResponse.errorWithResponse("400")
 	]
+	
+	/********************************
+	 * Request Validation Failed
+	 */
+	action actionBadRequestValidationError [
+       if sSession == "true" then
+           actionBadRequestValidationErrorFinish
+       else
+           actionBadRequestValidationErrorClear
+    ]
+    
+    action actionBadRequestValidationErrorClear [
+        logout()
+        goto(actionBadRequestValidationErrorFinish)
+    ]
+	
+	action actionBadRequestValidationErrorFinish [
+		Log.warn("setContactPreferences ", "*****"," request validation failed", sCustomerId, "failed")
+		JsonResponse.reset()
+		JsonResponse.setNumber("statuscode","400")
+		JsonResponse.setBoolean("success","false")
+		JsonResponse.setNull("payload")
+		JsonResponse.setString("errors[+]", "Bad request received for topic preferences.")
+		foreignHandler JsonResponse.errorWithResponse("400")
+	]
+	
 	
 	/********************************
 	 * User not found.
@@ -199,8 +236,8 @@ useCase fffcContactPreferencesApi
 		JsonResponse.setNumber("statuscode","404")
 		JsonResponse.setBoolean("success","false")
 		JsonResponse.setNull("payload")
-		JsonResponse.setString("errors[+]","No user found for given customerId")
-		Log.warn("getContactPreferences", "*****", "error, user not registered yet")
+		JsonResponse.setString("errors[+]","No user found for given customerId!")
+		Log.warn("setContactPreferences", "*****", "error, user not registered yet")
 		foreignHandler JsonResponse.errorWithResponse("404")
 	]
 	
@@ -220,7 +257,7 @@ useCase fffcContactPreferencesApi
     ]
 	 
 	action actionAuthFailureFinish [
-		Log.warn("getContactPreferences", "*****", sCustomerId, "Authentication Failure")
+		Log.warn("setContactPreferences", "*****", sCustomerId, "Authentication Failure")
 		foreignHandler JsonResponse.error("401")
 	]
 ]
