@@ -28,10 +28,11 @@ import java.nio.file.Path;
 public class BuildProperties {
 	private static final String[] paths = {
 	    "1ffc - admin",
-	    "1ffc - auth", 
+	    "1ffc - auth",
 	    "1ffc - user",
+		"1ffc - extdoc",
 	};
-	                                      
+
 	public static void generate(
 				final Path devkit
 			) throws FileNotFoundException {
