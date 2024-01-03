@@ -174,7 +174,7 @@
 		</tr>
 		<tr>
 			<td><span class="fw-bold">Statement Amount Due:</span></td>
-			<td><span class="fw-bold">${formatUtils.formatAmount(nLoanBalance)}</span></td>
+			<td><span class="fw-bold">${formatUtils.formatAmount(bill.amountDue)}</span></td>
 		</tr>
 		<tr>
 			<td><span class="fw-bold">Current Amount Due:</span></td>
@@ -191,7 +191,7 @@
 		<tr>
 			<td><span class="fw-bold">Statement Principal Balance:</span></td>
 			<#if nLoanAmount??>
-			<td><span class="fw-bold">${nLoanBalance}</span></td>
+			<td><span class="fw-bold">${formatUtils.formatAmount(nLoanAmount)}</span></td>
 			<#else>
 			<td><span class="fw-bold">not avail</span></td>
 			</#if>
@@ -218,7 +218,7 @@
 							<a class="me-4" target="_blank" href="fffcViewDoc?sAccount=${bill.internalAccountNo}&sDate=${bill.dateNum?c}&sStreamId=${bill.stream}&sDocId=${bill.id?c}&sExtDocId=${bill.extDocId}">View statement</a>
 							<a class="me-4 text-nowrap" href="#" st-pop-in="fffcViewTransactions?offset=${jumpToOffset}">Transaction History</a>
 
-							<#if bPmtDisabled>
+							<#if (bPmtDisabled || ("disableDQ" == status.paymentEnabled) || ( 0 < scheduledPayment.automaticPmtCount)) >
 								<#--  payment is disabled -->
 								<a class="text-nowrap disabled pe-none opacity-50" aria-disabled="true">Set&nbsp;up&nbsp;recurring&nbsp;payment</a>				
 							<#else>
