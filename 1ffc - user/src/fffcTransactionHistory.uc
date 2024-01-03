@@ -28,7 +28,7 @@ useCase fffcTransactionHistory [
 	string szHeader = "{Transaction History}"
 	
     table tTable = TransactionHistory.historyFor(sAccount, sPayGroup) [
-        emptyMsg: "{Transaction details}"
+        emptyMsg: "{There are no transaction details available.}"
  
  		"t_date"    	=> string sDate      
  		"t_date_num" 	=> string sDateSort

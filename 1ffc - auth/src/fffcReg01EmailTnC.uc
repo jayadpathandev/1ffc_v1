@@ -59,7 +59,7 @@ useCase fffcReg01EmailTnC [
 	import regContactInfo.fMobileNumber
 	import regContactInfo.fPhoneNumber
 						
-    string sPageName = "{Registration - E-Mail consent (step 1 of 8)}"   
+    string sPageName = "{Registration - E-mail consent (step 1 of 8)}"   
 	
     tag hTermsText = TermsAndConditions.loadFile("terms_email_en_us.html")			       
         
