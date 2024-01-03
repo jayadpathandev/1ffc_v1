@@ -19,7 +19,7 @@ useCase fffcReg03ElectronicTnC [
 	 **************************/  	 	
 	importJava TermsAndConditions(com.sorrisotech.fffc.auth.TermsAndConditions)
 
-    string sPageName = "{Registration - ESIGN Consent (step 3 of 8)}"   
+    string sPageName = "{Registration - E-SIGN Consent (step 3 of 8)}"   
 	
     tag hTermsText = TermsAndConditions.loadFile("terms_electronic_en_us.html")			       
         

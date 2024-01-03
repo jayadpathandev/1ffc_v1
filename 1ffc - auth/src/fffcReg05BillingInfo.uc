@@ -778,7 +778,7 @@ useCase fffcReg05BillingInfo [
      * 20. User clicks the back button. Go to the registration T&C usecase.
      */
     action gotoRegTermsAndConditions [
-    	gotoUc(fffcReg03ElectronicTnC)
+    	gotoUc(fffcReg04WebTnC)
     ]  
     
     /**************************************************************************

@@ -36,7 +36,7 @@ useCase fffcReg04WebTnC [
 	 	
 	importJava UcTermsConditions(com.sorrisotech.uc.termsconditions.UcTermsConditions)
 	
-    string sPageName = "{Registration - Terms and Conditions (step 4 of 7)}"   
+    string sPageName = "{Registration - Terms and Conditions (step 4 of 8)}"   
 	
     tag hTermsText = UcTermsConditions.getTermsConditions(sorrisoLanguage, sorrisoCountry)			       
     
@@ -135,7 +135,7 @@ useCase fffcReg04WebTnC [
 							attr_tabindex: "3"
 						] 							
 						
-						navigation termsConditionsBack(gotoLogin, "{Back}") [
+						navigation termsConditionsBack(gotoElectronicTn, "{Back}") [
 							attr_tabindex: "4"
 						]
 					]
@@ -157,7 +157,14 @@ useCase fffcReg04WebTnC [
     action gotoLogin [
     	gotoModule(LOGIN)
     ]
-    
+
+    /**************************************************************************
+	 * 6. Go to the registration - electronic Terms and Conditions usecase
+	 */ 
+    action gotoElectronicTn [        
+        gotoUc(fffcReg03ElectronicTnC)
+    ] 
+            
     /**************************************************************************
      * Alternative Paths
      ***************************************************************************/    
