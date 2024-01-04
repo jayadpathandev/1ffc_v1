@@ -218,7 +218,7 @@
 							<a class="me-4" target="_blank" href="fffcViewDoc?sAccount=${bill.internalAccountNo}&sDate=${bill.dateNum?c}&sStreamId=${bill.stream}&sDocId=${bill.id?c}&sExtDocId=${bill.extDocId}">View statement</a>
 							<a class="me-4 text-nowrap" href="#" st-pop-in="fffcViewTransactions?offset=${jumpToOffset}">Transaction History</a>
 
-							<#if (bPmtDisabled || ("disableDQ" == status.paymentEnabled) || ( 0 < scheduledPayment.automaticPmtCount)) >
+							<#if (bPmtDisabled || ("disableDQ" == status.paymentEnabled) || ( "0" != scheduledPayment.automaticPmtCount)) >
 								<#--  payment is disabled -->
 								<a class="text-nowrap disabled pe-none opacity-50" aria-disabled="true">Set&nbsp;up&nbsp;recurring&nbsp;payment</a>				
 							<#else>
