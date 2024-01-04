@@ -34,6 +34,7 @@ useCase contactPreferencesConsentSms [
 	]
 	
 	importJava AuthUtil(com.sorrisotech.app.common.utils.AuthUtil)
+	importJava CreateSaml(com.sorrisotech.app.^library.saml.CreateSaml)
 	importJava LoginUtil(com.sorrisotech.app.common.utils.LoginUtil)
 	importJava Session(com.sorrisotech.app.utils.Session)
 	importJava UcNotificationsAction(com.sorrisotech.app.notifications.UcNotificationsAction)
@@ -56,8 +57,9 @@ useCase contactPreferencesConsentSms [
     native string sAccountStatus                                              
     native string sNewSms    
     native string sSmsChannel = "sms"                                                  
-    native string sSmsValidationCode
+    native string sSmsValidationCode  
     native string sOrgId
+    native string sNameSpace = CreateSaml.getNameSpace()                                                                                 
     
     native string sUserId            = Session.getUserId()
     native string sProfileUpdateFlag = UcNotificationsAction.isEmailNotifPrefEnabled(sUserId)
@@ -97,6 +99,11 @@ useCase contactPreferencesConsentSms [
         string(body) sBody = "{An error occurred while trying to send a sms to the new mobile provided. Please try again later}"
     ]
     
+    structure(message) oMsgDuplicateSms [
+        string(title) sTitle = "{Duplicate SMS Address}"
+        string(body) sBody = "{This sms address has been used. Please enter a different one.}"
+    ]
+    
     structure(message) oMsgAccountLocked [    
         string(title) sTitle = "{Account locked}"
         string(body) sBody = "{Your account is locked. Please try again after 10 minutes.}"
@@ -121,7 +128,21 @@ useCase contactPreferencesConsentSms [
     	loadProfile(            
             accountStatus: sAccountStatus   
             ) 
-        goto(sendSmsValidationCode)                    
+        goto(verifySms)                    
+    ]
+    
+    /* Final check that the sms address is unique before processing,
+	 * otherwise abort change sms flow. */
+    action verifySms [    
+        switch UcProfileAction.isAddressAvailable (
+        	sNameSpace, 
+        	sSmsChannel, 
+        	sNewSms
+        ) [        
+            case "yes" sendSmsValidationCode
+            case "no"  smsDuplicateMsg
+            default genericErrorMsg
+        ]
     ]
     
     /* System creates a validation code and sends the details.
@@ -338,6 +359,12 @@ useCase contactPreferencesConsentSms [
     /* Displays a message that sms sending failed. */
     action smsFailedMsg [
         displayMessage(type: "danger" msg: oMsgSmsFailed)            
+        gotoUc(contactPreferences)
+    ]
+    
+    /* Displays a message that the email address is already in use. */
+    action smsDuplicateMsg [
+        displayMessage(type: "danger" msg: oMsgDuplicateSms)            
         gotoUc(contactPreferences)
     ]
     

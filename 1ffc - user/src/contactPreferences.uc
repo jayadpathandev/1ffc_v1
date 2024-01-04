@@ -299,7 +299,7 @@ useCase contactPreferences [
 									logic: [
 										if sImpersonateFlag == "true" then "remove"
 									]
-									navigation consentValidateEmail(verifyNewEmail, "{Consent and Validate}") [
+									navigation consentValidateEmail(verifyEmail, "{Consent and Validate}") [
 										type: "popin"
 										class: "btn btn-primary"
 										popin_controller: "ChangeAuthCtl"
@@ -335,7 +335,7 @@ useCase contactPreferences [
 									logic: [
 										if sImpersonateFlag == "true" then "remove"
 									]
-									navigation consentValidateSms(verifyNewSms, "{Consent and Validate}") [
+									navigation consentValidateSms(verifySms, "{Consent and Validate}") [
 										type: "popin"
 										class: "btn btn-primary"
 										popin_controller: "ChangeAuthCtl"
@@ -442,17 +442,17 @@ useCase contactPreferences [
      *********************************************************************************************/
     
     /* User clicks the "Consent and Validate" button. System first verifies if the new email provided 
-     * already exists.*/
-    action verifyNewEmail [
+     * already exists. */
+    action verifyEmail [
     	if sMaskedEmail == fUserEmail.pInput then
     		duplicateEmailMsg
     	else
-    		verifyEmail
+    		verifyNewEmail
     ]
     
-    /* If the new email provided already exists, a duplicate email message is displayed.
-     * If there is no change with the email, a no changes made message is displayed.*/
-    action verifyEmail [
+    /* Again, if the new email provided already exists, a duplicate email message is displayed.
+     * If there is no change with the email, a no changes made message is displayed. */
+    action verifyNewEmail [
         switch UcProfileAction.verifyEmail (
         	sNameSpace,
         	sEmailChannel,
@@ -466,8 +466,7 @@ useCase contactPreferences [
     ]
     
     /* Email Validation popin is displayed where user can provide the 
-     * validation code for confirming the new email change.
-     */
+     * validation code for confirming the new email change. */
     action consentValidateEmail [
     	sNewEmail = fUserEmail.pInput
 		gotoUc(contactPreferencesConsentEmail) [
@@ -481,16 +480,16 @@ useCase contactPreferences [
 	
 	/* User clicks the "Consent and Validate" button. System verifies the sms entered. 
      * If the new sms provided already exists, a duplicate sms message is displayed.
-     * If there is no change with the sms, a no changes made message is displayed.*/
-    action verifyNewSms [
+     * If there is no change with the sms, a no changes made message is displayed. */
+    action verifySms [
     	switch UcProfileAction.verifySms (
-        	sNameSpace,
+    		sNameSpace,
         	sSmsChannel,
         	sCurrentSms,
         	fUserMobile.pInput            
         ) [
             case "success" consentValidateSms
-            case "duplicate" duplicateSmsMsg            
+            case "duplicate" duplicateSmsMsg
             case "no_change" noSmsChangeMadeMsg
         ]
     ]
