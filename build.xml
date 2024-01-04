@@ -52,6 +52,46 @@
         <ant dir="1ffc - transaction history batch" inheritAll="false" inheritRefs="false"/>
     </target>
 
+    <target name="-build.extdoc.uc" depends="-init">
+        <delete dir="${artifacts.dir}/extdoc"/>
+        <mkdir  dir="${output.dir}/apps/extdoc"/>
+
+        <copy todir="${artifacts.dir}/extdoc" overwrite="true" flatten="true">
+            <fileset dir="${devkit.dir}/app - extdoc/usecases"/>
+        </copy>
+
+        <ant dir="${devkit.dir}/build" antfile="persona.xml" inheritAll="false" inheritRefs="false">
+            <property name="usecase.directories" value="${artifacts.dir}/extdoc"/>
+            <property name="usecase.output" value="${output.dir}/apps/extdoc"/>
+        </ant>
+    </target>
+
+    <target name="build.extdoc" depends="-init, -build.extdoc.uc">
+        <mkdir dir="${output.dir}/apps/extdoc"/>
+
+        <!-- Copy the classpath from the base application -->
+        <mkdir dir="${output.dir}/apps/extdoc/classes"/>
+        <copy todir="${output.dir}/apps/extdoc/classes" overwrite="true">
+            <fileset dir="${devkit.dir}/app - extdoc/resources">
+            	<exclude name="linked-root/**"/>
+            	<exclude name="layout-pages/**"/>
+            </fileset>
+        </copy>
+
+		<!-- Usecases/I18N/services from the base application. -->
+        <copy todir="${output.dir}/apps/extdoc/" overwrite="true">
+        	<fileset dir="${devkit.dir}/app - extdoc/resources" includes="config.properties"/>
+        	<fileset dir="${devkit.dir}/app - extdoc/resources" includes="services/*.xml"/>
+            <fileset dir="${devkit.dir}/app - extdoc" includes="lib/*.jar" excludes="lib/persona-jetty.jar"/>
+        </copy>
+
+    	<!-- Copy the linked-root and layout-pages from the base application. -->
+        <copy todir="${output.dir}/apps/extdoc/" overwrite="true">
+            <fileset dir="${devkit.dir}/app - extdoc/resources" includes="linked-root/**/*.*"/>
+        	<fileset dir="${devkit.dir}/app - extdoc/resources" includes="layout-pages/**/*.*"/>
+        </copy>
+    </target>
+
     <target name="-build.admin.uc" depends="-init">
         <delete dir="${artifacts.dir}/admin"/>
         <mkdir  dir="${output.dir}/apps/admin"/>
@@ -349,7 +389,7 @@
     	</propertyfile>
     </target>
 
-    <target name="package" depends="build.admin, build.auth, build.user, package-libraries">
+    <target name="package" depends="build.admin, build.auth, build.user, build.extdoc, package-libraries">
         <delete file="${output.dir}/package.zip"/>
         <propertyfile file="${output.dir}/extdoc/nls/nls.properties">
             <entry key="nls.api.client.id" value="${nls.api.client.id}"/>
@@ -362,6 +402,7 @@
 			<entry key="nls.api.version" value="${nls.api.version}"/>
         </propertyfile>
 
-        <zip destfile="${output.dir}/package.zip" basedir="${output.dir}"/>
+        <zip destfile="${output.dir}/1ffc.zip" basedir="${output.dir}/apps"/>
+        <copy file="${devkit.dir}/app - user/deploy/license" tofile="${output.dir}/1ffc.license"/>
     </target>
 </project>
