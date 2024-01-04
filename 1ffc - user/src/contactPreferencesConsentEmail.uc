@@ -134,7 +134,11 @@ useCase contactPreferencesConsentEmail [
 	/* Final check that the email address is unique before processing,
 	 * otherwise abort change email flow. */
     action verifyEmail [    
-        switch UcProfileAction.isAddressAvailable(sNameSpace, sEmailChannel, sNewEmail) [        
+        switch UcProfileAction.isAddressAvailable (
+        	sNameSpace, 
+        	sEmailChannel, 
+        	sNewEmail
+        ) [        
             case "yes" sendEmailValidationCode
             case "no"  emailDuplicateMsg
             default genericErrorMsg
