@@ -58,7 +58,7 @@ public class Driver implements IDriver {
 			final var szBaseUrl      = cProperties.getProperty("nls.api.base.url");
 			final var szClientId     = cProperties.getProperty("nls.api.client.id");
 			final var szClientSecret = cProperties.getProperty("nls.api.client.secret");
-			final var szVersion      = cProperties.getProperty("nls.api.client.version");
+			final var szVersion      = cProperties.getProperty("nls.api.version");
 			
 			return NLSClient.init(szBaseUrl, szClientId, szClientSecret, szVersion);
 			
