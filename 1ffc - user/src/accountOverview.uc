@@ -240,7 +240,6 @@ useCase accountOverview [
     native string sLocalAccountStatus = "enabled" // -- this is work around to a defect in persona.  API return structures appear to be
     											  // 		immutable even though we can "assign a new value"... it seems to screw it up.
 
-    
 	/*************************
 	* MAIN SUCCESS SCENARIOS
 	*************************/
@@ -627,13 +626,13 @@ useCase accountOverview [
 	 */
 	action storeScheduledPmtVariables [
 		sHasAutomaticPaymentRule = "false"
-		FtlTemplate.setItemValue(TemplateIdPaymentSummary, sScheduledPmtGroupName, "oneTimePmtCount", "string", srGetSchedPmtSummaryResult.ONETIMEPMT_COUNT)
-		FtlTemplate.setItemValue(TemplateIdPaymentSummary, sScheduledPmtGroupName, "oneTimePmtDate", "string", srGetSchedPmtSummaryResult.ONETIMEPMT_DATE)
-		FtlTemplate.setItemValue(TemplateIdPaymentSummary, sScheduledPmtGroupName, "oneTimePmtTotalAmt", "string", srGetSchedPmtSummaryResult.ONETIMEPMT_TOTALAMT)
-		FtlTemplate.setItemValue(TemplateIdPaymentSummary, sScheduledPmtGroupName, "automaticPmtCount", "string", srGetSchedPmtSummaryResult.AUTOMATICPMT_COUNT)
-		FtlTemplate.setItemValue(TemplateIdPaymentSummary, sScheduledPmtGroupName, "automaticPmtDate", "string", srGetSchedPmtSummaryResult.AUTOMATICPMT_DATE)
-		FtlTemplate.setItemValue(TemplateIdPaymentSummary, sScheduledPmtGroupName, "automaticPmtTotalAmt", "string", srGetSchedPmtSummaryResult.AUTOMATICPMT_TOTALAMT)
-		FtlTemplate.setItemValue(TemplateIdPaymentSummary, sScheduledPmtGroupName, "scheduledPmtTotalAmt", "string", srGetSchedPmtSummaryResult.SCHEDULEDPMT_TOTALAMT)
+		FtlTemplate.setItemValue(TemplateIdPaymentSummary, sScheduledPmtGroupName, "oneTimePmtCount", "number", srGetSchedPmtSummaryResult.ONETIMEPMT_COUNT)
+		FtlTemplate.setItemValue(TemplateIdPaymentSummary, sScheduledPmtGroupName, "oneTimePmtDate", "dateDb", srGetSchedPmtSummaryResult.ONETIMEPMT_DATE)
+		FtlTemplate.setItemValue(TemplateIdPaymentSummary, sScheduledPmtGroupName, "oneTimePmtTotalAmt", "number", srGetSchedPmtSummaryResult.ONETIMEPMT_TOTALAMT)
+		FtlTemplate.setItemValue(TemplateIdPaymentSummary, sScheduledPmtGroupName, "automaticPmtCount", "number", srGetSchedPmtSummaryResult.AUTOMATICPMT_COUNT)
+		FtlTemplate.setItemValue(TemplateIdPaymentSummary, sScheduledPmtGroupName, "automaticPmtDate", "dateDb", srGetSchedPmtSummaryResult.AUTOMATICPMT_DATE)
+		FtlTemplate.setItemValue(TemplateIdPaymentSummary, sScheduledPmtGroupName, "automaticPmtTotalAmt", "number", srGetSchedPmtSummaryResult.AUTOMATICPMT_TOTALAMT)
+		FtlTemplate.setItemValue(TemplateIdPaymentSummary, sScheduledPmtGroupName, "scheduledPmtTotalAmt", "number", srGetSchedPmtSummaryResult.SCHEDULEDPMT_TOTALAMT)
 		if "0" != srGetSchedPmtSummaryResult.AUTOMATICPMT_COUNT then
 			setAutomatePaymentRuleTrue
 		else

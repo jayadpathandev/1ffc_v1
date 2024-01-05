@@ -509,7 +509,7 @@ useCase accountSummaryChild [
             
             div info [
             	class: "col-8 col-sm-9 col-lg-10 row"
-				
+
 	            div accountCol [
 	            	class: "col-12 col-lg-3 st-summary-account"	            	
  
