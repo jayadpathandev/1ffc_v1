@@ -62,6 +62,7 @@ useCase accountOverview [
     *        1.0 07-Feb-2017 First Version Coded [Maybelle Johnsy Kanjirapallil]
     * 		 2.0 2023-Nov-24 	JAK	Updated for 1st Franklin and future use.
     * 			 2023-Dec-11	JAK Updated to handle no bills situations.
+    * 		 2.1 2024-Jan-04	JAK	Updated to use new template builder.
     */
 
     documentation [
@@ -188,26 +189,12 @@ useCase accountOverview [
 	static sNoBills = "{You have no bills.}"
 	
 	string sCurrentBalanceFlag = ""
+	string sHasAutomaticPaymentRule = "false"
 	
 	string sMessage = ""
  	
-    tag hPaymentSummary = UcPaymentAction.getPaymentSummaryTemplate(
-        "paymentSummary.ftl",
-        sorrisoLanguage, 
-        sorrisoCountry, 
-        sAccount, 							
-        sAccountDisplay,					
-        sPayGroup, 							
-        sCurrentBalance,                                     
-		srBillOverviewResult.dueDate,
-        srBillOverviewResult.docAmount,     
-        previousAmt, 
-        srBillOverviewResult.minDue,
-        srBillOverviewResult.docDate,  
-        srBillOverviewResult.docNumber, 		
-        srBillOverviewResult.docLocation, 			
-		srBillOverviewResult.result)
-				
+ 	tag hPaymentSummary = FtlTemplate.renderTemplate(TemplateIdPaymentSummary)
+ 				
 	tag hPaymentError  = UcPaymentAction.getPaymentErrorTemplate(
         "paymentSummaryError.ftl",
         sorrisoLanguage, 
@@ -216,6 +203,13 @@ useCase accountOverview [
         sPayGroup,				
 		sMessage) 	
 
+	// -- gets a Template Identifier (session) for the template first time
+	//		accessed --
+	native string TemplateIdPaymentSummary = FtlTemplate.initializeTemplate(
+											sorrisoLanguage,
+											sorrisoCountry,
+											"paymentSummary.ftl",
+											sPayGroup )
 	// -- gets a Template Identifier (session) for the template first time
 	//		accessed --
 	native string TemplateIdNoBills = FtlTemplate.initializeTemplate(
@@ -242,6 +236,9 @@ useCase accountOverview [
 	
     number        previousAmt  = Math.subtract(srBillOverviewResult.totalDue, srBillOverviewResult.docAmount)                
     native string sCurrentBalance
+    
+    native string sLocalAccountStatus = "enabled" // -- this is work around to a defect in persona.  API return structures appear to be
+    											  // 		immutable even though we can "assign a new value"... it seems to screw it up.
 
     
 	/*************************
@@ -268,9 +265,19 @@ useCase accountOverview [
 		srGetStatusParams.account = sAccount
 		// -- retrieve the status information --
    		switch apiCall AccountStatus.GetStatus(srGetStatusParams, srGetStatusResult, srAccountStatusCode) [
-    		case apiSuccess switchOnViewStatus
+    		case apiSuccess assignlocalStatusVariable
     		default errorRetrievingStatus
     	]
+ 	]
+ 	
+ 	/**
+ 	 * System uses this trampoline function that should not be needed... System assigns a local variable value
+ 	 *	from the status result allowing it to transition the result later if the system discovers a bill for a
+ 	 *	newAccount. This is a workaround for a Persona defect which makes results immutable.
+ 	 */
+ 	action assignlocalStatusVariable [
+ 		sLocalAccountStatus = srGetStatusResult.accountStatus
+ 		goto (switchOnViewStatus)
  	]
  	
  	/**
@@ -309,7 +316,7 @@ useCase accountOverview [
 	 * 5a. Transition a new account to an active account
 	 */
 	action transitionNewAccount [
-		srGetStatusResult.accountStatus = "activeAccount"
+		sLocalAccountStatus = "activeAccount"
 		goto(oKToAssignStatusToBillTemplate)
 	]
 
@@ -334,7 +341,7 @@ useCase accountOverview [
 		FtlTemplate.setItemValue(TemplateIdNoBills, "status",
 					"viewAccount", "string", srGetStatusResult.viewAccount)
 		FtlTemplate.setItemValue(TemplateIdNoBills, "status",
-					"accountStatus", "string", srGetStatusResult.accountStatus)
+					"accountStatus", "string", sLocalAccountStatus)
 		FtlTemplate.setItemValue(TemplateIdNoBills, "root",
 					"displayAccount", "string", sAccountDisplay)
 		FtlTemplate.setItemValue(TemplateIdNoBills, "root",
@@ -355,21 +362,20 @@ useCase accountOverview [
  	 *		the case. Clear the group elements just in case.
  	 */
  	action oKToAssignStatusToBillTemplate [
- 		UcPaymentAction.InitializeExtraGroupElements()
   		goto(setStatusGroupVariables)
 	]
 	
  	/**
- 	 *	10a. Assign the status information to the parameters sent down
+ 	 *	10a. System assigns the status information to the parameters sent down
  	 * 		to the bill overview template which is oddly named "payment.ftl"... I don't
  	 * 		know why.
  	 */ 
 	action setStatusGroupVariables [
 
-		UcPaymentAction.addExtraGroupElement(sStatusGroupName, "accountStatus", srGetStatusResult.accountStatus)
-		UcPaymentAction.addExtraGroupElement(sStatusGroupName, "paymentEnabled", srGetStatusResult.paymentEnabled)
-		UcPaymentAction.addExtraGroupElement(sStatusGroupName, "achEnabled", srGetStatusResult.achEnabled)
-		UcPaymentAction.addExtraGroupElement(sStatusGroupName, "viewAccount", srGetStatusResult.viewAccount)
+		FtlTemplate.setItemValue(TemplateIdPaymentSummary, "status", "accountStatus",  "string", sLocalAccountStatus)
+		FtlTemplate.setItemValue(TemplateIdPaymentSummary, "status", "paymentEnabled", "string", srGetStatusResult.paymentEnabled)
+		FtlTemplate.setItemValue(TemplateIdPaymentSummary, "status", "achEnabled",     "string", srGetStatusResult.achEnabled)
+		FtlTemplate.setItemValue(TemplateIdPaymentSummary, "status", "viewAccount",    "string", srGetStatusResult.viewAccount)
 		goto (doWeHaveBillsOrJustDocuments)
 	]
 
@@ -617,19 +623,32 @@ useCase accountOverview [
 	]
 	
 	/**
-	 * 14. Store scheduled payment summary information in the template
+	 * 14. System stores scheduled payment summary information in the template
 	 */
 	action storeScheduledPmtVariables [
-		UcPaymentAction.addExtraGroupElement(sScheduledPmtGroupName, "oneTimePmtCount", srGetSchedPmtSummaryResult.ONETIMEPMT_COUNT)
-		UcPaymentAction.addExtraGroupElement(sScheduledPmtGroupName, "oneTimePmtDate", srGetSchedPmtSummaryResult.ONETIMEPMT_DATE)
-		UcPaymentAction.addExtraGroupElement(sScheduledPmtGroupName, "oneTimePmtTotalAmt", srGetSchedPmtSummaryResult.ONETIMEPMT_TOTALAMT)
-		UcPaymentAction.addExtraGroupElement(sScheduledPmtGroupName, "automaticPmtCount", srGetSchedPmtSummaryResult.AUTOMATICPMT_COUNT)
-		UcPaymentAction.addExtraGroupElement(sScheduledPmtGroupName, "automaticPmtDate", srGetSchedPmtSummaryResult.AUTOMATICPMT_DATE)
-		UcPaymentAction.addExtraGroupElement(sScheduledPmtGroupName, "automaticPmtTotalAmt", srGetSchedPmtSummaryResult.AUTOMATICPMT_TOTALAMT)
-		UcPaymentAction.addExtraGroupElement(sScheduledPmtGroupName, "scheduledPmtTotalAmt", srGetSchedPmtSummaryResult.SCHEDULEDPMT_TOTALAMT)
-		
+		sHasAutomaticPaymentRule = "false"
+		FtlTemplate.setItemValue(TemplateIdPaymentSummary, sScheduledPmtGroupName, "oneTimePmtCount", "string", srGetSchedPmtSummaryResult.ONETIMEPMT_COUNT)
+		FtlTemplate.setItemValue(TemplateIdPaymentSummary, sScheduledPmtGroupName, "oneTimePmtDate", "string", srGetSchedPmtSummaryResult.ONETIMEPMT_DATE)
+		FtlTemplate.setItemValue(TemplateIdPaymentSummary, sScheduledPmtGroupName, "oneTimePmtTotalAmt", "string", srGetSchedPmtSummaryResult.ONETIMEPMT_TOTALAMT)
+		FtlTemplate.setItemValue(TemplateIdPaymentSummary, sScheduledPmtGroupName, "automaticPmtCount", "string", srGetSchedPmtSummaryResult.AUTOMATICPMT_COUNT)
+		FtlTemplate.setItemValue(TemplateIdPaymentSummary, sScheduledPmtGroupName, "automaticPmtDate", "string", srGetSchedPmtSummaryResult.AUTOMATICPMT_DATE)
+		FtlTemplate.setItemValue(TemplateIdPaymentSummary, sScheduledPmtGroupName, "automaticPmtTotalAmt", "string", srGetSchedPmtSummaryResult.AUTOMATICPMT_TOTALAMT)
+		FtlTemplate.setItemValue(TemplateIdPaymentSummary, sScheduledPmtGroupName, "scheduledPmtTotalAmt", "string", srGetSchedPmtSummaryResult.SCHEDULEDPMT_TOTALAMT)
+		if "0" != srGetSchedPmtSummaryResult.AUTOMATICPMT_COUNT then
+			setAutomatePaymentRuleTrue
+		else
+			shouldWeDisplayStatementOrInvoiceBased
+	]
+	
+	/**
+	 * 14a. System sets bhasAutomaticPaymentRule to true if there is one
+	 */
+	 action setAutomatePaymentRuleTrue [
+	 	sHasAutomaticPaymentRule = "true"
 		goto (shouldWeDisplayStatementOrInvoiceBased)
-	]	
+	 	
+	 ]	
+
 
 	/**************************************************************************************
 	 * END GET SCHEDULED AND RECURRING PAYMENT INFORMATION
@@ -638,19 +657,34 @@ useCase accountOverview [
 	/**************************************************************************************
 	 * BEGIN DISPLAY SUMMARY RELATED STEPS
 	 ************************************************************************************** */
+	
+
 	 
 	/**
-	 * 15. We display account summary differently if we are statement
+	 * 15. System displays summary differently if we are statement
 	 *		based or invoice based
 	 */
 	action shouldWeDisplayStatementOrInvoiceBased [
 		switch sBillingType [
 	 		case "invoice" 		showInvoiceOverview
-	 		case "statement" 	showStatementOverview
+	 		case "statement" 	setStatementInfoInTemplate
 	 		default 			errorBillingTypeConfiguration
 		]
 	]
 	
+	/**
+	 * 15a. System has collected all the bill/document information needed for the template, assign it. */
+	action setStatementInfoInTemplate [
+		FtlTemplate.addDocumentInfo(TemplateIdPaymentSummary,
+						sPayGroup,
+						sAccount,
+						srBillOverviewResult.docDate,
+						sCurrentBalance,
+						previousAmt,
+						srBillOverviewResult.result,
+						sHasAutomaticPaymentRule)
+		goto (showStatementOverview)
+	]
 
     /* 
      * 16. Show the statement overview page (still called paymentSummery.ftl
@@ -680,11 +714,24 @@ useCase accountOverview [
 		srBillOverviewParam.isBill = "false"
 		
 	    switch apiCall Documents.BillOverview(srBillOverviewParam, srBillOverviewResult, srBillOverviewStatus) [
-		   case apiSuccess showDocumentOverview
+		   case apiSuccess setDocumentInfoInTemplate
 	       default errorDocumentTemplate
 	    ]			
 	]
 
+	/**
+	 * 17a. The system has collected all the bill/document information needed for the template, assign it. */
+	action setDocumentInfoInTemplate [
+		FtlTemplate.addDocumentInfo(TemplateIdPaymentSummary,
+						sPayGroup,
+						sAccount,
+						srBillOverviewResult.docDate,
+						sCurrentBalance,
+						previousAmt,
+						srBillOverviewResult.result,
+						sHasAutomaticPaymentRule)
+		goto (showDocumentOverview)
+	]
 	/**
 	 * 18. Show the document overview page 
 	 *		
