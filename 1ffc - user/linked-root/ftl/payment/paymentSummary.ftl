@@ -218,7 +218,7 @@
 							<a class="me-4" target="_blank" href="fffcViewDoc?sAccount=${bill.internalAccountNo}&sDate=${bill.dateNum?c}&sStreamId=${bill.stream}&sDocId=${bill.id?c}&sExtDocId=${bill.extDocId}">View statement</a>
 							<a class="me-4 text-nowrap" href="#" st-pop-in="fffcViewTransactions?offset=${jumpToOffset}">Transaction History</a>
 
-							<#if (bPmtDisabled || ("disableDQ" == status.paymentEnabled) || ( "0" != scheduledPayment.automaticPmtCount)) >
+							<#if (bPmtDisabled || ("disableDQ" == status.paymentEnabled) || ( 0 != scheduledPayment.automaticPmtCount)) >
 								<#--  payment is disabled -->
 								<a class="text-nowrap disabled pe-none opacity-50" aria-disabled="true">Set&nbsp;up&nbsp;recurring&nbsp;payment</a>				
 							<#else>
@@ -283,7 +283,7 @@
 	
 				<#-- HANDLE ONE TIME PAYMENTS SCHEDULED -->
 				<#switch scheduledPayment.oneTimePmtCount>	<#--  The customer has one or more scheduled payments in the queue -->
-					<#case "1">
+					<#case 1>
 						<#--  Note that not enough turn it into danger from info message -->
 						<div class="text-center mt-3 border border-2 rounded-pill <#if bScheduledPaymentsLate>border-danger<#else>border-info</#if> p-3">
 							You have scheduled a payment of
@@ -297,7 +297,7 @@
 						</div>
 						<#break>
 	
-					<#case "0">
+					<#case 0>
 						<#break>
 					
 					<#default>
@@ -316,7 +316,7 @@
 				</#switch>
 				
 				<#--  HANDLE AUTOMATIC PAYMENT SCHEDULES -->
-				<#if 0 < scheduledPayment.automaticPmtCount?number> <#--  The customer has an automatic payment that's scheduled -->
+				<#if 0 < scheduledPayment.automaticPmtCount> <#--  The customer has an automatic payment that's scheduled -->
 					<div class="text-center mt-3 border border-2 rounded-pill <#if bScheduledPaymentsLate>border-danger<#else>border-info</#if> p-3">
 						You have an automatic payment of
 						<span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nAutomaticPaymentAmount)}</span>
@@ -331,7 +331,7 @@
 				</#if>
 				
 				<#-- HANDLE THE CASE WHERE THERE'S NO PAYMENTS OF ANY KIND SCHEDULED -->
-				<#if (( 0 == scheduledPayment.oneTimePmtCount?number) && (0 == scheduledPayment.automaticPmtCount?number)) > 
+				<#if (( 0 == scheduledPayment.oneTimePmtCount) && (0 == scheduledPayment.automaticPmtCount)) > 
 					
 					<#--  HANDLE THE CASE WHERE THE CURRENT BILL IS PAST ITS DUE DATE BUT A NEW BILL HASN'T ARRIVED -->
 					<#if bPastDueDate> 

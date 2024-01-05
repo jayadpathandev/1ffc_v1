@@ -204,16 +204,15 @@ public class UcFtlDisplay implements IExternalReuse {
 			
 			Boolean rVal = false;
 			try {
-				
-				Calendar lCalendar = DateFormat.parseDb(cszObject);
-				String lszDate = m_DateFormat.text(lCalendar);
-				put (cszGroupName, cszItemName, lszDate);
+				BigDecimal ldBackToNumber = new BigDecimal(cszObject);
+				Date lDate = new Date(ldBackToNumber.longValue());
+				put (cszGroupName, cszItemName, lDate);
 				rVal = true;
-			} catch (ParseException e) {
-				m_cLog.error("UcFtlDisplay:FtlTemplate:putDateNumericAsFormattedString -- invalid date format for " + 
+			} catch (NumberFormatException e) {
+				m_cLog.error("UcFtlDisplay:FtlTemplate:putDateDbAsLocalizedString -- invalid number format for " + 
 						"template id {}, template name {}, type specification {}, input string {}.", 
-						m_TemplateId.toString(), m_szTemplateName, "date", cszObject);
-				m_cLog.error("UcFtlDisplay:FtlTemplate:putDateNumericAsFormattedString", e);
+						m_TemplateId.toString(), m_szTemplateName, "dateDb", cszObject);
+				m_cLog.error("UcFtlDisplay:FtlTemplate:putDateDbAsLocalizedString", e);
 			}
 			
 			return rVal;
@@ -232,7 +231,8 @@ public class UcFtlDisplay implements IExternalReuse {
 			boolean bRet = false;
 			// -- convert to number-- 
 			try {
-				Integer ldTestConversion = Integer.decode(cszObject);
+				
+				BigDecimal ldTestConversion = new BigDecimal(cszObject);
 				Object lItem = ldTestConversion;
 				put (cszGroupName, cszItemName, lItem);
 				bRet = true;
@@ -528,7 +528,6 @@ public class UcFtlDisplay implements IExternalReuse {
 				lbSuccess = lTemplate.putBoolean(cszItemGroup, cszItemName, cszItemValue);
 				break;
 			case "object":
-				lbSuccess = lTemplate.putBoolean(cszItemGroup, cszItemName, cszItemValue);
 				break;
 			default:
 				m_cLog.error("UcFtlDisplay:SetItemValue -- invalid data type specification for " + 
