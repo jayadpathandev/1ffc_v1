@@ -6,7 +6,7 @@
     <target name="-init">
 		<loadproperties srcFile="../build.properties"/>
 
-        <property name="moduleName" value="batch/status_processor"/>
+        <property name="moduleName" value="batch/1ffc_update_status"/>
 
     	<property name="mod.artifacts.dir" value="${artifacts.dir}/${moduleName}"/>
 
@@ -34,18 +34,18 @@
          # Package the xfer job.
          ################################################################## -->
 	<target name="package" depends="-init, compile">
-		<mkdir dir="${output.dir}/batch/status_processsor/resources"/>
+		<mkdir dir="${output.dir}/batch/1ffc_update_status/resources"/>
 
-        <copy todir="${output.dir}/batch/status_processsor/resources">
+        <copy todir="${output.dir}/batch/1ffc_update_status/resources">
              <fileset dir="resources"/>
         </copy>
-		<copy file="control.xml" todir="${output.dir}/batch/status_processor"/>
-        <echo file="${output.dir}/batch/status_processor/paths.properties">
-log.dir  = ${install.dir}/logs
-log.file = status_processor
+		<copy file="control.xml" tofile="${output.dir}/batch/1ffc_update_status/build.xml"/>
+        <echo file="${output.dir}/batch/1ffc_update_status/paths.properties">
+log.dir  = /sorriso/logs
+log.file = 1ffc_v1_update_status
 
-common.config.dir = ${install.dir}/config
-jar.dir           = ${install.dir}/batch/lib
+common.config.dir = /sorriso/batch/config
+jar.dir           = /sorriso/batch/lib
 		</echo>
 
 		<mkdir dir="${output.dir}/batch/lib"/>
@@ -53,5 +53,7 @@ jar.dir           = ${install.dir}/batch/lib
 		<jar destfile="${output.dir}/batch/lib/batchStatusProcessor.jar">
 		    <fileset dir="${mod.artifacts.dir}"/>
 		</jar>
+		<mkdir dir="${output.dir}/jenkins"/>
+		<copy file="1ffc_update_status.xml" todir="${output.dir}/jenkins"/>
 	</target>
 </project>

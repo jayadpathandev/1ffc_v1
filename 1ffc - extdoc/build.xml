@@ -8,7 +8,7 @@
 
         <property name="moduleName" value="extdoc/nls"/>
 
-    	<property name="mod.output.dir"    value="${output.dir}/${moduleName}"/>
+    	<property name="mod.output.dir"    value="${output.dir}/apps/extdoc/drivers/nls"/>
     	<property name="mod.artifacts.dir" value="${artifacts.dir}/${moduleName}"/>
 
     	<mkdir dir="${mod.output.dir}"/>
@@ -52,5 +52,9 @@
 			<fileset dir="${artifacts.dir}/package/service/nls" includes="*.jar"/>
 			<fileset dir="." includes="nls.properties"/>
 		</copy>
+        <propertyfile file="${mod.output.dir}/nls.properties">
+            <entry key="nls.api.client.id" value="${nls.api.client.id}"/>
+            <entry key="nls.api.client.secret" value="${nls.api.client.secret}"/>
+        </propertyfile>
 	</target>
 </project>
