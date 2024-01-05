@@ -629,7 +629,7 @@ useCase paymentAutomatic [
 								class: "row st-payment-help-icons"
 								
 								div historyIconCol [
-									class: "col-md-4 text-center text-md-end"
+									class: "col-md-5 text-center"
 									
 									div historyIcon [
 										class: "st-payment-view-details-auto"
@@ -637,17 +637,8 @@ useCase paymentAutomatic [
 									]
 								]
 								
-								div editIconCol [
-									class: "col-md-4 text-center"
-									
-									div editIcon [
-										class: "st-payment-edit-details"
-										display sLabelPaymentEdit 
-									]
-								]
-								
 								div cancelIconCol [
-									class: "col-md-4 text-center text-md-start"
+									class: "col-md-5 text-center"
 									
 									div cancelIcon [
 										class: "st-payment-cancel-details"
