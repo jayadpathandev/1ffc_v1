@@ -301,7 +301,7 @@ useCase contactPreferences [
 									]
 									navigation consentValidateEmail(verifyEmail, "{Consent and Validate}") [
 										type: "popin"
-										class: "btn btn-primary"
+										class: "btn btn-primary disabled"
 										popin_controller: "ChangeAuthCtl"
 										popin_size: "lg"
 										attr_tabindex: "400"
@@ -337,7 +337,7 @@ useCase contactPreferences [
 									]
 									navigation consentValidateSms(verifySms, "{Consent and Validate}") [
 										type: "popin"
-										class: "btn btn-primary"
+										class: "btn btn-primary disabled"
 										popin_controller: "ChangeAuthCtl"
 										popin_size: "lg"
 										attr_tabindex: "400"
