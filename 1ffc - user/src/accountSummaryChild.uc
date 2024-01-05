@@ -317,7 +317,7 @@ useCase accountSummaryChild [
  	  * 		This sets a special state.  Other states are automatic.
  	  */
  	 action IsActiveNoBill [
- 	 	if "active" == sLocalAccountStatus then 
+ 	 	if "activeAccount" == sLocalAccountStatus then 
  	 		setActiveNoBill
  	 	else
  	 		screenShowInfo
@@ -574,11 +574,10 @@ useCase accountSummaryChild [
 	                	class: "st-dashboard-summary-label d-lg-block"
 	                ]
 				]
-				
 				// -- messages only, no data for accounts. Shows a message based on the account status
 				//		including a couple of status values that are set ONLY inside this use case. -- 
 				div showMessage [
-					class: "row col-12 col-lg-12 st-summary-amount text lg-center"
+					class: "row col-8 col-lg-8 st-summary-amount text lg-center"
 					
 					logic: [ if "activeAccount" == sLocalAccountStatus then "remove"]
 					
