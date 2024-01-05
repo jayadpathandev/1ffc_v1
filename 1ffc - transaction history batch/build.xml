@@ -34,24 +34,24 @@
          # Package the xfer job.
          ################################################################## -->
 	<target name="package-xfer" depends="-init, compile">
-		<mkdir dir="${output.dir}/batch/transaction_xfer/resources"/>
+		<mkdir dir="${output.dir}/batch/1ffc_transaction_xfer/resources"/>
 
-        <copy todir="${output.dir}/batch/transaction_xfer/resources">
+        <copy todir="${output.dir}/batch/1ffc_transaction_xfer/resources">
              <fileset dir="resources">
 			 	<exclude name="loader.*"/>
 				<exclude name="purge.*"/>
 			 </fileset>
         </copy>
-		<copy file="control_xfer.xml" tofile="${output.dir}/batch/transaction_xfer/build.xml"/>
-        <echo file="${output.dir}/batch/transaction_xfer/paths.properties">
-log.dir  = ${install.dir}/logs
-log.file = transaction_history_xfer
+		<copy file="control_xfer.xml" tofile="${output.dir}/batch/1ffc_transaction_xfer/build.xml"/>
+        <echo file="${output.dir}/batch/1ffc_transaction_xfer/paths.properties">
+log.dir  = /sorriso/logs
+log.file = 1ffc_v1_th_xfer
 
-common.config.dir = ${install.dir}/config
-jar.dir           = ${install.dir}/batch/lib
+common.config.dir = /sorriso/batch/config
+jar.dir           = /sorriso/batch/lib
 		</echo>
 
-		<propertyfile file="${output.dir}/batch/transaction_xfer/resources/xfer.properties">
+		<propertyfile file="${output.dir}/batch/1ffc_transaction_xfer/resources/xfer.properties">
 			<entry key="move.method" value="RENAME"/>
 			<entry key="thftj.dir.source" value="${install.dir}/data/incoming"/>
 			<entry key="thftj.dir.dest" value="${install.dir}/data/load"/>
@@ -63,24 +63,24 @@ jar.dir           = ${install.dir}/batch/lib
          # Package the loader job.
          ################################################################## -->
 	<target name="package-loader" depends="-init, compile">
-		<mkdir dir="${output.dir}/batch/transaction_loader/resources"/>
+		<mkdir dir="${output.dir}/batch/1ffc_transaction_loader/resources"/>
 
-        <copy todir="${output.dir}/batch/transaction_loader/resources">
+        <copy todir="${output.dir}/batch/1ffc_transaction_loader/resources">
              <fileset dir="resources">
 			 	<exclude name="xfer.*"/>
 				<exclude name="purge.*"/>
 			 </fileset>
         </copy>
-		<copy file="control_loader.xml" tofile="${output.dir}/batch/transaction_loader/build.xml"/>
-        <echo file="${output.dir}/batch/transaction_loader/paths.properties">
-log.dir  = ${install.dir}/logs
-log.file = transaction_history_loader
+		<copy file="control_loader.xml" tofile="${output.dir}/batch/1ffc_transaction_loader/build.xml"/>
+        <echo file="${output.dir}/batch/1ffc_transaction_loader/paths.properties">
+log.dir  = /sorriso/logs
+log.file = 1ffc_v1_th_loader
 
-common.config.dir = ${install.dir}/config
-jar.dir           = ${install.dir}/batch/lib
+common.config.dir = /sorriso/batch/config
+jar.dir           = /sorriso/batch/lib
 		</echo>
 
-		<propertyfile file="${output.dir}/batch/transaction_loader/resources/loader.properties">
+		<propertyfile file="${output.dir}/batch/1ffc_transaction_loader/resources/loader.properties">
 			<entry key="move.method" value="RENAME"/>
 			<entry key="thlj.dir.archive" value="${install.dir}/data/archive"/>
 			<entry key="thlj.dir.error" value="${install.dir}/data/error"/>
@@ -91,22 +91,22 @@ jar.dir           = ${install.dir}/batch/lib
          # Package the loader job.
          ################################################################## -->
 	<target name="package-purge" depends="-init, compile">
-		<mkdir dir="${output.dir}/batch/transaction_purge/resources"/>
+		<mkdir dir="${output.dir}/batch/1ffc_transaction_purge/resources"/>
 
-        <copy todir="${output.dir}/batch/transaction_purge/resources">
+        <copy todir="${output.dir}/batch/1ffc_transaction_purge/resources">
              <fileset dir="resources">
 			 	<exclude name="xfer.*"/>
 				<exclude name="loader.*"/>
 				<exclude name="transactionhistory/*.*"/>
 			 </fileset>
         </copy>
-		<copy file="control_purge.xml" tofile="${output.dir}/batch/transaction_purge/build.xml"/>
-        <echo file="${output.dir}/batch/transaction_purge/paths.properties">
-log.dir  = ${install.dir}/logs
-log.file = transaction_history_purge
+		<copy file="control_purge.xml" tofile="${output.dir}/batch/1ffc_transaction_purge/build.xml"/>
+        <echo file="${output.dir}/batch/1ffc_transaction_purge/paths.properties">
+log.dir  = /sorriso/logs
+log.file = 1ffc_v1_th_purge
 
-common.config.dir = ${install.dir}/config
-jar.dir           = ${install.dir}/batch/lib
+common.config.dir = /sorriso/batch/config
+jar.dir           = /sorriso/batch/lib
 		</echo>
 	</target>
 
@@ -119,5 +119,11 @@ jar.dir           = ${install.dir}/batch/lib
 		<jar destfile="${output.dir}/batch/lib/batchTransactionHistory.jar">
 		    <fileset dir="${mod.artifacts.dir}"/>
 		</jar>
+
+		<mkdir dir="${output.dir}/jenkins"/>
+		<copy file="1ffc_transaction_xfer.xml" todir="${output.dir}/jenkins"/>
+		<copy file="1ffc_transaction_loader.xml" todir="${output.dir}/jenkins"/>
+		<copy file="1ffc_transaction_purge.xml" todir="${output.dir}/jenkins"/>
+
 	</target>
 </project>
