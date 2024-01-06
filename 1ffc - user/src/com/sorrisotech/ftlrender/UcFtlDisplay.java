@@ -308,10 +308,10 @@ public class UcFtlDisplay implements IExternalReuse {
 			Boolean rVal = false;
 			
 			if (cszObject.equalsIgnoreCase("true") || cszObject.equalsIgnoreCase("y")) {
-				put (cszGroupName, cszItemName, Boolean.TRUE);
+				put (cszGroupName, cszItemName, Boolean.TRUE.booleanValue());
 				rVal = true;
 			} else if (cszObject.equalsIgnoreCase("false") || cszObject.equalsIgnoreCase("n")) {
-				put (cszGroupName, cszItemName, Boolean.FALSE);
+				put (cszGroupName, cszItemName, Boolean.FALSE.booleanValue());
 				rVal = true;
 			} else {
 				m_cLog.error("UcFtlDisplay:FtlTemplate:putBooleanString -- invalid boolean or Y/N value for " + 

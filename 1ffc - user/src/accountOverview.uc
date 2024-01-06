@@ -125,7 +125,12 @@ useCase accountOverview [
     serviceStatus srGetSchedPmtSummaryStatus
     serviceParam (Payment.GetScheduledPaymentSummaryForAccount) srGetSchedPmtSummaryParam
     serviceResult (Payment.GetScheduledPaymentSummaryForAccount) srGetSchedPmtSummaryResult
-    
+
+	// -- "true" if there's an automatic payment rule, "false" otherwise.  NOTE THAT THIS METHOD
+	//		AND THE UNDERLYING SQL WILL NEED TO BE UPDATED TO TAKE THE PAYMENT GROUP INTO CONSIDERATION
+	//		ALTHOUGH IT WILL WORK FOR THIS PARTICULAR CASE -- 
+ 	native string sHasAutomaticPaymentRule = UcPaymentAction.getAutoScheduledFlag(sUserId, sAccount)   
+
     // -- Simplied FreeMarker template management for situations that
     //		don't require all the bill stuff (although it probably could
     //		be used for that as well --
@@ -189,7 +194,6 @@ useCase accountOverview [
 	static sNoBills = "{You have no bills.}"
 	
 	string sCurrentBalanceFlag = ""
-	string sHasAutomaticPaymentRule = "false"
 	
 	string sMessage = ""
  	
@@ -622,10 +626,9 @@ useCase accountOverview [
 	]
 	
 	/**
-	 * 14. System stores scheduled payment summary information in the template
+	 * 14. System stores scheduled & automatic payment summary information in the template
 	 */
 	action storeScheduledPmtVariables [
-		sHasAutomaticPaymentRule = "false"
 		FtlTemplate.setItemValue(TemplateIdPaymentSummary, sScheduledPmtGroupName, "oneTimePmtCount", "number", srGetSchedPmtSummaryResult.ONETIMEPMT_COUNT)
 		FtlTemplate.setItemValue(TemplateIdPaymentSummary, sScheduledPmtGroupName, "oneTimePmtDate", "dateDb", srGetSchedPmtSummaryResult.ONETIMEPMT_DATE)
 		FtlTemplate.setItemValue(TemplateIdPaymentSummary, sScheduledPmtGroupName, "oneTimePmtTotalAmt", "number", srGetSchedPmtSummaryResult.ONETIMEPMT_TOTALAMT)
@@ -633,21 +636,9 @@ useCase accountOverview [
 		FtlTemplate.setItemValue(TemplateIdPaymentSummary, sScheduledPmtGroupName, "automaticPmtDate", "dateDb", srGetSchedPmtSummaryResult.AUTOMATICPMT_DATE)
 		FtlTemplate.setItemValue(TemplateIdPaymentSummary, sScheduledPmtGroupName, "automaticPmtTotalAmt", "number", srGetSchedPmtSummaryResult.AUTOMATICPMT_TOTALAMT)
 		FtlTemplate.setItemValue(TemplateIdPaymentSummary, sScheduledPmtGroupName, "scheduledPmtTotalAmt", "number", srGetSchedPmtSummaryResult.SCHEDULEDPMT_TOTALAMT)
-		if "0" != srGetSchedPmtSummaryResult.AUTOMATICPMT_COUNT then
-			setAutomatePaymentRuleTrue
-		else
-			shouldWeDisplayStatementOrInvoiceBased
+		FtlTemplate.setItemValue(TemplateIdPaymentSummary, sScheduledPmtGroupName, "hasAutomaticPmtRule", "boolean", sHasAutomaticPaymentRule)
+		goto(shouldWeDisplayStatementOrInvoiceBased)
 	]
-	
-	/**
-	 * 14a. System sets bhasAutomaticPaymentRule to true if there is one
-	 */
-	 action setAutomatePaymentRuleTrue [
-	 	sHasAutomaticPaymentRule = "true"
-		goto (shouldWeDisplayStatementOrInvoiceBased)
-	 	
-	 ]	
-
 
 	/**************************************************************************************
 	 * END GET SCHEDULED AND RECURRING PAYMENT INFORMATION
