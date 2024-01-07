@@ -231,10 +231,20 @@ useCase fffcReg99B2C [
 		setData.channel = sEmailChannel
 		setData.address = fUserEmail.pInput
 	    switch apiCall Notifications.SetUserAddress(setData, status) [
-		    case apiSuccess saveSmsAddress
+		    case apiSuccess isSmsAddressEmpty
 		    default deleteUserProfile
 		]
 	]
+
+    /**************************************************************************
+     * Check if sms address is empty, if not then update sms address    
+     */	
+	action isSmsAddressEmpty [
+		if fMobileNumber.pInput == "" then
+		   enableNotifications
+		else
+		   saveSmsAddress
+	]	
 	
 	/**************************************************************************
      * 8. Initialize user's contact preferences - sms.     
