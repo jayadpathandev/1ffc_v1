@@ -248,6 +248,7 @@ useCase paymentOneTime [
 	string sAutomaticPaymentsHeader = "{Activate recurring payments for this account}"
 	string sAutomaticPaymentsBody = "{Save time and energy by scheduling repeating payments to occur automatically on a specific date, every month.}"
 	string sHeaderEdit = "{edit}"
+	string fAutoScheduledConfirm_body = "{I acknowledge that there is an automatic payment set up for this account. Making one time payment will override the automatic payment.}"
 	
 	string sPaySourceEdit = "{edit}"    
 	   
