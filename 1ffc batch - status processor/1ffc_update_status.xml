@@ -30,7 +30,7 @@
     </hudson.triggers.TimerTrigger>
   </triggers>
   <concurrentBuild>false</concurrentBuild>
-  <customWorkspace>/sorriso/batch/1ffc_status</customWorkspace>
+  <customWorkspace>/sorriso/batch/1ffc_update_status</customWorkspace>
   <builders>
     <hudson.tasks.Ant plugin="ant@1.2">
       <targets></targets>

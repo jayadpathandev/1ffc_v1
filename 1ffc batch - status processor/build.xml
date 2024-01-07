@@ -53,7 +53,8 @@ jar.dir           = /sorriso/batch/lib
 		<jar destfile="${output.dir}/batch/lib/batchStatusProcessor.jar">
 		    <fileset dir="${mod.artifacts.dir}"/>
 		</jar>
-		<mkdir dir="${output.dir}/jenkins"/>
-		<copy file="1ffc_update_status.xml" todir="${output.dir}/jenkins"/>
+		<mkdir dir="${output.dir}/jenkins/1ffc_update_status"/>
+		<copy file="1ffc_update_status.xml" tofile="${output.dir}/jenkins/1ffc_update_status/config.xml"/>
 	</target>
 </project>
+

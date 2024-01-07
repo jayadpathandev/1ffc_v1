@@ -271,8 +271,14 @@
 				</fileset>
             </classpath>
         </javac>
-
-
+        <copy todir="${output.dir}/apps/auth/lib">
+            <fileset dir="${artifacts.dir}/package/library/nls">
+                <include name="libraryNls.jar"/>
+            </fileset>
+            <fileset dir="${artifacts.dir}/package/library/nlsNotify">
+                <include name="libraryNlsNotify.jar"/>
+            </fileset>
+        </copy>
     </target>
 
     <target name="-build.user.uc" depends="-init">
@@ -377,7 +383,14 @@
         </copy>
         <copy todir="${output.dir}/apps/user/lib/">
             <fileset dir="${artifacts.dir}/package/service/status"/>
+            <fileset dir="${artifacts.dir}/package/library/nls">
+                <include name="libraryNls.jar"/>
+            </fileset>
+            <fileset dir="${artifacts.dir}/package/library/nlsNotify">
+                <include name="libraryNlsNotify.jar"/>
+            </fileset>
         </copy>
+
     	<propertyfile file="${output.dir}/apps/user/internationalization/topics_en.properties">
     		<entry key="topics_bills_documents" value="Electronic Document Delivery"/>
     		<entry key="topics_marketing" value="Marketing Messages"/>
@@ -396,7 +409,7 @@
 
     <target name="package-communicate" depends="-init">
         <mkdir dir="${output.dir}/batch/notify_iq/resources/notification"/>
-        <copy file="${devkit.dir}/server - notify iq/bin/notification/notification.properties" todir="${output.dir}/batch/notify_iq/resources/notification"/>
+        <copy file="${devkit.dir}/server - notify iq/resources/notification/notification.properties" todir="${output.dir}/batch/notify_iq/resources/notification"/>
         <propertyfile file="${output.dir}/batch/notify_iq/resources/notification/notification.properties">
             <entry key="email.transport" value="communicate"/>
             <entry key="precisely.campaign.name" value="${precisely.campaign.name}"/>
@@ -409,7 +422,7 @@
         </propertyfile>
 
         <mkdir dir="${output.dir}/batch/notify_dq/resources/notification"/>
-        <copy file="${devkit.dir}/server - notify dq/bin/notification/notification.properties" todir="${output.dir}/batch/notify_dq/resources/notification"/>
+        <copy file="${devkit.dir}/server - notify dq/resources/notification/notification.properties" todir="${output.dir}/batch/notify_dq/resources/notification"/>
         <propertyfile file="${output.dir}/batch/notify_dq/resources/notification/notification.properties">
             <entry key="email.transport" value="communicate"/>
             <entry key="precisely.campaign.name" value="${precisely.campaign.name}"/>
