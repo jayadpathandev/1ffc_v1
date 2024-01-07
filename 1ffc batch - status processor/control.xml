@@ -16,7 +16,7 @@
 			</filterset>
 		</copy>
 
-		<java classname="com.sorrisotech.batch.fffc.status.processor.JobRunner" fork="true" failonerror="true">
+		<java classname="com.sorrisotech.fffc.batch.status.processor.JobRunner" fork="true" failonerror="true">
             <jvmarg value="-server"/>
             <classpath>
                 <path location="${common.config.dir}"/>
