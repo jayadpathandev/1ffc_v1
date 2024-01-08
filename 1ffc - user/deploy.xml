@@ -82,7 +82,7 @@
     		<entry key="topics_payment" value="Account Servicing"/>
     		<entry key="topics_collections" value="Collections"/>
     		<entry key="topics_system" value="System Alerts"/>
-    		<entry key="topics_order" value="system|collections|payment|marketing|bills_documents"/>
+    		<entry key="topics_order" value="system|marketing|payment|collections|bills_documents"/>
     	</propertyfile>
     </target>
 </project> 
