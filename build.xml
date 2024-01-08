@@ -164,7 +164,7 @@
     		<entry key="topics_payment" value="Account Servicing"/>
     		<entry key="topics_collections" value="Collections"/>
     		<entry key="topics_system" value="System Alerts"/>
-            <entry key="topics_order" value="system|collections|payment|marketing|bills_documents"/>
+            <entry key="topics_order" value="system|marketing|payment|collections|bills_documents"/>
     	</propertyfile>
         <propertyfile file="${output.dir}/apps/admin/classes/app-config.properties">
             <entry key="app.telco_b2c" value="https://1ffc.server2.sorrisoqa.com/personaWeb/user/"/>
@@ -273,10 +273,16 @@
         </javac>
         <copy todir="${output.dir}/apps/auth/lib">
             <fileset dir="${artifacts.dir}/package/library/nls">
-                <include name="libraryNls.jar"/>
+                <include name="*.jar"/>
             </fileset>
             <fileset dir="${artifacts.dir}/package/library/nlsNotify">
-                <include name="libraryNlsNotify.jar"/>
+                <include name="*.jar"/>
+            </fileset>
+            <fileset dir="${artifacts.dir}/package/service/nls">
+                <include name="*.jar"/>
+            </fileset>
+            <fileset dir="${devkit.dir}/app - admin/lib">
+                <include name="serviceOrgId.jar"/>
             </fileset>
         </copy>
     </target>
@@ -320,6 +326,7 @@
             <fileset dir="${devkit.dir}/app - user/resources">
             	<exclude name="linked-root/**"/>
             	<exclude name="layout-pages/**"/>
+                <exclude name="roles_config.xml"/>
             </fileset>
         </copy>
 
@@ -384,10 +391,13 @@
         <copy todir="${output.dir}/apps/user/lib/">
             <fileset dir="${artifacts.dir}/package/service/status"/>
             <fileset dir="${artifacts.dir}/package/library/nls">
-                <include name="libraryNls.jar"/>
+                <include name="*.jar"/>
             </fileset>
             <fileset dir="${artifacts.dir}/package/library/nlsNotify">
-                <include name="libraryNlsNotify.jar"/>
+                <include name="*.jar"/>
+            </fileset>
+            <fileset dir="${artifacts.dir}/package/service/nls">
+                <include name="*.jar"/>
             </fileset>
         </copy>
 
@@ -397,7 +407,7 @@
     		<entry key="topics_payment" value="Account Servicing"/>
     		<entry key="topics_collections" value="Collections"/>
     		<entry key="topics_system" value="System Alerts"/>
-            <entry key="topics_order" value="system|collections|payment|marketing|bills_documents"/>
+            <entry key="topics_order" value="system|marketing|payment|collections|bills_documents"/>
     	</propertyfile>
     	<propertyfile file="${output.dir}/apps/user/classes/app-config.properties">
     		<entry key="user.app.url" value="${base.public.url}personaWeb/user/"/>

@@ -79,7 +79,7 @@
 	<classpathentry kind="lib" path="/app - extdoc/lib/jersey-media-multipart-2.39.jar"/>
 	<classpathentry kind="lib" path="/app - extdoc/lib/jersey-server-2.39.jar"/>
 	<classpathentry kind="lib" path="/app - extdoc/lib/jettison-1.5.4.jar"/>
-	<classpathentry kind="lib" path="/app - extdoc/lib/joda-time-2.12.5.jar"/>
+	<classpathentry kind="lib" path="/app - extdoc/lib/joda-time-2.12.6.jar"/>
 	<classpathentry kind="lib" path="/app - extdoc/lib/json-20231013.jar"/>
 	<classpathentry kind="lib" path="/app - extdoc/lib/jsr305-3.0.2.jar"/>
 	<classpathentry kind="lib" path="/app - extdoc/lib/jxls-core-1.0.6.jar"/>
