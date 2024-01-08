@@ -99,7 +99,7 @@
 	<classpathentry kind="lib" path="/batch - common/lib/jersey-media-multipart-2.39.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/jersey-server-2.39.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/jettison-1.5.4.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/joda-time-2.12.5.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/joda-time-2.12.6.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/json-20231013.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/jsr305-3.0.2.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/jxls-core-1.0.6.jar"/>
