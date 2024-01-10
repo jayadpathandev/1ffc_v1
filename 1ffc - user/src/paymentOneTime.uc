@@ -1984,7 +1984,7 @@ useCase paymentOneTime [
 		
  		SurchargeSession.emptyMap()
 		
-		sNtfParams = "transactionId=" + transactionId + "|" + 
+		sNtfParams = "transactionId=" + transactionId + "|" + "sourceName=" + sPayDataSourceAccount + "|" +
 		              "amount=" + sTotalPayAmt +  "|" + "sourceType=" + sPaymentMethodType + "|" + 
 		              "surchargeFlag=" + surchargeFlag + "|"  + "surcharge=" + sSurCharge + "|" + "totalAmount=" + sTotalAmount + "|" +
 		              "paymentDate=" + sPaymentDate + "|" + "groupingData=" + sGroupingDataString + "|" + "currency=" + sCurrency
@@ -2086,6 +2086,7 @@ useCase paymentOneTime [
  		SurchargeSession.emptyMap()
  		
 		sNtfParams = "transactionId=" + transactionId + "|" + 
+					 "sourceName=" + sPayDataSourceAccount + "|" +
 		             "amount=" + sTotalPayAmt + "|" +
 					 "sourceType=" + sPaymentMethodType + "|" + 
 					 "surchargeFlag=" + surchargeFlag + "|" + 
