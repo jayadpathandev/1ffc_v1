@@ -31,6 +31,7 @@ useCase contactPreferencesConsentSms [
     
 	startAt init[
 		sNewSms
+		sCurrentEmail
 	]
 	
 	importJava AuthUtil(com.sorrisotech.app.common.utils.AuthUtil)
@@ -55,7 +56,8 @@ useCase contactPreferencesConsentSms [
 	string sPopinTitle = "{SMS validate}"                                     
     
     native string sAccountStatus                                              
-    native string sNewSms    
+    native string sNewSms 
+    native string sCurrentEmail   
     native string sSmsChannel = "sms"                                                  
     native string sSmsValidationCode  
     native string sOrgId
@@ -149,9 +151,9 @@ useCase contactPreferencesConsentSms [
      * Details are sent either to the new email or to the phone 
      * based on the mode the user selected. */
     action sendSmsValidationCode [
-        switch UcProfileAction.sendSmsValidationCode (
+        switch UcProfileAction.sendEmailValidationCode (
             sUserId,
-            sNewSms,
+            sCurrentEmail,
             sSmsValidationCode,
             sorrisoLanguage             
         ) [
@@ -362,7 +364,7 @@ useCase contactPreferencesConsentSms [
         gotoUc(contactPreferences)
     ]
     
-    /* Displays a message that the email address is already in use. */
+    /* Displays a message that the sms address is already in use. */
     action smsDuplicateMsg [
         displayMessage(type: "danger" msg: oMsgDuplicateSms)            
         gotoUc(contactPreferences)
