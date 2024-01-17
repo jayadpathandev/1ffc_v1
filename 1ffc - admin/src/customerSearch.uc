@@ -509,16 +509,6 @@ useCase customerSearch [
         ]        
     ] 
 
-	/* 3a. System verifies 1ffc specific input data */
-	action verifyInputData_1ffc [
-		goto (performSearch_1ffc)
-	]
-    
-    /* 4a. System performs search using 1ffc specific input data */
-    action performSearch_1ffc [
-    	goto(customerSearchScreen)
-    ]
-    
     /* 5. Gets the billing page impersonate url. */
     action impersonateUserBilling [
         switch UcConsumerSearchAction.getBillingUrl(sRowId, sImpersonateUrl) [
