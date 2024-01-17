@@ -375,9 +375,10 @@ useCase customerSearch [
                 
                 div row1 [    
                 	class: "row"
-                    
+                  
 					div col1 [  
 						class: "col-md-3"
+					    logic: [ if bHideProductSearch == "true" then "remove"]
 		                display fUserName [
 		                	control_attr_tabindex: "1"
 						    control_attr_autofocus: ""
@@ -387,6 +388,7 @@ useCase customerSearch [
                     
 					div col2 [  
 						class: "col-md-3"
+					    logic: [ if bHideProductSearch == "true" then "remove"]
                 		display fEmailAddress [
                 			control_attr_tabindex: "2"
                 			logic: [ if bHideProductSearch == "true" then "remove"]
@@ -395,6 +397,7 @@ useCase customerSearch [
                 	
  					div col3 [  
 						class: "col-md-3"
+					    logic: [ if bHideProductSearch == "true" then "remove"]
 		                navigation search(verifyInputData, "{SEARCH}") [
 		                    class: "btn btn-primary st-search-button"
 		                    data: [fUserName, fEmailAddress]
@@ -402,10 +405,11 @@ useCase customerSearch [
 		                    logic:[ if bHideProductSearch == "true" then "remove"]
 		                ]
 					]
-  
+ 
   					/** Begin 1st Franklin search columns */	
   	            	div col1_1ffc [
-                		clase: "col-lg-1 col-md-3"
+                		class: "col-md-3"
+               			logic: [if bShow1stFranklinSearch != "true" then "remove"]
                 		display fCustomerId [
                 			control_attr_tabindex: "1"
                 			logic: [if bShow1stFranklinSearch != "true" then "remove"]
@@ -413,8 +417,9 @@ useCase customerSearch [
                 		
                 	]
 
- 					div col2_1fffc [  
-						class: "col-lg-2 col-md-3"
+ 					div col2_1ffc [  
+						class: "col-md-3"
+               			logic: [if bShow1stFranklinSearch != "true" then "remove"]
 		                navigation search_1ffc (verifyInputData, "{SEARCH}") [
 		                    class: "btn btn-primary st-search-button"
 		                    data: [fCustomerId]
