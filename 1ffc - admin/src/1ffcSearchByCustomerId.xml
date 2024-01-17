@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:context="http://www.springframework.org/schema/context"
+xsi:schemaLocation="http://www.springframework.org/schema/beans 
+http://www.springframework.org/schema/beans/spring-beans.xsd
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+	<!-- ************************************************************************* -->
+    <!-- ********      Import the Database Pool Bean                   *********** -->
+    <!-- ************************************************************************* -->
+    <context:annotation-config />
+    
+    <import resource="classpath:/db/common_config.xml"/>   
+    
+    <!--  ************************************************************************ --> 
+    <!--  ****** Import the SQL Statement 									****** -->
+    <!--  ******   This query finds all online users that match a wildcard  ****** -->
+    <!--  ******   provided from the admin app.								****** --> 
+    <!--  ************************************************************************ --> 
+    
+    <bean id="search1FFCUsersByCustomerIdSql" class="java.lang.String">
+        <constructor-arg>
+            <value>
+			select
+				users_fffc.customerId as CustomerId,
+				users_fffc.userId as UserId,
+			  	prof.username as UserName,
+			 	profLastName.attrvalue as LastName,
+				profFirstName.attrvalue as FirstName,
+				profEmail.aua_address as EmailAddress
+			from
+				-- This inner select helps restrict the number of accounts searched and therefore
+				--  improve performance in other parts of this query by retrieving the internal
+				--  user ids for the 1ffc user profiles that match this request. The query optimizer
+				--  should then use that user id to find the specific attributes the query is 
+				--  looking for for each id that matches the ids found in this query.
+				 (  select 
+						attrvalue as customerId, 
+						auth_user_profile.id as userId 
+					from 
+						auth_user_profile 
+					where 
+						attrname = 'fffcCustomerId' and attrvalue like :CUSTID
+				 ) users_fffc,
+				 auth_user_profile as profActive,
+				 auth_user_profile as profLastName,
+				 auth_user_profile as profFirstName,
+				 auth_user_address as profEmail,
+				 auth_users as prof
+			where 
+				(users_fffc.userId = prof.userId) and
+				(users_fffc.userId = profActive.id and 
+				  profActive.attrname = 'accountStatus' and 
+				  profActive.attrvalue = 'open') and
+			 	(users_fffc.userId = profLastName.id and
+				  profLastName.attrname = 'lastName') and
+				(users_fffc.userId = profFirstName.id and
+				  profFirstName.attrname = 'firstName') and
+				(users_fffc.userId = profEmail.aua_user and
+				  profEmail.aua_channel = 'email')
+		    order by users_fffc.customerId
+		    limit 100
+		     
+		   
+			</value>
+        </constructor-arg>   
+    </bean>    
+    <bean id="searchByCustomerIdDao" class="com.sorrisotech.uc.admin1ffc.dao.SearchByCustomerIdDaoImpl">
+    </bean>
+</beans>
