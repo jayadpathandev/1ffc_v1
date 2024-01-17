@@ -29,7 +29,7 @@ public class CustomerElementMapper1FFC implements RowMapper<CustomerElement1FFC>
 		lCElement.setCustomerId(arg0.getString("CustomerId"));
 		lCElement.setFullName(lszFullName);
 		lCElement.setEmail(arg0.getString("EmailAddress"));
-		lCElement.setId(arg0.getString("CustomerId"));
+		lCElement.setId(arg0.getString("UserId"));
 		lCElement.setUserName(arg0.getString("UserName"));
 		
 		return lCElement;
