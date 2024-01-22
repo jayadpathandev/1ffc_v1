@@ -56,6 +56,7 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 					status_info.flex16 AS maximum_payment_amount,
 					status_info.flex17 AS contact_preferences_status,
 					status_info.flex18 AS current_amount_due,
+					status_info.flex19 AS debit_convenience_fee,
 					MAX(status_info.bill_date) as most_recent -- only take the most recent for acct
 				FROM
 					bill status_info,

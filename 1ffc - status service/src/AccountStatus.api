@@ -27,6 +27,7 @@
   *   Major Versions:
   *        1.0 24-Sep-2023	JAK	First Version
   * 	   1.1 01-Jan-2024	JAK	Updated for addditonal status fields
+  * 	   1.2 22-Jan-2024	JAK Added convenience fee api and as additional status field
 */
 
 
@@ -190,6 +191,11 @@ define service AccountStatus(com.sorrisotech.app.serviceapi.uc.UcRequestClient) 
 		number currentAmountDue
 		
 		// ----------------------------------------------------------------
+		// -- convenience fee for this account no convenience fee if 0
+		//				
+		number debitConvenienceFeeAmt
+		
+		// ----------------------------------------------------------------
 		// -- date status was received for this account --
 		string statusDate
 		
@@ -281,4 +287,17 @@ define service AccountStatus(com.sorrisotech.app.serviceapi.uc.UcRequestClient) 
  	] returns [
  		boolean		bAccessEnabled	// returns True if portal is available for this user
  	] // -- end hasPorta]Access
+ 	
+	// --------------------------------------------------------------------
+	// -- use GetDebitConvenienceFee to get the convenience fee associated
+	//		with an account if it is going to be paid by debit card. If return
+	//		value is 0 then a convenience fee should not be applied. 	
+ 	define method GetDebitConvenienceFee [
+ 		string user
+ 		string paymentGroup
+ 		string account
+ 	] returns [
+		number convenienceFeeAmt
+ 	]
  ]
+ 

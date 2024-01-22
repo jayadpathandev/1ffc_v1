@@ -24,7 +24,7 @@ import com.sorrisotech.svcs.accountstatus.cache.EnumConst.ContPrefsStats;
  * 
  * @author John A. Kowalonek
  * @since 25-Sep-2023
- * @version 01-Jan-2024
+ * @version 22-Jan-2024 jak Added new fields current amount due and convenience fee
  * 
  */
 public interface IUserStatusCacheItem {
@@ -42,6 +42,8 @@ public interface IUserStatusCacheItem {
 		BigDecimal	monthlyPayment,
 		Integer		totalNumPayments,
 		Integer		remainingNumPayments,
+		BigDecimal  currentAmountDue,
+		BigDecimal  debitConvenienceFee,
 		Integer		mostRecentUpdate
 		)  {}
 	
@@ -202,6 +204,16 @@ public interface IUserStatusCacheItem {
 	 */
 	abstract public BigDecimal getCurrentAmountDue (String cszPaymentGroup, String cszAcctIdentifier) throws AccountStatusException;
 	
+	/**
+	 * Returns the debit card convenience fee associated with this account. 0 if there is
+	 * no fee.
+	 * 
+	 * @param cszPaymentGroup
+	 * @param cszAcctIdentifier
+	 * @return
+	 * @throws AccountStatusException
+	 */
+	abstract public BigDecimal getDebitConvenienceFee (String cszPaymentGroup, String cszAcctIdentifier) throws AccountStatusException;
 	/**
 	 * Returns the integer YYYYMMDD of the most recent update of status info
 	 * 
