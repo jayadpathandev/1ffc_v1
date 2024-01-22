@@ -52,6 +52,7 @@ public class AccountStatusElement {
 	private 	ContPrefsStats	m_ContPrefStatus = ContPrefsStats.enabled;
 	private		BigDecimal		m_dMaxPaymentAmount = null;
 	private 	BigDecimal		m_dCurrentAmtDue = null;
+	private 	BigDecimal		m_dDebitConvenienceFee = null;
 	
 	
 	/**
@@ -79,6 +80,7 @@ public class AccountStatusElement {
 					"    ContactPrefsStats - " + m_ContPrefStatus.toString() + "\n" +
 					"    MaxPaymentAcount - " + m_dMaxPaymentAmount.toString() + "\n" +
 					"    CurrentAmtDue - " + m_dCurrentAmtDue.toString() + "\n" +
+					"    DebitConvenienceFee - " + m_dDebitConvenienceFee.toString() + "\n" +
 					"    MostRecentUpdate - " + m_iMostRecentUpdate.toString() + "\n");
 	}
 	
@@ -241,4 +243,13 @@ public class AccountStatusElement {
 	void setCurrentAmountDue(final BigDecimal cCurrAmountDue) {
 		m_dCurrentAmtDue = cCurrAmountDue;
 	}
+	
+	public BigDecimal getDebitConvenienceFee() {
+		return m_dCurrentAmtDue;
+	}
+	
+	void setDebitConvenienceFee(final BigDecimal cDebitConvenienceFee) {
+		m_dDebitConvenienceFee = cDebitConvenienceFee;
+	}
+
 }

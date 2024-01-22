@@ -29,9 +29,10 @@ import com.sorrisotech.svcs.serviceapi.api.ServiceAPIErrorCode;
  *  		<li><b>contactPreferencesEnabled</b> - are contact preferences enabled for this user
  *  		<li><b>maximumPaymentAmount</b>	- maximum payment amount for this account
  *  		<li><b>currentAmountDue</b> - current amount due on this account
+ *  		<li><b>debitConvenienceFeeAmt</b> - convenience fee for debit card transactions
  *  		<li><b>statusDate</b> - date this status was updated
  *  
- *  @version 01-Jan-2024
+ *  @version 22-Jan-2024 jak	Added current amount due and convenience fee
  *  @since 24-Sep-2023
  *  @author John A. Kowalonek 
  */
@@ -66,6 +67,7 @@ public class GetStatus extends GetStatusBase {
 				request.set(IApiAccountStatus.GetStatus.maximumPaymentAmount, cacheItem.getMaxPaymentAmount(sPaymentGroup, sAccount));
 				request.set(IApiAccountStatus.GetStatus.contactPreferencesEnabled, cacheItem.getContactPreferenceStatus(sPaymentGroup).toString());
 				request.set(IApiAccountStatus.GetStatus.currentAmountDue, cacheItem.getCurrentAmountDue(sPaymentGroup, sAccount));
+				request.set(IApiAccountStatus.GetStatus.debitConvenienceFeeAmt, cacheItem.getDebitConvenienceFee(sPaymentGroup, sAccount));
 				request.set(IApiAccountStatus.GetStatus.statusDate, cacheItem.getMostRecentUpdate(sPaymentGroup, sAccount));
 				
 				rVal = ServiceAPIErrorCode.Success;
