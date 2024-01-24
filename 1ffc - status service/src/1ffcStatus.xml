@@ -90,7 +90,8 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 					automatic_payment_status,
 					maximum_payment_amount,
 					contact_preferences_status,
-					current_amount_due
+					current_amount_due,
+					debit_convenience_fee
    
 			</value>
         </constructor-arg>   
