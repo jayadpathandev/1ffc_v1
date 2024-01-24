@@ -17,6 +17,7 @@ useCase customerSearch [
     *   Major Versions:
     *        1.0 21-Nov-2015 First Version Coded [Maybelle Johnsy Kanjirapallil]
     * 		 1.1 2024-Jan-16 jak customization for 1st Franklin
+    *        1.2 2024-Jan-24 YN Removed temporary password
     */
         
 
@@ -63,29 +64,24 @@ useCase customerSearch [
 	importJava ForeignProcessor(com.sorrisotech.app.common.ForeignProcessor)
 	importJava I18n(com.sorrisotech.app.common.utils.I18n)
 	importJava NotifUtil(com.sorrisotech.common.app.NotifUtil)
-	importJava RandomData(com.sorrisotech.app.utils.RandomData)
-	//	importJava UcConsumerSearchAction(com.sorrisotech.uc.consumer.search.UcConsumerSearchAction)
 	// -- extends the standard consumer search to search for information needed by 1FFC --
 	importJava UcConsumerSearchAction(com.sorrisotech.uc.admin1ffc.Uc1FFCSearchByCustomerId)
-	importJava UcSecretQuestions(com.sorrisotech.uc.secretquestions.UcSecretQuestions)
 	importJava UcProfile2FAAction(com.sorrisotech.app.profile.UcProfile2FAAction)
 		
 	string sPageName = "{Customer Search}"
 	string sResultsHeading = "{Search results}"
 	string sPopinTitle1 = "{Resend confirmation & enrollment e-mail}"
-	string sPopinTitle2 = "{Reset password & secret questions}"
+	string sPopinTitle2 = "{Reset secret questions & password}"
 	string sPopinTitle3 = "{Reset Multi-Factor Authentication for Login option}"
 		
 	native string sAppNameSpace = AuthUtil.getAppNameSpace()	
 	native string sAppName = AppName.getAppName("b2c")
-	native string sNewPwd = RandomData.randomPassword()  			
 	native string sFlag = "false"
 	native string sUserName
 	native string sImpersonateUrl
 	native string sRowId         
 	native string sSelectedUserId
 	native string sEmailAddress  	
-	native string sNewSecretQuestionAnswer
 	native string sOldEmailAddress
 	native string sAuthCode
 	native string sCurrentTime
@@ -149,13 +145,11 @@ useCase customerSearch [
         string(body) sBody = "{You have entered a query that returned too many results, please refine your query and search again.}"
     ]    
     
-	string msgSameEmailSuccess = "{We sent you the validation code to the e-mail <1>. User should check their SPAM folder.}"
 	structure(message) oMsgResendSameEmailNotifSuccess [
         string(title) sTitle = "{Confirmation and enrollment e-mail was sent successfully.}"
         volatile string (body) sBody = I18n.translate ("customerSearch_msgSameEmailSuccess", sMaskedOldEmailId)
     ]
     
-    string msgNewEmailSuccess = "{E-mail address changed from <1> to <2>. We sent you the validation code to the new e-mail. Use it to login}"
 	structure(message) oMsgResendNewEmailNotifSuccess [        
         string(title) sTitle = "{Confirmation and enrollment e-mail was sent successfully.}"
         volatile string (body) sBody = I18n.translate ("customerSearch_msgNewEmailSuccess", sMaskedOldEmailId, sMaskedNewEmailId)
@@ -166,13 +160,11 @@ useCase customerSearch [
         string(body) sBody = "{There was a problem in re-sending the confirmation e-mail. Please try again later.}"
     ]
     
-    string msgResetSameEmailSuccess = "{We sent the new password and secret question answers to the e-mail <1>. These must now be used to login.}"
     structure(message) oMsgResetSameEmailNotifSuccess [
         string(title) sTitle = "{The password and secret answer reset success.}"
         volatile string (body) sBody = I18n.translate ("customerSearch_msgResetSameEmailSuccess", sMaskedOldEmailId)
     ]
     
-    string msgResetNewEmailSuccess = "{E-mail address changed from <1> to <2>. We sent you the new password and secret question answers to the new e-mail. Use it to login}"
     structure(message) oMsgResetNewEmailNotifSuccess [
         string(title) sTitle = "{The password and secret answer reset success.}"
         volatile string (body) sBody = I18n.translate ("customerSearch_msgResetNewEmailSuccess", sMaskedOldEmailId, sMaskedNewEmailId)
@@ -210,6 +202,8 @@ useCase customerSearch [
     
     string sReset2FAMessageQue = "{Are you sure that you want to disable Multi-Factor Authentication for Login for this user?}"
     string sReset2FAMessageDesc = "{Please press 'Submit' button to disable Multi-Factor Authentication for Login Security option, press 'Cancel' to go back to search screen.}"
+    
+    string resetPasswordFlag = "false"
         
     table tUserList = UcConsumerSearchAction.getTable() [
         emptyMsg: "{There are no registered users with the Customer Identifier you entered.}"
@@ -292,11 +286,6 @@ useCase customerSearch [
             sort    : [sUsername ]            
         ]
             
-        /*column emailColumn("{E-mail address}") [
-            elements: [sEmail ]
-            sort    : [sEmail ]
-        ] */
-        
         column behalfColumn("{On behalf of}") [
             tags: [ "st-vertical-links" ]
             elements: [
@@ -619,6 +608,8 @@ useCase customerSearch [
 			                    pInput_attr_st-compare-to: "form.fUserEmail"
 			                    sError_ng-show: "!content.$error.stPattern && !!content.$error.stCompareTo"
 			                    control_attr_tabindex: "11"
+			                    sError_attr_sorriso-error: 'same-as'
+								pInput_attr_st-same-as: 'fUserEmail'	
 			                ]		                    	
 						]											
 					]
@@ -647,6 +638,8 @@ useCase customerSearch [
     
     /* 14. Verify field values. */
 	action verifyResendEmailPopinFields [
+		resetPasswordFlag = "false"
+		
     	switch NotifUtil.verifyEmailFields(sEmailAddress, fUserEmail.pInput, sMaskedEmailId) [
     		case "equal" updateUserDetails
     		case "success" updateUserDetails
@@ -695,22 +688,11 @@ useCase customerSearch [
         	authCode: sAuthCode     
         	authCodeCreationTimestamp: sCurrentTime  	
             )
-        if success then updateUserPassword
+        if success then resetAttributes        
         if failure then genericErrorMsg  
     ]    
     
-    /* 19. Updates the user's profile password. */    
-    action updateUserPassword [
-        updateAuthentication(
-            userId: sSelectedUserId
-            password: sNewPwd
-        )
-        if success then resetAttributes
-        if duplicateUsername then genericErrorMsg
-        if failure then genericErrorMsg
-    ]
-   
-    /* 20. Updates the user's profile attributes. */    
+    /* 19. Updates the user's profile attributes. */    
     action resetAttributes [
         updateProfile(
             userId: sSelectedUserId    
@@ -721,12 +703,20 @@ useCase customerSearch [
             authCodeRetryCount: "0"
             authCodeFailTime: "-1"                                  
         )
-        goto(sendRegistrationEmail)     
+        goto(sendNotificationEmail)     
     ]  
+
+	/* 20. Send email notification */    
+	action sendNotificationEmail [
+		if resetPasswordFlag == "false" then
+			sendRegistrationEmail
+		else
+			clearRecognizedPCs
+	]    
         
     /* 21. Send email. */
     action sendRegistrationEmail [    
-    	switch NotifUtil.sendOrgAdminRegistration(sSelectedUserId, sSelectedUserName, sNewPwd, sAuthCode, sFirstName, sLastName) [         
+    	switch NotifUtil.sendOrgAdminRegistration(sSelectedUserId, sSelectedUserName, sAuthCode, sAuthCode, sFirstName, sLastName) [         
            case "success" resendSuccess
             case "error"  resendConfirmationNotifErrorMsg
             default resendConfirmationNotifErrorMsg
@@ -757,6 +747,8 @@ useCase customerSearch [
 	action assignFieldsResetPwdPopin [
     	 fUserEmail.pInput = sMaskedEmailId
 		 fUserEmailRetype.pInput = sMaskedEmailId
+		 resetPasswordFlag = "true"
+		 
 		 goto(resetPwdPopin)
     ]
     
@@ -802,7 +794,9 @@ useCase customerSearch [
 		                    display fUserEmailRetype [		                    			                    	
 			                    pInput_attr_st-compare-to: "form.fUserEmail"
 			                    sError_ng-show: "!content.$error.stPattern && !!content.$error.stCompareTo"
-			                    control_attr_tabindex: "11"			                
+			                    control_attr_tabindex: "11"		
+			                    sError_attr_sorriso-error: 'same-as'
+								pInput_attr_st-same-as: 'fUserEmail'	                
 		                    ]
 						]											
 					]
@@ -848,22 +842,11 @@ useCase customerSearch [
         	userId: sSelectedUserId     
         	emailAddress: sEmailAddress   	        	       	
             )                	
-        goto(updatePassword)
+        goto(resetCsrPasswordFlag)
     ]
         
-    /* 29. Updates the user's profile password. */    
-    action updatePassword [
-        updateAuthentication(
-            userId: sSelectedUserId
-            password: sNewPwd
-        )
-        if success then resetPasswordFlag
-        if duplicateUsername then genericErrorMsg
-        if failure then genericErrorMsg
-    ]
-   
-    /* 30. Updates the user's profile attributes. */    
-    action resetPasswordFlag [
+    /* 29. Updates the user's profile attributes. */    
+    action resetCsrPasswordFlag [
         updateProfile(
             userId: sSelectedUserId    
             accountStatus: "open"            
@@ -873,37 +856,11 @@ useCase customerSearch [
             authCodeRetryCount: "0"
             authCodeFailTime: "-1"       
             csrResetPasswordFlag: "true"                   
-        )
-        goto(setRandomSecretQuestionAnswers)     
+        )     
+        goto(generateAuthCode)        
     ]  
         
-    /* 31. Generates new secret answer for the user to login. */
-    action setRandomSecretQuestionAnswers [
-        switch UcSecretQuestions.setRandomSecretQuestionAnswers(sNewSecretQuestionAnswer) [
-            case "success" updateSecretQuestionAnswer
-            case "error" genericErrorMsg
-            default genericErrorMsg
-        ]
-    ]
-    
-    /* 32. Updates the user's profile attributes. */
-    action updateSecretQuestionAnswer [
-         updateProfile(
-            userId: sSelectedUserId    
-            accountStatus: "open"
-            secretQuestionAnswer1: sNewSecretQuestionAnswer
-            secretQuestionAnswer2: sNewSecretQuestionAnswer
-            secretQuestionAnswer3: sNewSecretQuestionAnswer
-            secretQuestionAnswer4: sNewSecretQuestionAnswer
-            lockoutTime: "0"
-            secretQuestionRetryCount: "0"
-            secretQuestionFailTime: "-1"                             
-            csrResetSecretQuestionsFlag: "true"                   
-        )
-        goto(clearRecognizedPCs)  
-    ]
-    
-    /* 33. Resets the cookies. */
+    /* 30. Resets the cookies. */
     action clearRecognizedPCs [
         switch CookieUtil.clearRecognizedPCs(sSelectedUserId) [      
             case "success" sendResetNotification           
@@ -912,9 +869,9 @@ useCase customerSearch [
         ]
     ]
     
-    /* 34. Sends an email to the user with the new password and secret question answer. */
+    /* 31. Sends an email to the user with the new password and secret question answer. */
     action sendResetNotification [
-        switch NotifUtil.sendQuestionsResetNotification(sSelectedUserId, sNewPwd, sAppName) [
+        switch NotifUtil.sendResetPasswordAuthCode(sSelectedUserId, sAuthCode, sAppName) [
             case "success" resetNotifSuccess
             case "failure" resetPasswordNotifErrorMsg
             case "error" genericErrorMsg
@@ -922,7 +879,7 @@ useCase customerSearch [
         ]
     ]
     
-    /* 35. Checks if the email has changed. */
+    /* 32. Checks if the email has changed. */
     action resetNotifSuccess [
     	if sOldEmailAddress == sEmailAddress then
     		resetSameEmailSuccessMsg
@@ -930,26 +887,26 @@ useCase customerSearch [
     		resetNewEmailSuccessMsg	
     ]
     
-    /* 36. Reset success message. */
+    /* 33. Reset success message. */
     action resetSameEmailSuccessMsg [
         displayMessage(type: "success" msg: oMsgResetSameEmailNotifSuccess)
         goto(customerSearchScreen)
     ] 
     
-    /* 37. Reset success message. */ 
+    /* 34. Reset success message. */ 
     action resetNewEmailSuccessMsg [
         displayMessage(type: "success" msg: oMsgResetNewEmailNotifSuccess)
         goto(verifyInputData)
     ] 
     
-    /* 38. System displays audit logs for the user. */
+    /* 35. System displays audit logs for the user. */
     action viewAuditLogs [
         gotoUc(auditView) [
             sArgUserId: sSelectedUserId
         ]
     ]
     
-    /* 39. Reset 2FA Popin screen. */    
+    /* 36. Reset 2FA Popin screen. */    
 	action reset2FAOptionPopin [
     	 	
 		 goto(reset2FAPopin)
@@ -1005,7 +962,6 @@ useCase customerSearch [
                 
                 navigation reset2FASubmit (submit2FAResetRequest, "{Submit}") [
                     class: "btn btn-primary" 
-                    type: "popin"
                     attr_tabindex: "12"		                    
                 ]
                  navigation reset2FACancel (customerSearchScreen, "{Cancel}") [
