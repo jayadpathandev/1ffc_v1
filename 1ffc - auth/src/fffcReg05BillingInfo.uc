@@ -182,8 +182,8 @@ useCase fffcReg05BillingInfo [
     ]
     
     structure(message) msgInvalidBillDetailsB2CError [    
-        string(title) sTitle = "{Error}"
-        string(body) sBody = "{The details you provided did not match any existing documents. Please verify and try again.}"
+        string(title) sTitle = "{Your registration cannot be completed at this time}"
+        string(body) sBody = "{The information you provided does not match any existing records. Please confirm your details and try again. If the issue persists, please contact 1st Franklin Support.}"
     ]
     
     structure(message) msgInvalidBillDetailsB2BError [    
