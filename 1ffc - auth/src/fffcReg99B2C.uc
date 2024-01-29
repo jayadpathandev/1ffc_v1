@@ -121,7 +121,12 @@ useCase fffcReg99B2C [
 		string(body) sBody = "{An error occurred while trying to fulfill your request. Please try again later.}"
 	]
 
-    /**************************************************************************
+    structure(message) msgNlsUnvailableError [
+		string(title) sTitle = "{Your registration cannot be completed at this time.}"
+		string(body) sBody = "{An error occurred while trying to complete your online registration. Please wait a few hours and try again. If the issue persists, please contact 1st Franklin Support.}"
+	]
+	
+	    /**************************************************************************
      * Main Path.
      **************************************************************************/   
        
@@ -308,7 +313,7 @@ useCase fffcReg99B2C [
 		setDataFffc.address = fUserEmail.pInput
 	    switch apiCall FffcNotify.SetUserAddressNls(setDataFffc, status) [
 		    case apiSuccess saveSmsAddressNls
-		    default deleteUserProfile
+		    default deleteNlsUserProfile
 		]
 	] 
 	
@@ -324,7 +329,7 @@ useCase fffcReg99B2C [
 		setDataFffc.address = fMobileNumber.pInput
 	    switch apiCall FffcNotify.SetUserAddressNls(setDataFffc, status) [
 		    case apiSuccess generateAuthCode
-		    default deleteUserProfile
+		    default deleteNlsUserProfile
 		]
 	]  
     
@@ -463,6 +468,23 @@ useCase fffcReg99B2C [
             )            
         if success then genericErrorMsg      
         if failure then genericErrorMsg    
+    ]	
+    
+    /**************************************************************************
+     * Delete User Profile due to the unavailability of the NLS system.
+     */
+    action deleteNlsUserProfile [    
+    	auditLog(audit_registration.registratrion_failure)  [
+    		primary: sUserId
+    		secondary: sUserId
+    	]	
+    	
+        deleteUser(
+            userId: sUserId           
+            namespace: sNameSpace            
+            )            
+        if success then nlsUnavailableErrorMsg      
+        if failure then nlsUnavailableErrorMsg    
     ]		
 
     /**************************************************************************
@@ -472,4 +494,13 @@ useCase fffcReg99B2C [
 		displayMessage(type: "danger" msg: msgGenericError)        
 		gotoModule(LOGIN)
 	]
+	
+    /**************************************************************************
+     * Display generic error message due to the unavailability of Nls 
+     */
+	action nlsUnavailableErrorMsg [
+		displayMessage(type: "danger" msg: msgNlsUnvailableError)        
+		gotoModule(LOGIN)
+	]
+	
  ]
