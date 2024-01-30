@@ -1,0 +1,7 @@
+{
+	"firstName" : "$firstName",
+	"lastName" : "$lastName",
+	"myAccountLogIn" : "@LOGIN_URL@",
+	"subject" : "Digital Self Service - Disabled 2FA Security Settings",
+	"project" : "Login Alerts"
+}

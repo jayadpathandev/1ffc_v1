@@ -1,0 +1,13 @@
+{
+	"userId" : "$userId",
+	"appName" : "$appName",
+	"firstName" : "$firstName",
+	"lastName" : "$lastName",
+	"userEmail" : "$userEmail",
+	"userPhone" : "$userPhone",
+	"userMobile" : "$userMobile",
+	"currentTime" : "$currentTime",
+	"myAccountLogIn" : "@LOGIN_URL@",
+	"subject" : "Digital Self Service - Subject Access Request",
+	"project" : "Profile Alerts"
+}

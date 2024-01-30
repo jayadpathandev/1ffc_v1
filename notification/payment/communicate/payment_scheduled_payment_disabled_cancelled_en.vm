@@ -1,0 +1,9 @@
+{
+	"accountNumber" : "$accountNumber",
+	"walletNickName" : "$walletNickName",
+	"paymentDate" : "$paymentDate",
+	"amount" : "$amount",
+	"myAccountLogIn" : "@LOGIN_URL@",
+	"subject" : "1st Franklin – Schedule payment canceled",
+	"project" : "Payment Alerts"
+}

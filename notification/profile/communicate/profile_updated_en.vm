@@ -1,0 +1,7 @@
+{
+	"firstName" : "$firstName",
+	"lastName" : "$lastName",
+	"myAccountLogIn" : "@LOGIN_URL@",
+	"subject" : "Digital Self Service - Profile Updated",
+	"project" : "Profile Alerts"
+}

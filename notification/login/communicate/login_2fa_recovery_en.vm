@@ -1,0 +1,9 @@
+{
+	"firstName" : "$firstName",
+	"lastName" : "$lastName",
+	"username" : "$username",
+	"twoFARecoveryAuthCode" : "$twoFARecoveryAuthCode",
+	"myAccountLogIn" : "@LOGIN_URL@",
+	"subject" : "Digital Self Service - Two Factor Authentication Recovery",
+	"project" : "Login Alerts"
+}

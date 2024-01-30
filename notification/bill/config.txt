@@ -1,0 +1,9 @@
+    <notification id="bill_new_doc_many_accounts" default="communicate">
+        <channel>communicate</channel> 
+    </notification>
+    <notification id="bill_new_doc_one_account" default="communicate">
+        <channel>communicate</channel> 
+    </notification>
+    <notification id="email_archive_documents" default="communicate">
+        <channel>communicate</channel>       
+    </notification>

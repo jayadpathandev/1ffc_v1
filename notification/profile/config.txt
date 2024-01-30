@@ -1,0 +1,21 @@
+    <notification id="profile_2fa_settings" default="communicate">
+        <channel>communicate</channel>       
+    </notification> 
+    <notification id="profile_paper_billing" default="communicate">
+        <channel>communicate</channel>      
+    </notification> 
+    <notification id="profile_email_change_confirm" default="communicate">
+        <channel>communicate</channel>         
+    </notification>
+    <notification id="profile_sms_change_confirm" default="communicate">
+        <channel>communicate</channel>       
+    </notification>   
+    <notification id="profile_updated" default="communicate">
+        <channel>communicate</channel>        
+    </notification>
+    <notification id="profile_subject_access_request" default="communicate">
+        <channel>communicate</channel>        
+    </notification>
+    <notification id="profile_sar_back_office" default="communicate">
+        <channel>communicate</channel>       
+    </notification>    

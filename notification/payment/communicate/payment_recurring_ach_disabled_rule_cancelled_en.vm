@@ -1,0 +1,7 @@
+{
+	"accountNumber" : "$accountNumber",
+	"walletNickName" : "$walletNickName",
+	"myAccountLogIn" : "@LOGIN_URL@",
+	"subject" : "1st Franklin – Automatic payment rule canceled",
+	"project" : "Payment Alerts"
+}

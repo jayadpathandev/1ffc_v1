@@ -1,0 +1,15 @@
+{
+	"firstName" : "$firstName",
+	"lastName" : "$lastName",
+	"sourceName" : "$sourceName",
+	"accountNumber" : "$accountNumber",
+	"amount" : "$number.currency($amount)",
+	"surchargeAmount" : "$number.currency($surchargeAmount)",
+	"totalPaidAmount" : "$number.currency($totalPaidAmount)",
+	"minAmount" : "$number.currency($minAmount)",
+	"balAmount" : "$number.currency($balAmount)",
+	"caseId" : "$caseId",
+	"myAccountLogIn" : "@LOGIN_URL@",
+	"subject" : "Digital Self Service - automatic payment update for payment source $sourceName",
+	"project" : "Payment Alerts"
+}

@@ -1,0 +1,12 @@
+{
+	"firstName" : "$firstName",
+	"lastName" : "$lastName",
+	"twoFactorAuthMethod" : "$twoFactorAuthMethod",
+	"myAccountLogIn" : "@LOGIN_URL@",
+#if ($twoFactorAuthMethod == "app")
+	"subject" : "Digital Self Service - Two Factor Authentication Enabled",
+#else
+	"subject" : "Digital Self Service - Two Factor Authentication Disabled",
+#end
+	"project" : "Profile Alerts"
+}

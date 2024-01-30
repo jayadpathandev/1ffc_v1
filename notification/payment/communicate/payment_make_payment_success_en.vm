@@ -1,0 +1,24 @@
+{
+	"firstName" : "$firstName",
+	"lastName" : "$lastName",
+	"transactionId": "$transactionId",
+#if ($payDateRaw)                                   
+    "payDate": "$date.format('dd MMM yyyy', $date.toDate('yyyyMMdd hhmmss', $payDateRaw))",
+#else
+    "payDate": "$payDate",
+#end
+	"adjusted" : "$adjusted",
+	"surchargeFlag" : "$surchargeFlag",
+	"sourceType" : "$sourceType",
+#if( $sourceName )
+	"walletNickName" : "$sourceName",
+#end
+#set($payments = $json.parse($bills))
+	"amount" : "$currencyTool.format($currency, $payments[0].amount)",
+	"accountNumber" : "$payments[0].displayAccountNumber",
+	"surcharge": "$currencyTool.format($currency, $payments[0].surcharge)",
+	"totalAmount":"$currencyTool.format($currency, $payments[0].totalAmount)",
+	"myAccountLogIn" : "@LOGIN_URL@",
+	"subject": "Digital Self Service - Payment Successful for Transaction $transactionId",
+	"project" : "Payment Alerts"
+}

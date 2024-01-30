@@ -1,0 +1,8 @@
+{
+	"firstName" : "$firstName",
+	"lastName" : "$lastName",
+	"validationCode" : "$validationCode",
+	"myAccountLogIn" : "@LOGIN_URL@",
+	"subject" : "Digital Self Service - Change E-mail Confirmation",
+	"project" : "Profile Alerts"
+}

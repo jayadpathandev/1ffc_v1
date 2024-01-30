@@ -1,0 +1,8 @@
+{
+	"firstName" : "$firstName",
+	"lastName" : "$lastName",
+	"accountNumber" : "$accountNumber",
+	"myAccountLogIn" : "@LOGIN_URL@",
+	"subject" : "Digital Self Service - Delete automatic payment successful",
+	"project" : "Payment Alerts"
+}

@@ -1,0 +1,10 @@
+zip.output.dir = <target directory path where you want notification.zip file>
+login.url = <the login url depending on your environment>
+
+# Including notification template groups
+-----------------------------------------
+include.batch
+include.bill
+include.enroll
+include.login
+include.payment
