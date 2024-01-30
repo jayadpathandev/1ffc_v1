@@ -1,0 +1,6 @@
+{
+	"jobName" : "$jobName",
+	"myAccountLogIn" : "@LOGIN_URL@",
+	"subject" : "Batch Job Completed Successfully",
+	"project" : "Admin Alerts"
+}

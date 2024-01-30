@@ -1,0 +1,15 @@
+    <notification id="enroll_csr" default="communicate">
+        <channel>communicate</channel> 
+    </notification>    
+    <notification id="enroll_user_complete" default="communicate">
+        <channel>communicate</channel>   
+    </notification>
+    <notification id="enroll_validation" default="communicate">
+        <channel>communicate</channel> 
+    </notification>
+    <notification id="org_admin_enroll_validation" default="communicate">
+        <channel>communicate</channel> 
+    </notification>
+    <notification id="enroll_user_api" default="communicate">
+        <channel>communicate</channel> 
+    </notification>

@@ -1,0 +1,13 @@
+{
+	"firstName" : "$firstName",
+	"lastName" : "$lastName",
+	"scheduledPaymentAmount" : "$number.currency($amount)",
+	"balance" : "$number.currency($balance)",
+#set($payments = $json.parse($bills))
+	"amount" : "$currencyTool.format($currency, $payments[0].amount)",
+	"accountNumber": "$payments[0].displayAccountNumber",
+	"documentNumber":"$payments[0].documentNumber",
+	"myAccountLogIn" : "@LOGIN_URL@",
+	"subject" : "Digital Self Service - Scheduled payment cancelled, current balance is $0.00",
+	"project" : "Payment Alerts"
+}

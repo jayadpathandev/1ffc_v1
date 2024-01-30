@@ -1,0 +1,10 @@
+{
+	"firstName" : "$firstName",
+	"lastName" : "$lastName",
+	"username" : "$username",
+	"secret_answer" : "$secret_answer",
+	"password" : "$password",
+	"myAccountLogIn" : "@LOGIN_URL@",
+	"subject" : "Digital Self Service - Enrollment Confirmation",
+	"project" : "Enrollment Alerts"
+}

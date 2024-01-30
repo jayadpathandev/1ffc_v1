@@ -1,0 +1,46 @@
+    <notification id="payment_schedule_batch_message" default="communicate">
+        <channel>communicate</channel>  
+    </notification>
+    <notification id="payment_automatic_create_success" default="communicate">
+        <channel>communicate</channel>  
+    </notification>
+    <notification id="payment_automatic_delete_success" default="communicate">
+        <channel>communicate</channel> 
+    </notification> 
+    <notification id="payment_automatic_edit_success" default="communicate">
+        <channel>communicate</channel> 
+    </notification>
+    <notification id="payment_make_payment_failure" default="communicate">
+        <channel>communicate</channel> 
+    </notification>   
+    <notification id="payment_make_payment_success" default="communicate">
+        <channel>communicate</channel> 
+    </notification>
+    <notification id="payment_onetime_scheduled_success" default="communicate">
+        <channel>communicate</channel> 
+    </notification>
+    <notification id="payment_wallet_create_success" default="communicate">
+        <channel>communicate</channel> 
+    </notification>
+    <notification id="payment_wallet_delete_success" default="communicate">
+        <channel>communicate</channel> 
+    </notification>    
+    <notification id="payment_wallet_edit_success" default="communicate">
+        <channel>communicate</channel>       
+    </notification>    
+    <notification id="payment_scheduled_cancelled" default="communicate">
+        <channel>communicate</channel>  
+    </notification>
+    <notification id="payment_scheduled_payment_disabled_cancelled" default="communicate">
+        <channel>communicate</channel>       
+    </notification>
+    <notification id="payment_scheduled_ach_disabled_cancelled" default="communicate">
+        <channel>communicate</channel>       
+    </notification>
+    <notification id="payment_recurring_payment_disabled_rule_cancelled" default="communicate">
+        <channel>communicate</channel>       
+    </notification>
+    <notification id="payment_recurring_ach_disabled_rule_cancelled" default="communicate">
+        <channel>communicate</channel>       
+    </notification>
+    

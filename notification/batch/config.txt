@@ -1,0 +1,9 @@
+    <notification id="batch_failure" default="communicate">  
+        <channel>communicate</channel>      
+    </notification>
+    <notification id="batch_noop" default="communicate">    
+        <channel>communicate</channel>  
+    </notification>
+    <notification id="batch_success" default="communicate">      
+        <channel>communicate</channel> 
+    </notification>

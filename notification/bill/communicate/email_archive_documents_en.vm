@@ -1,0 +1,7 @@
+{
+	"accountNumber" : "$accountNumber",
+	"emailMessage" : "$emailMessage",
+	"myAccountLogIn" : "@LOGIN_URL@",
+	"subject" : "Digital Self Service - Correspondence Documents",
+	"project" : "Bill Alerts"
+}

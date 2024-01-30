@@ -1,0 +1,12 @@
+{
+	"firstName" : "$firstName",
+	"lastName" : "$lastName",
+	"paperBillingEnabled" : "$paperBillingEnabled",
+	"myAccountLogIn" : "@LOGIN_URL@",
+#if ($paperBillingEnabled == "true")
+	"subject": "Digital Self Service - Paper Billing Enabled",
+#else
+	"subject": "Digital Self Service - Paper Billing Disabled",
+#end
+	"project" : "Profile Alerts"
+}

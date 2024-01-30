@@ -1,0 +1,19 @@
+    <notification id="login_2fa_recovery" default="communicate">
+        <channel>communicate</channel>   
+    </notification>    
+    <notification id="login_2fa_reset" default="communicate">
+        <channel>communicate</channel>   
+    </notification>    
+    <notification id="login_forgot_password" default="communicate">
+        <channel>communicate</channel> 
+    </notification>    
+    <notification id="login_forgot_username" default="communicate">
+        <channel>communicate</channel> 
+    </notification>
+    <notification id="login_temporary_password" default="communicate">
+        <channel>communicate</channel> 
+    </notification>
+    <notification id="login_secret_question_reset" default="communicate">
+        <channel>communicate</channel> 
+    </notification>
+    

@@ -1,0 +1,19 @@
+{
+	"firstName" : "$firstName",
+	"lastName" : "$lastName",
+	"payDate" : "$paymentDate",
+	"transactionId": "$transactionId",
+	"surchargeFlag" : "$surchargeFlag",
+	"sourceType" : "$sourceType",
+#if( $sourceName )
+	"walletNickName" : "$sourceName",
+#end
+#set($payments = $json.parse($groupingData))
+	"accountNumber" : "$payments[0].displayAccountNumber",
+	"amount" : "$currencyTool.format($currency, $payments[0].amount)",
+	"surcharge" : "$currencyTool.format($currency, $payments[0].surcharge)",
+	"totalAmount":"$currencyTool.format($currency, $payments[0].totalAmount)",
+	"myAccountLogIn" : "@LOGIN_URL@",
+	"subject" : "Digital Self Service - Payment Scheduled for Transaction $transactionId",
+	"project" : "Payment Alerts"
+}

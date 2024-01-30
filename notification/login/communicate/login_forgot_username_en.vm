@@ -1,0 +1,8 @@
+{
+	"firstName" : "$firstName",
+	"lastName" : "$lastName",
+	"authCode" : "$authCode",
+	"myAccountLogIn" : "@LOGIN_URL@",
+	"subject" : "Digital Self Service - Forgot User Name?",
+	"project" : "Login Alerts"
+}

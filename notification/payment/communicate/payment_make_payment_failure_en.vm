@@ -1,0 +1,20 @@
+{
+	"firstName" : "$firstName",
+	"lastName" : "$lastName",
+	"transactionId": "$transactionId",
+#if( $sourceName )
+	"walletNickName" : "$sourceName",
+#end
+#if ($payDateRaw)                                   
+	"payDate" : "$date.format('dd MMM yyyy', $date.toDate('yyyyMMdd hhmmss', $payDateRaw))",
+#else
+	"payDate" : "$payDate", 
+#end 
+#set($payments = $json.parse($bills))
+	"accountNumber": "$payments[0].displayAccountNumber",
+	"documentNumber":"$payments[0].documentNumber",
+	"totalAmount" : "$currencyTool.format($payments[0].currency, $payments[0].amount)",
+	"myAccountLogIn" : "@LOGIN_URL@",
+	"subject" : "Digital Self Service - Payment Failed for Transaction $transactionId",
+	"project" : "Payment Alerts"
+}
