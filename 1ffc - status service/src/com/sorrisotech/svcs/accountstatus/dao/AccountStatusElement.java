@@ -245,7 +245,7 @@ public class AccountStatusElement {
 	}
 	
 	public BigDecimal getDebitConvenienceFee() {
-		return m_dCurrentAmtDue;
+		return m_dDebitConvenienceFee;
 	}
 	
 	void setDebitConvenienceFee(final BigDecimal cDebitConvenienceFee) {

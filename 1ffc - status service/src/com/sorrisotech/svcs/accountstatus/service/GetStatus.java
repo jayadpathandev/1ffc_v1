@@ -68,7 +68,7 @@ public class GetStatus extends GetStatusBase {
 				request.set(IApiAccountStatus.GetStatus.contactPreferencesEnabled, cacheItem.getContactPreferenceStatus(sPaymentGroup).toString());
 				request.set(IApiAccountStatus.GetStatus.currentAmountDue, cacheItem.getCurrentAmountDue(sPaymentGroup, sAccount));
 				request.set(IApiAccountStatus.GetStatus.debitConvenienceFeeAmt, cacheItem.getDebitConvenienceFee(sPaymentGroup, sAccount));
-				request.set(IApiAccountStatus.GetStatus.statusDate, cacheItem.getMostRecentUpdate(sPaymentGroup, sAccount));
+				request.set(IApiAccountStatus.GetStatus.statusDate, cacheItem.getMostRecentUpdate(sPaymentGroup, sAccount).toString());
 				
 				rVal = ServiceAPIErrorCode.Success;
 			} catch (AccountStatusException e) {
