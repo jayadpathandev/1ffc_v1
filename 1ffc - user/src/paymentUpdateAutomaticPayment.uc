@@ -190,12 +190,8 @@ useCase paymentUpdateAutomaticPayment [
                        "that processing times may not allow for revocation of this " +
                        "authorization.}"
                        
-   static sSurchargeNotice = "{The Surcharge is a processing fee for using a credit card to " +
-                             "make payments. This processing fee is no more than our costs " +
-                             "associated with accepting credit cards or 4% of the transaction, " +
-                             "whichever is less. This fee is not charged when you use a debit " +
-                             "card or bank account to make a payment.  To avoid this fee, update " +
-                             "your payment method to use a debit card or bank account. Thank you.}"                       
+   static sSurchargeNotice = "{If you decide to pay through Direct Debit, 1st Franklin Financial will charge you a non-refundable Convenience Fee. " + 
+							 "This fee is payable in advance along with the Payment Amount and will be charged separately as a line item transaction.}"                       
                     
     string sPaymentSurchargeMessage   = "{There will be a credit card processing charge for this order for processing the credit card you have selected to make this purchase. The fee is not greater than our expenses associated with accepting credit card payments. if you have payment notifications enabled, you will be notified of the processing fee when a payment is scheduled.If you would prefer to use a debit card or bank card, then there will be no processing fee.}"  
                     		

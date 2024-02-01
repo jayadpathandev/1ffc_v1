@@ -1,0 +1,87 @@
+library paymentLib [
+    include [
+    	apiPayment
+    	payment
+    	paymentAutomatic
+    	paymentB2bAutomatic
+    	paymentCommon
+    	paymentGetBankName
+        paymentHistory
+        paymentNewBankAccount
+        paymentNewCreditCard
+		paymentNewDebitCard
+        paymentOneTime  
+        paymentB2bOneTime      
+        paymentSetWallet
+        paymentUpdateAutomaticPayment
+        paymentWallet		
+        paymentWalletIsNickNameAvailable
+        paymentBusiness
+        paymentRestBusiness
+        paymentAutomaticBusiness
+        paymentOneTimeBusiness
+        paymentWalletBusiness
+        paymentSurChargeInterPay
+        paymentSurchargeGetIIN
+        paymentAutomaticMessages
+        paymentConvenienceFee
+    ]       
+    
+    features [
+        feature payment [
+            create_payment
+            modify_payment
+            view_payment
+            account_access_enabled
+            create_new_payment_enabled
+ 	        bank_payment_enabled
+	        debit_payment_enabled
+	        credit_payment_enabled
+	        sepa_payment_enabled
+	        automatic_payment_enabled
+        ]
+    ]
+    
+    audit [
+        group audit_payment(70 "{Payment}") [       
+            
+            event add_source_success			(10 "{Payment source added: token={0}.}")
+            event add_source_failure			(11 "{Payment source add failure: token={0}.}")
+                   
+            event edit_source_success			(20 "{Payment source updated: token={0}.}")
+            event edit_source_failure			(21 "{Payment source update failure: token={0}.}")
+            
+            event delete_source_success			(30 "{Payment source deleted: token={0}.}")
+            event delete_source_failure			(31 "{Payment source deleted failure: token={0}.}")
+                       
+            event ontime_payment_success		(40 "{Onetime payment success: transactionId={0}, token={1}, amount={2}, date={3}, groupingData={4}.}")
+            event ontime_payment_failure		(41 "{Onetime payment failure: transactionId={0}, token={1}, amount={2}, date={3}, groupingData={4}.}")
+            
+            event ontime_payment_confirm_late   (45 "{Confirmed possible late fees for transID={0}.}")
+            
+            event scheduled_payment_success		(50 "{Scheduled payment success: transactionId={0}, token={1}, amount={2}, date={3}, groupingData={4}.}")
+            event scheduled_payment_failure		(51 "{Scheduled payment failure: transactionId={0}, token={1}, amount={2}, date={3}, groupingData={4}.}")
+            
+            event automatic_payment_create_success		(60 "{Automatic payment success: automaticId={0}, sourceId={1}, groupingData={2}.}")
+            event automatic_payment_create_failure		(61 "{Automatic payment failure: automaticId={0}, sourceId={1}, groupingData={2}.}")
+            
+            event automatic_payment_update_success		(70 "{Automatic payment success: automaticId={0}, sourceId={1}, groupingData={2}.}")
+            event automatic_payment_update_failure		(71 "{Automatic payment failure: automaticId={0}, sourceId={1}, groupingData={2}.}")
+            
+            event automatic_payment_delete_success		(80 "{Automatic payment success: automaticId={0}, sourceId={1}.}")
+            event automatic_payment_delete_failure		(81 "{Automatic payment failure: automaticId={0}, sourceId={1}.}")     
+                        
+            event surcharge_success                     (90 "{Get Surcharge success: amount={0}, transactionId={1}, resultCode={2}, httpStatus={3}.}")   
+            event surcharge_failure                     (91 "{Get Surcharge failure: amount={0}, transactionId={1}, resultCode={2}, httpStatus={3}.}")
+            event surcharge_invalid_input               (92 "{Get Surcharge - Invalid input: zipcode={0}, iin={1}, pay amount={2}, account={3}, invoice={4}.}")
+            
+            event getIIN_success                        (100 "{GetIIN success: iin={0}, resultCode={1}, resultMessage={2}.}")
+            event getIIN_failure                        (101 "{GetIIN failure: iin={0}, resultCode={1}, resultMessage={2}.}")
+            event getIIN_invalid_input                  (102 "{GetIIN invalid input: token={0}.}")
+            
+			event convenience_fee_success                (103 "{Get convenienceFee success: userId={0}, paymentGroup={1}, accountNumber={2}, resultCode={3}, convenienceFee={4}.}")   
+            event convenience_fee_failure                (104 "{Get convenienceFee failure: userId={0}, paymentGroup={1}, accountNumber={2}, resultCode={3}, convenienceFee={4}.}")
+            event convenience_fee_invalid_input          (105 "{Get convenienceFee - Invalid input: userId={0}, paymentGroup={1}, accountNumber={2}.}")
+         ]
+    ]
+]
