@@ -185,8 +185,10 @@ public class BalanceHelper implements IExternalReuse {
 		ldPayments = loPmtHist.getPaymentHistoryAmountForAccount(cszPayGroup, cszIntAccount, lszStartDate);
 		m_cLog.debug("getCurrentBalanceInternal payments posted: {}", ldPayments);
 		
-		// -- do the math --
-		ldCurBalance = ldCurBalance.subtract(ldPayments);
+		if (null != ldPayments) {
+			// -- do the math --
+			ldCurBalance = ldCurBalance.subtract(ldPayments);
+		}
 		m_cLog.debug("getCurrentBalanceInternal amount to return: {}", ldCurBalance);
 		
 		ldRetVal = ldCurBalance;
