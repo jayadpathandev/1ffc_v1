@@ -50,13 +50,16 @@ useCase accountSummaryChild [
 	* DATA ITEMS SECTION
 	*************************/     
 	importJava Session(com.sorrisotech.app.utils.Session)
-	importJava UcPaymentAccountBalance(com.sorrisotech.uc.payment.UcPaymentAccountBalance)
-	importJava UcPaymentAction(com.sorrisotech.uc.payment.UcPaymentAction)
+//	importJava UcPaymentAccountBalance(com.sorrisotech.uc.payment.UcPaymentAccountBalance)
+//	importJava UcPaymentAction(com.sorrisotech.uc.payment.UcPaymentAction)
 	importJava Format(com.sorrisotech.common.app.Format)
 	importJava AppConfig(com.sorrisotech.utils.AppConfig)
 	importJava LocalizedFormat(com.sorrisotech.common.LocalizedFormat)	
 	importJava UcBillingAction(com.sorrisotech.uc.bill.UcBillingAction)
-	importJava FlexFieldInfo(com.sorrisotech.fffc.user.FlexFieldInformation)
+//	importJava FlexFieldInfo(com.sorrisotech.fffc.user.FlexFieldInformation)
+
+	// -- specific to 1st Franklin ... helps calculate current balance --
+	importJava CurrentBalanceHelper (com.sorrisotech.fffc.payment.BalanceHelper)    
 				
     import billCommon.sBillAccountInternal
     import billCommon.sBillAccountExternal
@@ -80,19 +83,27 @@ useCase accountSummaryChild [
 	import billCommon.sPayIsBill
 	import billCommon.sPaySelectedDate
 
+
     // -- GetStatus returns the status for all major conditions and business
     //		drivers --
     serviceStatus srAccountStatusCode
     serviceParam (AccountStatus.GetStatus) srGetStatusParams
     serviceResult (AccountStatus.GetStatus) srGetStatusResult
     native string sLocalAccountStatus = "accountClosed"
+    native string sLocalAccountStatusDate
+    native string sLocalAccountStatusAmount
+    native string sLocalAccountBillDate
+    native string sLocalAccountBillAmount
 	native string sPaymentButtonOn = "false"
 	native string sLocalCreatePaymentStatus = "disabled"
 	native string sAchEnabledStatus = "true"
-	 
+	native string sMaxPaymentEnabled = "true"	// -- this is true for 1FFC
+	native string sMaxFuturePaymentDays = "45"	// -- configuration for 1FFC 
+
     
-	serviceStatus srStatus	
-    serviceResult(SystemConfig.GetCurrentBalanceConfig) srGetComm
+    
+//	  serviceStatus srStatus	
+//    serviceResult(SystemConfig.GetCurrentBalanceConfig) srGetComm
     
     serviceStatus srBillOverviewStatus
     serviceParam(Documents.BillOverview) 	srBillOverviewParam
@@ -101,17 +112,26 @@ useCase accountSummaryChild [
     native string maxAge =			 		AppConfig.get("recent.number.of.months", "3")
     native string sBillDate =		 		Format.formatDateNumeric(srBillOverviewResult.docDate)
     native string sBillDueDateDisplay = 	Format.formatDateNumeric(srBillOverviewResult.dueDate)
-	number nCurrentBalanceCalculated		 // -- set by calls down to get balance based on balance calculation type 
-												 // --   set in the admin app --
+	
+	// -- returns a current balance calculated based on either bill or status (whichever is newer) less
+	//		payments since that last bill or status date (date inclusive) --
+	volatile string sBillAmountDueDisplay = 
+			CurrentBalanceHelper.getCurrentBalanceFormatted (
+				srBillOverviewParam.payGroup, 
+				srBillOverviewParam.account,
+				sLocalAccountBillDate,
+				sLocalAccountBillAmount,
+				sLocalAccountStatusDate,
+				sLocalAccountStatusAmount )	 
+														 // --   set in the admin app --
 	native string sCurrentBalanceCalculatedValid // -- set to valid or zero --
     volatile native string sBillAccountBalanceDisplayed = 	LocalizedFormat.formatAmount(srBillOverviewParam.payGroup, srBillOverviewResult.docAmount)
-    volatile native string sBillAmountDueDisplay = 			LocalizedFormat.formatAmount (srBillOverviewParam.payGroup, nCurrentBalanceCalculated)
     
 	string sUserId = Session.getUserId()
-    string sAccNumLabel             = "{Account Number:}"
-    string sTotDueHead      		= "{Statement Amount due}"   
+    string sAccNumLabel             = "{Account number:}"
+    string sTotDueHead      		= "{Current amount due}"   
 	string sInvDueDateLabel			= "{Monthly payment due date}"		
-	string sLoanAmountLabel         = "{Statement loan balance}"
+	string sLoanAmountLabel         = "{Current loan balance}"
 	
 
                 
@@ -192,6 +212,8 @@ useCase accountSummaryChild [
  	 */
  	 action checkAccountViewStatus [
  	 	sLocalAccountStatus = srGetStatusResult.accountStatus
+ 	 	sLocalAccountStatusDate = srGetStatusResult.statusDate
+ 	 	sLocalAccountStatusAmount = srGetStatusResult.currentAmountDue
 		evalActors()
  	 	if "enabled" == srGetStatusResult.viewAccount then
  	 		getPaymentEnabled
@@ -209,24 +231,20 @@ useCase accountSummaryChild [
  	 	evalActors()
  	 	goto (screenShowInfo)
  	 ]
- 	 
+ 
+
+
  	 /**
  	  * 4a. System evaluates payment status to determine if creating new payments should be disabled
  	  * 	and removes the create_payment actor from the user's list of current actors if payment is
  	  * 	disabled.
  	  */
  	 action getPaymentEnabled [
-		sLocalCreatePaymentStatus = "enabled"
-		bAccountDelinquent = "false"
-		nMinimumPayment = "0"
-		bMaximumPaymentEnabled = "false"
-		nMaximumPayment = "0"
-		nMaximumFuturePaymentDays = "45"		// -- 1st Franklin Specific
 		 	 	
  	 	switch srGetStatusResult.paymentEnabled [
 
     		// -- user can pay against this account --
-    		case "enabled" isAchEnabled
+    		case "enabled" setDelinquentFalse
     		
     		// ------------------------------------------------------------
 			// -- payment is disabled because this is the last bill --
@@ -236,7 +254,7 @@ useCase accountSummaryChild [
 			// -- payment is disabled because the customer is delinquent
 			// -- at 1FFC, this means they need to make a minimum payment
 			//		but does NOT disable payment --
-    		case "disableDQ" setDelinquentPaymentRules
+    		case "disableDQ" setDelinquentTrue
     		
  	 		default setPaymentDisabled
  	 	]
@@ -251,26 +269,48 @@ useCase accountSummaryChild [
  	 ]
  	 
  	 /**
- 	  * 6a. Delinquent payments sets the minimum payment amount to the same amount
- 	  * 	as the "contracted payment amount" for the loan.
+ 	  * 6a. Mark account delinquent, send to billCommon
  	  */
- 	 action setDelinquentPaymentRules [
- 	 	bAccountDelinquent = "true"
- 	 	goto (isAchEnabled)
- 	 ]
- 	 
- 	 /**
- 	  * 7a. System determined that payment is disabled so it removes create new payments from the  
- 	  * 	user's list of actors.
- 	  */
- 	 action setPaymentDisabled [
+ 	action setDelinquentTrue [
+		bAccountDelinquent = "true"
+		goto(setMaxPaymentAndMaxDaysFuture)
+	]
+	
+	/**
+	 * 6b. Mark account not delinquent, send to billCommon
+	 */
+	action setDelinquentFalse [
+		bAccountDelinquent = "false"
+		
+		goto(setMaxPaymentAndMaxDaysFuture)
+	]
+
+	/** 6c. set max payments and days out from where we are
+	 * 			we get the minimum value a bit later after
+	 * 			we check how much we owe... somewhere just
+	 * 			before putting up the screen
+	 **/
+	action setMaxPaymentAndMaxDaysFuture [
+		nMaximumPayment = srGetStatusResult.maximumPaymentAmount
+		bMaximumPaymentEnabled = sMaxPaymentEnabled
+		nMaximumFuturePaymentDays = sMaxFuturePaymentDays
+		goto (isAchEnabled)
+	]
+	
+	 
+
+ 	/**
+ 	 * 7a. System determined that payment is disabled so it removes create new payments from the  
+ 	 * 	user's list of actors.
+ 	 */
+	action setPaymentDisabled [
  	 	sLocalCreatePaymentStatus = "disabled"
  	 	evalActors()
  	 	goto (isAchEnabled)
  	 ]
  	 
  	 /**
- 	  * 8a. System checks to see if ach is enabled.
+ 	  * 8a. System checks to see if ACH is enabled.
  	  */
  	 action isAchEnabled [
  	 	switch srGetStatusResult.achEnabled [
@@ -278,6 +318,7 @@ useCase accountSummaryChild [
  	 		default disableAchPayments
  	 	]
  	 ]
+
  	 
  	 /**
  	  * 9a. ACH disabled, set the proper control and evaluate actors
@@ -418,8 +459,8 @@ useCase accountSummaryChild [
         sBillAccountExternal 		 = sAccountDisplay               	// externalAccount
         sBillGroup         			 = srBillOverviewParam.payGroup		// payment group for this account
         sBillingPeriod               = sBillDate					 	// ubf:billdate -- date the bill was published, formatted
-		nCurrentBalanceCalculated 	 = srBillOverviewResult.totalDue 	// ubf:amountDue -- initialize amount due to the bill amount due	
-
+		sLocalAccountBillDate		 = srBillOverviewResult.docDate		// used when calculating current balance
+		sLocalAccountBillAmount		 = srBillOverviewResult.totalDue	// used when calculating current balance
         sBillStream 				 = srBillOverviewResult.docStream	// bill stream name for this account
         sBillVersion 				 = srBillOverviewResult.docVersion  // document version for this account
         sIsBill						 = srBillOverviewParam.isBill		// true if this is a bill, otherwise we are look at a doc.
@@ -431,7 +472,6 @@ useCase accountSummaryChild [
         			
 		goto(checkPaymentFlag)
 	]
-	
 	
 	/* 5. Checks if the payment flag is enabled.*/
 	action checkPaymentFlag [
@@ -446,15 +486,25 @@ useCase accountSummaryChild [
 	 ************************************************************************************** */
 	
 	/* 6. System retrieves the current balance settings. These are configured in the admin app*/
-	action retrieveSettings [		
+/*	action retrieveSettings [		
 		switch apiCall SystemConfig.GetCurrentBalanceConfig (srGetComm, srStatus) [
 		    case apiSuccess getResults
 		    default screenShowInfo
 		]
 	]
+*/
+	/**
+	 * 6. At 1st Franklin we do things a bit differently since we can use the current
+	 *		balance calculated based on either status feed or bill feed (which ever is
+	 *		newer).. so we need to do that calculation.  I left the "unused" things
+	 *		to make future merges easier.
+	 */	
+	action retrieveSettings [
+		goto (screenShowInfo)
+	]
 	
 	/* 7. System checks the method for calculating and showing current balance.*/
-	action getResults [
+/*	action getResults [
 		sBalanceType = srGetComm.RSP_CURBALTYPE	    
 	    switch sBalanceType [	    	
 	    	case "I" getCurrentBalanceFromInternal
@@ -463,12 +513,13 @@ useCase accountSummaryChild [
 	    	default screenShowInfo
 	    ]
 	]  
+*/
 
 	/* 7a. CALCULATE BALANCE INTERNAL -- System calculates current balance INTERNALLY by subtracting payments in payment history 
 	 * 	  from the amount in the bill. The method getDocumentCurrentBalance does that. NOTICE THERE'S WORK TO DO -- THE METHOD
 	 *	  CALLED CURRENTLY USES THE DOCUMENT NUMBER tO DETERMINE IF THERE ARE ANY PAYMENTS SO ONLY WORKS FOR INVOICE MODE 
 	 */
-	action getCurrentBalanceFromInternal [
+/*	action getCurrentBalanceFromInternal [
 	  	UcPaymentAction.getDocumentCurrentBalance(
 									srBillOverviewParam.account, 
 									srBillOverviewResult.docNumber, 
@@ -480,20 +531,21 @@ useCase accountSummaryChild [
 		goto(screenShowInfo)
 		
 	]
-	
+*/	
 			
 	/* 7b. CALCULATE FROM FEED -- System calculates current balance from a CURRENT BALANCE FEED which sets the current balance in 
 	 * 		the PMT_ACCOUNT_BALANCE table. The method UCPaymentAccountBalance.getAmountDisplay does that.
 	 * 		NOTICE THERE'S WORK TO DO -- THE METHOD CALLED WORKS FOR INVOICE MODE, NOT SURE IF IT WORKS FOR STATMENT MODE. NEEDS
 	 *		MORE RESEARCH.
 	 */
-	action getCurrentBalanceFromFeed [
+/*	action getCurrentBalanceFromFeed [
 		UcPaymentAccountBalance.init(sUserId, srBillOverviewParam.account, srBillOverviewParam.payGroup)
 		UcPaymentAccountBalance.getAmountDisplay(nCurrentBalanceCalculated)
 		
 		goto(screenShowInfo)
 		
 	]
+*/
 
     /* 8. Show the user's greeting message and latest bill information (if found). */
     xsltScreen screenShowInfo("{Greeting and recent information}") [

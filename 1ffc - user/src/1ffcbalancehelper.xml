@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:context="http://www.springframework.org/schema/context"
+xsi:schemaLocation="http://www.springframework.org/schema/beans 
+http://www.springframework.org/schema/beans/spring-beans.xsd
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+	<!-- ************************************************************************* -->
+    <!-- ********      Import the Database Pool Bean                   *********** -->
+    <!-- ************************************************************************* -->
+    <context:annotation-config />
+    
+    <import resource="classpath:/db/common_config.xml"/>    
+    
+	<bean id="getHistoryForAccountSinceDateSQL" class="java.lang.String">
+        <constructor-arg>
+            <value>
+				select
+					sum(pmtgrp.amount) as total_payments
+				from
+					pmt_grouping as pmtgrp,
+					pmt_history as pmthist
+				where
+				    pmtgrp.internal_account_number = :INT_ACCOUNT AND
+					pmtgrp.payment_group = :PMT_GROUP AND
+					pmtgrp.online_trans_id = pmthist.online_trans_id AND
+					pmthist.pay_status = 'posted' AND
+					pmthist.pay_date >= to_timestamp(:START_DATE,'YYYYMMDD')
+			</value>
+        </constructor-arg>   
+    </bean>    
+    <bean id="getHistoryForAccountSinceDateDao" class="com.sorrisotech.fffc.payment.dao.GetPaymentHistoryAmountDaoImpl">
+    </bean>
+</beans>
