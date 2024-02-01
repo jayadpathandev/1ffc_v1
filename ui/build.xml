@@ -1,0 +1,278 @@
+<project name="ReactJS UI" default="package" basedir=".">
+
+    <!-- ################################################################### -->
+    <target name="-debug-init">
+        <fail unless="fileName">
+            Please define the file to compile (auth, b2b, b2c, csr, prof).
+        </fail>
+        <fail unless="outDir">
+            Please define "outDir" to provide the directory the compiled code should be written to.
+        </fail>
+
+        <uptodate property="up.to.date" targetfile="${outDir}/${fileName}.js">
+            <srcfiles dir="src" includes="**/*.ts, **/*.tsx"/>
+			<srcfiles dir="." includes="webpack.config.js"/>
+        </uptodate>
+    </target>
+
+    <target name="debug" depends="-debug-init" unless="up.to.date" description="Build one of the modules for deubgging purposes.">
+        <exec executable="cmd" osfamily="windows" failonerror="true">
+			<arg value="/C"/>
+			<arg value="npm"/>
+			<arg value="install"/>
+			<arg value="--no-fund"/>
+			<arg value="--no-audit"/>
+		</exec>
+        <exec executable="npm" osfamily="unix" failonerror="true">
+			<arg value="install"/>
+			<arg value="--no-fund"/>
+			<arg value="--no-audit"/>
+		</exec>
+		<exec executable="cmd" osfamily="windows" failonerror="true">
+			<arg value="/C"/>
+			<arg value="npx"/>
+			<arg value="webpack"/>
+			<arg value="--env"/>
+			<arg value="sourceName=${fileName}"/>
+			<arg value="--env"/>
+			<arg value="targetDir=${outDir}"/>
+		</exec>
+		<exec executable="npx" osfamily="unix" failonerror="true">
+			<arg value="webpack"/>
+			<arg value="--env"/>
+			<arg value="sourceName=${fileName}"/>
+			<arg value="--env"/>
+			<arg value="targetDir=${outDir}"/>
+		</exec>
+    </target>
+
+    <!-- ################################################################### -->
+    <target name="-qa-init">
+        <loadproperties srcFile="../build.properties"/>
+        <property name="production" value="true"/>
+    </target>
+
+    <target name="qa" depends="-package-init" description="Build all the UI modules for QA (with debugging).">
+        <exec executable="cmd" osfamily="windows" failonerror="true">
+			<arg value="/C"/>
+			<arg value="npm"/>
+			<arg value="install"/>
+			<arg value="--no-fund"/>
+			<arg value="--no-audit"/>
+		</exec>
+        <exec executable="npm" osfamily="unix" failonerror="true">
+			<arg value="install"/>
+			<arg value="--no-fund"/>
+			<arg value="--no-audit"/>
+		</exec>
+        <mkdir dir="${build.output.dir}/debug"/>
+		<parallel>
+			<sequential>
+				<exec executable="cmd" osfamily="windows" failonerror="true">
+					<arg value="/C"/>
+					<arg value="npx"/>
+					<arg value="webpack"/>
+					<arg value="--env"/>
+					<arg value="sourceName=auth"/>
+					<arg value="--env"/>
+					<arg value="targetDir=${build.output.dir}/debug"/>
+				</exec>
+				<exec executable="npx" osfamily="unix" failonerror="true">
+					<arg value="webpack"/>
+					<arg value="--env"/>
+					<arg value="sourceName=auth"/>
+					<arg value="--env"/>
+					<arg value="targetDir=${build.output.dir}/debug"/>
+				</exec>
+			</sequential>
+			<sequential>
+				<exec executable="cmd" osfamily="windows" failonerror="true">
+					<arg value="/C"/>
+					<arg value="npx"/>
+					<arg value="webpack"/>
+					<arg value="--env"/>
+					<arg value="sourceName=b2b"/>
+					<arg value="--env"/>
+					<arg value="targetDir=${build.output.dir}/debug"/>
+				</exec>
+				<exec executable="npx" osfamily="unix" failonerror="true">
+					<arg value="webpack"/>
+					<arg value="--env"/>
+					<arg value="sourceName=b2b"/>
+					<arg value="--env"/>
+					<arg value="targetDir=${build.output.dir}/debug"/>
+				</exec>
+			</sequential>
+			<sequential>
+				<exec executable="cmd" osfamily="windows" failonerror="true">
+					<arg value="/C"/>
+					<arg value="npx"/>
+					<arg value="webpack"/>
+					<arg value="--env"/>
+					<arg value="sourceName=b2c"/>
+					<arg value="--env"/>
+					<arg value="targetDir=${build.output.dir}/debug"/>
+				</exec>
+				<exec executable="npx" osfamily="unix" failonerror="true">
+					<arg value="webpack"/>
+					<arg value="--env"/>
+					<arg value="sourceName=b2c"/>
+					<arg value="--env"/>
+					<arg value="targetDir=${build.output.dir}/debug"/>
+				</exec>
+			</sequential>
+			<sequential>
+				<exec executable="cmd" osfamily="windows" failonerror="true">
+					<arg value="/C"/>
+					<arg value="npx"/>
+					<arg value="webpack"/>
+					<arg value="--env"/>
+					<arg value="sourceName=csr"/>
+					<arg value="--env"/>
+					<arg value="targetDir=${build.output.dir}/debug"/>
+				</exec>
+				<exec executable="npx" osfamily="unix" failonerror="true">
+					<arg value="webpack"/>
+					<arg value="--env"/>
+					<arg value="sourceName=csr"/>
+					<arg value="--env"/>
+					<arg value="targetDir=${build.output.dir}/debug"/>
+				</exec>
+			</sequential>
+			<sequential>
+				<exec executable="cmd" osfamily="windows" failonerror="true">
+					<arg value="/C"/>
+					<arg value="npx"/>
+					<arg value="webpack"/>
+					<arg value="--env"/>
+					<arg value="sourceName=prof"/>
+					<arg value="--env"/>
+					<arg value="targetDir=${build.output.dir}/debug"/>
+				</exec>
+				<exec executable="npx" osfamily="unix" failonerror="true">
+					<arg value="webpack"/>
+					<arg value="--env"/>
+					<arg value="sourceName=prof"/>
+					<arg value="--env"/>
+					<arg value="targetDir=${build.output.dir}/debug"/>
+				</exec>
+			</sequential>
+		</parallel>
+    </target>
+
+    <!-- ################################################################### -->
+    <target name="-package-init">
+        <loadproperties srcFile="../build.properties"/>
+        <property name="production" value="true"/>
+    </target>
+
+    <target name="package" depends="-package-init" description="Build all the UI modules.">
+        <exec executable="cmd" osfamily="windows" failonerror="true">
+			<arg value="/C"/>
+			<arg value="npm"/>
+			<arg value="install"/>
+			<arg value="--no-fund"/>
+			<arg value="--no-audit"/>
+		</exec>
+        <exec executable="npm" osfamily="unix" failonerror="true">
+			<arg value="install"/>
+			<arg value="--no-fund"/>
+			<arg value="--no-audit"/>
+		</exec>
+		<parallel>
+			<sequential>
+				<exec executable="cmd" osfamily="windows" failonerror="true">
+					<arg value="/C"/>
+					<arg value="npx"/>
+					<arg value="webpack"/>
+					<arg value="--env"/>
+					<arg value="sourceName=auth"/>
+					<arg value="--env"/>
+					<arg value="targetDir=${build.output.dir}/apps/auth/linked-root/js"/>
+				</exec>
+				<exec executable="npx" osfamily="unix" failonerror="true">
+					<arg value="webpack"/>
+					<arg value="--env"/>
+					<arg value="sourceName=auth"/>
+					<arg value="--env"/>
+					<arg value="targetDir=${build.output.dir}/apps/auth/linked-root/js"/>
+				</exec>
+			</sequential>
+			<sequential>
+				<exec executable="cmd" osfamily="windows" failonerror="true">
+					<arg value="/C"/>
+					<arg value="npx"/>
+					<arg value="webpack"/>
+					<arg value="--env"/>
+					<arg value="sourceName=b2b"/>
+					<arg value="--env"/>
+					<arg value="targetDir=${build.output.dir}/apps/user-business/linked-root/js"/>
+				</exec>
+				<exec executable="npx" osfamily="unix" failonerror="true">
+					<arg value="webpack"/>
+					<arg value="--env"/>
+					<arg value="sourceName=b2b"/>
+					<arg value="--env"/>
+					<arg value="targetDir=${build.output.dir}/apps/user-business/linked-root/js"/>
+				</exec>
+			</sequential>
+			<sequential>
+				<exec executable="cmd" osfamily="windows" failonerror="true">
+					<arg value="/C"/>
+					<arg value="npx"/>
+					<arg value="webpack"/>
+					<arg value="--env"/>
+					<arg value="sourceName=b2c"/>
+					<arg value="--env"/>
+					<arg value="targetDir=${build.output.dir}/apps/user/linked-root/js"/>
+				</exec>
+				<exec executable="npx" osfamily="unix" failonerror="true">
+					<arg value="webpack"/>
+					<arg value="--env"/>
+					<arg value="sourceName=b2c"/>
+					<arg value="--env"/>
+					<arg value="targetDir=${build.output.dir}/apps/user/linked-root/js"/>
+				</exec>
+			</sequential>
+			<sequential>
+				<exec executable="cmd" osfamily="windows" failonerror="true">
+					<arg value="/C"/>
+					<arg value="npx"/>
+					<arg value="webpack"/>
+					<arg value="--env"/>
+					<arg value="sourceName=csr"/>
+					<arg value="--env"/>
+					<arg value="targetDir=${build.output.dir}/apps/admin/linked-root/js"/>
+				</exec>
+				<exec executable="npx" osfamily="unix" failonerror="true">
+					<arg value="webpack"/>
+					<arg value="--env"/>
+					<arg value="sourceName=csr"/>
+					<arg value="--env"/>
+					<arg value="targetDir=${build.output.dir}/apps/admin/linked-root/js"/>
+				</exec>
+			</sequential>
+			<sequential>
+				<exec executable="cmd" osfamily="windows" failonerror="true">
+					<arg value="/C"/>
+					<arg value="npx"/>
+					<arg value="webpack"/>
+					<arg value="--env"/>
+					<arg value="sourceName=prof"/>
+					<arg value="--env"/>
+					<arg value="targetDir=${build.output.dir}/apps/profile/linked-root/js"/>
+				</exec>
+				<exec executable="npx" osfamily="unix" failonerror="true">
+					<arg value="webpack"/>
+					<arg value="--env"/>
+					<arg value="sourceName=prof"/>
+					<arg value="--env"/>
+					<arg value="targetDir=${build.output.dir}/apps/profile/linked-root/js"/>
+				</exec>
+			</sequential>
+		</parallel>
+		<copy file="${build.output.dir}/apps/auth/linked-root/js/auth.js" todir="${build.output.dir}/apps/auth/linked-root/csr/js/"/>
+		<copy file="${build.output.dir}/apps/auth/linked-root/js/auth.js" todir="${build.output.dir}/apps/auth/linked-root/b2b/js/"/>
+		<copy file="${build.output.dir}/apps/auth/linked-root/js/auth.js" todir="${build.output.dir}/apps/auth/linked-root/b2c/js/"/>
+    </target>
+</project>

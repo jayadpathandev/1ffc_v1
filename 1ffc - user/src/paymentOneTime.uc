@@ -140,7 +140,7 @@ useCase paymentOneTime [
 	
     serviceStatus srBillOverviewStatus
     serviceParam(Documents.BillOverview) 	srBillOverviewParam
-    serviceResult(Documents.BillOverview) 	srBillOverviewResult  
+    serviceResult(Documents.BillOverview) 	srBillOverviewResult
 
     // -- 1st Franklin Specific GetStatus returns the status for all major conditions and business
     //		drivers --
@@ -185,6 +185,7 @@ useCase paymentOneTime [
 	input sTotalPayAmt
 	input sSurCharge = ""
 	input sTotalAmount = ""     // pay amount + surcharge
+	
 	string sDocumentNum
 
 	/* "single" or "multiple" indicator */
@@ -262,6 +263,7 @@ useCase paymentOneTime [
 	string sEstimatedProcessingDateLabel = "{ESTIMATED PROCESSING DATE}"
 	string sPaymentRequestReceivedLabel = "{PAYMENT REQUEST RECEIVED}"
 	string sPaymentSurChargeLabel = "{SURCHARGE}"
+	string sPaymentConvenienceFeeLabel = "{CONVENIENCE FEE}"
 	string sPaymentTotalAmountLabel = "{TOTAL AMOUNT}"
     string sPaymentMethodHeader = "{Payment method}"
     string sConfirmPaymentHeader = "{Confirm payment}"
@@ -350,12 +352,8 @@ useCase paymentOneTime [
                         "that processing times may not allow for revocation of this " +
                         "authorization.}"
                         
-	static sSurchargeNotice = "{The Surcharge is a processing fee for using a credit card to make " +
-							  "payments. This processing fee is no more than our costs associated " +
-							  "with accepting credit cards or 4% of the transaction, whichever is " +
-							  "less. This fee is not charged when you use a debit card or bank account " +
-							  "to make a payment. To avoid this fee, update your payment method to " +
-							  "use a debit card or bank account. Thank you.}"                        
+	static sSurchargeNotice = "{If you decide to pay through Direct Debit, 1st Franklin Financial will charge you a non-refundable Convenience Fee. " + 
+							  "This fee is payable in advance along with the Payment Amount and will be charged separately as a line item transaction.}"                        
     
     field fAutoScheduledConfirm [        
     	checkBoxes(control) sField = Agree [
@@ -429,19 +427,23 @@ useCase paymentOneTime [
 		sUserName = getUserName()
         dPayAmount = ""
         
-        /*-- If it is statement mode, we always need to get the recent document --*/
+        goto(getDocuments)
+	] 
+		
+	action getDocuments [
+		/*-- If it is statement mode, we always need to get the recent document --*/
         if sBillingType == "statement" then
     	    getMostRecent
     	else 
-    	    hasBillSelectedForPayment  
-	] 
+    	    hasBillSelectedForPayment 
+	]
 
 	action hasBillSelectedForPayment [
         switch sHasBillsSelectedForPayment [
         	case "true" initPaySelectedBills
         	default getMostRecent
         ]		
-	]	
+	]
 	
 	action initPaySelectedBills [
 		sMostRecentDocsResult = "allow"
@@ -914,7 +916,7 @@ useCase paymentOneTime [
 				display sSurCharge [
 					class: "visually-hidden"
 				]
-
+				
 				display sTotalAmount [
 					class: "visually-hidden"
 				]
@@ -950,7 +952,7 @@ useCase paymentOneTime [
 				display surchargeFlag [
 					class: "visually-hidden st-surcharge"
 				]
-
+				
 				display sFlexfield [
 					class: "visually-hidden st-flexfield"
 				]
@@ -1249,7 +1251,7 @@ useCase paymentOneTime [
 							    ]
 							]
 						]
-
+						
 						/*-- Payment Surcharge --*/
 						div paymentSummaryCompleteCol4 [
 							class: "col-md-2"   
@@ -1258,10 +1260,10 @@ useCase paymentOneTime [
 							
 							div paymentSurchargeCompleteLabelRow [
 								class: "row"
-								
+																
 								div paymentSurChargeCompleteLabel [
 									class: "col-md-12 text-end"
-									display sPaymentSurChargeLabel
+									display sPaymentConvenienceFeeLabel
 								]
 							]
 	
@@ -1274,9 +1276,8 @@ useCase paymentOneTime [
 								]
 							]
 						]
-						
 
-						/*-- Total amount  --*/
+						/*-- Total amount --*/
 						div paymentSummaryCompleteCol5 [
 							class: "col-md-2"  
 							
@@ -1931,7 +1932,8 @@ useCase paymentOneTime [
 		sPaymentMethodAccount = srGetWalletInfoResult.SOURCE_NUM
 		sSourceExpiry = srGetWalletInfoResult.SOURCE_EXPIRY
 		sDefault  = srGetWalletInfoResult.SOURCE_DEFAULT
-		goto (jsonGetWalletInfoResponse)
+
+		goto(jsonGetWalletInfoResponse)
 	]
 	
 	/* 21. Get wallet info json response. */
@@ -2238,7 +2240,8 @@ useCase paymentOneTime [
 		             "adjusted=false" + "|" + 
 		             "payDate=" + sPaymentDate + "|" + 
 		             "bills=" + sGroupingDataString + "|" +
-		             "currency=" + sCurrency 
+		             "currency=" + sCurrency
+
 		switch NotifUtil.sendRegisteredUserEmail(sUserId, sNtfParams, "payment_make_payment_success") [
 			case "success" jsonSubmitPaymentSuccessResponse
 			default jsonSubmitPaymentSuccessResponse
