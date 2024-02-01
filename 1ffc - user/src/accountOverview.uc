@@ -110,6 +110,7 @@ useCase accountOverview [
     importJava UcPaymentAccountBalance(com.sorrisotech.uc.payment.UcPaymentAccountBalance)
     importJava UcPaymentAction(com.sorrisotech.uc.payment.UcPaymentAction)
     importJava Math(com.sorrisotech.app.utils.Math)
+    importJava CurrentBalanceHelper(com.sorrisotech.fffc.payment.BalanceHelper)
     
     // -- GetCurrentBalanceConfig tells us the source of information for current balance
     serviceStatus srStatus	
@@ -543,7 +544,7 @@ useCase accountOverview [
 	action internalCurrentBalanceStatementOrInvoice [
 		switch sBillingType [
 	 		case "invoice" 		calculateCurrentBalanceInternallyforInvoices
-	 		case "statement" 	calculateCurrentBalanceInternallyForStatements
+	 		case "statement" 	calculateCurrentBalanceFor1stFranklin
 	 		default 			errorBillingTypeConfiguration
 		]
 	]
@@ -561,6 +562,21 @@ useCase accountOverview [
 									sCurrentBalance, 		// -- this is where the result is placed
 									sCurrentBalanceFlag)	// -- this flag indicates if its valid				
 		
+		goto(getScheduledPmtInfo)
+	]
+	
+	/**
+	 * 10.A  substitute calculation for 1st Franklin on current balance
+	 */
+	action calculateCurrentBalanceFor1stFranklin [
+		CurrentBalanceHelper.getCurrentBalanceRaw(
+										sPayGroup,								// -- payment group
+										sAccount,								// -- internal account
+										srBillOverviewResult.docDate,			// -- most recent bill date
+										srBillOverviewResult.totalDue,			// -- bill amount due
+										srGetStatusResult.statusDate,			// -- most recent status date
+										srGetStatusResult.currentAmountDue		// -- status amount due
+										sCurrentBalance )						// -- current balance for display
 		goto(getScheduledPmtInfo)
 	]
 	

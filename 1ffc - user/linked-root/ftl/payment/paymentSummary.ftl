@@ -97,10 +97,10 @@
 
 <#--  ** bill.amountDue is the current amount due at the time of this statement. This will
 		 change to something else when we implement payment history tracking -->
-<#if bill.amountDue?has_content && bill.amountDue?string?trim != "">
-	<#assign nAmountDue = bill.amountDue>
+<#if amount?has_content && amount?string?trim != "">
+	<#assign nAmountDue = amount>
  	<#if bBillHasOverdue == true && bill.minDue?has_content && bill.minDue?string?trim != "">
-		<#assign nAmountOverdue = bill.amountDue - bill.minDue>
+		<#assign nAmountOverdue = nAmountDue - bill.minDue>
 	<#else>
 		<#assign nAmountOverdue = "0">
 	</#if>
@@ -416,7 +416,7 @@
 				Monthly payment due date
 			</div>
 			<div class="col">
-				<span class="float-end">Statement amount due</span>
+				<span class="float-end">Current amount due</span>
 			</div>
 		</div>
 	<#else>

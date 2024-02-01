@@ -96,6 +96,8 @@ useCase paymentOneTime [
     importJava PaymentAuditIterator(com.sorrisotech.uc.payment.PaymentAuditIterator)
     importJava OneTimePaymentHelperAction(com.sorrisotech.uc.payment.OneTimePaymentHelperAction)
 	importJava LocalizedFormat(com.sorrisotech.common.LocalizedFormat)
+	// -- specific to 1st Franklin ... helps calculate current balance --
+	importJava CurrentBalanceHelper (com.sorrisotech.fffc.payment.BalanceHelper)    
             
     import validation.dateValidation
             
@@ -139,6 +141,33 @@ useCase paymentOneTime [
     serviceStatus srBillOverviewStatus
     serviceParam(Documents.BillOverview) 	srBillOverviewParam
     serviceResult(Documents.BillOverview) 	srBillOverviewResult  
+
+    // -- 1st Franklin Specific GetStatus returns the status for all major conditions and business
+    //		drivers --
+    serviceStatus srAccountStatusCode
+    serviceParam (AccountStatus.GetStatus) srGetStatusParams
+    serviceResult (AccountStatus.GetStatus) srGetStatusResult
+    serviceParam  (AccountStatus.IsMinimumPaymentRequired) srGetMinimumParams
+    serviceResult (AccountStatus.IsMinimumPaymentRequired) srGetMinimumResult
+    serviceStatus srGetMinimumCode
+    native string sLocalAccountStatusDate
+    native string sLocalAccountStatusAmount
+    native string sLocalAccountBillDate
+    native string sLocalAccountBillAmount
+    string msgStatusError = "Internal System Error, please try again later."
+
+	// -- returns a current balance calculated based on either bill or status (whichever is newer) less
+	//		payments since that last bill or status date (date inclusive) --
+	volatile string sTotalDueDisplay = 
+			CurrentBalanceHelper.getCurrentBalanceFormatted (
+				srBillOverviewParam.payGroup, 	// -- payment group
+				srBillOverviewParam.account,	// -- account
+				sLocalAccountBillDate,			// -- published date of bill
+				sLocalAccountBillAmount,		// -- amount in bill
+				sLocalAccountStatusDate,		// -- published date of acct status
+				sLocalAccountStatusAmount )	 	// -- amount in acct status
+	volatile native string sCurrentBalance
+	native string sThrowThisAwayWeDontWantIt	// -- java set payment data will drop its shit here
     
 	volatile native string sAuditIteratorHasNext = PaymentAuditIterator.hasNext()
 	volatile native string sAuditIteratorNext = PaymentAuditIterator.next()  
@@ -165,7 +194,7 @@ useCase paymentOneTime [
 	static sNumberOfBillsDisplayText = "{<1> bills selected}"
 	volatile string sNumberOfBillsDisplayLabel = I18n.translate ("paymentOneTime_sNumberOfBillsDisplayText", sNumberOfBills)
 	
-    static sCurrentBalText = "{Current balance}"
+    static sCurrentBalText = "{Current amount due}"
     static sStatementBalText = "{Bill balance}"
     static sMinimumText = "{Minimum payment}"
     static sOther = "{Other amount}"
@@ -205,12 +234,10 @@ useCase paymentOneTime [
     static paymentInsufficientFundsError = "{Failed to make payment. There are insufficient funds on your account.}"
 
     native string sDueDate                 = Format.formatDateNumeric(srBillOverviewResult.dueDate)
-	native string sTotalDueDisplay         = Format.formatAmountForEdit(srBillOverviewResult.totalDue)
 	native string sCurrentBalanceDisplay   = ''
-	native string sCurrentBalance          = ''
 	native string sCurrentBalanceFlag      = ''
-	native string sMinDue                  = Format.formatAmountForEdit(srBillOverviewResult.minDue)
-	native string sMinDueDisplay           = LocalizedFormat.formatAmount(sPayGroup, srBillOverviewResult.minDue)
+	native string sMinDue = ''
+	native string sMinDueDisplay  = LocalizedFormat.formatAmount(sPayGroup, sMinDue)
 	native string sStatementBalanceEdit    = Format.formatAmountForEdit(srBillOverviewResult.totalDue)
 	native string sStatementBalanceDisplay = LocalizedFormat.formatAmount(sPayGroup, srBillOverviewResult.totalDue)	
 	
@@ -226,9 +253,6 @@ useCase paymentOneTime [
 	volatile string sPaymentDateLabel = I18n.translate ("paymentOneTime_sPaymentDateText", sDueDate)
 	
 	static sPayAmountText1 = "{Pay amount (Due}"
-	native string sPayAmountText2 = ")"		
-	volatile string sPayAmountNewText1 = I18n.translate ("paymentOneTime_sPayAmountText1")
-	native string sDisplayAmt = UcPaymentAction.formatAmtText(sCurrentBalance, sPayGroup, "onetime")
 	native string sPayAmountLabel
 	
 	string sOtherAmountLabel = "{Other amount}"
@@ -284,7 +308,6 @@ useCase paymentOneTime [
     persistent native string source_type       = ""
     
     native string sPayAmt = ""
-    native string sOffset
      
     persistent native string sUserName
     persistent native string sNickName = "" 
@@ -511,22 +534,128 @@ useCase paymentOneTime [
         	default getBalanceDefault
         ]
 	]
+//-----------------------------------------------------------------------------------------
+//
+//Inserts/adjustments for 1ffc -- 
+//	When we add bills for payment, we will also add the amount due and the 
+//		min and max amount to the bill here this is passe with the
+//		information associated with the account to be paid ... I'm doing this
+//		in a kind of 1st Franklin specific way... if we want to productize
+//		this we need to do a structural re-think John K.
+//
+//		Steps in this process:
+//			1. the model will be to get status
+//			2  use the current bill overview we've got
+//			3. calculate the balance as a formatted string for display (i.e sDisplayAmt)
+//			4. calculate as a number for later (sCurrentBalance)
+//
+//		these variables are used all over the place and sometimes where they aren't needed so
+//		we need to get them correct
+//-----------------------------------------------------------------------------------------	
 	
-	/* getBalanceDefault fetches the balance the "first" assigned account,
-	 * this is the fallback if there are no bills selected */
 	action getBalanceDefault [
-		UcPaymentAction.getDocumentCurrentBalance(
+/*		UcPaymentAction.getDocumentCurrentBalance(
 								sPayAccountInternal, 
 								srBillOverviewResult.docNumber, 
 								sPayGroup, 
 								sTotalDueDisplay, 
 								sCurrentBalance, 
-								sCurrentBalanceFlag)		
+								sCurrentBalanceFlag)	
+								 
+	
 		sCurrentBalanceEdit = sCurrentBalance
 		sPayAmountLabel     = sPayAmountNewText1 + sDisplayAmt + sPayAmountText2
 		goto(checkSelectedBillsPlurality)
+*/	
+		goto (getAccountStatusData)
 	]
-    
+	
+	/**
+	 * 5.3.1A System retrieves account status data. This is needed for calculating the 
+	 * 			current balance since the basis is either bill or status, whichever is
+	 * 			newer.
+	 */ 
+	action getAccountStatusData [
+		srGetStatusParams.user = sUserId
+		srGetStatusParams.paymentGroup = srBillOverviewParam.payGroup
+		srGetStatusParams.account = srBillOverviewParam.account
+		// -- retrieve the status information --
+   		switch apiCall AccountStatus.GetStatus(srGetStatusParams, srGetStatusResult, srAccountStatusCode) [
+    		case apiSuccess assignPaymentInformation
+    		default MsgInternalError
+    	]
+	]
+	
+	/**
+	 * 5.3.1B System assigns parameters from status results and gets the current balance in raw form
+	 * 			the localized string form happens in the next action
+	 */
+	action assignPaymentInformation [
+	    sLocalAccountStatusDate = srBillOverviewResult.docDate
+	    sLocalAccountStatusAmount = srBillOverviewResult.totalDue
+	    sLocalAccountBillDate = srGetStatusResult.statusDate
+	    sLocalAccountBillAmount = srGetStatusResult.currentAmountDue
+		// -- returns unlocalized string for current balance --
+		CurrentBalanceHelper.getCurrentBalanceRaw (
+				srBillOverviewParam.payGroup, 		// -- payment group
+				srBillOverviewParam.account,		// -- account
+				sLocalAccountBillDate,				// -- published date of bill
+				sLocalAccountBillAmount,			// -- amount due in bill
+				sLocalAccountStatusDate,			// -- published date of acct status
+				sLocalAccountStatusAmount,			// -- current amt due in status
+				sCurrentBalance )	 		    	// -- returns current balance value
+		sCurrentBalanceEdit = sCurrentBalance
+		
+		goto (getMinimumDueRequired)
+	]
+	
+	/**
+	 * 5.3.2A System sets the minimum due from the status feed
+	 * 			or if minimum due is greater than current balance
+	 * 			it sets it to the current balance 
+	 * 
+	 * 		  First step - get info from status feed
+	 */
+	action getMinimumDueRequired [
+		srGetMinimumParams.user = sUserId
+		srGetMinimumParams.paymentGroup = srBillOverviewParam.payGroup
+		srGetMinimumParams.account = srBillOverviewParam.account
+		// -- retrieve the status information --
+   		switch apiCall AccountStatus.IsMinimumPaymentRequired(srGetMinimumParams, srGetMinimumResult, srGetMinimumCode) [
+    		case apiSuccess isMinimumDueRequired
+    		default MsgInternalError
+    	]
+	]
+	
+	/**
+	 * 5.3.2B Second step - System checks to see if minimum due is required 
+	 */
+	action isMinimumDueRequired [
+		sMinDue = "0.00"
+		if "false" == srGetMinimumResult.bMinimumRequired then
+			setMinimumDue
+		else
+			checkSelectedBillsPlurality
+	]
+
+	/**
+	 * 5.3.2C Third step -- System assigns the minimum
+	 * 			due based on comparison to current balance
+	 */
+	action setMinimumDue [
+		CurrentBalanceHelper.getTrueMinimumDue(
+		       srGetMinimumResult.sAmountRequired, // -- minimum due from status
+			   sCurrentBalance,					   // -- calculated current balance	
+			   sMinDue)							   // -- where minimum due is returned
+		goto (checkSelectedBillsPlurality)	
+	]
+	
+	action MsgInternalError [
+		displayMessage (type: "error" msg: msgStatusError)
+		goto(OneTimePaymentScreen)
+			
+	]
+	    
     /* 6. Check Bills single or multiple */
     action checkSelectedBillsPlurality [
 		switch OneTimePaymentHelperAction.getSelectedBillsPlurality() [
@@ -543,21 +672,36 @@ useCase paymentOneTime [
     	else 
     	    preparePaySingleBill    	
     ]	
-
+ 	/* Here is where we'll set the current balance based on  */
 	action setStatementPayment [
-		OneTimePaymentHelperAction.setBillForPayment(sPayAccountInternal, sPayAccountExternal, srBillOverviewResult.docDate, srBillOverviewResult.docNumber, 
-													 srBillOverviewResult.docAmount, srBillOverviewResult.dueDate, sPayGroup, 
-													 srBillOverviewResult.totalDue, srBillOverviewResult.minDue, sCurrentBalance
+//		OneTimePaymentHelperAction.setBillForPayment(sPayAccountInternal, sPayAccountExternal, srBillOverviewResult.docDate, srBillOverviewResult.docNumber, 
+//													 srBillOverviewResult.docAmount, srBillOverviewResult.dueDate, sPayGroup, 
+//													 srBillOverviewResult.totalDue, srBillOverviewResult.minDue, sCurrentBalance
+//		)
+		// -- the comments to the right of each argument show how they are set for 
+		//		information sent down to the javascript --
+		OneTimePaymentHelperAction.setBillForPayment(
+			sPayAccountInternal,						// -- number, internalAccountNumber, internal_account_number
+			sPayAccountExternal,						// -- numberDisplay
+			srBillOverviewResult.docDate,				// -- statementDate, statementNum
+			srBillOverviewResult.docNumber, 			// -- NOT USED
+//			srBillOverviewResult.docAmount,				// -- amount, amountNum, total, total_num ORIGINAL LINE!
+			sCurrentBalance,							// -- amount, amountNum, total, total_num
+			srBillOverviewResult.dueDate,				// -- dueDate
+			sPayGroup,									// -- paymentGroup
+			srBillOverviewResult.totalDue,				// -- NOT USED
+//			srBillOverviewResult.minDue,				// -- minimumDue, minimumDueNum ORIGINAL LINE!
+			sMinDue,									// -- minimumDue, minimumDueNum
+			sCurrentBalance								// -- paymentAmount, currentBalance, currentBalanceNum
 		)
 		goto (preparePaySingleBill)
 	]    
     
 	/* 7. Prepare single bill */
 	action preparePaySingleBill [
-		OneTimePaymentHelperAction.populatePaymentAmount(sCurrentBalance, sCurrentBalanceDisplay, sPayGroup)
-				
-		sCurrentBalanceEdit = sCurrentBalance
-		sPayAmountLabel     = sPayAmountNewText1 + sDisplayAmt + sPayAmountText2
+//		OneTimePaymentHelperAction.populatePaymentAmount(sCurrentBalance, sCurrentBalanceDisplay, sPayGroup)
+		sCurrentBalanceDisplay = sTotalDueDisplay		// -- sTotalDueDisplay populated dynamically in declaration
+		sCurrentBalanceEdit = sCurrentBalance			// -- sCurrentBalance populated action assignPaymentInformation
 		
 		selectedBillsPlurality = "single"
 		goto(OneTimePaymentScreen)
@@ -568,7 +712,6 @@ useCase paymentOneTime [
 		OneTimePaymentHelperAction.populatePaymentAmount(sCurrentBalance, sCurrentBalanceDisplay, sPayGroup)
 	    
 		sCurrentBalanceEdit = sCurrentBalance
-	    sPayAmountLabel     = sPayAmountNewText1 + sDisplayAmt + sPayAmountText2
 	    
 		selectedBillsPlurality = "multiple"
 		goto(OneTimePaymentScreen)
@@ -735,7 +878,7 @@ useCase paymentOneTime [
 			    display sPmtScheduledFlag [
 			    	class: "visually-hidden st-pmt-scheduled"
 			    ]
-
+			
 			    display sCurrentBalanceEdit [
 			    	class: "visually-hidden st-current"
 			    ]
@@ -758,8 +901,8 @@ useCase paymentOneTime [
 			    
 			    display sMinDueDisplay [
 			    	class: "visually-hidden st-minimum-display"
+//			    	class: "st-minimum-display"
 			    ]
-			    			    				
 				display sCurrencySymbol[
 					class: "visually-hidden st-currency"
 				]

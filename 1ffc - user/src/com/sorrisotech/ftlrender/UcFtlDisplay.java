@@ -834,7 +834,7 @@ public class UcFtlDisplay implements IExternalReuse {
 		
 			lTemplate.put(lcszRoot, "jumpToOffset", cSession.getAccountOffset(cszAccountNumber, cszPaymentGroup));
 			lTemplate.put(lcszRoot, "displayAccount", lBillInfo.getExternalAccountNo());
-			lTemplate.put(lcszRoot, "amount", cszCurrentAmountDue); // -- this is current amount due, not statement amount due --
+			lTemplate.put(lcszRoot, "amount", new BigDecimal(cszCurrentAmountDue)); // -- this is current amount due, not statement amount due --
 			lTemplate.put(lcszRoot, "dueDate", lTemplate.m_DateFormat.numeric(lBillInfo.getBillDueDate()));
 			lTemplate.put(lcszRoot, "newAmount", lBillInfo.getAmountDue());
 			lTemplate.put(lcszRoot, "previousAmount", cszPreviousBillAmountRemaining); // -- needs to be passed down as it is calculated --

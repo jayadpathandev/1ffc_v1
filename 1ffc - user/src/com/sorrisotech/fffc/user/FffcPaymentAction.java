@@ -122,12 +122,11 @@ public class FffcPaymentAction extends UcPaymentAction{
 		String szStatementDisplay,
 		String szMinimumDisplay
 		) {
-				
-		String szStatementText = szStatementDisplay + " - " + I18n.translate(cLocator, cData, "paymentOneTime_sStatementBalText");				
+		String szCurrentBalanceText = szCurrentDisplay + " - " + I18n.translate(cLocator, cData, "paymentOneTime_sCurrentBalText");				
 		String szOther         = I18n.translate(cLocator, cData, "paymentOneTime_sOther");
 		
 		return new String [][] {
-			{ "statement", szStatementText },
+			{ "current", szCurrentBalanceText },
 			{ "other", szOther }				
 		};
 	}	
