@@ -311,6 +311,8 @@ useCase paymentOneTime [
     native string sFlexfield = UcPaymentAction.getFlexField()
     native string sBillingType = UcPaymentAction.getBillingBalanceType()
     
+    native string flexDefinition = AppConfig.get("1ffc.flex.definition")
+    
     persistent native string source_type       = ""
     
     native string sPayAmt = ""
@@ -2011,12 +2013,32 @@ useCase paymentOneTime [
 		UcPaymentAction.formatPayDate(fPayDate.aDate, sPaymentDate)
 		
 		switch UcPaymentAction.checkPayDate(sPaymentDate) [
-			case "today" submitPayment
+			case "today" checkSurcharge
 			case "future" setScheduledPayment
 			default genericErrorResponse
 		]
 	]
+	
+	action checkSurcharge [
+		if surchargeFlag == "true" then
+			checkSourceType
+		else
+			submitPayment
+	]
+	
+	action checkSourceType [
+		if sPayDataSourceType == "debit" then
+			addConvenienceFee
+		else
+			submitPayment
+	]
 
+	action addConvenienceFee [
+		srMakePaymentParam.FLEX_VALUE = "convenienceFee=true"
+		srMakePaymentParam.FLEX_DEFINITION = flexDefinition
+		
+		goto(submitPayment)
+	]
  	
 	/* 27. Submit payment to payment system. */
 	action submitPayment [
