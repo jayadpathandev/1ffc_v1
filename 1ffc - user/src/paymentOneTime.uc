@@ -12,6 +12,10 @@ useCase paymentOneTime [
     *   Major Versions:
     *        1.0 19-Apr-2016 First Version Coded [Maybelle Johnsy Kanjirapallil]
     *        2.0 25-Sept-2019 Support Sepa
+    * 		 --------
+    * 		 1st Franklin changes
+    * 		---------
+    * 		1F-1	2024-Feb-2	jak	First full version with changes to reflect 1st Franklin Rules
     */
 
     documentation [
@@ -529,53 +533,24 @@ useCase paymentOneTime [
 		]
 	]
 	
-	/* 5 3.1  Get balance */
+	/* 5 3.1  System needs to decide if we are selecting several bills or just one before
+	 * 			retrieving balance information. If many, then the process is different.
+	 */
 	action getBalance [
 		switch sHasBillsSelectedForPayment [
         	case "true" checkSelectedBillsPlurality
-        	default getBalanceDefault
+        	default getAccountStatusData
         ]
 	]
-//-----------------------------------------------------------------------------------------
-//
-//Inserts/adjustments for 1ffc -- 
-//	When we add bills for payment, we will also add the amount due and the 
-//		min and max amount to the bill here this is passe with the
-//		information associated with the account to be paid ... I'm doing this
-//		in a kind of 1st Franklin specific way... if we want to productize
-//		this we need to do a structural re-think John K.
-//
-//		Steps in this process:
-//			1. the model will be to get status
-//			2  use the current bill overview we've got
-//			3. calculate the balance as a formatted string for display (i.e sDisplayAmt)
-//			4. calculate as a number for later (sCurrentBalance)
-//
-//		these variables are used all over the place and sometimes where they aren't needed so
-//		we need to get them correct
-//-----------------------------------------------------------------------------------------	
 	
-	action getBalanceDefault [
-/*		UcPaymentAction.getDocumentCurrentBalance(
-								sPayAccountInternal, 
-								srBillOverviewResult.docNumber, 
-								sPayGroup, 
-								sTotalDueDisplay, 
-								sCurrentBalance, 
-								sCurrentBalanceFlag)	
-								 
-	
-		sCurrentBalanceEdit = sCurrentBalance
-		sPayAmountLabel     = sPayAmountNewText1 + sDisplayAmt + sPayAmountText2
-		goto(checkSelectedBillsPlurality)
-*/	
-		goto (getAccountStatusData)
-	]
+	//-----------------------------------------------------------------------------------------
+	// 1FFC SPECIFIC STARTS, REPLACES actions that retrieve current balance in core
+	//-----------------------------------------------------------------------------------------	
 	
 	/**
-	 * 5.3.1A System retrieves account status data. This is needed for calculating the 
-	 * 			current balance since the basis is either bill or status, whichever is
-	 * 			newer.
+	 * 5.3.1A System has identified this as a single bill process (consumer). It retrieves account status
+	 *			 data. This is needed for calculating the current balance since the current balance is
+	 *			 based on either bill or status, whichever is newer.
 	 */ 
 	action getAccountStatusData [
 		srGetStatusParams.user = sUserId
@@ -590,7 +565,7 @@ useCase paymentOneTime [
 	
 	/**
 	 * 5.3.1B System assigns parameters from status results and gets the current balance in raw form
-	 * 			the localized string form happens in the next action
+	 * 			the localized string form happens when sTotalAmountDue is referenced.. see declaration.
 	 */
 	action assignPaymentInformation [
 	    sLocalAccountStatusDate = srBillOverviewResult.docDate
@@ -607,30 +582,31 @@ useCase paymentOneTime [
 				sLocalAccountStatusAmount,			// -- current amt due in status
 				sCurrentBalance )	 		    	// -- returns current balance value
 		sCurrentBalanceEdit = sCurrentBalance
+		sCurrentBalanceFlag = "valid"				// -- this turns off the flag that prevents overpayment
 		
 		goto (getMinimumDueRequired)
 	]
 	
 	/**
-	 * 5.3.2A System sets the minimum due from the status feed
-	 * 			or if minimum due is greater than current balance
-	 * 			it sets it to the current balance 
-	 * 
-	 * 		  First step - get info from status feed
+	 * 5.3.2A Calculate minimum due (step 1 of 3) -- System gets the minimum due 
+	 *			from the status feed. This minimum arrives nightly. 
 	 */
 	action getMinimumDueRequired [
 		srGetMinimumParams.user = sUserId
 		srGetMinimumParams.paymentGroup = srBillOverviewParam.payGroup
 		srGetMinimumParams.account = srBillOverviewParam.account
 		// -- retrieve the status information --
-   		switch apiCall AccountStatus.IsMinimumPaymentRequired(srGetMinimumParams, srGetMinimumResult, srGetMinimumCode) [
+   		switch apiCall AccountStatus.IsMinimumPaymentRequired(srGetMinimumParams, 
+   															  srGetMinimumResult, 
+   															  srGetMinimumCode) [
     		case apiSuccess isMinimumDueRequired
     		default MsgInternalError
     	]
 	]
 	
 	/**
-	 * 5.3.2B Second step - System checks to see if minimum due is required 
+	 * 5.3.2B Calculate minimum due (step 2 of 3) - System checks status result
+	 *			to see if minimum due is required. 
 	 */
 	action isMinimumDueRequired [
 		sMinDue = "0.00"
@@ -641,8 +617,8 @@ useCase paymentOneTime [
 	]
 
 	/**
-	 * 5.3.2C Third step -- System assigns the minimum
-	 * 			due based on comparison to current balance
+	 * 5.3.2C Calculate minimum due (step 3 of 3) - System assigns the true
+	 *			minimum due based on comparison to current balance.
 	 */
 	action setMinimumDue [
 		CurrentBalanceHelper.getTrueMinimumDue(
@@ -652,11 +628,19 @@ useCase paymentOneTime [
 		goto (checkSelectedBillsPlurality)	
 	]
 	
+	/**
+	 * 5.3.2.D System finds that minimum payment call failed, report internal
+	 *			error to the user.
+	 */
 	action MsgInternalError [
 		displayMessage (type: "error" msg: msgStatusError)
 		goto(OneTimePaymentScreen)
 			
 	]
+
+	//-----------------------------------------------------------------------------------------
+	// 1FFC SPECIFIC ENDS, REPLACES actions that retrieve current balance in core
+	//-----------------------------------------------------------------------------------------	
 	    
     /* 6. Check Bills single or multiple */
     action checkSelectedBillsPlurality [
@@ -667,6 +651,11 @@ useCase paymentOneTime [
 		]
 	]
 
+	/**
+	 * 6a. System is in pay one bill at a time mode (consumer). Branch flow
+	 *		after determining if this is a statement based system or 
+	 *		invoice based system that's running.
+	 */
     action paySingleBillModeCheck [
     	
     	if sBillingType == "statement" then
@@ -674,34 +663,53 @@ useCase paymentOneTime [
     	else 
     	    preparePaySingleBill    	
     ]	
- 	/* Here is where we'll set the current balance based on  */
+    
+ 	/**
+ 	 * 6.1a System has identified this as a single bill (consumer), statement based system and passes
+ 	 *		payment information down to the helper. The helper uses this information when
+ 	 *		responding to JSON requests from the payment javascript. In this case, specifically
+ 	 *		a call to get bill information for payment.
+ 	 */
 	action setStatementPayment [
-//		OneTimePaymentHelperAction.setBillForPayment(sPayAccountInternal, sPayAccountExternal, srBillOverviewResult.docDate, srBillOverviewResult.docNumber, 
-//													 srBillOverviewResult.docAmount, srBillOverviewResult.dueDate, sPayGroup, 
-//													 srBillOverviewResult.totalDue, srBillOverviewResult.minDue, sCurrentBalance
-//		)
-		// -- the comments to the right of each argument show how they are set for 
-		//		information sent down to the javascript --
+
+		//-----------------------------------------------------------------------------------------
+		// 1FFC SPECIFIC (MINOR) product uses the statement amount due (docAmount) and the statement
+		//		minimum due (minDue) and here we've replaced them with amounts calculated based on
+		//		information in the status feed and payment history.
+		//-----------------------------------------------------------------------------------------	
+
+		// -- The comments to the right of each argument show how they are set in the JSON
+		//		sent down to the javascript. Note that some are never used and others are used in
+		//		multiple JSON variables (the javascript must be messy).
 		OneTimePaymentHelperAction.setBillForPayment(
 			sPayAccountInternal,						// -- number, internalAccountNumber, internal_account_number
 			sPayAccountExternal,						// -- numberDisplay
 			srBillOverviewResult.docDate,				// -- statementDate, statementNum
 			srBillOverviewResult.docNumber, 			// -- NOT USED
-//			srBillOverviewResult.docAmount,				// -- amount, amountNum, total, total_num ORIGINAL LINE!
+//			srBillOverviewResult.docAmount,				// -- ORIGINAL LINE! amount, amountNum, total, total_num 
 			sCurrentBalance,							// -- amount, amountNum, total, total_num
 			srBillOverviewResult.dueDate,				// -- dueDate
 			sPayGroup,									// -- paymentGroup
 			srBillOverviewResult.totalDue,				// -- NOT USED
-//			srBillOverviewResult.minDue,				// -- minimumDue, minimumDueNum ORIGINAL LINE!
+//			srBillOverviewResult.minDue,				// -- ORIGINAL LINE! minimumDue, minimumDueNum 
 			sMinDue,									// -- minimumDue, minimumDueNum
 			sCurrentBalance								// -- paymentAmount, currentBalance, currentBalanceNum
 		)
 		goto (preparePaySingleBill)
 	]    
     
-	/* 7. Prepare single bill */
+	/**
+	 *  6.1b. System sets current balance information for paying a single bill
+	 */
 	action preparePaySingleBill [
+
+		//-----------------------------------------------------------------------------------------
+		// 1FFC SPECIFIC (MINOR) current balance already retrieved and formatted so we don't need
+		//		to do that here.
+		//-----------------------------------------------------------------------------------------	
+		
 //		OneTimePaymentHelperAction.populatePaymentAmount(sCurrentBalance, sCurrentBalanceDisplay, sPayGroup)
+
 		sCurrentBalanceDisplay = sTotalDueDisplay		// -- sTotalDueDisplay populated dynamically in declaration
 		sCurrentBalanceEdit = sCurrentBalance			// -- sCurrentBalance populated action assignPaymentInformation
 		
@@ -709,7 +717,7 @@ useCase paymentOneTime [
 		goto(OneTimePaymentScreen)
 	]
 	
-	//* 6.1 Prepare multiple bills */
+	//* 6.2a Prepare multiple bills */
 	action preparePayMultipleBills [
 		OneTimePaymentHelperAction.populatePaymentAmount(sCurrentBalance, sCurrentBalanceDisplay, sPayGroup)
 	    
