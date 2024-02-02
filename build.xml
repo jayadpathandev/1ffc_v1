@@ -39,7 +39,26 @@
                 <pathelement path="${artifacts.dir}/update"/>
             </classpath>
         </java>
-
+        <propertyfile file="${devkit.dir}/server - notify iq/resources/notification/notification.properties">
+            <entry key="email.transport" value="communicate"/>
+            <entry key="precisely.campaign.name" value="${precisely.campaign.name}"/>
+            <entry key="precisely.sender.email" value="${precisely.sender.email}"/>
+            <entry key="precisely.sender.name" value="${precisely.sender.name}"/>
+            <entry key="precisely.replyto.email" value="${precisely.replyto.email}"/>
+            <entry key="precisely.client.id" value="${precisely.client.id}"/>
+            <entry key="precisely.secret" value="${precisely.secret}"/>
+            <entry key="precisely.customer.id" value="${precisely.customer.id}"/>
+        </propertyfile>
+        <propertyfile file="${devkit.dir}/server - notify dq/resources/notification/notification.properties">
+            <entry key="email.transport" value="communicate"/>
+            <entry key="precisely.campaign.name" value="${precisely.campaign.name}"/>
+            <entry key="precisely.sender.email" value="${precisely.sender.email}"/>
+            <entry key="precisely.sender.name" value="${precisely.sender.name}"/>
+            <entry key="precisely.replyto.email" value="${precisely.replyto.email}"/>
+            <entry key="precisely.client.id" value="${precisely.client.id}"/>
+            <entry key="precisely.secret" value="${precisely.secret}"/>
+            <entry key="precisely.customer.id" value="${precisely.customer.id}"/>
+        </propertyfile>
     </target>
 
     <target name="package-libraries">
@@ -106,7 +125,10 @@
         </copy>
 
         <copy todir="${artifacts.dir}/admin" overwrite="true" flatten="true">
-            <fileset dir="1ffc - admin/src" excludes="logback.xml"/>
+            <fileset dir="1ffc - admin/src">
+                <include name="**/*.app"/>
+                <include name="**/*.uc"/>
+            </fileset>
         </copy>
 
         <ant dir="${devkit.dir}/build" antfile="persona.xml" inheritAll="false" inheritRefs="false">
