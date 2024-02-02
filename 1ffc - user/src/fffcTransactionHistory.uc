@@ -76,11 +76,6 @@ useCase fffcTransactionHistory [
      *  payment history popin.
      --------------------------------------*/    
     xsltFragment popin [
-        div showacct [
-        	class: "modal-content"
-        	display displayaccount
-        	display offset
-        ]
         div content [
         	class: "modal-content"
         
