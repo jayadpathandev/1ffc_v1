@@ -38,7 +38,7 @@ import com.sorrisotech.svcs.accountstatus.dao.AccountStatusElement;
  *  @author John A. Kowalonek
  *  @since 	2023-Oct-10
  *  @version 2024-Jan-22	jak added new fields (current amount due and convenience fee)
- * 		
+ * 	@version 2024-Feb-01	jak added currentbalance	
  */
 public class UserStatusCacheItem implements IUserStatusCacheItem, IUserStatusItemUpdate {
 
@@ -325,5 +325,13 @@ public class UserStatusCacheItem implements IUserStatusCacheItem, IUserStatusIte
 		AccountStatusElement lStatusElement = getStatusElement(cszPaymentGroup, cszAcctIdentifier);
 		BigDecimal ldDebitConvenienceFee = lStatusElement.getDebitConvenienceFee();
 		return ldDebitConvenienceFee;
+	}
+
+	@Override
+	public BigDecimal getAccountBalance(String cszPaymentGroup, String cszAccountIdentifier)
+			throws AccountStatusException {
+		AccountStatusElement lStatusElement = getStatusElement(cszPaymentGroup, cszAccountIdentifier);
+		BigDecimal ldAccountBalance = lStatusElement.getAccountBalance();
+		return ldAccountBalance;
 	}
 }

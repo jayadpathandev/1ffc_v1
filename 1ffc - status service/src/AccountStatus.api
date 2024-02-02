@@ -28,6 +28,7 @@
   *        1.0 24-Sep-2023	JAK	First Version
   * 	   1.1 01-Jan-2024	JAK	Updated for addditonal status fields
   * 	   1.2 22-Jan-2024	JAK Added convenience fee api and as additional status field
+  * 	   	   01-Feb-2024  JAK Added account balance to getStatus
 */
 
 
@@ -189,7 +190,14 @@ define service AccountStatus(com.sorrisotech.app.serviceapi.uc.UcRequestClient) 
 		// ----------------------------------------------------------------
 		// -- current amount due for this account, updated daily				
 		number currentAmountDue
-		
+
+
+		// ----------------------------------------------------------------
+		// -- account balance for this account, updated daily. Not
+		//		to be confused with current amount due
+		//
+		number accountBalance
+		 
 		// ----------------------------------------------------------------
 		// -- convenience fee for this account no convenience fee if 0
 		//				

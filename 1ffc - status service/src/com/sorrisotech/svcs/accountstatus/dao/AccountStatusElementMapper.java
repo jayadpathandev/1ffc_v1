@@ -22,6 +22,7 @@ import com.sorrisotech.svcs.accountstatus.cache.EnumConst.ViewAcct;
  * @author - John A. Kowalonek
  * @since - 09-Oct-2023
  * @version - 22-Jan-2024  jak added current amount due and convenience fee
+ * @version - 1-Feb-2024   jak added account_balance
  */
 public class AccountStatusElementMapper implements RowMapper<AccountStatusElement>{
 	
@@ -69,6 +70,7 @@ public class AccountStatusElementMapper implements RowMapper<AccountStatusElemen
 		lAcctStats.setContactPrefsStatus(getSafeContactPrefStatus(arg0.getString("contact_preferences_status"), lAcctStats));
 		lAcctStats.setCurrentAmountDue(getSafeBigDecimal(arg0.getString("current_amount_due"),"current_amount_due",lAcctStats));
 		lAcctStats.setDebitConvenienceFee(getSafeBigDecimal(arg0.getString("debit_convenience_fee"),"debit_convenience_fee",lAcctStats));
+		lAcctStats.setAccountBalance(getSafeBigDecimal(arg0.getString("account_balance"), "account_balance", lAcctStats));
 		
 		LOG.debug("AccountStatusElement mapping complete ", lAcctStats);
 		

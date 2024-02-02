@@ -53,7 +53,7 @@ public class AccountStatusElement {
 	private		BigDecimal		m_dMaxPaymentAmount = null;
 	private 	BigDecimal		m_dCurrentAmtDue = null;
 	private 	BigDecimal		m_dDebitConvenienceFee = null;
-	
+	private 	BigDecimal		m_dAccountBalance = null;
 	
 	/**
 	 * Used by slf4J to log the contents of this object.
@@ -244,6 +244,13 @@ public class AccountStatusElement {
 		m_dCurrentAmtDue = cCurrAmountDue;
 	}
 	
+	public BigDecimal getAccountBalance() {
+		return m_dAccountBalance;
+	}
+
+	void setAccountBalance(final BigDecimal cAcctBalance) {
+		m_dAccountBalance = cAcctBalance;
+	}
 	public BigDecimal getDebitConvenienceFee() {
 		return m_dDebitConvenienceFee;
 	}

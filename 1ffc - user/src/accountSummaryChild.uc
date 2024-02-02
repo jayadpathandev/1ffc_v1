@@ -125,7 +125,7 @@ useCase accountSummaryChild [
 				sLocalAccountStatusAmount )	 
 														 // --   set in the admin app --
 	native string sCurrentBalanceCalculatedValid // -- set to valid or zero --
-    volatile native string sBillAccountBalanceDisplayed = 	LocalizedFormat.formatAmount(srBillOverviewParam.payGroup, srBillOverviewResult.docAmount)
+    volatile native string sBillAccountBalanceDisplayed = 	LocalizedFormat.formatAmount(srBillOverviewParam.payGroup, srGetStatusResult.accountBalance)
     
 	string sUserId = Session.getUserId()
     string sAccNumLabel             = "{Account number:}"
