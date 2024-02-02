@@ -225,7 +225,7 @@
 						<#case "activeAccount">
 							<#-- All links enabled -->
 							<a class="me-4" target="_blank" href="fffcViewDoc?sAccount=${bill.internalAccountNo}&sDate=${bill.dateNum?c}&sStreamId=${bill.stream}&sDocId=${bill.id?c}&sExtDocId=${bill.extDocId}">View statement</a>
-							<a class="me-4 text-nowrap" href="#" st-pop-in="fffcViewTransactions?offset=${jumpToOffset}">Transaction History</a>
+							<a class="me-4 text-nowrap" href="#" st-pop-in="fffcViewTransactions?displayaccount=${displayAccount}&offset=${jumpToOffset}">Transaction History</a>
 
 							<#if (bPmtDisabled || ("disableDQ" == status.paymentEnabled) || (scheduledPayment.hasAutomaticPmtRule)) >
 								<#--  payment is disabled -->
