@@ -321,6 +321,7 @@
             <fileset dir="1ffc - user/src">
                 <include name="*.app"/>
                 <include name="*.uc"/>
+                <include name="*.lib"/>
             </fileset>
             <fileset dir="1ffc - status service/src">
                 <include name="*.api"/>
