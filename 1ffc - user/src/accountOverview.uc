@@ -380,6 +380,7 @@ useCase accountOverview [
 		FtlTemplate.setItemValue(TemplateIdPaymentSummary, "status", "paymentEnabled", "string", srGetStatusResult.paymentEnabled)
 		FtlTemplate.setItemValue(TemplateIdPaymentSummary, "status", "achEnabled",     "string", srGetStatusResult.achEnabled)
 		FtlTemplate.setItemValue(TemplateIdPaymentSummary, "status", "viewAccount",    "string", srGetStatusResult.viewAccount)
+		FtlTemplate.setItemValue(TemplateIdPaymentSummary, "status", "accountBalance", "number", srGetStatusResult.accountBalance)
 		goto (doWeHaveBillsOrJustDocuments)
 	]
 

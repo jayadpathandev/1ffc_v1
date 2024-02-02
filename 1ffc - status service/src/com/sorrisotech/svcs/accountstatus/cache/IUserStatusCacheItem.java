@@ -25,7 +25,7 @@ import com.sorrisotech.svcs.accountstatus.cache.EnumConst.ContPrefsStats;
  * @author John A. Kowalonek
  * @since 25-Sep-2023
  * @version 22-Jan-2024 jak Added new fields current amount due and convenience fee
- * 
+ * @version 01-Feb-2024 jak	Added account balance
  */
 public interface IUserStatusCacheItem {
 	
@@ -224,4 +224,13 @@ public interface IUserStatusCacheItem {
 	 */
 	abstract public Integer getMostRecentUpdate  (String cszPaymentGroup, String cszAcctIdentifier) throws AccountStatusException;
 	
+	/**
+	 * Returns the current balance associated with this account.
+	 * 
+	 * @param cszPaymentGroup
+	 * @param cszAccountIdentifier
+	 * @return
+	 * @throws AccountStatusException
+	 */
+	abstract public BigDecimal getAccountBalance (String cszPaymentGroup, String cszAccountIdentifier) throws AccountStatusException;
 }

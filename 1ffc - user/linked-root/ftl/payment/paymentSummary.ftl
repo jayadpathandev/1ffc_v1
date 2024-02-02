@@ -112,8 +112,15 @@
 <#assign dDueDate = bill.dueDate?date>		<#--  we use this everywhere so make it a variable -->
 
 <#--  ** bill.amount is the current bill amount which is the principal remaining at time of statement -->
-<#if bill.amount?has_content && bill.amount?string?trim != ''>  <#-- checks to see if loan amount exists -->
-	<#assign nLoanAmount = bill.amount>
+<#-- <#if bill.amount?has_content && bill.amount?string?trim != ''>  <#-- checks to see if loan amount exists 
+	<#assign nLoanAmount = bill.amount>  
+<#else>
+	<#assign nLoanAmount = "0">
+</#if>
+ -->
+ 
+<#if status.accountBalance?has_content && status.accountBalance?string?trim != ''>  <#-- checks to see if loan amount exists -->
+	<#assign nLoanAmount = status.accountBalance>
 <#else>
 	<#assign nLoanAmount = "0">
 </#if>
@@ -410,13 +417,18 @@
 		
 		<div class="row">
 			<div class="col">
-				Statement loan balance
+				Current loan balance<sup>*</sup>
 			</div>
 			<div class="col text-center">
 				Monthly payment due date
 			</div>
 			<div class="col">
 				<span class="float-end">Current amount due</span>
+			</div>
+		</div>
+		<div class"mt-5 row">
+			<div class="col mt-3 text-start">
+				<sup>*</sup>Please note. Your current loan balance is not your loan payoff amount. Please contact your branch to learn more.
 			</div>
 		</div>
 	<#else>
