@@ -13,7 +13,7 @@ useCase fffcTransactionHistory [
 	]
 	
 	startAt init
-    shortcut fffcViewTransactions(init) [sOffset]
+    shortcut fffcViewTransactions(init) [offset displayaccount]
 	
 	importJava TransactionHistory(com.sorrisotech.fffc.transactions.TransactionHistory)
 	importJava Session(com.sorrisotech.app.utils.Session)
@@ -21,9 +21,10 @@ useCase fffcTransactionHistory [
     /*=============================================================================================
      * Data objects used by the use case.
      *===========================================================================================*/
-	native string sOffset   = ""
+	native string offset   = "not set"
 	native string sAccount  = ""
 	native string sPayGroup = ""
+	native string displayaccount = "not set" // this is temporary until we get the right file format
 	
 	string szHeader = "{Transaction History}"
 	
@@ -56,9 +57,18 @@ useCase fffcTransactionHistory [
      * 1. System redirects user to an external site.
      *===========================================================================================*/
      
+     // -- this sDisplayAccount stuff is just temporary --
      action init[
-     	Session.getAccount(sOffset, sAccount) 
-     	Session.getPayGroup(sOffset, sPayGroup)
+     	sAccount = displayaccount
+     	Session.getPayGroup(offset, sPayGroup)
+     	if displayaccount == "" then
+     		getAccountFromSession 
+     	else
+     		popin
+     ]
+     action getAccountFromSession[
+
+     	Session.getAccount(offset, sAccount) 
      	goto (popin)
      ]
      
@@ -66,13 +76,16 @@ useCase fffcTransactionHistory [
      *  payment history popin.
      --------------------------------------*/    
     xsltFragment popin [
-        
+        div showacct [
+        	class: "modal-content"
+        	display displayaccount
+        	display offset
+        ]
         div content [
         	class: "modal-content"
         
 	        div historyHeading [
 	            class: "modal-header"
-	            
 	            div historyHeadingRow [
 	            	class: "row text-center"
 	            	
@@ -91,6 +104,7 @@ useCase fffcTransactionHistory [
 	                
 	            div tableRow [                	
 	                class: "row"
+	               	
 	               	                
 	                display tTable [
 	                	class: "col-md-12"    
