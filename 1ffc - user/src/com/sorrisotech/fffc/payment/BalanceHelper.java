@@ -195,34 +195,6 @@ public class BalanceHelper implements IExternalReuse {
 		return ldRetVal;
 	}
 	
-	/**************************************************************************
-	 * This method returns a 2D array of payment due values. If a null string
-	 * is passed in for any of the string we don't generate that drop down.
-	 * 
-	 * @param cData       The user data.
-	 * @param cLocator    The service locator.
-	 * @param szCurrent   The current balance.
-	 * @param szStatement The statement balance.
-	 * @param szMinimum   The minimum due.
-	 * 
-	 * @return A 2D array of payment due.
-	 */
-	public String[][] getPayAmountDropdown(IUserData cData, IServiceLocator2 cLocator, String szCurrentDisplay,
-			String szStatementDisplay, String szMinimumDisplay) {
-		
-//		if (null != sCurrentDisplay)
-		String szCurrentText = szCurrentDisplay + " - "
-				+ I18n.translate(cLocator, cData, "paymentOneTime_sCurrentBalText");
-		String szStatementText = szStatementDisplay + " - "
-				+ I18n.translate(cLocator, cData, "paymentOneTime_sStatementBalText");
-		String szMinimumText = szMinimumDisplay + " - "
-				+ I18n.translate(cLocator, cData, "paymentOneTime_sMinimumText");
-		String szOther = I18n.translate(cLocator, cData, "paymentOneTime_sOther");
-
-		return new String[][] { { "current", szCurrentText }, { "statement", szStatementText },
-				{ "minimum", szMinimumText }, { "other", szOther } };
-	}
-	
 	/**
 	 * returns the true minimum due based on the status feed and the calculated minimum due
 	 * 
