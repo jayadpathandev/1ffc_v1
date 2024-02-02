@@ -12,7 +12,8 @@
 	   
 	   2023-Dec-11	jak-- simplified based on separating out new, closed, and view disabled
 	   						accounts into a different template.
-	   2024-Jan-02  jak-- bug fixes for 1st Franklin based on moving data around.
+	   2024-Jan-02  jak-- bug fixes for 1st Franklin based on moving data around. Also
+	   						changes to accomodate negative balance.
 
   -->
 
@@ -95,8 +96,7 @@
 
 	
 
-<#--  ** bill.amountDue is the current amount due at the time of this statement. This will
-		 change to something else when we implement payment history tracking -->
+<#--  ** amount is the current amount due at the time of this statement.  -->
 <#if amount?has_content && amount?string?trim != "">
 	<#assign nAmountDue = amount>
  	<#if bBillHasOverdue == true && bill.minDue?has_content && bill.minDue?string?trim != "">
@@ -108,17 +108,19 @@
 	<#assign nAmountDue = '0'> 	
 </#if>
 
+<#--  ** bAccountCredit is used to turn off messages associated with future payments
+			overdue accounts etc. -->
+<#assign nAmountCheck = amount?number>
+<#if (nAmountCheck >= 0)>
+	<#assign bAccountCredit = false>
+<#else>
+	<#assign bAccountCredit = true>
+</#if>
+
 <#--  ** bill.dueDate is the due date for this bill -->
 <#assign dDueDate = bill.dueDate?date>		<#--  we use this everywhere so make it a variable -->
 
-<#--  ** bill.amount is the current bill amount which is the principal remaining at time of statement -->
-<#-- <#if bill.amount?has_content && bill.amount?string?trim != ''>  <#-- checks to see if loan amount exists 
-	<#assign nLoanAmount = bill.amount>  
-<#else>
-	<#assign nLoanAmount = "0">
-</#if>
- -->
- 
+<#--  ** status.accountBalance is the principal remaining based on latest status update -->
 <#if status.accountBalance?has_content && status.accountBalance?string?trim != ''>  <#-- checks to see if loan amount exists -->
 	<#assign nLoanAmount = status.accountBalance>
 <#else>
@@ -287,112 +289,122 @@
 						</div>
 						<#break>
 				</#switch>
-	
 				<#-- HANDLE ONE TIME PAYMENTS SCHEDULED -->
-				<#switch scheduledPayment.oneTimePmtCount>	<#--  The customer has one or more scheduled payments in the queue -->
-					<#case 1>
-						<#--  Note that not enough turn it into danger from info message -->
-						<div class="text-center mt-3 border border-2 rounded-pill <#if bScheduledPaymentsLate>border-danger<#else>border-info</#if> p-3">
-							You have scheduled a payment of
-							<span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nScheduledPaymentAmount?number)}</span>
-							for this account on <span class="fw-bold text-decoration-underline">${dScheduledPaymentDate?date}</span>.
-							<#if bScheduledPaymentsLate> <#--  if true, this payment and automatic aren't enough -->
-								This payment and any automatic payment currently scheduled will not meet your obligation to pay
-								<span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nAmountDue?number)}</span> by
-								<span class="fw-bold text-decoration-underline">${dDueDate?date}</span>.
-							</#if>
-						</div>
-						<#break>
-	
-					<#case 0>
-						<#break>
-					
-					<#default>
-						<#--  multimple payments there -->
-						<div class="text-center mt-3 border border-2 rounded-pill <#if bScheduledPaymentsLate>border-danger<#else>border-info</#if> p-3">
-							You have scheduled multiple payments totaling
-							<span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nScheduledPaymentAmount?number)}</span>
-							for this account with last payment on <span class="fw-bold text-decoration-underline">${dScheduledPaymentDate?date}</span>.
-							<#if bScheduledPaymentsLate> <#--  if true these payments and scheduled aren't enough -->
-								These payments and any automatic payment currently scheduled will not meet your obligation to pay
-								<span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nAmountDue?number)}</span> by
-								<span class="fw-bold text-decoration-underline">${dDueDate?date}</span>.
-							</#if>
-						</div>
-						<#break>
-				</#switch>
-				
-				<#--  HANDLE AUTOMATIC PAYMENT SCHEDULES -->
-				<#if 0 < scheduledPayment.automaticPmtCount> <#--  The customer has an automatic payment that's scheduled -->
-					<div class="text-center mt-3 border border-2 rounded-pill <#if bScheduledPaymentsLate>border-danger<#else>border-info</#if> p-3">
-						You have an automatic payment of
-						<span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nAutomaticPaymentAmount)}</span>
-						scheduled for <span class="fw-bold text-decoration-underline">${dAutomaticPaymentDate?date}</span>.
-						<#if bScheduledPaymentsLate>
-							This payment and any other payments currently scheduled will not meet your obligation to pay
-							<span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nAmountDue)}</span> by
-							<span class="fw-bold text-decoration-underline">${dDueDate?date}</span>.
+				<#if bAccountCredit == false> <#-- none of the messages below make sense if the account is in the credit state -->
+					<#switch scheduledPayment.oneTimePmtCount>	<#--  The customer has one or more scheduled payments in the queue -->
+						<#case 1>
+							<#--  Note that not enough turn it into danger from info message -->
+							<div class="text-center mt-3 border border-2 rounded-pill <#if bScheduledPaymentsLate>border-danger<#else>border-info</#if> p-3">
+								You have scheduled a payment of
+								<span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nScheduledPaymentAmount?number)}</span>
+								for this account on <span class="fw-bold text-decoration-underline">${dScheduledPaymentDate?date}</span>.
+								<#if bScheduledPaymentsLate> <#--  if true, this payment and automatic aren't enough -->
+									This payment and any automatic payment currently scheduled will not meet your obligation to pay
+									<span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nAmountDue?number)}</span> by
+									<span class="fw-bold text-decoration-underline">${dDueDate?date}</span>.
+								</#if>
+							</div>
+							<#break>
+		
+						<#case 0>
+							<#break>
 						
-						</#if>
-					</div>
-				</#if>
-				
-				<#-- HANDLE THE CASE WHERE THERE'S NO PAYMENTS OF ANY KIND SCHEDULED -->
-				<#if (( 0 == scheduledPayment.oneTimePmtCount) && (0 == scheduledPayment.automaticPmtCount)) > 
+						<#default>
+							<#--  multimple payments there -->
+							<div class="text-center mt-3 border border-2 rounded-pill <#if bScheduledPaymentsLate>border-danger<#else>border-info</#if> p-3">
+								You have scheduled multiple payments totaling
+								<span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nScheduledPaymentAmount?number)}</span>
+								for this account with last payment on <span class="fw-bold text-decoration-underline">${dScheduledPaymentDate?date}</span>.
+								<#if bScheduledPaymentsLate> <#--  if true these payments and scheduled aren't enough -->
+									These payments and any automatic payment currently scheduled will not meet your obligation to pay
+									<span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nAmountDue?number)}</span> by
+									<span class="fw-bold text-decoration-underline">${dDueDate?date}</span>.
+								</#if>
+							</div>
+							<#break>
+					</#switch>
 					
-					<#--  HANDLE THE CASE WHERE THE CURRENT BILL IS PAST ITS DUE DATE BUT A NEW BILL HASN'T ARRIVED -->
-					<#if bPastDueDate> 
-						<div class="text-center mt-3 border border-2 rounded-pill border-danger p-3">
-							We want to remind you that 
-							<span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nAmountDue)}</span>
-							was due for payment on <span class="fw-bold text-decoration-underline">${dDueDate?date}</span>.
-							Please pay now.
+					<#--  HANDLE AUTOMATIC PAYMENT SCHEDULES -->
+					<#if 0 < scheduledPayment.automaticPmtCount> <#--  The customer has an automatic payment that's scheduled -->
+						<div class="text-center mt-3 border border-2 rounded-pill <#if bScheduledPaymentsLate>border-danger<#else>border-info</#if> p-3">
+							You have an automatic payment of
+							<span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nAutomaticPaymentAmount)}</span>
+							scheduled for <span class="fw-bold text-decoration-underline">${dAutomaticPaymentDate?date}</span>.
+							<#if bScheduledPaymentsLate>
+								This payment and any other payments currently scheduled will not meet your obligation to pay
+								<span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nAmountDue)}</span> by
+								<span class="fw-bold text-decoration-underline">${dDueDate?date}</span>.
+							
+							</#if>
 						</div>
-					<#-- HANDLE THE CASE WHERE THERE'S AN OVERDUE AMOUNT ON THE CURRENT BILL -->
-					<#elseif bBillHasOverdue>	
-						<div class="text-center mt-3 border border-2 rounded-pill border-danger p-3">
-							We want to remind you that 
-							<span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nAmountDue)}</span>
-							is due for payment on <span class="fw-bold text-decoration-underline">${dDueDate?date}</span> 
-							and includes an overdue amount of 
-							<span class="fw-bold text-decoration-underline">
-								<#if nAmountOverdue??>
-									${formatUtils.formatAmount(nAmountOverdue)}
-								<#else>
-									missing overdue amount
-								</#if>								
-							</span>.
-							Please pay now to avoid additional charges.
-						</div>
-					<#--  HANDLE GOOD OLD BILL THAT'S NOT LATE AND DOESN'T CONTAIN ANY OVERDUE AMOUNT -->
-					<#else> 
-						<div class="text-center mt-3 border border-2 rounded-pill border-info p-3">
-							Your next payment of 
-							<span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nAmountDue)}</span>
-							is due on <span class="fw-bold text-decoration-underline">${dDueDate?date}</span>. 
-						</div>
-					</#if>	
-				</#if> <#--  ("none" == sScheduledPaymentCount && !bAutomaticPaymentScheduled) -->
+					</#if>
+					
+					<#-- HANDLE THE CASE WHERE THERE'S NO PAYMENTS OF ANY KIND SCHEDULED -->
+					<#if (( 0 == scheduledPayment.oneTimePmtCount) && (0 == scheduledPayment.automaticPmtCount)) > 
+						
+						<#--  HANDLE THE CASE WHERE THE CURRENT BILL IS PAST ITS DUE DATE BUT A NEW BILL HASN'T ARRIVED -->
+						<#if bPastDueDate> 
+							<div class="text-center mt-3 border border-2 rounded-pill border-danger p-3">
+								We want to remind you that 
+								<span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nAmountDue)}</span>
+								was due for payment on <span class="fw-bold text-decoration-underline">${dDueDate?date}</span>.
+								Please pay now.
+							</div>
+						<#-- HANDLE THE CASE WHERE THERE'S AN OVERDUE AMOUNT ON THE CURRENT BILL -->
+						<#elseif bBillHasOverdue>	
+							<div class="text-center mt-3 border border-2 rounded-pill border-danger p-3">
+								We want to remind you that 
+								<span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nAmountDue)}</span>
+								is due for payment on <span class="fw-bold text-decoration-underline">${dDueDate?date}</span> 
+								and includes an overdue amount of 
+								<span class="fw-bold text-decoration-underline">
+									<#if nAmountOverdue??>
+										${formatUtils.formatAmount(nAmountOverdue)}
+									<#else>
+										missing overdue amount
+									</#if>								
+								</span>.
+								Please pay now to avoid additional charges.
+							</div>
+						<#--  HANDLE GOOD OLD BILL THAT'S NOT LATE AND DOESN'T CONTAIN ANY OVERDUE AMOUNT -->
+						<#else> 
+							<div class="text-center mt-3 border border-2 rounded-pill border-info p-3">
+								Your next payment of 
+								<span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nAmountDue)}</span>
+								is due on <span class="fw-bold text-decoration-underline">${dDueDate?date}</span>. 
+							</div>
+						</#if>	
+					</#if> <#--  ("none" == sScheduledPaymentCount && !bAutomaticPaymentScheduled) -->
+				</#if>
 				<#break>
+				
 			<#case "disabledLastPayment">
-				<#if !bBillHasOverdue>
-					<#--  last payment with no overdue amount -->
+				<#if bAccountCredit == false>
+					<#if !bBillHasOverdue>
+						<#--  last payment with no overdue amount -->
+						<div class="text-center mt-3 border border-2 rounded-pill border-info p-3">
+							Contratulations! your final payment of 
+							<span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nAmountDue)}</span>
+							is due on <span class="fw-bold text-decoration-underline">${dDueDate?date}</span>. Visit your local
+							branch to make this payment and close your account.
+						</div>
+					<#else>
+					<#--  last payment with an overdue amount -->
+						<div class="text-center mt-3 border border-2 rounded-pill border-danger p-3">
+							Contratulations! your final payment of 
+							<span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nAmountDue)}</span>
+							is due on <span class="fw-bold text-decoration-underline">${dDueDate?date}</span> and includes an
+							overdue amount of <span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nAmountOverdue)}</span>.
+							Visit your local branch now to make this payment, close your account, and avoid addiitonal charges.
+						</div>
+					</#if>
+				<#else>
+					<#--  last payment with a credit amount -->
 					<div class="text-center mt-3 border border-2 rounded-pill border-info p-3">
-						Contratulations! your final payment of 
-						<span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nAmountDue)}</span>
-						is due on <span class="fw-bold text-decoration-underline">${dDueDate?date}</span>. Visit your local
+						Contratulations! You've reached you final payment on this account. Visit your local
 						branch to make this payment and close your account.
 					</div>
-				<#else>
-				<#--  last payment with an overdue amount -->
-					<div class="text-center mt-3 border border-2 rounded-pill border-danger p-3">
-						Contratulations! your final payment of 
-						<span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nAmountDue)}</span>
-						is due on <span class="fw-bold text-decoration-underline">${dDueDate?date}</span> and includes an
-						overdue amount of <span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nAmountOverdue)}</span>.
-						Visit your local branch now to make this payment, close your account, and avoid addiitonal charges.
-					</div>
-				</#if>
+				</#if>			
 				<#break>
 			
 			<#default>
