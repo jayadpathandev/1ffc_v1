@@ -195,6 +195,12 @@
             <entry key="extdoc.url" value="http://localhost:8080/personaWeb/extdoc/"/>
         </propertyfile>
 
+        <copy file="notification/build.properties.template" tofile="notification/build.properties"/>
+        <propertyfile file="notification/build.properties">
+            <entry key="zip.output.dir" value="${output.dir}/apps/admin/linked-root/config/"/>
+            <entry key="login.url" value="${base.public.url}personaWeb/auth/b2c/b2c"/>
+        </propertyfile>
+        <ant dir="notification" inheritAll="false" inheritRefs="false"/>
     </target>
 
     <target name="-build.auth.uc" depends="-init">
@@ -470,6 +476,10 @@
 
     <target name="package" depends="-init, build.admin, build.auth, build.user, build.extdoc, package-libraries, package-communicate">
         <delete file="${output.dir}/package.zip"/>
+
+        <ant dir="ui" target="qa"/>
+        <ant dir="ui" target="package"/>
+
 		<propertyfile file="${output.dir}/apps/user/classes/app-config.properties">
             <entry key="nls.api.client.id" value="${nls.api.client.id}"/>
             <entry key="nls.api.client.secret" value="${nls.api.client.secret}"/>

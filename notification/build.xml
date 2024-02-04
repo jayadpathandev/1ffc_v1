@@ -13,17 +13,17 @@
 		    and update it for your system.
 		</fail>
 	</target>
-    
+
 	<!-- ###################################################################################### -->
 	<!-- # Special init for the zip task.                                                       -->
 	<!-- ###################################################################################### -->
 	<target name="-zip-init" depends="-uptodate">
 	        <loadproperties srcFile="build.properties"/>
-        
+
 		<filterset id="login.filter">
 			<filter token="LOGIN_URL" value="${login.url}"/>
 		</filterset>
-		 
+
 		<fail unless="zip.output.dir">zip.output.dir - Not set.  This should point to the directory to zip the notifications to.</fail>
 		<fail unless="login.url">login.url - Not set.  This property gets used in the notification template.</fail>
 		<mkdir dir="${zip.output.dir}/notification"/>
@@ -50,20 +50,21 @@
 			<filter token="login" value="${login}"/>
 		    	<filter token="payment" value="${payment}"/>
 		    	<filter token="profile" value="${profile}"/>
-		    </filterset>    		
+		    </filterset>
 		</copy>
 		<!-- ZIP it up -->
+		<delete file="${zip.output.dir}/notification.zip"/>
 		<zip destfile="${zip.output.dir}/notification.zip" basedir="${zip.output.dir}/notification"/>
 		<delete dir="${zip.output.dir}/notification"/>
 	</target>
-	
-    
+
+
 	<!-- ###################################################################################### -->
 	<!-- # Loads the configuration for the various notification groups.                         -->
 	<!-- ###################################################################################### -->
 	<target name="load-batch" if="include.batch">
 		<loadfile property="batch" srcfile="batch/config.txt"/>
-		
+
 		<copy todir="${zip.output.dir}/notification">
 			<fileset dir="batch">
 			    <include name="**/*.vm"/>
@@ -71,10 +72,10 @@
 			<filterset refid="login.filter"/>
 		</copy>
 	</target>
-	
+
 	<target name="load-bill" if="include.bill">
 		<loadfile property="bill" srcfile="bill/config.txt"/>
-		
+
 		<copy todir="${zip.output.dir}/notification">
 			<fileset dir="bill">
 			    <include name="**/*.vm"/>
@@ -82,7 +83,7 @@
 			<filterset refid="login.filter"/>
 		</copy>
 	</target>
-	
+
 	<target name="load-enroll" if="include.enroll">
 		<loadfile property="enroll" srcfile="enroll/config.txt"/>
 
@@ -93,7 +94,7 @@
 		    <filterset refid="login.filter"/>
 		</copy>
 	</target>
-	
+
 	<target name="load-login" if="include.login">
 		<loadfile property="login" srcfile="login/config.txt"/>
 
@@ -104,7 +105,7 @@
 		    <filterset refid="login.filter"/>
 		</copy>
 	</target>
-	
+
 	<target name="load-payment" if="include.payment">
 		<loadfile property="payment" srcfile="payment/config.txt"/>
 
@@ -115,7 +116,7 @@
 		    <filterset refid="login.filter"/>
 		</copy>
 	</target>
-	
+
 	<target name="load-profile" if="include.profile">
 		<loadfile property="profile" srcfile="profile/config.txt"/>
 
@@ -125,5 +126,5 @@
 		    </fileset>
 		    <filterset refid="login.filter"/>
 		</copy>
-	</target> 
+	</target>
 </project>

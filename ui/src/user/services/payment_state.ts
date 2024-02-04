@@ -384,7 +384,7 @@ export class PaymentState {
                 type        : 'POST',
                 data        : {
                     pay_group          : bill.paymentGroup,
-                    pay_account_number  : bill.numberDisplay
+                    pay_account_number  : bill.number
                 },
                 processData : true
             }).done ((response) => {
@@ -393,7 +393,7 @@ export class PaymentState {
                     bill.surchargeAmt = Number(response.convenienceFeeAmount) * 100 ;
                     bill.totalPayAmt  = amount + bill.surchargeAmt;
                 }
-                
+
                 bill.interPayWorking = false;
 
             }).always(() => {
