@@ -119,8 +119,7 @@ useCase paymentConvenienceFee [
 	action getConvenienceFeeSuccessAudit [
 		resultCode = successCode
 		httpStatus = statusSuccess
-//		convenienceFeeAmount = srGetDebitConvenienceFeeResult.convenienceFeeAmt
-		convenienceFeeAmount = "1.50"
+		convenienceFeeAmount = srGetDebitConvenienceFeeResult.convenienceFeeAmt
 		
     	auditLog(audit_payment.convenience_fee_success) [
 			user_id
