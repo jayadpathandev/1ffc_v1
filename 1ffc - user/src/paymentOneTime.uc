@@ -171,7 +171,6 @@ useCase paymentOneTime [
 				sLocalAccountStatusDate,		// -- published date of acct status
 				sLocalAccountStatusAmount )	 	// -- amount in acct status
 	volatile native string sCurrentBalance
-	native string sThrowThisAwayWeDontWantIt	// -- java set payment data will drop its shit here
     
 	volatile native string sAuditIteratorHasNext = PaymentAuditIterator.hasNext()
 	volatile native string sAuditIteratorNext = PaymentAuditIterator.next()  

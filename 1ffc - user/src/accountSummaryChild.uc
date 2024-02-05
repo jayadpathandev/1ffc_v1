@@ -41,8 +41,8 @@ useCase accountSummaryChild [
 		if "disabled" != sLocalCreatePaymentStatus addActor create_new_payment_enabled
 		if "false" == sAchEnabledStatus removeActor bank_payment_enabled
 		if "true" == sAchEnabledStatus addActor bank_payment_enabled
-		if "true" == bAccountDelinquent removeActor automatic_payment_enabled
-		if "false" == bAccountDelinquent addActor automatic_payment_enabled
+		if "false" == bAutomaticPaymentEnabled removeActor automatic_payment_enabled
+		if "true" == bAutomaticPaymentEnabled addActor automatic_payment_enabled
 	]
     startAt selectAccount[sParent]   
 
@@ -99,6 +99,7 @@ useCase accountSummaryChild [
 	native string sAchEnabledStatus = "true"
 	native string sMaxPaymentEnabled = "true"	// -- this is true for 1FFC
 	native string sMaxFuturePaymentDays = "45"	// -- configuration for 1FFC 
+	native string bAutomaticPaymentEnabled = "true"
 
     
     
@@ -117,6 +118,15 @@ useCase accountSummaryChild [
 	//		payments since that last bill or status date (date inclusive) --
 	volatile string sBillAmountDueDisplay = 
 			CurrentBalanceHelper.getCurrentBalanceFormatted (
+				srBillOverviewParam.payGroup, 
+				srBillOverviewParam.account,
+				sLocalAccountBillDate,
+				sLocalAccountBillAmount,
+				sLocalAccountStatusDate,
+				sLocalAccountStatusAmount )	 
+	
+	// -- returns true if the acount is current i.e. current balance <= 0 --
+	volatile string bIsAccountCurrent = CurrentBalanceHelper.isAccountCurrent (
 				srBillOverviewParam.payGroup, 
 				srBillOverviewParam.account,
 				sLocalAccountBillDate,
@@ -180,8 +190,9 @@ useCase accountSummaryChild [
 		goto (getAccountStatus)
 	]
 
-	/**************************************************************************************
-	 * BEGIN 1ST FRANKLIN SPECIFIC
+	/****************************************************************************************
+	 * BEGIN 1ST FRANKLIN SPECIFIC -- MANAGING BASIC ACCOUNT STATUS - CAN THEY VIEW THIS ACCT
+	 * 		AND GATHERING OTHER STATUS INFORMATION FOR TESTS BELOW
 	 ************************************************************************************** */
 	 
 	/**
@@ -231,8 +242,14 @@ useCase accountSummaryChild [
  	 	evalActors()
  	 	goto (screenShowInfo)
  	 ]
+ 	 
+ 	/**************************************************************************************
+	 * END 1ST FRANKLIN SPECIFIC -- MANAGING BASIC ACCOUNT STATUS
+	 ************************************************************************************** */
  
-
+	/**************************************************************************************
+	 * BEGIN 1ST FRANKLIN SPECIFIC -- MANAGING BASIC PAYMENT STATUS
+	 ************************************************************************************** */
 
  	 /**
  	  * 4a. System evaluates payment status to determine if creating new payments should be disabled
@@ -269,7 +286,9 @@ useCase accountSummaryChild [
  	 ]
  	 
  	 /**
- 	  * 6a. Mark account delinquent, send to billCommon
+ 	  * 6a. System marks account delinquent. This will be checked
+ 	  * 		again when the system processes min/max in paymentOneTime.uc 
+ 	  * 		and when processing autopay on/off below.
  	  */
  	action setDelinquentTrue [
 		bAccountDelinquent = "true"
@@ -277,7 +296,9 @@ useCase accountSummaryChild [
 	]
 	
 	/**
-	 * 6b. Mark account not delinquent, send to billCommon
+	 * 6b. System marks account not delinquent (i.e. current). This will
+	 * 			be checked again when the system processes min/max in paymentOneTime.uc
+	 * 			and again when processing autopay on/off below.
 	 */
 	action setDelinquentFalse [
 		bAccountDelinquent = "false"
@@ -296,8 +317,6 @@ useCase accountSummaryChild [
 		nMaximumFuturePaymentDays = sMaxFuturePaymentDays
 		goto (isAchEnabled)
 	]
-	
-	 
 
  	/**
  	 * 7a. System determined that payment is disabled so it removes create new payments from the  
@@ -308,6 +327,14 @@ useCase accountSummaryChild [
  	 	evalActors()
  	 	goto (isAchEnabled)
  	 ]
+
+	/**************************************************************************************
+	 * END 1ST FRANKLIN SPECIFIC -- MANAGING BASIC PAYMENT STATUS
+	 ************************************************************************************** */
+
+	/**************************************************************************************
+	 * BEGIN 1ST FRANKLIN SPECIFIC -- IS ACH ENABLED OR NOT
+	 ************************************************************************************** */
  	 
  	 /**
  	  * 8a. System checks to see if ACH is enabled.
@@ -319,16 +346,24 @@ useCase accountSummaryChild [
  	 	]
  	 ]
 
- 	 
  	 /**
- 	  * 9a. ACH disabled, set the proper control and evaluate actors
+ 	  * 8b. ACH disabled, set the proper control and evaluate actors
  	  */
  	 action disableAchPayments [
  	 	sAchEnabledStatus = "false"
  	 	evalActors()
  	 	goto (isThereALatestBill)
  	 ]
- 
+
+	/**************************************************************************************
+	 * END 1ST FRANKLIN SPECIFIC -- IS ACH ENABLED OR NOT
+	 ************************************************************************************** */
+
+
+	/**************************************************************************************
+	 * BEGIN STANDARD BILL CHECKS FROM PRODUCT
+	 ************************************************************************************** */
+
  	 /** 
  	  * 10a. System checks latest bill date for 0 as a proxy for no documents available. This is
  	  * 	 because Documents.getBillOveriew throws an exception if there are no documents.
@@ -396,7 +431,15 @@ useCase accountSummaryChild [
  		]
  	]
 
+	/**************************************************************************************
+	 * END STANDARD BILL CHECKS FROM PRODUCT
+	 ************************************************************************************** */
 	
+	/**************************************************************************************
+	 * BEGIN 1ST FRANKLIN SPECIFIC - TRANSITION FROM STATUS NEW ACCOUNT TO ACTIVE ACCOUNT
+	 * 		TRIGGERED BY BILL ARRIVAL
+	 ************************************************************************************** */
+
 	/**
 	 * 16a. System found "singleDoc" if account status is newAccount or activeAccount, 
 	 * 		system needs to determine if payment is enabled for this account (next step). 
@@ -410,6 +453,7 @@ useCase accountSummaryChild [
 			default actionBillProblem
 		]
 	] 	
+
 
  	/**
  	 *  17a. System asserts this is an active account since there is a new document.
@@ -440,7 +484,8 @@ useCase accountSummaryChild [
  	]
 
 	/**************************************************************************************
-	 * END 1ST FRANKLIN SPECIFIC
+	 * END 1ST FRANKLIN SPECIFIC - TRANSITION FROM STATUS NEW ACCOUNT TO ACTIVE ACCOUNT
+	 * 		TRIGGERED BY BILL ARRIVAL
 	 ************************************************************************************** */
 
 		
@@ -452,6 +497,10 @@ useCase accountSummaryChild [
 	        case "multipleDocs" hidePdfLink
 	    ]
 	]
+
+	/**************************************************************************************
+	 * BEGIN STANDARD PRODUCT
+	 ************************************************************************************** */
 	
 	/* 4. Load the latest bill data into screen elements. */
     action loadLatestBill [    
@@ -470,82 +519,71 @@ useCase accountSummaryChild [
         sPayGroup         		     = srBillOverviewParam.payGroup		// used when making payment?
         sPaySelectedDate			 = srBillOverviewResult.docDate		// used when making payment (unformatted)
         			
-		goto(checkPaymentFlag)
+		goto(areAutomaticPaymentsEnabled) /** WE SKIP RIGHT OVER THE CURRENT BALANCE CHECK AND GO TO SCREEN */
 	]
-	
-	/* 5. Checks if the payment flag is enabled.*/
-	action checkPaymentFlag [
-		if sPaymentFlag == "true" then 
-			retrieveSettings
-		else
-			screenShowInfo
-	]
-	
+
 	/**************************************************************************************
-	 * BEGIN DETERMINING CURRENT BALANCE TO SHOW BASED ON ADMIN APP CONFIGURATION
+	 * END STANDARD PRODUCT
 	 ************************************************************************************** */
 	
-	/* 6. System retrieves the current balance settings. These are configured in the admin app*/
-/*	action retrieveSettings [		
-		switch apiCall SystemConfig.GetCurrentBalanceConfig (srGetComm, srStatus) [
-		    case apiSuccess getResults
-		    default screenShowInfo
-		]
-	]
-*/
+	/**************************************************************************************
+	 * BEGIN-END REMOVED STANDARD PRODUCT CURRENT BALANCE CALCULATION. IT IS CALCULATED DIFFERENTLY
+	 * 		FOR FIRST FRANKLIN SO WE DON'T NEED THAT CODE
+	 ************************************************************************************** */
+	/**************************************************************************************
+	 * BEGIN 1ST FRANKLIN SPECIFIC -- ARE AUTOMATIC PAYMENTS ENABLED OR NOT
+	 ************************************************************************************** */
+
 	/**
-	 * 6. At 1st Franklin we do things a bit differently since we can use the current
-	 *		balance calculated based on either status feed or bill feed (which ever is
-	 *		newer).. so we need to do that calculation.  I left the "unused" things
-	 *		to make future merges easier.
-	 */	
-	action retrieveSettings [
+	 *  4a. System checks to see if automatic payments should be on or off 
+	 */
+	action areAutomaticPaymentsEnabled [
+		bAutomaticPaymentEnabled = "true" // -- assume they are enabled --
+		switch srGetStatusResult.automaticPaymentStatus [
+			case	eligible				setAutomaticPaymentEnabled 		// -- can sign up for recurring payment
+			case    enrolled				setAutomaticPaymentEnabled 		// -- already enrolled in a recurring payment 
+			case    disabled				setAutomaticPaymentDisabled 	// -- cannot enroll for recurring payment
+			case    disabledUntilCurrent 	isAccountCurrent				// -- can enroll if they bring their account current
+			default							setAutomaticPaymentEnabled		// -- leave it on if we have unknown status
+		]
+	] 
+	
+	/**
+	 * 4b. System checks if the account is current. If account is current, system turns automatic payments back
+	 		on.
+	 */
+	action isAccountCurrent [
+		bAutomaticPaymentEnabled = bIsAccountCurrent
+		evalActors()
 		goto (screenShowInfo)
 	]
 	
-	/* 7. System checks the method for calculating and showing current balance.*/
-/*	action getResults [
-		sBalanceType = srGetComm.RSP_CURBALTYPE	    
-	    switch sBalanceType [	    	
-	    	case "I" getCurrentBalanceFromInternal
-	    	case "F" getCurrentBalanceFromFeed
-	    	case "R" screenShowInfo
-	    	default screenShowInfo
-	    ]
-	]  
-*/
+	/**
+	 * 4c. System disables automatic payments based on status above
+	 */
+	action setAutomaticPaymentDisabled [
+		bAutomaticPaymentEnabled = "false"
+		evalActors()
+		goto (screenShowInfo)
+	]
+	
+	/**
+	 * 4d. System enables autoamtic payments based on status above 
+	 */
+	action setAutomaticPaymentEnabled [
+		bAutomaticPaymentEnabled = "true"
+		evalActors()
+		goto (screenShowInfo)
+	]
 
-	/* 7a. CALCULATE BALANCE INTERNAL -- System calculates current balance INTERNALLY by subtracting payments in payment history 
-	 * 	  from the amount in the bill. The method getDocumentCurrentBalance does that. NOTICE THERE'S WORK TO DO -- THE METHOD
-	 *	  CALLED CURRENTLY USES THE DOCUMENT NUMBER tO DETERMINE IF THERE ARE ANY PAYMENTS SO ONLY WORKS FOR INVOICE MODE 
-	 */
-/*	action getCurrentBalanceFromInternal [
-	  	UcPaymentAction.getDocumentCurrentBalance(
-									srBillOverviewParam.account, 
-									srBillOverviewResult.docNumber, 
-									srBillOverviewParam.payGroup, 
-									srBillOverviewResult.totalDue, 
-									nCurrentBalanceCalculated, 			// -- this is the amount due to display
-									sCurrentBalanceCalculatedValid)		// -- we will need to check this when its turned on properly	
-												  
-		goto(screenShowInfo)
-		
-	]
-*/	
-			
-	/* 7b. CALCULATE FROM FEED -- System calculates current balance from a CURRENT BALANCE FEED which sets the current balance in 
-	 * 		the PMT_ACCOUNT_BALANCE table. The method UCPaymentAccountBalance.getAmountDisplay does that.
-	 * 		NOTICE THERE'S WORK TO DO -- THE METHOD CALLED WORKS FOR INVOICE MODE, NOT SURE IF IT WORKS FOR STATMENT MODE. NEEDS
-	 *		MORE RESEARCH.
-	 */
-/*	action getCurrentBalanceFromFeed [
-		UcPaymentAccountBalance.init(sUserId, srBillOverviewParam.account, srBillOverviewParam.payGroup)
-		UcPaymentAccountBalance.getAmountDisplay(nCurrentBalanceCalculated)
-		
-		goto(screenShowInfo)
-		
-	]
-*/
+	/**************************************************************************************
+	 * END 1ST FRANKLIN SPECIFIC -- ARE AUTOMATIC PAYMENTS ENABLED OR NOT
+	 ************************************************************************************** */
+
+	/**************************************************************************************
+	 * BEGIN MOSTLY STANDARD PRODUCT FOR REMAINDER OF USE CASE -- A COUPLE OF SCREEN VARIABLE
+	 *  CHANGES FOR BALANCE UPDATES IN FIRST FRANKLIN
+	 ************************************************************************************** */
 
     /* 8. Show the user's greeting message and latest bill information (if found). */
     xsltScreen screenShowInfo("{Greeting and recent information}") [
@@ -555,9 +593,6 @@ useCase accountSummaryChild [
        		
        div summary [
             class: "row st-dashboard-summary"
-//	        logic: [		                	
-//				if sIsBill != "true" then "hide"
-//	        ]	
             
             div info [
             	class: "col-8 col-sm-9 col-lg-10 row"
@@ -591,7 +626,8 @@ useCase accountSummaryChild [
 	            div loanState [
 	            	class: "row col-12 col-lg-3 st-summary-loan-state text-lg-center"
 					logic: [ if "activeAccount" != sLocalAccountStatus then "remove"]
-	            	display sBillAccountBalanceDisplayed [  // -- this is the current account balance from the bill
+	            	display sBillAccountBalanceDisplayed [  // -- this is the current account balance
+	            											//		from the status feed so can change "daily" --
 	            		class: "h3 st-dashboard-summary-value"
 	                ]
 	            	
@@ -618,8 +654,9 @@ useCase accountSummaryChild [
 					class: "row col-12 col-lg-3 st-summary-amount text-lg-center"
 					logic: [ if "activeAccount" != sLocalAccountStatus then "remove"]
 
-	                display  sBillAmountDueDisplay [  // -- this should change when payments are made -- eventually we will drive this from status feed --
-	            		class: "h3 st-dashboard-summary-value d-lg-block"
+	                display  sBillAmountDueDisplay [  // -- this changes when payments are made.. 
+	                								  // 		look at declaration (its volatile) --
+                   		class: "h3 st-dashboard-summary-value d-lg-block"
 	                ]
 	            	
 	                display sTotDueHead [
