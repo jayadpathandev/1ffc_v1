@@ -71,9 +71,23 @@
 <#--  total amount of all (and probably only automatic payment -->	
 <#assign nAutomaticPaymentAmount = scheduledPayment.automaticPmtTotalAmt>
 
-<#-- true if the total of all scheduled payments before payment due date + the automatic payment won't work -->
+<#--  ** amount is the current amount due at the time of this statement.  -->
+<#assign nAmountDue = 0>
+<#assign bBillHasOverdue = bill.isBillOverdue>
 
-<#if scheduledPayment.scheduledPmtTotalAmt?number < amount?number > 
+<#if amount?has_content && amount?string?trim != "">
+	<#assign nAmountDue = amount>
+ 	<#if bBillHasOverdue == true && bill.minDue?has_content && bill.minDue?string?trim != "">
+		<#assign nAmountOverdue = nAmountDue - bill.minDue>
+	<#else>
+		<#assign nAmountOverdue = "0">
+	</#if>
+<#else>
+	<#assign nAmountDue = 0> 	
+</#if>
+
+<#-- true if the total of all scheduled payments before payment due date + the automatic payment won't work -->
+<#if scheduledPayment.scheduledPmtTotalAmt?number < nAmountDue> 
 	<#assign bScheduledPaymentsLate = true> 
 <#else>
 	<#assign bScheduledPaymentsLate = false>					
@@ -94,24 +108,9 @@
 <#assign bPastDueDate = bill.dueDate?date < .now?string["MM/dd/yyyy"]?date />
 <#assign bBillHasOverdue = bill.isBillOverdue>
 
-	
-
-<#--  ** amount is the current amount due at the time of this statement.  -->
-<#if amount?has_content && amount?string?trim != "">
-	<#assign nAmountDue = amount>
- 	<#if bBillHasOverdue == true && bill.minDue?has_content && bill.minDue?string?trim != "">
-		<#assign nAmountOverdue = nAmountDue - bill.minDue>
-	<#else>
-		<#assign nAmountOverdue = "0">
-	</#if>
-<#else>
-	<#assign nAmountDue = '0'> 	
-</#if>
-
 <#--  ** bAccountCredit is used to turn off messages associated with future payments
 			overdue accounts etc. -->
-<#assign nAmountCheck = amount?number>
-<#if (nAmountCheck >= 0)>
+<#if (nAmountDue > 0)>
 	<#assign bAccountCredit = false>
 <#else>
 	<#assign bAccountCredit = true>
@@ -121,10 +120,11 @@
 <#assign dDueDate = bill.dueDate?date>		<#--  we use this everywhere so make it a variable -->
 
 <#--  ** status.accountBalance is the principal remaining based on latest status update -->
+<#assign nLoanAmount = 0>
 <#if status.accountBalance?has_content && status.accountBalance?string?trim != ''>  <#-- checks to see if loan amount exists -->
 	<#assign nLoanAmount = status.accountBalance>
 <#else>
-	<#assign nLoanAmount = "0">
+	<#assign nLoanAmount = 0>
 </#if>
 
 <#-- ***************************** LET THE GAMES BEGIN ******************************************** -->

@@ -119,12 +119,52 @@ public class BalanceHelper implements IExternalReuse {
 				cszStatusDate,
 				cszStatusBalance);
 		try {
-			cReturnBalanceVal.putValue(ldCurBalance.toString());
+			ldCurBalance.setScale(2);
+			cReturnBalanceVal.putValue(ldCurBalance.toPlainString());
 		} catch (MargaritaDataException e) {
 			m_cLog.error("GetCurrentBalanceRaw - An exception was thrown", e);
 			e.printStackTrace();
 		}
 	}
+
+	/**
+	 * Returns "true" if account is current (i.e. balance <= zero) and "false" if not.
+	 * 
+	 * @param locator
+	 * @param data
+	 * @param cszPayGroup
+	 * @param cszIntAccount
+	 * @param cszBillDate
+	 * @param cszBillBalance
+	 * @param cszStatusDate
+	 * @param cszStatusBalance
+	 * @return
+	 */
+	public String isAccountCurrent (IServiceLocator2 	locator, 
+			IUserData           data,
+			final String 		cszPayGroup,
+			final String 		cszIntAccount,
+			final String 		cszBillDate, 
+			final String	 	cszBillBalance,
+			final String 		cszStatusDate,
+			final String	 	cszStatusBalance) {
+
+		String lsRetVal = "true";
+		BigDecimal ldCurBalance = getCurrentBalanceInternal (
+			cszPayGroup,
+			cszIntAccount,
+			cszBillDate, 
+			cszBillBalance,
+			cszStatusDate,
+			cszStatusBalance);
+	
+		if ( 1 == ldCurBalance.compareTo(BigDecimal.ZERO)) { // 1 means ldCurBalance > zero 
+			 lsRetVal = "false";
+		 }
+		return lsRetVal;
+}
+	
+
 	
 	/**
 	 * Internal method to actually make the database call to get payments and calculate the 
@@ -245,6 +285,7 @@ public class BalanceHelper implements IExternalReuse {
 		}
 		return;
 	}
-							  
+
+
 
 }
