@@ -13,7 +13,7 @@ useCase fffcTransactionHistory [
 	]
 	
 	startAt init
-    shortcut fffcViewTransactions(init) [offset displayaccount]
+    shortcut fffcViewTransactions(init) [offset]
 	
 	importJava TransactionHistory(com.sorrisotech.fffc.transactions.TransactionHistory)
 	importJava Session(com.sorrisotech.app.utils.Session)
@@ -24,7 +24,6 @@ useCase fffcTransactionHistory [
 	native string offset   = "not set"
 	native string sAccount  = ""
 	native string sPayGroup = ""
-	native string displayaccount = "not set" // this is temporary until we get the right file format
 	
 	string szHeader = "{Transaction History}"
 	
@@ -59,19 +58,11 @@ useCase fffcTransactionHistory [
      
      // -- this sDisplayAccount stuff is just temporary --
      action init[
-     	sAccount = displayaccount
-     	Session.getPayGroup(offset, sPayGroup)
-     	if displayaccount == "" then
-     		getAccountFromSession 
-     	else
-     		popin
-     ]
-     action getAccountFromSession[
-
      	Session.getAccount(offset, sAccount) 
+     	Session.getPayGroup(offset, sPayGroup)
      	goto (popin)
      ]
-     
+      
    /*-------------------------------------
      *  payment history popin.
      --------------------------------------*/    
