@@ -241,7 +241,9 @@ useCase paymentOneTime [
 	native string sCurrentBalanceDisplay   = ''
 	native string sCurrentBalanceFlag      = ''
 	native string sMinDue = ''
+	native string sMaxDue = ''
 	native string sMinDueDisplay  = LocalizedFormat.formatAmount(sPayGroup, sMinDue)
+	native string sMaxDueDisplay  = LocalizedFormat.formatAmount(sPayGroup, sMaxDue)
 	native string sStatementBalanceEdit    = Format.formatAmountForEdit(srBillOverviewResult.totalDue)
 	native string sStatementBalanceDisplay = LocalizedFormat.formatAmount(sPayGroup, srBillOverviewResult.totalDue)	
 	
@@ -626,7 +628,12 @@ useCase paymentOneTime [
 		       srGetMinimumResult.sAmountRequired, // -- minimum due from status
 			   sCurrentBalance,					   // -- calculated current balance	
 			   sMinDue)							   // -- where minimum due is returned
-		goto (checkSelectedBillsPlurality)	
+		goto (setMaximumDue)	
+	]
+	
+	action setMaximumDue [
+		sMaxDue = srGetStatusResult.maximumPaymentAmount
+		goto (checkSelectedBillsPlurality)
 	]
 	
 	/**
@@ -912,8 +919,12 @@ useCase paymentOneTime [
 			    
 			    display sMinDueDisplay [
 			    	class: "visually-hidden st-minimum-display"
-//			    	class: "st-minimum-display"
 			    ]
+			    
+			    display sMaxDueDisplay [
+			    	class: "visually-hidden st-minimum-display"
+			    ]
+			    
 				display sCurrencySymbol[
 					class: "visually-hidden st-currency"
 				]
