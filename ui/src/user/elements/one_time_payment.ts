@@ -307,6 +307,104 @@ class OverBalance extends ValidatorBase {
 }
 
 //*****************************************************************************
+class LessThanMinDue extends ValidatorBase {
+
+    private locale  : string = '';
+    private balance : number = 0;
+    private custom  : JQuery<any> | undefined;
+    //*************************************************************************
+    constructor(
+                state : ElementState,
+                field : JQuery<any>
+            ) {
+        super(state, field);
+        this.custom = this.field.siblings('*[sorriso-error="below-min"]');
+
+        const language = ($('.st-language input').val() as string).toLowerCase();
+        const country  = ($('.st-country input').val() as string).toUpperCase();
+        this.locale = language + '-' + country;
+        this.balance = parseAmount(
+            $('.st-minimum').text(),
+            this.locale
+        )
+    }
+
+    //*************************************************************************
+    protected validate() : boolean|undefined {
+        const str = this.as_string();
+
+        if (str === '') {
+            this.custom?.addClass('visually-hidden');
+            return true;
+        };
+
+        const amount = parseAmount(str, this.locale);
+
+        if (isNaN(amount)) {
+            this.custom?.addClass('visually-hidden');
+            return true;
+        }
+
+        if (amount !== 0 && amount < this.balance) {
+            this.custom?.removeClass('visually-hidden');
+        } else {
+            this.custom?.addClass('visually-hidden');
+        }
+
+        return true;
+    }
+}
+
+//*****************************************************************************
+class GreaterThanMaxDue extends ValidatorBase {
+
+    private locale  : string = '';
+    private balance : number = 0;
+    private custom  : JQuery<any> | undefined;
+    //*************************************************************************
+    constructor(
+                state : ElementState,
+                field : JQuery<any>
+            ) {
+        super(state, field);
+        this.custom = this.field.siblings('*[sorriso-error="over-max"]');
+
+        const language = ($('.st-language input').val() as string).toLowerCase();
+        const country  = ($('.st-country input').val() as string).toUpperCase();
+        this.locale = language + '-' + country;
+        this.balance = parseAmount(
+            $('.st-maximum').text(),
+            this.locale
+        )
+    }
+
+    //*************************************************************************
+    protected validate() : boolean|undefined {
+        const str = this.as_string();
+
+        if (str === '') {
+            this.custom?.addClass('visually-hidden');
+            return true;
+        };
+
+        const amount = parseAmount(str, this.locale);
+
+        if (isNaN(amount)) {
+            this.custom?.addClass('visually-hidden');
+            return true;
+        }
+
+        if (amount > this.balance) {
+            this.custom?.removeClass('visually-hidden');
+        } else {
+            this.custom?.addClass('visually-hidden');
+        }
+
+        return true;
+    }
+}
+
+//*****************************************************************************
 class NotZero extends ValidatorBase {
 
     private locale  : string = '';
@@ -413,9 +511,11 @@ function payment_summary() {
         "paymentOneTime_fOtherAmount.pInput",
         (state, field) => { return [
             new ValidatorRequiredInput(state, field),
-            new OverBalance(state, field),
+            new IsAmount(state, field),
             new NotZero(state, field),
-            new IsAmount(state, field)
+            new LessThanMinDue(state, field),
+            new GreaterThanMaxDue(state, field),
+            new OverBalance(state, field)
         ]}
     );
 
