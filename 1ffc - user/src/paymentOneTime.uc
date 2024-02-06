@@ -336,7 +336,9 @@ useCase paymentOneTime [
         input(control) pInput("^[+]?[0-9]{1,3}(?:[0-9]*(?:[.,][0-9]{2})?|(?:,[0-9]{3})*(?:\\.[0-9]{2})?|(?:\\.[0-9]{3})*(?:,[0-9]{2})?)$", fOtherAmount.sValidation)            
         string(validation) sValidation = "{Entry must be in standard US or European currency format.}"       
         string(error) sErrorEmpty = "{You must enter an amount}"
-        string(error) sErrorOver = "{Warning, entry exceeds current balance.}"    
+        string(error) sErrorOver = "{Warning, entry exceeds current balance.}" 
+        string(error) sErrorOverMax = "{Warning, amount exceeds the maximum due}"
+        string(error) sErrorBelowMin = "{Warning, amount is less than minimum due}" 
         string(error) sErrorZero = "{Warning, amount should not be zero.}"    
     ]
     
@@ -913,7 +915,7 @@ useCase paymentOneTime [
 			    ]
 
 			    display sMaxAmountDueEdit [
-			    	class: "visually-hidden st-minimum"
+			    	class: "visually-hidden st-maximum"
 			    ]
 				
 				display sCurrentBalanceDisplay [
@@ -929,7 +931,7 @@ useCase paymentOneTime [
 			    ]
 			    
 			    display sMaxDueDisplay [
-			    	class: "visually-hidden st-minimum-display"
+			    	class: "visually-hidden st-maximum-display"
 			    ]
 			    
 				display sCurrencySymbol[
@@ -1147,6 +1149,10 @@ useCase paymentOneTime [
 									    sErrorEmpty_attr_sorriso-error: "required"
 									    sErrorOver_class_override: "alert alert-warning visually-hidden"
 									    sErrorOver_attr_sorriso-error: "over"
+									    sErrorOverMax_class_override: "alert alert-warning visually-hidden"
+									    sErrorOverMax_attr_sorriso-error: "over-max"
+									    sErrorBelowMin_class_override: "alert alert-warning visually-hidden"
+									    sErrorBelowMin_attr_sorriso-error: "below-min"
 									    sErrorZero_class_override: "st-amount-validation-msg alert alert-danger visually-hidden"
 									    sErrorZero_attr_sorriso-error: "zero"
 									]																				
