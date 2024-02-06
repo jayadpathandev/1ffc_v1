@@ -374,7 +374,7 @@ export class PaymentState {
                 bill   : Bill,
                 amount : number
             ) {
-        if (bill.interPayWorking === undefined || bill.interPayWorking === false) {
+        if ((bill.interPayWorking === undefined || bill.interPayWorking === false) && wallet.type === 'debit') {
             type BillKey = keyof typeof bill;
 
             bill.interPayWorking =  true;
