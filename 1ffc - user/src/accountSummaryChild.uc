@@ -117,7 +117,7 @@ useCase accountSummaryChild [
 	// -- returns a current balance calculated based on either bill or status (whichever is newer) less
 	//		payments since that last bill or status date (date inclusive) --
 	volatile string sBillAmountDueDisplay = 
-			CurrentBalanceHelper.getCurrentBalanceFormatted (
+			CurrentBalanceHelper.getCurrentBalanceFormattedAsCurrency (
 				srBillOverviewParam.payGroup, 
 				srBillOverviewParam.account,
 				sLocalAccountBillDate,
