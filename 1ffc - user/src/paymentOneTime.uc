@@ -16,6 +16,7 @@ useCase paymentOneTime [
     * 		 1st Franklin changes
     * 		---------
     * 		1F-1	2024-Feb-2	jak	First full version with changes to reflect 1st Franklin Rules
+    * 		1F-2	2024-Feb-07	jak	Lots of changes and restructuring to handle min/max due for 1st Franklin
     */
 
     documentation [
@@ -101,7 +102,8 @@ useCase paymentOneTime [
     importJava OneTimePaymentHelperAction(com.sorrisotech.uc.payment.OneTimePaymentHelperAction)
 	importJava LocalizedFormat(com.sorrisotech.common.LocalizedFormat)
 	// -- specific to 1st Franklin ... helps calculate current balance --
-	importJava CurrentBalanceHelper (com.sorrisotech.fffc.payment.BalanceHelper)    
+	importJava CurrentBalanceHelper (com.sorrisotech.fffc.payment.BalanceHelper)
+	importJava FlexFieldInformation (com.sorrisotech.fffc.user.FlexFieldInformation)    
             
     import validation.dateValidation
             
@@ -158,12 +160,43 @@ useCase paymentOneTime [
     native string sLocalAccountStatusAmount
     native string sLocalAccountBillDate
     native string sLocalAccountBillAmount
-    string msgStatusError = "Internal System Error, please try again later."
+	
+	string msgStatusError = "Internal System Error, please try again later."
+    
+    native string sFlexFieldForMax = "16"
+    native string sErrorValueReturned = "--"
+    
+	// -- for now, system takes the max due from where 1st Franklin files placed
+	//		it. It will eventually be take from status feed and need to change at that time --
+    volatile native string sLocalBillMaxPay = 
+    		FlexFieldInformation.getFlexFieldRaw(
+ 			sUserId, 							  // -- user id
+			srBillOverviewParam.account, 		  // -- account number
+			srBillOverviewParam.billDate, 		  // -- bill date
+			srBillOverviewParam.payGroup,		  // -- payment group
+			sFlexFieldForMax,					  // -- flex field nmber
+			sErrorValueReturned )				  // -- what returned if error
+	
+	// -- used in setting the sMinDueEdit variable --		
+ 	volatile native string sMinDue = 
+ 			CurrentBalanceHelper.getTrueMinimumDueRaw (
+		       srGetMinimumResult.sAmountRequired, // -- minimum due from status
+			   sCurrentBalance )				   // -- calculated current balance	
+			   									   // -- where minimum due is returned
+
+	// -- use din setting the sMaxDueEdit variable --
+	volatile native string sMaxPay = 
+			CurrentBalanceHelper.getTrueMaximumPayRaw (
+				srBillOverviewParam.payGroup, 	// -- payment group
+				srBillOverviewParam.account,	// -- account
+				sLocalAccountBillDate,			// -- published date of bill
+				sLocalBillMaxPay
+			)
 
 	// -- returns a current balance calculated based on either bill or status (whichever is newer) less
 	//		payments since that last bill or status date (date inclusive) --
 	volatile string sTotalDueDisplay = 
-			CurrentBalanceHelper.getCurrentBalanceFormatted (
+			CurrentBalanceHelper.getCurrentBalanceFormattedAsCurrency (
 				srBillOverviewParam.payGroup, 	// -- payment group
 				srBillOverviewParam.account,	// -- account
 				sLocalAccountBillDate,			// -- published date of bill
@@ -171,6 +204,41 @@ useCase paymentOneTime [
 				sLocalAccountStatusDate,		// -- published date of acct status
 				sLocalAccountStatusAmount )	 	// -- amount in acct status
 	volatile native string sCurrentBalance
+	
+	// -- returns true if current due is <=0, otherwise false --
+	volatile string bIsAccountCurrent = 
+			CurrentBalanceHelper.isAccountCurrent (
+				srBillOverviewParam.payGroup, 	// -- payment group
+				srBillOverviewParam.account,	// -- account
+				sLocalAccountBillDate,			// -- published date of bill
+				sLocalAccountBillAmount,		// -- amount in bill
+				sLocalAccountStatusDate,		// -- published date of acct status
+				sLocalAccountStatusAmount )	 	// -- amount in acct status
+ 
+ 	// -- sets the minimum due used in display on the screen --
+ 	volatile native string sMinDueDisplay  = 
+ 			CurrentBalanceHelper.getTrueMinimumDueFormattedAsCurrency (
+				srBillOverviewParam.payGroup, 	// -- payment group
+				sMinDue,						// -- minimum due from status or bill
+				sCurrentBalance)			// -- current balance calculated based on bill/status and payments
+				
+	// -- sets the maximum payment amount used in display on screen --
+	volatile native string sMaxDueDisplay  = 
+			CurrentBalanceHelper.getTrueMaximumPayFormattedAsCurrency (
+				srBillOverviewParam.payGroup, 	// -- payment group
+				srBillOverviewParam.account,	// -- account
+				sLocalAccountBillDate,			// -- published date of bill
+				sLocalBillMaxPay)				// -- amount in bill
+		
+	volatile native string sCurrentBalanceEdit =
+			CurrentBalanceHelper.getCurrentBalanceRaw (
+				srBillOverviewParam.payGroup, 		// -- payment group
+				srBillOverviewParam.account,		// -- account
+				sLocalAccountBillDate,				// -- published date of bill
+				sLocalAccountBillAmount,			// -- amount due in bill
+				sLocalAccountStatusDate,			// -- published date of acct status
+				sLocalAccountStatusAmount )			// -- current amt due in status
+	
     
 	volatile native string sAuditIteratorHasNext = PaymentAuditIterator.hasNext()
 	volatile native string sAuditIteratorNext = PaymentAuditIterator.next()  
@@ -240,16 +308,11 @@ useCase paymentOneTime [
     native string sDueDate                 = Format.formatDateNumeric(srBillOverviewResult.dueDate)
 	native string sCurrentBalanceDisplay   = ''
 	native string sCurrentBalanceFlag      = ''
-	native string sMinDue = ''
-	native string sMaxDue = ''
-	native string sMinDueDisplay  = LocalizedFormat.formatAmount(sPayGroup, sMinDue)
-	native string sMaxDueDisplay  = LocalizedFormat.formatAmount(sPayGroup, sMaxDue)
 	native string sStatementBalanceEdit    = Format.formatAmountForEdit(srBillOverviewResult.totalDue)
 	native string sStatementBalanceDisplay = LocalizedFormat.formatAmount(sPayGroup, srBillOverviewResult.totalDue)	
 	
-	native string sCurrentBalanceEdit
-	native string sMinAmountDueEdit
-	native string sMaxAmountDueEdit	
+	native string sMinAmountDueEdit		// -- value passed to screen
+	native string sMaxAmountDueEdit		// -- value passed to screen
     native string sUserId = Session.getUserId()
     native string sMostRecentDocsResult = ""
             
@@ -259,10 +322,20 @@ useCase paymentOneTime [
 	static sPaymentDateText = "{Payment date (Due <1>)}"
 	volatile string sPaymentDateLabel = I18n.translate ("paymentOneTime_sPaymentDateText", sDueDate)
 	
+	// -- data for constructing heading for payment amount due column --
 	static sPayAmountText1 = "{Pay amount (Due}"
+	native string sPayAmountText2 = ")"		
+	volatile string sPayAmountNewText1 = I18n.translate ("paymentOneTime_sPayAmountText1")
+	native string sDisplayAmt = UcPaymentAction.formatAmtText(sCurrentBalance, sPayGroup, "onetime")
 	native string sPayAmountLabel
 	
-	string sOtherAmountLabel = "{Other amount}"
+	// -- data for constructing heading for other amount column --
+	static sOtherAmountText1 = "{Min}"
+	static sOtherAmountText2 = "{, Max }"
+	volatile string sOtherAmountText1Localized = I18n.translate ("paymentOneTime_sOtherAmountText1")
+	volatile string sOtherAmountText2Localized = I18n.translate ("paymentOneTime_sOtherAmountText2")
+	native string sOtherAmountLabel
+	
 	string sAccountIdCompleteLabel = "{PAYMENT FOR}"
 	string sPaymentDateCompleteLabel = "{PAYMENT DATE}"
 	string sOtherAmountCompleteLabel = "{PAY AMOUNT}"
@@ -275,7 +348,7 @@ useCase paymentOneTime [
     string sConfirmPaymentHeader = "{Confirm payment}"
     string sPaymentSuccessHeader = "{Payment confirmed}"
     string sPaymentSuccessText = "{Thank you for your payment!}"
-    string sAdditionalChargeInfo = "{Additional charges may apply if you do not pay the full balance by the due date.}"
+    string sAdditionalChargeInfo = "{Additional charges may apply if you do not pay the current amount due by the due date.}"
 	string sMaxPaymentMethodsReached = "{The maximum number of payment methods have already been added to your wallet. Please remove some to add more.}"
 	string sAutomaticPaymentsHeader = "{Activate recurring payments for this account}"
 	string sAutomaticPaymentsBody = "{Save time and energy by scheduling repeating payments to occur automatically on a specific date, every month.}"
@@ -313,8 +386,6 @@ useCase paymentOneTime [
     native string sFlexfield = UcPaymentAction.getFlexField()
     native string sBillingType = UcPaymentAction.getBillingBalanceType()
     
-    native string flexDefinition = AppConfig.get("1ffc.flex.definition")
-    
     persistent native string source_type       = ""
     
     native string sPayAmt = ""
@@ -329,7 +400,7 @@ useCase paymentOneTime [
     ]
   
 	auto dropDown(control) dPayAmount = current [	        	
-    	UcPaymentAction.getPayAmountDropdown(sCurrentBalanceDisplay, sStatementBalanceDisplay, sMinDueDisplay)
+    	UcPaymentAction.getPayAmountDropdown(sCurrentBalanceDisplay, sStatementBalanceDisplay, sMinDueDisplay, bIsAccountCurrent)
     ] 
     
     field fOtherAmount [
@@ -526,8 +597,8 @@ useCase paymentOneTime [
 */	
 	/* 2.1 4.1 Get wallet details. */
 	action getWallet [		
-	    sCurrentBalanceEdit = sCurrentBalance
-	    sMinAmountDueEdit   = sMinDue
+//	    sCurrentBalanceEdit = sCurrentBalance
+//	    sMinAmountDueEdit   = sMinDue
 	    
 		fPayDate.aDate = sTodaysDate				
 		sTransactionIdUrl = sPaymentUrl + "generateTransactionId"
@@ -578,18 +649,7 @@ useCase paymentOneTime [
 	    sLocalAccountStatusAmount = srBillOverviewResult.totalDue
 	    sLocalAccountBillDate = srGetStatusResult.statusDate
 	    sLocalAccountBillAmount = srGetStatusResult.currentAmountDue
-		// -- returns unlocalized string for current balance --
-		CurrentBalanceHelper.getCurrentBalanceRaw (
-				srBillOverviewParam.payGroup, 		// -- payment group
-				srBillOverviewParam.account,		// -- account
-				sLocalAccountBillDate,				// -- published date of bill
-				sLocalAccountBillAmount,			// -- amount due in bill
-				sLocalAccountStatusDate,			// -- published date of acct status
-				sLocalAccountStatusAmount,			// -- current amt due in status
-				sCurrentBalance )	 		    	// -- returns current balance value
-		sCurrentBalanceEdit = sCurrentBalance
 		sCurrentBalanceFlag = "valid"				// -- this turns off the flag that prevents overpayment
-		
 		goto (getMinimumDueRequired)
 	]
 	
@@ -615,11 +675,11 @@ useCase paymentOneTime [
 	 *			to see if minimum due is required. 
 	 */
 	action isMinimumDueRequired [
-		sMinDue = "0.00"
+		sMinAmountDueEdit = "0.00"
 		if "false" == srGetMinimumResult.bMinimumRequired then
-			setMinimumDue
+			setMaximumDue
 		else
-			checkSelectedBillsPlurality
+			setMinimumDue
 	]
 
 	/**
@@ -627,17 +687,34 @@ useCase paymentOneTime [
 	 *			minimum due based on comparison to current balance.
 	 */
 	action setMinimumDue [
-		CurrentBalanceHelper.getTrueMinimumDue(
-		       srGetMinimumResult.sAmountRequired, // -- minimum due from status
-			   sCurrentBalance,					   // -- calculated current balance	
-			   sMinDue)							   // -- where minimum due is returned
-	    sMinAmountDueEdit   = sMinDue
+	    sMinAmountDueEdit   = sMinDue // -- true min due calculated in declaration of sMinDue
 		goto (setMaximumDue)	
 	]
 	
 	action setMaximumDue [
-		sMaxDue = srGetStatusResult.maximumPaymentAmount
-	    sMaxAmountDueEdit   = sMaxDue
+	    sMaxAmountDueEdit   = sMaxPay // -- max pay calculated in declaration of sMaxPay
+		goto (isAccountCurrent)
+	]
+	
+	action isAccountCurrent [
+		if "true" == bIsAccountCurrent then
+		 	setCurrentBalanceToZero
+		else
+			setPayAmtLabels
+	]
+	
+	action setCurrentBalanceToZero [
+		sCurrentBalance = "0.00"
+		sMinAmountDueEdit = "0.00"
+		sPayAmountLabel     = sPayAmountNewText1 + sDisplayAmt + sPayAmountText2
+		sOtherAmountLabel = sOtherAmountText1Localized + " " + sMinDueDisplay + sOtherAmountText2Localized + " " + sMaxDueDisplay
+		goto (setPayAmtLabels)
+	]
+	
+	action setPayAmtLabels [
+		sCurrentBalance = sCurrentBalanceEdit
+		sPayAmountLabel     = sPayAmountNewText1 + sDisplayAmt + sPayAmountText2
+		sOtherAmountLabel = sOtherAmountText1Localized + sMinDueDisplay + sOtherAmountText2Localized + sMaxDueDisplay
 		goto (checkSelectedBillsPlurality)
 	]
 	
@@ -724,7 +801,7 @@ useCase paymentOneTime [
 //		OneTimePaymentHelperAction.populatePaymentAmount(sCurrentBalance, sCurrentBalanceDisplay, sPayGroup)
 
 		sCurrentBalanceDisplay = sTotalDueDisplay		// -- sTotalDueDisplay populated dynamically in declaration
-		sCurrentBalanceEdit = sCurrentBalance			// -- sCurrentBalance populated action assignPaymentInformation
+//		sCurrentBalanceEdit = sCurrentBalance			// -- sCurrentBalance populated action assignPaymentInformation
 		
 		selectedBillsPlurality = "single"
 		goto(OneTimePaymentScreen)
@@ -734,7 +811,7 @@ useCase paymentOneTime [
 	action preparePayMultipleBills [
 		OneTimePaymentHelperAction.populatePaymentAmount(sCurrentBalance, sCurrentBalanceDisplay, sPayGroup)
 	    
-		sCurrentBalanceEdit = sCurrentBalance
+//		sCurrentBalanceEdit = sCurrentBalance
 	    
 		selectedBillsPlurality = "multiple"
 		goto(OneTimePaymentScreen)

@@ -112,6 +112,7 @@ public class FffcPaymentAction extends UcPaymentAction{
 	 * @param szCurrent     The current balance.
 	 * @param szStatement   The statement balance.
 	 * @param szMinimum     The minimum due.
+	 * @param bIsAccountCurrent	-- if "true" we don't dispaly current balance text
 	 * 
 	 * @return A 2D array of payment due.
 	 */
@@ -120,16 +121,22 @@ public class FffcPaymentAction extends UcPaymentAction{
 		IServiceLocator2 cLocator,			
 		String szCurrentDisplay,
 		String szStatementDisplay,
-		String szMinimumDisplay
-		) {
+		String szMinimumDisplay,
+		final String bIsAccountCurrent) {
+		
 		String szCurrentBalanceText = szCurrentDisplay + " - " + I18n.translate(cLocator, cData, "paymentOneTime_sCurrentBalText");				
 		String szOther         = I18n.translate(cLocator, cData, "paymentOneTime_sOther");
 		
-		return new String [][] {
-			{ "current", szCurrentBalanceText },
-			{ "other", szOther }				
-		};
-	}	
-	
-
+		if (!bIsAccountCurrent.equalsIgnoreCase("true")) {
+			return new String [][] {
+				{ "current", szCurrentBalanceText },
+				{ "other", szOther }				
+			};
+		} else {
+			return new String [][] {
+				{ "other", szOther }				
+			};
+		}	
+	}
 }
+	

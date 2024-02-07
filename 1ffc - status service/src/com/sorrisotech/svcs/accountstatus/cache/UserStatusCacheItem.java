@@ -246,7 +246,7 @@ public class UserStatusCacheItem implements IUserStatusCacheItem, IUserStatusIte
 		
 		MinimumPaymentData rData = null;
 		PayEnabled ePayStatus = getPaymentEnabled(cszPaymentGroup,cszAcctIdentifier);
-		BigDecimal dMinPayment = getStatusElement(cszPaymentGroup, cszAcctIdentifier).getMonthlyPayment();
+		BigDecimal dMinPayment = getStatusElement(cszPaymentGroup, cszAcctIdentifier).getCurrentAmountDue();
 		
 		switch (ePayStatus) {
 		case enabled: 

@@ -240,7 +240,13 @@ useCase accountOverview [
 	//		need to pay at least the minimumDue when they are in arrears. --
 	
     number        previousAmt  = Math.subtract(srBillOverviewResult.totalDue, srBillOverviewResult.docAmount)                
-    native string sCurrentBalance
+    volatile native string sCurrentBalance = CurrentBalanceHelper.getCurrentBalanceRaw(
+    									sPayGroup,								// -- payment group
+										sAccount,								// -- internal account
+										srBillOverviewResult.docDate,			// -- most recent bill date
+										srBillOverviewResult.totalDue,			// -- bill amount due
+										srGetStatusResult.statusDate,			// -- most recent status date
+										srGetStatusResult.currentAmountDue	)	// -- status amount due
     
     native string sLocalAccountStatus = "enabled" // -- this is work around to a defect in persona.  API return structures appear to be
     											  // 		immutable even though we can "assign a new value"... it seems to screw it up.
@@ -567,17 +573,10 @@ useCase accountOverview [
 	]
 	
 	/**
-	 * 10.A  substitute calculation for 1st Franklin on current balance
+	 * 10.A  substitute calculation for 1st Franklin on current balance. This is calculated
+	 * 		in the declaration of sCurrentBalance
 	 */
 	action calculateCurrentBalanceFor1stFranklin [
-		CurrentBalanceHelper.getCurrentBalanceRaw(
-										sPayGroup,								// -- payment group
-										sAccount,								// -- internal account
-										srBillOverviewResult.docDate,			// -- most recent bill date
-										srBillOverviewResult.totalDue,			// -- bill amount due
-										srGetStatusResult.statusDate,			// -- most recent status date
-										srGetStatusResult.currentAmountDue		// -- status amount due
-										sCurrentBalance )						// -- current balance for display
 		goto(getScheduledPmtInfo)
 	]
 	

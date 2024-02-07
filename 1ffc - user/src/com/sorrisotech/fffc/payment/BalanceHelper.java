@@ -13,6 +13,7 @@ import com.sorrisotech.common.LocalizedFormat;
 import com.sorrisotech.fffc.payment.dao.GetPaymentHistoryAmountDaoImpl;
 import com.sorrisotech.svcs.external.IExternalReuse;
 import com.sorrisotech.svcs.external.IServiceLocator2;
+import com.sorrisotech.svcs.itfc.data.INumberData;
 import com.sorrisotech.svcs.itfc.data.IStringData;
 import com.sorrisotech.svcs.itfc.data.IUserData;
 import com.sorrisotech.svcs.itfc.exceptions.MargaritaDataException;
@@ -23,7 +24,8 @@ import com.sorrisotech.svcs.itfc.exceptions.MargaritaDataException;
  *   
  * @author johnK
  * @since  2024-Jan-31
- * @version 2024-Jan-31 Hopefully works right away
+ * @version 2024-Jan-31 jak Hopefully works right away
+ * @version 2024-Feb-07 jak Added min/max and several minor defect fixes around that.
  * 
  */
 public class BalanceHelper implements IExternalReuse {
@@ -36,6 +38,7 @@ public class BalanceHelper implements IExternalReuse {
 	 */
 	private static final Logger m_cLog = LoggerFactory.getLogger(BalanceHelper.class);
 	
+	private final String m_cszReturnForInvalid = "--";
 	@Override
 	public int getReuse() {
 		// -- we don't need more than one of these, they are just a calculator --
@@ -56,7 +59,8 @@ public class BalanceHelper implements IExternalReuse {
 	 * @param cszStatusBalance
 	 * @return
 	 */
-	public String getCurrentBalanceFormatted(IServiceLocator2 	locator, 
+	public String getCurrentBalanceFormattedAsCurrency(
+								    IServiceLocator2 	locator, 
 									IUserData           data,
 									final String 		cszPayGroup,
 									final String 		cszIntAccount,
@@ -80,7 +84,7 @@ public class BalanceHelper implements IExternalReuse {
 			lszRetVal = format.formatAmount(cszPayGroup, ldCurBalance);
 			
 		} catch (Exception e) {
-			m_cLog.error("getCurrentBalanceFormatted - An exception was thrown", e);
+			m_cLog.error("getCurrentBalanceFormattedAsCurrency - An exception was thrown", e);
 		}
 
 		return lszRetVal ;
@@ -100,17 +104,18 @@ public class BalanceHelper implements IExternalReuse {
 	 * @param cszStatusDate
 	 * @param cszStatusBalance
 	 * @param cReturnBalanceVal
+	 * @return String for current balance as nnnn.nn format
 	 */
-	public void getCurrentBalanceRaw(IServiceLocator2 	locator, 
+	public String getCurrentBalanceRaw(IServiceLocator2 	locator, 
 									IUserData           data,
 									final String 		cszPayGroup,
 									final String 		cszIntAccount,
 									final String 		cszBillDate, 
 									final String	 	cszBillBalance,
 									final String 		cszStatusDate,
-									final String	 	cszStatusBalance,
-									IStringData			cReturnBalanceVal) {
-
+									final String	 	cszStatusBalance) {
+		String lszRetValue = "";
+		
 		BigDecimal ldCurBalance = getCurrentBalanceInternal (
 				cszPayGroup,
 				cszIntAccount,
@@ -118,13 +123,11 @@ public class BalanceHelper implements IExternalReuse {
 				cszBillBalance,
 				cszStatusDate,
 				cszStatusBalance);
-		try {
-			ldCurBalance.setScale(2);
-			cReturnBalanceVal.putValue(ldCurBalance.toPlainString());
-		} catch (MargaritaDataException e) {
-			m_cLog.error("GetCurrentBalanceRaw - An exception was thrown", e);
-			e.printStackTrace();
-		}
+
+		ldCurBalance.setScale(2);
+		lszRetValue = ldCurBalance.toPlainString();
+		
+		return lszRetValue;
 	}
 
 	/**
@@ -235,26 +238,21 @@ public class BalanceHelper implements IExternalReuse {
 		return ldRetVal;
 	}
 	
-	/**
-	 * returns the true minimum due based on the status feed and the calculated minimum due
-	 * 
-	 * @param locator
-	 * @param data
-	 * @param cszStatusMinimumPaymentAmt
-	 * @param cszCurrentBalanceAmt
-	 * @param oMinDueVariable
-	 * @return
-	 */
-	public void getTrueMinimumDue (IServiceLocator2 		locator, 
-											IUserData    	data,
-											final String 	cszStatusMinimumPaymentAmt,
-											final String 	cszCurrentBalanceAmt,
-											IStringData		oMinDueVariable) {
+	private String getTrueMinimumDueInternal ( 	final String 	cszStatusMinimumPaymentAmt,
+												final String 	cszCurrentBalanceAmt) {
 		String lszRetValue = null;
 		BigDecimal lbdStatusMinimumPaymentAmt = BigDecimal.ZERO;
 		BigDecimal lbdCurrentBalanceAmt = BigDecimal.ZERO;
 		BigDecimal lbdReturnTrueMinimumPaymentAmt = BigDecimal.ZERO;
 		
+		// -- this could  be called with dummy data at first --
+		if ((null == cszStatusMinimumPaymentAmt) || (null == cszCurrentBalanceAmt) ||
+				cszStatusMinimumPaymentAmt.isEmpty() || cszCurrentBalanceAmt.isEmpty() ||
+				cszStatusMinimumPaymentAmt.isBlank() || cszCurrentBalanceAmt.isBlank()) {
+			lszRetValue = m_cszReturnForInvalid;
+			return lszRetValue;
+		}
+			
 		try {
 			// -- convert from strings to BigDecimal
 			lbdStatusMinimumPaymentAmt = new BigDecimal(cszStatusMinimumPaymentAmt);
@@ -268,24 +266,261 @@ public class BalanceHelper implements IExternalReuse {
 				// -- minimum is less than or equal to current balance so minimum is true minimum --
 				lbdReturnTrueMinimumPaymentAmt = lbdStatusMinimumPaymentAmt;
 			
+			// -- minimum payment cannot be less than zero --
+			if (-1 == lbdReturnTrueMinimumPaymentAmt.compareTo(BigDecimal.ZERO)) {
+				lbdReturnTrueMinimumPaymentAmt = BigDecimal.ZERO;
+			}
 			// -- convert to string --
 			lbdReturnTrueMinimumPaymentAmt.setScale(2);
 			lszRetValue = lbdReturnTrueMinimumPaymentAmt.toPlainString();
 			
 		} catch (NumberFormatException e) {
-			m_cLog.debug("getTrueMinimumDue failed to convert input variable from string");
-			return;
+			m_cLog.debug("getTrueMinimumDueInternal failed to convert input variable from string");
+			return lszRetValue;
 		}
 		
+		return lszRetValue;
+	}
+	/**
+	 * returns the true minimum due based on the status feed and the calculated minimum due
+	 * 
+	 * @param locator
+	 * @param data
+	 * @param cszStatusMinimumPaymentAmt
+	 * @param cszCurrentBalanceAmt
+	 * @param oMinDueVariable
+	 * @return minnimum due as a string nnn.nn format
+	 */
+	public String getTrueMinimumDueRaw (IServiceLocator2 		locator, 
+											IUserData    	data,
+											final String 	cszStatusMinimumPaymentAmt,
+											final String 	cszCurrentBalanceAmt ) {
+		String lszRetValue = null;
+
+		lszRetValue = getTrueMinimumDueInternal (cszStatusMinimumPaymentAmt,
+												 cszCurrentBalanceAmt);
+		
+		return lszRetValue;
+	}
+
+	/**
+	 * returns the true minimum due based on the status feed and the calculated minimum due
+	 * 
+	 * @param locator
+	 * @param data
+	 * @param cszStatusMinimumPaymentAmt
+	 * @param cszCurrentBalanceAmt
+	 * @param oMinDueVariable
+	 * @return minimum due as a number
+	 */
+	public void getTrueMinimumDueNumber (IServiceLocator2 	locator, 
+											IUserData    	data,
+											final String 	cszStatusMinimumPaymentAmt,
+											final String 	cszCurrentBalanceAmt,
+											INumberData		oMinDueVariable) {
+		String lszRetValue = null;
+
+		lszRetValue = getTrueMinimumDueInternal (cszStatusMinimumPaymentAmt,
+												 cszCurrentBalanceAmt);
+		if (lszRetValue == m_cszReturnForInvalid) {
+			lszRetValue = "0.00";
+		}
 		try {
-			oMinDueVariable.putValue(lszRetValue);
+			oMinDueVariable.setValue(lszRetValue);
 		} catch (MargaritaDataException e) {
 			m_cLog.error("GetCurrentBalanceRaw - An exception was thrown", e);
 			e.printStackTrace();
 		}
 		return;
 	}
+	
+	/**
+	 * Returns the true minimum payment due (based on payments) formatted in localized
+	 * currency
+	 * 
+	 * @param locator
+	 * @param data
+	 * @param cszPayGroup
+	 * @param cszStatusMinimumPaymentAmt
+	 * @param cszCurrentBalanceAmt
+	 * @param oMinDueVariable
+	 * @return minimum due formatted as a localized currency
+	 */
+	public String getTrueMinimumDueFormattedAsCurrency (
+											IServiceLocator2 	locator, 
+											IUserData    		data,
+											final String 		cszPayGroup,
+											final String 		cszStatusMinimumPaymentAmt,
+											final String 		cszCurrentBalanceAmt) {
+		String lszRetValue = null;
+		String lszInternalUnformatted = null;
 
+		lszInternalUnformatted = getTrueMinimumDueInternal (cszStatusMinimumPaymentAmt,
+				 cszCurrentBalanceAmt);
+		
+		if (lszInternalUnformatted == m_cszReturnForInvalid) {
+			return lszInternalUnformatted;
+		}
+			
+		if (null != lszInternalUnformatted) {
+			try {
+				final LocalizedFormat format = new LocalizedFormat(locator, data.getLocale());
+				BigDecimal ldMinimumDue = new BigDecimal(lszInternalUnformatted);
+				ldMinimumDue.setScale(2);
+				lszRetValue = " " + format.formatAmount(cszPayGroup, ldMinimumDue);
+				
+			} catch (Exception e) {
+				m_cLog.error("getTrueMinimumDueFormattedAsCurrency - An exception was thrown", e);
+				e.printStackTrace();
+			}
+		}
+		
+		return lszRetValue;
+	}
+	
+	/**
+	 * Returns the maximum payment allowed based on billing information and payments formatted
+	 * as a localized currency.
+	 * 
+	 * @param locator
+	 * @param data
+	 * @param cszPayGroup
+	 * @param cszIntAccount
+	 * @param cszMaxDate
+	 * @param cszFileMaxDue
+	 * @return maximum payment allowed formatted as a localized currency
+	 */
+	public String getTrueMaximumPayFormattedAsCurrency
+										(	IServiceLocator2 	locator, 
+											IUserData    		data,
+											final String 		cszPayGroup,
+											final String 		cszIntAccount,
+											final String 		cszMaxDate, 
+											final String 		cszFileMaxDue) {
+		String lszRetValue = null;
+		BigDecimal ldTrueMaxPaymentAmount = BigDecimal.ZERO;
 
+		// -- gets the true maximum payment --
+		ldTrueMaxPaymentAmount = getTrueMaximumPayInternal(cszPayGroup, 
+														   cszIntAccount,
+														   cszMaxDate,
+														   cszFileMaxDue);
+		if (ldTrueMaxPaymentAmount.equals(BigDecimal.ZERO)) {
+			return m_cszReturnForInvalid;
+		}
+
+		// -- format it for return --
+		if (!ldTrueMaxPaymentAmount.equals(BigDecimal.ZERO)) {
+			try {
+				LocalizedFormat format = new LocalizedFormat(locator, data.getLocale());
+				ldTrueMaxPaymentAmount.setScale(2);
+				lszRetValue = " " + format.formatAmount(cszPayGroup, ldTrueMaxPaymentAmount);
+			} catch (MargaritaDataException e) {
+				m_cLog.error("getTrueMaximumPayFormattedAsCurrency - An exception was thrown", e);
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return m_cszReturnForInvalid;
+			}
+		}
+
+		return lszRetValue;
+	}
+
+	/**
+	 * Returns the maximum payment allowed based on billing info and payments. It is returned
+	 * as a string of the format nnnn.nn that's suitable for edit fields.
+	 * 
+	 * @param locator
+	 * @param data
+	 * @param cszPayGroup
+	 * @param cszIntAccount
+	 * @param cszMaxDate
+	 * @param cszFileMaxDue
+	 * @return maximum payment allowed as nnnn.nn string
+	 */
+	public String getTrueMaximumPayRaw(	IServiceLocator2 	locator, 
+											IUserData    		data,
+											final String 		cszPayGroup,
+											final String 		cszIntAccount,
+											final String 		cszMaxDate, 
+											final String 		cszFileMaxDue) {
+		String lszRetValue = null;
+		BigDecimal ldTrueMaxPaymentAmount = BigDecimal.ZERO;
+
+		// -- gets the true maximum payment --
+		ldTrueMaxPaymentAmount = getTrueMaximumPayInternal(cszPayGroup, 
+														   cszIntAccount,
+														   cszMaxDate,
+														   cszFileMaxDue);
+
+		if (ldTrueMaxPaymentAmount.equals(BigDecimal.ZERO)) {
+			return m_cszReturnForInvalid;
+		}
+		// -- convert it to string --
+		ldTrueMaxPaymentAmount.setScale(2);
+		lszRetValue = ldTrueMaxPaymentAmount.toPlainString();
+
+		return lszRetValue;
+		
+	}
+	
+	/**
+	 * Returns the true maximum payment allowed based on billing and payment information. Calculates
+	 * maximum as most recent maximum less the amount paid since that date.
+	 * 
+	 * @param cszPayGroup
+	 * @param cszIntAccount
+	 * @param cszMaxDate
+	 * @param cszBillMaxDue
+	 * @param cszFileMaxDue
+	 * @return
+	 */
+	private BigDecimal getTrueMaximumPayInternal (
+									final String 		cszPayGroup,
+									final String 		cszIntAccount,
+									final String 		cszMaxDate, 
+									final String 		cszFileMaxDue) {
+
+		BigDecimal ldTrueMaxPayment = BigDecimal.ZERO;
+		BigDecimal ldTempMaxPayment = BigDecimal.ZERO;
+		BigDecimal ldPayments = BigDecimal.ZERO;
+		String lszStartDate = null;	
+		GetPaymentHistoryAmountDaoImpl loPmtHist = new GetPaymentHistoryAmountDaoImpl();
+
+		// -- return 0 if we get bad input --
+		if ((null == cszFileMaxDue) || (null == cszMaxDate) || 
+			cszFileMaxDue.isEmpty() || cszMaxDate.isEmpty() ||
+			cszFileMaxDue.isBlank() || cszMaxDate.isBlank()) {
+			return ldTrueMaxPayment;
+		}
+		
+		// - convert to big decimal -- 
+		try {
+			
+			lszStartDate = cszMaxDate;
+			ldTempMaxPayment = new BigDecimal(cszFileMaxDue);
+			m_cLog.debug("getTrueMaximumPayInternal - Date: {}, starting balance {}", cszMaxDate, cszFileMaxDue);
+			
+		} catch (NumberFormatException e) {
+			m_cLog.debug("getTrueMaximumPayInternal failed to convert balance from string");
+			return ldTrueMaxPayment;
+		}
+		
+		// -- returns the total posted payments for an account since chosen date (inclusive) --
+		ldPayments = loPmtHist.getPaymentHistoryAmountForAccount(cszPayGroup, cszIntAccount, lszStartDate);
+		m_cLog.debug("getTrueMaximumPayInternal payments posted: {}", ldPayments);
+		
+		if (null != ldPayments) {
+			// -- do the math --
+			ldTrueMaxPayment = ldTempMaxPayment.subtract(ldPayments);
+		}
+		else {
+			ldTrueMaxPayment = ldTempMaxPayment;
+		}
+		m_cLog.debug("getTrueMaximumPayInternal amount to return: {}", ldTrueMaxPayment);
+		
+		return ldTrueMaxPayment;
+		
+	}
 
 }
