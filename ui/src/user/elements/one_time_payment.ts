@@ -296,7 +296,7 @@ class OverBalance extends ValidatorBase {
             return true;
         }
 
-        if (this.balance != 0 && amount > this.balance) {
+        if ( this.balance != 0 && amount > this.balance ) {
             this.custom?.removeClass('visually-hidden');
         } else {
             this.custom?.addClass('visually-hidden');
