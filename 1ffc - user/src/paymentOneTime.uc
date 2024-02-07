@@ -386,6 +386,8 @@ useCase paymentOneTime [
     native string sFlexfield = UcPaymentAction.getFlexField()
     native string sBillingType = UcPaymentAction.getBillingBalanceType()
     
+    native string flexDefinition = AppConfig.get("1ffc.flex.definition")
+    
     persistent native string source_type       = ""
     
     native string sPayAmt = ""
