@@ -1468,7 +1468,16 @@ useCase paymentOneTime [
 															
 				            navigation addNewBankAccount(OneTimePaymentScreen, "{Use a new bank account}") [
 				                class: "btn btn-primary st-bankaccount-button"
+			                	// -- disabled button shows if agent is impersonating --
+			                	logic: [if bImpersonateActive == "true" then "remove"]
 				            ]
+
+				            navigation addNewBankAccountDisabled(OneTimePaymentScreen, "{New Bank Disabled Agent}") [
+				                class: "btn btn-primary st-bankaccount-button disabled"
+			                	// -- disabled button shows if agent is impersonating --
+			                	logic: [if bImpersonateActive != "true" then "remove"]
+				            ]
+
 				        ]
 			              	
 		              	div paymentMethodButtonsCol3 [
@@ -1480,7 +1489,15 @@ useCase paymentOneTime [
 		
 		              	    navigation addNewDebitCard(OneTimePaymentScreen, "{Use a new debit card}") [
 			                     class: "btn btn-primary st-debitcard-button"
+			                	// -- disabled button shows if agent is impersonating --
+			                	logic: [if bImpersonateActive == "true" then "remove"]
 		              		]
+	
+				            navigation addNewDebitCardDisabled(OneTimePaymentScreen, "{New Debit Disabled Agent}") [
+				                class: "btn btn-primary st-bankaccount-button disabled"
+			                	// -- disabled button shows if agent is impersonating --
+			                	logic: [if bImpersonateActive != "true" then "remove"]
+				            ]
 				        ]
 					        
 		              	div paymentMethodButtonsCol4 [
@@ -1492,7 +1509,15 @@ useCase paymentOneTime [
 		                	
 		              	    navigation addNewCreditCard(OneTimePaymentScreen, "{Use a new credit card}") [
 			                     class: "btn btn-primary st-creditcard-button"
+			                	// -- disabled button shows if agent is impersonating --
+			                	logic: [if bImpersonateActive == "true" then "remove"]
 		              		]
+	
+				            navigation addNewCreditCardDisabled(OneTimePaymentScreen, "{New Debit Disabled Agent}") [
+				                class: "btn btn-primary st-bankaccount-button disabled"
+			                	// -- disabled button shows if agent is impersonating --
+			                	logic: [if bImpersonateActive != "true" then "remove"]
+				            ]
 		              	]
 			              	
 					        
@@ -1505,7 +1530,15 @@ useCase paymentOneTime [
 		                	
 		              	    navigation addNewSepaAccount(OneTimePaymentScreen, "{Use a new sepa credit transfer}") [
 			                     class: "btn btn-primary st-sepacard-button"
+			                	// -- disabled button shows if agent is impersonating --
+			                	logic: [if bImpersonateActive == "true" then "remove"]
 		              		]
+	
+				            navigation addNewSepaAccountDisabled(OneTimePaymentScreen, "{New sepa Disabled Agent}") [
+				                class: "btn btn-primary st-bankaccount-button disabled"
+			                	// -- disabled button shows if agent is impersonating --
+			                	logic: [if bImpersonateActive != "true" then "remove"]
+				            ]
 		              	]				        
 			        ]
 			        									
