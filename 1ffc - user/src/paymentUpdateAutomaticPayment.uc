@@ -13,6 +13,7 @@ useCase paymentUpdateAutomaticPayment [
     *        1.0 23-Nov-2016 First Version Coded [Maybelle Johnsy Kanjirapallil]
     *        2.0 13-Jan-2022 Combine paymentCreateAutomatic to this use case for create. 
     *                        This use case will supports both creating and updating an automatic payment
+    * 		 2024-Feb-06 jak 1st Franklin specific disable update and turn off payment for agent
     */
 
     documentation [
@@ -262,7 +263,10 @@ useCase paymentUpdateAutomaticPayment [
 		string sTitle = "{Payment warning}"  
 		static sBody = "{There is at least one existing payment scheduled for account(s) covered by this recurring payment schedule. These payment(s) will not be affected by this new schedule.}"
 	] 
-	
+
+	// -- handling impersonation --
+ 	import utilImpersonationActive.sImpersonationActive
+ 	native string bImpersonateActive
     	
 	/*************************
 	* MAIN SUCCESS SCENARIOS
@@ -270,7 +274,7 @@ useCase paymentUpdateAutomaticPayment [
 
 	/* 1. Find out which account has the future scheduled payments */	
 	action isB2bUser [
-		
+		bImpersonateActive = sImpersonationActive
 		if sIsB2b == "true" then  
 			getFutureSchedulePayments
 		else 
@@ -713,6 +717,8 @@ useCase paymentUpdateAutomaticPayment [
 							navigation updateAutomaticPaymentButton(checkMinAmtFlag, "{UPDATE RECURRING PAYMENT}") [
 								logic: [
 									if sSelectedAutomaticId  == "" then "remove"
+				                	// -- disabled button shows if agent is impersonating --
+									if bImpersonateActive == "true" then "remove"
 								]
 			                    class: "btn btn-primary"	
 			                    ng-disabled: "hasExceededPayUptoAmount() == 'true'"
@@ -728,9 +734,20 @@ useCase paymentUpdateAutomaticPayment [
 			                    attr_tabindex: "14"
 			                ]  		               
 
+							navigation updateAutomaticPaymentButtonDisabled(checkMinAmtFlag, "{UPDATE DISABLED FOR AGENT}") [
+								logic: [
+									if sSelectedAutomaticId  == "" then "remove"
+				                	// -- this button shows if agent is impersonating --
+									if bImpersonateActive != "true" then "remove"
+								]
+			                    class: "btn btn-primary disabled"	
+							]
+							
 							navigation createAutomaticPaymentButton(checkMinAmtFlag, "{CREATE RECURRING PAYMENT}") [
 								logic: [
 									if sSelectedAutomaticId  != "" then "remove"
+				                	// -- disabled button shows if agent is impersonating --
+									if bImpersonateActive == "true" then "remove"
 								]									
 				            	class: "btn btn-primary"	
 				                ng-disabled: "isSourceEmpty() == 'true' || hasExceededPayUptoAmount() == 'true'"		                    
@@ -745,7 +762,16 @@ useCase paymentUpdateAutomaticPayment [
 			                    ]            
 				                attr_tabindex: "14"
 				           ]  		               
-   	
+
+							navigation createAutomaticPaymentButtonDisabled(checkMinAmtFlag, "{CREATE DISABLED FOR AGENT}") [
+								logic: [
+									if sSelectedAutomaticId  != "" then "remove"
+				                	// -- this button shows if agent is impersonating --
+									if bImpersonateActive != "true" then "remove"
+								]									
+				            	class: "btn btn-primary disabled"	
+   						   ]
+   						   
 			               navigation cancelPaymentLink(gotoPaymentAutomatic, "{CANCEL}") [
 								class: "ms-4 btn btn-secondary st-padding-top"							
 								attr_tabindex: "13"

@@ -306,13 +306,17 @@ useCase paymentAutomatic [
         ]
      ]
     
+	// -- handling impersonation --
+ 	import utilImpersonationActive.sImpersonationActive
+ 	native string bImpersonateActive
+    
     /*************************
 	* MAIN SUCCESS SCENARIOS
 	*************************/
 	/* 1. Initialize the usecase. Get automatic payment details. */
 	
 	action getPayments [
-		
+		bImpersonateActive = sImpersonationActive
 		if sIsB2b == "true" then 
 			getPaymentsByUserId
 		else
@@ -762,7 +766,17 @@ useCase paymentAutomatic [
     			navigation yesButton (deleteAutomaticPayment, "{YES}") [
                 	class: "btn btn-primary"
                 	attr_tabindex: "10"		                   		                                    
+                	// -- disabled button shows if agent is impersonating --
+					logic: [if bImpersonateActive == "true" then "remove"]
             	]
+
+    			navigation yesButtonDisabled (deleteAutomaticPayment, "{DISABLED FOR AGENT}") [
+                	class: "btn btn-primary disabled"
+                	attr_tabindex: "10"		                   		                                    
+                	// -- disabled button shows if agent is impersonating --
+					logic: [if bImpersonateActive != "true" then "remove"]
+            	]
+
     			navigation noButton (resetFlags, "{NO}") [
     				attr_tabindex: "11"
 				]

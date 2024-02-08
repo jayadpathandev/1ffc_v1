@@ -501,6 +501,11 @@ useCase paymentOneTime [
 	persistent string sIframeOnetime
 	persistent string sErrorMessageType
 	tag hSpinner = Spinner.getSpinnerTemplate("pageSpinner.ftl", "pageSpinner", sorrisoLanguage, sorrisoCountry)
+
+
+	// -- handling impersonation --
+ 	import utilImpersonationActive.sImpersonationActive
+ 	native string bImpersonateActive
     
 	/*************************
 	* MAIN SUCCESS SCENARIOS
@@ -509,10 +514,10 @@ useCase paymentOneTime [
 	action init [
 		sUserName = getUserName()
         dPayAmount = ""
-        
+        bImpersonateActive = sImpersonationActive
         goto(getDocuments)
 	] 
-		
+	
 	action getDocuments [
 		/*-- If it is statement mode, we always need to get the recent document --*/
         if sBillingType == "statement" then
@@ -709,7 +714,7 @@ useCase paymentOneTime [
 		sCurrentBalance = "0.00"
 		sMinAmountDueEdit = "0.00"
 		sPayAmountLabel     = sPayAmountNewText1 + sDisplayAmt + sPayAmountText2
-		sOtherAmountLabel = sOtherAmountText1Localized + " " + sMinDueDisplay + sOtherAmountText2Localized + " " + sMaxDueDisplay
+		sOtherAmountLabel = sOtherAmountText1Localized + sMinDueDisplay + sOtherAmountText2Localized + sMaxDueDisplay
 		goto (setPayAmtLabels)
 	]
 	
@@ -1706,7 +1711,6 @@ useCase paymentOneTime [
 						
 					div confirmPaymentbuttons [
 						class: "row st-payment-buttons st-margin-left45"
-						
 						div submitPaymentButton [
 							class: "col-md-2 col-6"
 							navigation submitPaymentLink(validatePayData, "{SUBMIT PAYMENT}") [
@@ -1728,10 +1732,21 @@ useCase paymentOneTime [
 			                		fCheckBoxes,
 			                		fAutoScheduledConfirm
 			                	]
+			                	// -- disabled button shows if agent is impersonating --
+			                	logic: [if bImpersonateActive == "true" then "remove"]
+			                	
 			                    attr_tabindex: "5"
 							]
 						] 
-			           
+						
+						// -- disabled button shows if agent is impersonating
+						div submitPaymentButtonDisabled [
+							class: "col-md-2 col-6"
+							navigation submitPaymentLink1( init, "{DISABLED FOR AGENT}") [
+			                    class: "btn btn-primary disabled"		                    
+			                	logic: [if bImpersonateActive != "true" then "remove"]
+							]
+						]
 						div cancelPaymentButton [ 
 							class: "col-md-2 col-6"     			
 							navigation cancelPaymentLink(init, "{CANCEL}") [
@@ -2136,8 +2151,8 @@ useCase paymentOneTime [
 	]
 
 	action addConvenienceFee [
-		srMakePaymentParam.FLEX_VALUE = "convenienceFee=true"
-		srMakePaymentParam.FLEX_DEFINITION = flexDefinition
+//		srMakePaymentParam.FLEX_VALUE = "convenienceFee=true"
+//		srMakePaymentParam.FLEX_DEFINITION = flexDefinition
 		
 		goto(submitPayment)
 	]
