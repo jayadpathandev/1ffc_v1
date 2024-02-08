@@ -284,13 +284,18 @@ useCase paymentWallet [
            ]
         ]                   
     ]
+
+	// -- handling impersonation --
+ 	import utilImpersonationActive.sImpersonationActive
+ 	native string bImpersonateActive
  
     /*************************
 	* MAIN SUCCESS SCENARIOS
 	*************************/
 	
 	/* 1. Get the most recent document. */
-	action init [		
+	action init [
+		bImpersonateActive = sImpersonationActive		
 		sUserName = getUserName()
 				
 		 goto(getWallet)         
@@ -654,7 +659,17 @@ useCase paymentWallet [
     			navigation yesButton (deleteWallet, "{YES}") [
                 	class: "btn btn-primary"
                 	attr_tabindex: "10"
+                	// -- disabled button shows if agent is impersonating --
+                	logic: [if bImpersonateActive == "true" then "remove"]
             	]
+
+    			navigation yesButtonDisabeld (deleteWallet, "{DISABLED FOR AGENT}") [
+                	class: "btn btn-primary disabled"
+                	attr_tabindex: "10"
+                	// -- this button shows if agent is impersonating --
+                	logic: [if bImpersonateActive != "true" then "remove"]
+            	]
+            	
 				navigation noButton (paymentWalletScreen, "{NO}") [
 					attr_tabindex: "11"
 				] 
