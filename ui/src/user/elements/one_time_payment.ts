@@ -312,6 +312,8 @@ class LessThanMinDue extends ValidatorBase {
     private locale  : string = '';
     private balance : number = 0;
     private custom  : JQuery<any> | undefined;
+    private checkbox: JQuery<any> | undefined;
+
     //*************************************************************************
     constructor(
                 state : ElementState,
@@ -319,6 +321,7 @@ class LessThanMinDue extends ValidatorBase {
             ) {
         super(state, field);
         this.custom = this.field.siblings('*[sorriso-error="below-min"]');
+        this.checkbox = $('#paymentOneTime_fCheckBoxes\\.sField_Agree');
 
         const language = ($('.st-language input').val() as string).toLowerCase();
         const country  = ($('.st-country input').val() as string).toUpperCase();
@@ -347,8 +350,10 @@ class LessThanMinDue extends ValidatorBase {
 
         if (amount !== 0 && amount < this.balance) {
             this.custom?.removeClass('visually-hidden');
+            this.checkbox?.attr('disabled','disabled');
         } else {
             this.custom?.addClass('visually-hidden');
+            this.checkbox?.removeAttr('disabled');
         }
 
         return true;
