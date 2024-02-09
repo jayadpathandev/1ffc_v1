@@ -181,7 +181,7 @@ useCase paymentOneTime [
  	volatile native string sMinDue = 
  			CurrentBalanceHelper.getTrueMinimumDueRaw (
 		       srGetMinimumResult.sAmountRequired, // -- minimum due from status
-			   sCurrentBalance )				   // -- calculated current balance	
+			   sCurrentBalanceEdit )				   // -- calculated current balance	
 			   									   // -- where minimum due is returned
 
 	// -- use din setting the sMaxDueEdit variable --
@@ -1534,7 +1534,7 @@ useCase paymentOneTime [
 			                	logic: [if bImpersonateActive == "true" then "remove"]
 		              		]
 	
-				            navigation addNewSepaAccountDisabled(OneTimePaymentScreen, "{New sepa Disabled Agent}") [
+				            navigation addNewSepaAccountDisabled(OneTimePaymentScreen, "{New Disabled Agent}") [
 				                class: "btn btn-primary st-bankaccount-button disabled"
 			                	// -- disabled button shows if agent is impersonating --
 			                	logic: [if bImpersonateActive != "true" then "remove"]
