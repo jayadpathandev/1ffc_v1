@@ -50,6 +50,9 @@ useCase contactPreferences [
 	serviceResult(Notifications.GetUserAddresses) getResponse
 	serviceParam(Notifications.SetContactSettings) channels
 	serviceParam(FffcNotify.SetContactSettingsNls) setDataFffc
+	
+	serviceParam (Profile.AddLocationTrackedEvent) setLocationData
+	serviceResult (Profile.AddLocationTrackedEvent) setLocationResp
      
     /**********************************************************************************************
      * DATA ITEMS SECTION
@@ -84,8 +87,14 @@ useCase contactPreferences [
 	
 	native string sUserId            = Session.getUserId()
     native string sNameSpace         = AuthUtil.getAppNameSpace()
+    native string sIpAddress         = Session.getExternalIpAddress()
+    native string sCategory          = "topic"
+    native string sType
+    native string sOperation
 	
 	native string sImpersonateFlag 	 = "false"
+	
+	input sGeolocation
 	
     field fUserEmail [  													                                             
 	    string(label) sLabel = "{Update E-Mail message alert}"
@@ -411,8 +420,15 @@ useCase contactPreferences [
 						]
 	                ]
 	                
-	                div contactPreferencesSaveAndCancel [
+	                form contactPreferencesSaveAndCancel [
 		            	class: "st-buttons"
+		            	
+		            	display sGeolocation [
+		                	 control_attr_sorriso-geo: ""
+		                	 logic: [
+		                		if "true" == "true" then "hide"
+		               		]
+		               ]
 		                
 		                div buttonsRow1 [
 		                    class: "row"
@@ -423,6 +439,9 @@ useCase contactPreferences [
 		                        navigation save (hasNotificationChanges, "{Save}") [
 		                            class: "btn btn-primary"
 		                            attr_tabindex: "9"
+		                            data: [
+		                            	sGeolocation
+		                            ]
 		                        ]
 		                        
 								navigation cancel (cancelNotification, "{Cancel}") [
@@ -577,12 +596,28 @@ useCase contactPreferences [
 		channels.userid = sUserId
 		ContactPrefs.toJson(channels.jsonConfig)
         switch apiCall Notifications.SetContactSettings(channels, status) [
-		    case apiSuccess saveNotificationAtNls
+		    case apiSuccess addLocationTrackedEvent
 		    default genericErrorMsg
 		]
     ]
     
-    /* Fetch the orgID from the user profile. */
+    /* Adding geolocation track event */
+    action addLocationTrackedEvent [
+    	ContactPrefs.getConsentTypeAndOperation(sType, sOperation)
+		setLocationData.sUser = sUserId
+    	setLocationData.sCategory = sCategory
+    	setLocationData.sType = sType
+    	setLocationData.sIpAddress = sIpAddress
+    	setLocationData.sBrowserGeo = sGeolocation
+    	setLocationData.sOperation = sOperation
+    	
+    	switch apiCall Profile.AddLocationTrackedEvent(setLocationData, setLocationResp, status) [
+    		case apiSuccess saveNotificationAtNls
+    		default genericErrorMsg
+    	]
+    ]
+    
+    /* Fetch the orgID from the user profile and send contact preferences setting to NLS */
     action saveNotificationAtNls [
  		loadProfile(            
             fffcCustomerId: sOrgId   
