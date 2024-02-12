@@ -6,6 +6,7 @@ define service FffcNotify(com.sorrisotech.app.serviceapi.uc.UcRequestClient) [
 	 generate [
        category: fffcnotify    
     ]
+    
     // Setting user address setting in NLS
 	define method SetUserAddressNls [
 		
@@ -17,7 +18,17 @@ define service FffcNotify(com.sorrisotech.app.serviceapi.uc.UcRequestClient) [
 		
 		// The address the user wants to use for the channel. 
 		optional string address
+		
+		// The browser geo-location of user. 
+		string browserGeo
+		
+		// The IP geo-location of user. 
+		string ipGeo
+		
+		// IP address of user 
+		string ipAddress
 	]
+	
 	// Setting user contact setting in NLS
 	define method SetContactSettingsNls [
 		

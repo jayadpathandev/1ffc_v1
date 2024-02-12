@@ -61,7 +61,9 @@ useCase fffcReg01EmailTnC [
 						
     string sPageName = "{Registration - E-mail consent (step 1 of 8)}"   
 	
-    tag hTermsText = TermsAndConditions.loadFile("terms_email_en_us.html")			       
+    tag hTermsText = TermsAndConditions.loadFile("terms_email_en_us.html")
+    
+    persistent input  sGeolocation			       
         
     field fCheckBoxes [        
     	checkBoxes(control) sField [
@@ -170,12 +172,22 @@ useCase fffcReg01EmailTnC [
 					div col1 [
 						class: "col-md-12"
 						
+						display sGeolocation [
+							control_attr_sorriso-geo: ""
+							logic: [
+								if "true" == "true" then "hide"
+							]
+						]
+						
 						navigation termsConditionsSubmit(gotoRegBillingInfo, "{Next}") [			                
 		                	class: "btn btn-primary"  
 		                	 
 		                	require: [
 		                		fUserEmail,
 		                		fCheckBoxes
+		                	]
+		                	data: [
+		                		sGeolocation
 		                	]
 		                	attr_tabindex: "3"                			                    
 		                ]        			

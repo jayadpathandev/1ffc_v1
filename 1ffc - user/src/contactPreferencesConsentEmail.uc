@@ -45,6 +45,9 @@ useCase contactPreferencesConsentEmail [
 	serviceParam(Notifications.SetUserAddress) setData
 	serviceParam(FffcNotify.SetUserAddressNls) setDataFffc
 	
+	serviceParam (Profile.AddLocationTrackedEvent) setLocationData
+	serviceResult (Profile.AddLocationTrackedEvent) setLocationResp
+	
     import validation.validationCodeRegex
     import profile.sAppName
 	
@@ -63,8 +66,14 @@ useCase contactPreferencesConsentEmail [
     native string sUserId            = Session.getUserId()
     native string sProfileUpdateFlag = UcNotificationsAction.isEmailNotifPrefEnabled(sUserId)
     native string sOrgId
+    native string sIpAddress         = Session.getExternalIpAddress()
+    native string sCategory          = "address"
+    native string sType              = "email"
+    native string sOperation         = "The user successfully updated their email address."
     
     tag hTermsText = UcTermsConditions.getTermsConditions(sorrisoLanguage, sorrisoCountry)
+    
+    input sGeolocation
     
     field fvalidationCode [                                                   
         string(label) sLabel = "{* Validation code:}" 
@@ -242,11 +251,20 @@ useCase contactPreferencesConsentEmail [
             div buttons [
                 class: "modal-footer"
                                    	
+                display sGeolocation [ 
+                   control_attr_sorriso-geo: ""
+                      logic: [ 
+                	      if "true" == "true" then "hide" 
+                      ]  
+                ]  	
                 navigation confirm (verifyAuthCode, "{Confirm}") [
                     class: "btn btn-primary"
                     require: [
                     	fvalidationCode
                     	fCheckBoxes
+                    ]
+                    data: [
+                    	sGeolocation
                     ]
                     type: "popin"
                     logic: [
@@ -285,9 +303,25 @@ useCase contactPreferencesConsentEmail [
     	setData.channel = sEmailChannel
     	setData.address = sNewEmail
         switch apiCall Notifications.SetUserAddress(setData, status) [
-		    case apiSuccess saveEmailAddressAtNls
+		    case apiSuccess addLocationTrackedEvent
 		    default saveContactDetailsError
 		]
+    ]
+    
+        /* Adding geolocation track event */
+    action addLocationTrackedEvent [
+    	setLocationData.sUser = sUserId
+    	setLocationData.sCategory = sCategory
+    	setLocationData.sType = sType
+    	setLocationData.sData = sNewEmail
+    	setLocationData.sIpAddress = sIpAddress
+    	setLocationData.sBrowserGeo = sGeolocation
+    	setLocationData.sOperation = sOperation
+    	
+    	switch apiCall Profile.AddLocationTrackedEvent(setLocationData, setLocationResp, status) [
+    		case apiSuccess saveEmailAddressAtNls
+    		default saveContactDetailsError
+    	]
     ]
     
     /* Saves the new email address via NLS API service */
@@ -298,6 +332,9 @@ useCase contactPreferencesConsentEmail [
     	setDataFffc.customerId = sOrgId
     	setDataFffc.channel = sEmailChannel
     	setDataFffc.address = sNewEmail
+    	setDataFffc.browserGeo = sGeolocation
+    	setDataFffc.ipGeo = setLocationResp.IP_GEO
+    	setDataFffc.ipAddress = sIpAddress
     	switch apiCall FffcNotify.SetUserAddressNls(setDataFffc, status) [
     		case apiSuccess checkProfileUpdateNotificationFlag
     		default saveContactDetailsError

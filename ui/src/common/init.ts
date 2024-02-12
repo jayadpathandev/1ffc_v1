@@ -55,6 +55,7 @@ import { profile_personal_image         } from './elements/profile';
 import { panel_reauth                   } from './elements/panels';
 import { shared_dropdowns_except_first  } from './elements/shared_dropdowns_except_first';
 import { ProfileTopicConfig 			} from './elements/profile_topic_config';
+import { geoip_elements                 } from './geolocation';
 
 //*****************************************************************************
 // This method performs initialization for bootstrap javascript enabled
@@ -250,6 +251,7 @@ function basic_elements(
     profile_secret_questions(parent);
     profile_personal_image(parent);
     panel_reauth(parent);
+    geoip_elements(parent);
 }
 
 //*****************************************************************************

@@ -46,6 +46,9 @@ useCase contactPreferencesConsentSms [
 	serviceParam(Notifications.SetUserAddress) setData
 	serviceParam(FffcNotify.SetUserAddressNls) setDataFffc
 	
+	serviceParam (Profile.AddLocationTrackedEvent) setLocationData
+	serviceResult (Profile.AddLocationTrackedEvent) setLocationResp
+	
     import validation.validationCodeRegex
     import profile.sAppName
 	
@@ -65,8 +68,14 @@ useCase contactPreferencesConsentSms [
     
     native string sUserId            = Session.getUserId()
     native string sProfileUpdateFlag = UcNotificationsAction.isEmailNotifPrefEnabled(sUserId)
+    native string sIpAddress         = Session.getExternalIpAddress()
+    native string sCategory          = "address"
+    native string sType              = "sms"
+    native string sOperation         = "The user successfully updated their sms address."
     
     tag hTermsText = UcTermsConditions.getTermsConditions(sorrisoLanguage, sorrisoCountry)
+    
+    input sGeolocation
     
     field fvalidationCode [                                                   
         string(label) sLabel = "{* Validation code:}" 
@@ -243,12 +252,22 @@ useCase contactPreferencesConsentSms [
 			
             div buttons [
                 class: "modal-footer"
+                
+                display sGeolocation [
+                	control_attr_sorriso-geo: ""
+                	logic: [
+                		if "true" == "true" then "hide"
+                	]
+                ]
                                    	
                 navigation confirm (verifyAuthCode, "{Confirm}") [
                     class: "btn btn-primary"
                     require: [
                     	fvalidationCode
                     	fCheckBoxes
+                    ]
+                    data: [
+                    	sGeolocation
                     ]
                     type: "popin"
                     logic: [
@@ -287,9 +306,25 @@ useCase contactPreferencesConsentSms [
     	setData.channel = sSmsChannel
     	setData.address = sNewSms
         switch apiCall Notifications.SetUserAddress(setData, status) [
-		    case apiSuccess saveSmsAddressAtNls
+		    case apiSuccess addLocationTrackedEvent
 		    default saveContactDetailsError
 		]
+    ]
+    
+        /* Adding geolocation track event */
+    action addLocationTrackedEvent [
+    	setLocationData.sUser = sUserId
+    	setLocationData.sCategory = sCategory
+    	setLocationData.sType = sType
+    	setLocationData.sData = sNewSms
+    	setLocationData.sIpAddress = sIpAddress
+    	setLocationData.sBrowserGeo = sGeolocation
+    	setLocationData.sOperation = sOperation
+    	
+    	switch apiCall Profile.AddLocationTrackedEvent(setLocationData, setLocationResp, status) [
+    		case apiSuccess saveSmsAddressAtNls
+    		default saveContactDetailsError
+    	]
     ]
 	
 	/* Saves the new sms address via NLS API service */
@@ -300,6 +335,9 @@ useCase contactPreferencesConsentSms [
     	setDataFffc.customerId = sOrgId
     	setDataFffc.channel = sSmsChannel
     	setDataFffc.address = sNewSms
+    	setDataFffc.browserGeo = sGeolocation
+    	setDataFffc.ipGeo = setLocationResp.IP_GEO
+    	setDataFffc.ipAddress = sIpAddress
     	switch apiCall FffcNotify.SetUserAddressNls(setDataFffc, status) [
     		case apiSuccess checkProfileUpdateNotificationFlag
     		default saveContactDetailsError

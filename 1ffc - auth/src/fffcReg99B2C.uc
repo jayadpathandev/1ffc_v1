@@ -49,6 +49,8 @@ useCase fffcReg99B2C [
 	import regChecklist.sAccountInfoFailed
 	import regChecklist.sUserNameFailed
 	import regChecklist.sEmailFailed
+	
+	import fffcReg01EmailTnC.sGeolocation
 	    	
 	import fffcReg05BillingInfo.sSelectedBillStream
 	import fffcReg05BillingInfo.fAccountNumber
@@ -86,20 +88,27 @@ useCase fffcReg99B2C [
 	native string sCurrentTime
 	native string sUserAccountId =  UcBillRegistration.getUserAccountId()		
 	native string sNameSpace = CreateSaml.getNameSpace()	
-	native string sAppName = AppName.getAppName(sAppType)	
+	native string sAppName = AppName.getAppName(sAppType)
 	native string sEmailChannel = "email"
 	native string sSmsChannel = "sms"
+    native string sPortalChannel = "portal"
 	native string sOrgId
+	native string sIpAddress = Session.getExternalIpAddress()
+    native string sCategory = "terms_and_conditions "
+    native string sType = "web_site "
+    native string sOperation = "User signed consent related to terms and conditions during registration process."
 
 	serviceStatus srStatus			
 	serviceParam(Profile.AddPasswordHistory) srAddReq
     serviceResult (Profile.AddPasswordHistory) srAddResp
+    serviceParam (Profile.AddLocationTrackedEvent) setLocationData
+	serviceResult (Profile.AddLocationTrackedEvent) setLocationResp
     
     serviceStatus status
 	serviceParam(Notifications.SetUserAddress) setData
 	serviceParam(Notifications.RegisterUser)   setRegData
 	serviceParam(FffcNotify.SetUserAddressNls) setDataFffc
-			
+	
     // -- message strings for display when use case completes. 			
     structure(message) msgDuplicateAccount [    
         string(title) sTitle = "{Failure}"
@@ -296,12 +305,29 @@ useCase fffcReg99B2C [
         	accountStatus: "open"        	
         	registrationStatus: "pending" 
             )
-        if success then saveEmailAddressNls
+        if success then addLocationTrackedEvent
         if failure then deleteUserProfile    
     ]
     
     /**************************************************************************
-     * 11. Save user's contact preferences - email. (NLS side)     
+	 *  11. Adding user geolocation tracked events.
+	 */
+    action addLocationTrackedEvent [
+    	setLocationData.sUser = sUserId
+    	setLocationData.sCategory = sCategory
+    	setLocationData.sType = sType
+    	setLocationData.sIpAddress = sIpAddress
+    	setLocationData.sBrowserGeo = sGeolocation
+    	setLocationData.sOperation = sOperation
+    	
+    	switch apiCall Profile.AddLocationTrackedEvent(setLocationData, setLocationResp, status) [
+    		case apiSuccess saveEmailAddressNls
+    		default genericErrorMsg
+    	]
+    ]
+    
+    /**************************************************************************
+     * 12. Save user's contact preferences - email. (NLS side)     
      */
 	action saveEmailAddressNls [
 		Initialize.init()
@@ -311,6 +337,9 @@ useCase fffcReg99B2C [
 		setDataFffc.customerId = sOrgId
 		setDataFffc.channel = sEmailChannel
 		setDataFffc.address = fUserEmail.pInput
+		setDataFffc.browserGeo = sGeolocation
+    	setDataFffc.ipGeo = setLocationResp.IP_GEO
+    	setDataFffc.ipAddress = sIpAddress
 	    switch apiCall FffcNotify.SetUserAddressNls(setDataFffc, status) [
 		    case apiSuccess saveSmsAddressNls
 		    default deleteNlsUserProfile
@@ -318,7 +347,7 @@ useCase fffcReg99B2C [
 	] 
 	
 	/**************************************************************************
-     * 12. Save user's contact preferences - sms. (NLS side)     
+     * 13. Save user's contact preferences - sms. (NLS side)     
      */
 	action saveSmsAddressNls [
 		loadProfile(            
@@ -327,6 +356,30 @@ useCase fffcReg99B2C [
 		setDataFffc.customerId = sOrgId
 		setDataFffc.channel = sSmsChannel
 		setDataFffc.address = fMobileNumber.pInput
+		setDataFffc.browserGeo = sGeolocation
+    	setDataFffc.ipGeo = setLocationResp.IP_GEO
+    	setDataFffc.ipAddress = sIpAddress
+	    switch apiCall FffcNotify.SetUserAddressNls(setDataFffc, status) [
+		    case apiSuccess saveRegConsentNls
+		    default deleteNlsUserProfile
+		]
+	]
+	
+	/**************************************************************************
+     * 14. Save user's registration consent. (NLS side).
+     * As per discussion saving channel name as "portal" and channel 
+     * address as email address.
+     */
+	action saveRegConsentNls [
+		loadProfile(            
+            fffcCustomerId: sOrgId   
+            )
+		setDataFffc.customerId = sOrgId
+		setDataFffc.channel = sPortalChannel
+		setDataFffc.address = fUserEmail.pInput
+		setDataFffc.browserGeo = sGeolocation
+    	setDataFffc.ipGeo = setLocationResp.IP_GEO
+    	setDataFffc.ipAddress = sIpAddress
 	    switch apiCall FffcNotify.SetUserAddressNls(setDataFffc, status) [
 		    case apiSuccess generateAuthCode
 		    default deleteNlsUserProfile
@@ -334,7 +387,7 @@ useCase fffcReg99B2C [
 	]  
     
     /**************************************************************************
-     * 13. Generate authorization code.     
+     * 15. Generate authorization code.     
      */
     action generateAuthCode [    	  	   	
         switch AuthUtil.generateAuthCode(sAuthCode) [        
@@ -345,7 +398,7 @@ useCase fffcReg99B2C [
     ] 
     
     /**************************************************************************
-     * 14. Get current timestamp.     
+     * 16. Get current timestamp.     
      */
     action getCurrentTimeStamp [    
         switch AuthUtil.getCurrentTime(sCurrentTime) [        
@@ -356,7 +409,7 @@ useCase fffcReg99B2C [
     ]  
     
     /**************************************************************************
-     * 15. Save auth code details.     
+     * 17. Save auth code details.     
      */
     action saveAuthCodeDetails [
     	 updateProfile(        	
@@ -369,7 +422,7 @@ useCase fffcReg99B2C [
     ]    
     
     /**************************************************************************
-     * 16. Send validation email.     
+     * 18. Send validation email.     
      */
     action sendValidationEmail [    
         switch NotifUtil.sendAuthCode(sUserId, sNameSpace, "b2c", fUserName.pInput, sAuthCode, fFirstName.pInput, fLastName.pInput) [         
@@ -380,7 +433,7 @@ useCase fffcReg99B2C [
     ]   
     
     /**************************************************************************
-	 * 17. Go to the registration validation email address usecase.
+	 * 19. Go to the registration validation email address usecase.
 	 */
     action gotoRegValidateEmailAddress [
     	sReqWorkflow = ""
