@@ -73,6 +73,12 @@ useCase customerSearch [
 	string sPopinTitle1 = "{Resend confirmation & enrollment e-mail}"
 	string sPopinTitle2 = "{Reset secret questions & password}"
 	string sPopinTitle3 = "{Reset Multi-Factor Authentication for Login option}"
+	
+	// *-- Important : Do not  delete the 4 messages below. The use case uses it !!
+	string msgNewEmailSuccess = "{E-mail address changed from <1> to <2>. We sent you the validation code to the new e-mail. Use it to login.}"
+	string msgSameEmailSuccess = "{We sent you the validation code to the new e-mail <1>. Use it to login.}"
+	string msgResetNewEmailSuccess = "{E-mail address changed from <1> to <2>. We sent you the new validation code to the new e-mail. Use it to login.}"
+	string msgResetSameEmailSuccess = "{We sent the new validation code to the e-mail <1>. Use it to login.}"
 		
 	native string sAppNameSpace = AuthUtil.getAppNameSpace()	
 	native string sAppName = AppName.getAppName("b2c")
@@ -99,10 +105,10 @@ useCase customerSearch [
     native string bShow1stFranklinSearch = "true"
     			
 	field fUserName [   
-        string(label) sLabel = "{User name}"      
+        string(label) sLabel = "{Username}"      
         input (control) pInput ("(^[\\p{L}\\d_\\.\\-]{3,}\\*?$)|(^[\\p{L}\\d_\\.\\-]+$)", fUserName.sValidation)
         string(validation) sValidation = "{Username may contain letters, numbers, hyphens (-), underscores (_), and a wildcard *.  At least three characters are needed before the wildcard, such as 'abc*'.}"
-        string(help) sHelp = "{Please enter a user name. Search criteria may consist of one or more characters and followed by an asterisk (*) and click Search button.}"   
+        string(help) sHelp = "{Please enter a username. Search criteria may consist of one or more characters and followed by an asterisk (*) and click Search button.}"   
     ]
     
     field fEmailAddress [     
@@ -137,7 +143,7 @@ useCase customerSearch [
     // -- message strings for display when use case completes.      
     structure(message) oMsgInvalidInput [
         string(title) sTitle = "{Invalid input}"
-        string(body) sBody = "{Please provide a user name or e-mail and click Search button.}"
+        string(body) sBody = "{Please provide a username or e-mail and click Search button.}"
     ]
     
     structure(message) oMsgTooManyResults [
@@ -257,7 +263,7 @@ useCase customerSearch [
             sMaskedEmailId: sEmailMasked
         ]
         
-        link "{Reset password & secret questions}" resetUserDetails(assignFieldsResetPwdPopin) [
+        link "{Reset secret questions & password}" resetUserDetails(assignFieldsResetPwdPopin) [
             sSelectedUserId: sUserId                          
             sEmailAddress: sEmail     
             sMaskedEmailId: sEmailMasked
@@ -281,7 +287,7 @@ useCase customerSearch [
             sort    : [sName ]
         ]
         
-        column usernameColumn("{User Name}") [
+        column usernameColumn("{Username}") [
             elements: [sUsername ]
             sort    : [sUsername ]            
         ]
