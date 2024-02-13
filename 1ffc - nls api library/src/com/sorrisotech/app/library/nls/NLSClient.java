@@ -166,8 +166,8 @@ public class NLSClient {
 	 * @param szLoanId Loan id of user
 	 * 
 	 * @return The current balance and upcoming payment due dates of user as a pay
-	 *         load.(Current balance response with status code, success, pay load and
-	 *         errors).
+	 *         load.(Current balance response with status code, success, pay load
+	 *         and errors).
 	 * 
 	 * @throws Exception This exception is thrown when any errors received from NLS
 	 *                   server.
@@ -371,6 +371,28 @@ public class NLSClient {
 		}
 		
 		return cContactPreferenceUpdates;
+	}
+	
+	/**********************************************************************************************
+	 * Check for new file is available for processing or not.
+	 * 
+	 * @return "true" if status code is 204 otherwise "false.
+	 * 
+	 * @throws Exception in case of any errors.
+	 */
+	public static String isFileAvailable() throws Exception {
+		
+		if (!Boolean.valueOf(isConfigured())) {
+			LOG.error("NLS Client Library is not configured yet!");
+			throw new IllegalStateException("NLS Client Library is not configured yet");
+		}
+		
+		var szAuthToken = NLSClient.fetchAuthToken();
+		
+		var cisFileAvailable = m_cMainClient.getFileAvailable(m_szBaseUrl, m_szVersion,
+		        szAuthToken);
+		
+		return cisFileAvailable;
 	}
 	
 	/**********************************************************************************************

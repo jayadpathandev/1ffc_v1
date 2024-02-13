@@ -25,6 +25,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -80,10 +81,8 @@ public class MainClient {
 	 *                             it encounters client-side HTTP errors.
 	 */
 	public CreateContactPrefrencesResponse getContactPreferencesOfUser(
-	        ContactPreferencesRequest cContactPreferencesRequest,
-	        String szBaseUrl,
-	        String szVersion,
-	        String szToken) throws RestClientException {
+	        ContactPreferencesRequest cContactPreferencesRequest, String szBaseUrl,
+	        String szVersion, String szToken) throws RestClientException {
 		
 		LOG.debug("Create Contact Preferences Request : " + cContactPreferencesRequest);
 		
@@ -96,8 +95,8 @@ public class MainClient {
 		
 		var szResponse = m_cApiUtils.executeApiRequest(cContactPreferencesRequest, HttpMethod.POST,
 		        szEndPointURL, szToken, CreateContactPrefrencesResponse.class);
-		LOG.debug("Create Contact Preferences Response:" + szResponse);
-		return szResponse;
+		LOG.debug("Create Contact Preferences Response:" + szResponse.getBody());
+		return szResponse.getBody();
 	}
 	
 	/**********************************************************************************************
@@ -117,12 +116,9 @@ public class MainClient {
 	 *                                 whenever it encounters client-side HTTP
 	 *                                 errors.
 	 */
-	public SimpleNLSResponse updateContactPreferences(
-	        ContactPrefrences cContactPreferences,
-	        String szBaseUrl,
-	        String szVersion,
-	        String szToken) throws InvalidRequestException,
-	        RestClientException {
+	public SimpleNLSResponse updateContactPreferences(ContactPrefrences cContactPreferences,
+	        String szBaseUrl, String szVersion, String szToken)
+	        throws InvalidRequestException, RestClientException {
 		LOG.debug("Update Contact Preferences Request : " + cContactPreferences);
 		
 		RequestValidator.ValidateRequest(cContactPreferences);
@@ -134,8 +130,8 @@ public class MainClient {
 		
 		var cResponse = m_cApiUtils.executeApiRequest(cContactPreferences, HttpMethod.PATCH,
 		        szEndPointURL, szToken, SimpleNLSResponse.class);
-		LOG.debug("Update Contact Preferences Response:" + cResponse.toString());
-		return cResponse;
+		LOG.debug("Update Contact Preferences Response:" + cResponse.getBody());
+		return cResponse.getBody();
 	}
 	
 	/**********************************************************************************************
@@ -153,10 +149,8 @@ public class MainClient {
 	 *                             it encounters client-side HTTP errors.
 	 */
 	public UpdatedContactPrefrencesResponse getAllContactPreferenceUpdates(
-	        ContactPreferencesRequest cContactPreferencesRequest,
-	        String szBaseUrl,
-	        String szVersion,
-	        String szToken) throws RestClientException {
+	        ContactPreferencesRequest cContactPreferencesRequest, String szBaseUrl,
+	        String szVersion, String szToken) throws RestClientException {
 		
 		LOG.debug("Get Contact Preferences Request : " + cContactPreferencesRequest);
 		
@@ -170,8 +164,8 @@ public class MainClient {
 		
 		var cResponse = m_cApiUtils.executeApiRequest(cContactPreferencesRequest, HttpMethod.POST,
 		        szEndPointURL, szToken, UpdatedContactPrefrencesResponse.class);
-		LOG.debug("Get Contact Preference Updates Response:" + cResponse);
-		return cResponse;
+		LOG.debug("Get Contact Preference Updates Response:" + cResponse.getBody());
+		return cResponse.getBody();
 	}
 	
 	/**********************************************************************************************
@@ -187,10 +181,7 @@ public class MainClient {
 	 * @throws RestClientException Exception thrown by {@link RestTemplate} whenever
 	 *                             it encounters client-side HTTP errors.
 	 */
-	public SimpleNLSResponse createDocument(
-	        String szBaseUrl,
-	        String cDocumentId,
-	        String szVersion,
+	public SimpleNLSResponse createDocument(String szBaseUrl, String cDocumentId, String szVersion,
 	        String szToken) throws RestClientException {
 		var cPathVariables = Map.of("version", szVersion);
 		
@@ -201,8 +192,8 @@ public class MainClient {
 		
 		var cResponse = m_cApiUtils.executeApiRequest(szRequestBody, HttpMethod.POST, szEndPointURL,
 		        szToken, SimpleNLSResponse.class);
-		LOG.debug("Create Document Response:" + cResponse);
-		return cResponse;
+		LOG.debug("Create Document Response:" + cResponse.getBody());
+		return cResponse.getBody();
 	}
 	
 	/**********************************************************************************************
@@ -220,11 +211,8 @@ public class MainClient {
 	 * @throws Exception           If loan id is null or empty and/or any unknown
 	 *                             error occurred.
 	 */
-	public CurrentBalanceResponse getCurrentBalance(
-	        String szBaseUrl,
-	        String szVersion,
-	        String szLoanId,
-	        String szToken) throws Exception {
+	public CurrentBalanceResponse getCurrentBalance(String szBaseUrl, String szVersion,
+	        String szLoanId, String szToken) throws Exception {
 		var cPathVariables = Map.of("version", szVersion);
 		
 		var szEndPointURL = EndPoints.CURRENT_BALANCE.buildURL(szBaseUrl, cPathVariables);
@@ -237,8 +225,8 @@ public class MainClient {
 		
 		var cResponse = m_cApiUtils.executeApiRequest(String.format("\"%s\"", szLoanId),
 		        HttpMethod.POST, szEndPointURL, szToken, CurrentBalanceResponse.class);
-		LOG.debug("Get Current Balance Response:" + cResponse);
-		return cResponse;
+		LOG.debug("Get Current Balance Response:" + cResponse.getBody());
+		return cResponse.getBody();
 	}
 	
 	/**********************************************************************************************
@@ -258,11 +246,9 @@ public class MainClient {
 	 *                                 whenever it encounters client-side HTTP
 	 *                                 errors.
 	 */
-	public SimpleNLSResponse updateBorrowerNickname(
-	        String szBaseUrl,
-	        LoanNicknameRequest cLoanNicknameRequest,
-	        String szVersion,
-	        String szToken) throws RestClientException {
+	public SimpleNLSResponse updateBorrowerNickname(String szBaseUrl,
+	        LoanNicknameRequest cLoanNicknameRequest, String szVersion, String szToken)
+	        throws RestClientException {
 		LOG.debug("Update Borrower Nickname Request : " + cLoanNicknameRequest);
 		
 		RequestValidator.ValidateRequest(cLoanNicknameRequest);
@@ -274,9 +260,9 @@ public class MainClient {
 		
 		var cResponse = m_cApiUtils.executeApiRequest(cLoanNicknameRequest, HttpMethod.PUT,
 		        szEndPointURL, szToken, SimpleNLSResponse.class);
-		LOG.debug("Update Borrower Nickname Response:" + cResponse);
+		LOG.debug("Update Borrower Nickname Response:" + cResponse.getBody());
 		
-		return cResponse;
+		return cResponse.getBody();
 	}
 	
 	/**********************************************************************************************
@@ -291,11 +277,8 @@ public class MainClient {
 	 * @throws Exception If loan id is null or empty and/or any unknown error
 	 *                   occurred.
 	 */
-	public ConvenienceFeeResponse getConvenienceFee(
-	        String szBaseUrl,
-	        String szVersion,
-	        String szLoanId,
-	        String szToken) throws Exception {
+	public ConvenienceFeeResponse getConvenienceFee(String szBaseUrl, String szVersion,
+	        String szLoanId, String szToken) throws Exception {
 		var cPathVariables = Map.of("version", szVersion);
 		
 		var szEndPointURL = EndPoints.CONVENIENCE_FEE.buildURL(szBaseUrl, cPathVariables);
@@ -308,8 +291,8 @@ public class MainClient {
 		
 		var cResponse = m_cApiUtils.executeApiRequest(String.format("\"%s\"", szLoanId),
 		        HttpMethod.POST, szEndPointURL, szToken, ConvenienceFeeResponse.class);
-		LOG.debug("Get Convenience Fee Response:" + cResponse);
-		return cResponse;
+		LOG.debug("Get Convenience Fee Response:" + cResponse.getBody());
+		return cResponse.getBody();
 	}
 	
 	/**********************************************************************************************
@@ -327,12 +310,36 @@ public class MainClient {
 		var cPathVariable = Map.of("version", szVersion);
 		
 		var szEndPointURL = EndPoints.BRANCHES.buildURL(szBaseUrl, cPathVariable);
-		LOG.debug("Get All Branches URL: ", szEndPointURL);
+		LOG.debug("Get All Branches URL: {}", szEndPointURL);
 		
 		var cResponse = m_cApiUtils.executeApiRequest(null, HttpMethod.GET, szEndPointURL, szToken,
 		        BranchResponse.class);
-		LOG.debug("Get All Branches Response:", cResponse);
+		LOG.debug("Get All Branches Response: {}", cResponse.getBody());
 		
-		return cResponse;
+		return cResponse.getBody();
+	}
+	
+	/**********************************************************************************************
+	 * Checks if a new file is available for processing.
+	 * 
+	 * @param szBaseUrl base URL of server.
+	 * @param szVersion version.
+	 * @param szToken   Authorization token.
+	 * 
+	 * @return "true" if status code is 204 otherwise "false".
+	 * @throws RestClientException Exception thrown by {@link RestTemplate} whenever
+	 *                             it encounters client-side HTTP errors.
+	 */
+	public String getFileAvailable(String szBaseUrl, String szVersion, String szToken)
+	        throws RestClientException {
+		var cPathVariable = Map.of("version", szVersion);
+		
+		var szEndPointURL = EndPoints.FILEAVAILABLE.buildURL(szBaseUrl, cPathVariable);
+		LOG.debug("Get File Available: {}", szEndPointURL);
+		
+		var cResponse = m_cApiUtils.executeApiRequest(null, HttpMethod.GET, szEndPointURL, szToken,
+		        void.class);
+		
+		return cResponse.getStatusCode() == HttpStatus.NO_CONTENT ? "true" : "false";
 	}
 }
