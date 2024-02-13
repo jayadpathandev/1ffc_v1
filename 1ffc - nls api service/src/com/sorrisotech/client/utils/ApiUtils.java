@@ -24,6 +24,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
 import org.springframework.web.client.RestClientException;
@@ -78,7 +79,7 @@ public class ApiUtils {
 	 * @throws RestClientException Exception thrown by {@link RestTemplate} whenever
 	 *                             it encounters client-side HTTP errors.
 	 */
-	public <RequestType, ResponseType> ResponseType executeApiRequest(
+	public <RequestType, ResponseType> ResponseEntity<ResponseType> executeApiRequest(
 	        RequestType cRequestPayload,
 	        HttpMethod cHttpMethod,
 	        String szEndpointUrl,
@@ -102,6 +103,6 @@ public class ApiUtils {
 		
 		var	cResponse = m_cRestTemplate.exchange(szEndpointUrl, cHttpMethod, entity,
 			        cResponseTypeClass);
-		return cResponse.getBody();
+		return cResponse;
 	}
 }

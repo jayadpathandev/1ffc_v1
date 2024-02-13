@@ -16,7 +16,8 @@ public enum EndPoints {
 	CURRENT_BALANCE("/api/v{version}/Main/CurrentBalance"),
 	BORROWER_NICKNAME("/api/v{version}/Main/LoanNickname"),
 	CONVENIENCE_FEE("/api/v{version}/Main/ConvenienceFee"),
-	BRANCHES("/api/v{version}/Main/Branches");
+	BRANCHES("/api/v{version}/Main/Branches"),
+	FILEAVAILABLE("/api/v{version}/Main/PaymentReconciliation");
 	
 	private String m_szEndpoint;
 	

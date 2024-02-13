@@ -91,8 +91,8 @@ public class AuthClient {
 		
 		var szResponse = m_cApiUtils.executeApiRequest(cAccessTokenRequest, HttpMethod.POST,
 		        szEndPointURL, null, AuthResponse.class);
-		LOG.debug("Access Token Response : " + szResponse);
-		return szResponse;
+		LOG.debug("Access Token Response : " + szResponse.getBody());
+		return szResponse.getBody();
 	}
 	
 	/**********************************************************************************************
@@ -126,7 +126,7 @@ public class AuthClient {
 		
 		var cResponse = m_cApiUtils.executeApiRequest(cAuthRefreshTokenRequest, HttpMethod.POST,
 		        szEndPointURL, null, AuthResponse.class);
-		LOG.debug("Refresh Token Response : " + cResponse);
-		return cResponse;
+		LOG.debug("Refresh Token Response : " + cResponse.getBody());
+		return cResponse.getBody();
 	}
 }
