@@ -25,7 +25,6 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -317,29 +316,5 @@ public class MainClient {
 		LOG.debug("Get All Branches Response: {}", cResponse.getBody());
 		
 		return cResponse.getBody();
-	}
-	
-	/**********************************************************************************************
-	 * Checks if a new file is available for processing.
-	 * 
-	 * @param szBaseUrl base URL of server.
-	 * @param szVersion version.
-	 * @param szToken   Authorization token.
-	 * 
-	 * @return "true" if status code is 204 otherwise "false".
-	 * @throws RestClientException Exception thrown by {@link RestTemplate} whenever
-	 *                             it encounters client-side HTTP errors.
-	 */
-	public String getFileAvailable(String szBaseUrl, String szVersion, String szToken)
-	        throws RestClientException {
-		var cPathVariable = Map.of("version", szVersion);
-		
-		var szEndPointURL = EndPoints.FILEAVAILABLE.buildURL(szBaseUrl, cPathVariable);
-		LOG.debug("Get File Available: {}", szEndPointURL);
-		
-		var cResponse = m_cApiUtils.executeApiRequest(null, HttpMethod.GET, szEndPointURL, szToken,
-		        void.class);
-		
-		return cResponse.getStatusCode() == HttpStatus.NO_CONTENT ? "true" : "false";
 	}
 }
