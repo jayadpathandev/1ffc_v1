@@ -91,16 +91,17 @@ public class SetUserAddressNls extends SetUserAddressNlsBase {
 		CreateContactPrefrencesResponse contactPreferencesofUser = null;
 		
 		final Location cLocation = getLocation(szBrowserGeo, szIpGeolocation);
+		String latitude = null;
+		String longitude = null;
 		
 		// --------------------------------------------------------------------------------------
-		// Throwing exception if failed to get Location.
-		if (null == cLocation)
-			throw new RuntimeException(
-			        "SetUserAddressNls:processInternal ..... Error in getting users location.");
-		
-		final String latitude = cLocation.getLatitude();
-		
-		final String longitude = cLocation.getLongitude();
+		// Log error if failed to get Location.
+		if (null == cLocation) {
+			LOG.error("SetUserAddressNls:processInternal .... failed to get location for user");
+		} else {
+			latitude = cLocation.getLatitude();
+			longitude = cLocation.getLongitude();
+		}
 		
 		String szDateTime;
 		
@@ -133,7 +134,8 @@ public class SetUserAddressNls extends SetUserAddressNlsBase {
 		}
 		
 		if (null != contactPreferencesofUser) {
-			
+			final String lLatitude = latitude;
+			final String lLongitude = longitude;
 			// --------------------------------------------------------------------------------------
 			// If channel is present at NLS side updating consent address as per request.
 			// The hasChange check address is changed or not.
@@ -141,7 +143,7 @@ public class SetUserAddressNls extends SetUserAddressNlsBase {
 			        .filter(cChannelAddress -> cChannelAddress.getChannelName()
 			                .equalsIgnoreCase(szChannel))
 			        .map(cChannelAddress -> updateChannelAddress(cChannelAddress, szAddress,
-			                szDateTime, szIpAddress, latitude, longitude))
+			                szDateTime, szIpAddress, lLatitude, lLongitude))
 			        .findFirst().orElse(false);
 			
 			// --------------------------------------------------------------------------------------
