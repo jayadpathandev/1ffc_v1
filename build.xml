@@ -180,6 +180,12 @@
 			<fileset dir="1ffc - admin" includes="layout-pages/**/*"/>
         </copy>
 
+		<copy todir="${output.dir}/apps/admin/classes" overwrite="true">
+            <fileset dir="1ffc - admin/src">
+                <include name="**/*.xml"/>
+            </fileset>
+        </copy>
+
     	<propertyfile file="${output.dir}/apps/admin/internationalization/topics_en.properties">
     		<entry key="topics_bills_documents" value="Electronic Document Delivery"/>
     		<entry key="topics_marketing" value="Marketing Messages"/>
