@@ -139,7 +139,7 @@
         <delete dir="${output.dir}/apps/admin/com"/>
     </target>
 
-    <target name="build.admin" depends="-init, -build.admin.uc">
+    <target name="build.admin" depends="-init, -build.admin.uc, package-libraries">
         <mkdir dir="${output.dir}/apps/admin"/>
 
         <!-- Copy the classpath from the base application -->
@@ -180,6 +180,14 @@
 			<fileset dir="1ffc - admin" includes="layout-pages/**/*"/>
         </copy>
 
+        <javac srcdir="1ffc - admin/src" destdir="${output.dir}/apps/admin/classes/" includeAntRuntime="false">
+            <classpath>
+                <fileset dir="${devkit.dir}/app - admin/lib"/>
+				<fileset dir="${artifacts.dir}/package/library/nls">
+					<include name="libraryNls.jar"/>
+				</fileset>
+            </classpath>
+        </javac>
 		<copy todir="${output.dir}/apps/admin/classes" overwrite="true">
             <fileset dir="1ffc - admin/src">
                 <include name="**/*.xml"/>
@@ -194,12 +202,6 @@
     		<entry key="topics_system" value="System Alerts"/>
             <entry key="topics_order" value="system|marketing|payment|collections|bills_documents"/>
     	</propertyfile>
-        <propertyfile file="${output.dir}/apps/admin/classes/app-config.properties">
-            <entry key="app.telco_b2c" value="https://1ffc.server2.sorrisoqa.com/personaWeb/user/"/>
-            <entry key="app.telco_b2b" value="https://1ffc.server2.sorrisoqa.com/personaWeb/user/"/>
-            <entry key="epayment.url" value="http://localhost:8080/payment-core-2.0/"/>
-            <entry key="extdoc.url" value="http://localhost:8080/personaWeb/extdoc/"/>
-        </propertyfile>
 
         <copy file="notification/build.properties.template" tofile="notification/build.properties"/>
         <propertyfile file="notification/build.properties">
