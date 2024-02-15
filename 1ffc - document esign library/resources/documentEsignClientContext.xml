@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context 
+		http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<context:property-placeholder location="classpath:documentEsign.properties"/>
+
+	<bean id="restTemplate" class="org.springframework.web.client.RestTemplate"/>
+	
+	<bean id="objectMapper" class="com.fasterxml.jackson.databind.ObjectMapper"/>
+		
+	<bean id="eSignClient" class="com.sorrisotech.client.KinectiveEsignClient">
+		<constructor-arg index="0" value="${kinective.esign.base.url}"/>
+		<constructor-arg index="1" value="${kinective.esign.host.fiid}"/>
+		<constructor-arg index="2" value="${kinective.esign.user.id}"/>
+		<constructor-arg index="3" value="${kinective.esign.business.app.user.id}"/>
+		<constructor-arg index="4" value="${kinective.esign.partner.id}"/>
+		<constructor-arg index="5" value="${kinective.esign.api.key}"/>
+		<constructor-arg index="6" ref="objectMapper"/>
+		<constructor-arg index="7" ref="restTemplate"/>
+	</bean>
+</beans>

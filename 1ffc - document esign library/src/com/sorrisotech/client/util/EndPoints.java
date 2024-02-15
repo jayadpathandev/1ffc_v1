@@ -10,6 +10,7 @@ public enum EndPoints {
 	LOGIN("/login"),
 	CREATE_SESSION("/session/rts/create"),
 	ADD_DOCUMENT("/session/{hostSessionId}/rts/document"),
+	GET_REMOTE_SIGNING("/remote/{hostSessionId}"),
 	GET_REMOTE_STATUS("/remote/{hostSessionId}/status"),
 	CANCEL("/session/{hostSessionId}/cancel");
 	
