@@ -67,7 +67,7 @@ public class Location {
 	 */
 	public Location(String latitude, String longitude) {
 		if (latitude == null || longitude == null) {
-			LOG.error("Location(String, String) ......  Latitude and longitude are null.");
+			LOG.error("Location(String, String) ......  latitude and longitude are null.");
 		}
 		this.latitude = latitude;
 		this.longitude = longitude;
