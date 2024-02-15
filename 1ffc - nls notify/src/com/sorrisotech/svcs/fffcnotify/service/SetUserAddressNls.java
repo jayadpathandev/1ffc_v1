@@ -65,7 +65,7 @@ public class SetUserAddressNls extends SetUserAddressNlsBase {
 	 * Pattern of browser geolocation e.g. latitude,longitude.
 	 */
 	private static final Pattern m_cBrowserGeoPattern = Pattern
-	        .compile("(\\d+\\.\\d+),\\s*(\\d+\\.\\d+)");
+	        .compile("(-?\\d+\\.\\d+),\\s*(-?\\d+\\.\\d+)");
 	
 	/**************************************************************************
 	 * 1. Turn the request around. 2. Insert all the configuration parameters. 3.
@@ -275,7 +275,7 @@ public class SetUserAddressNls extends SetUserAddressNlsBase {
 		} catch (IOException e) {
 			LOG.error(
 			        "SetUserAddressNls:parseLocationFromIpGeo() .. Error parsing location from IP geolocation: {}",
-			        e, e);
+			        e);
 			return null;
 		}
 	}
