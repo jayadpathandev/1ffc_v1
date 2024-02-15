@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context 
+		http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<import resource="classpath:documentEsignClientContext.xml" />
+	
+	<bean id="pdfService" class="com.sorrisotech.pdf.service.PDFEsignService">
+		<property name="client" ref="eSignClient"/>
+		<property name="templatePdf" ref="pdfDocument"/>
+		<property name="shortName" value="${pdf.short.name}"/>
+		<property name="longName" value="${pdf.long.name}"/>
+		<property name="description" value="${pdf.description}"/>
+		<property name="signatureField" ref="signatureField"/>
+	</bean>
+	
+	<bean id="pdfDocument" class="com.sorrisotech.pdf.service.PDFDocument">
+		<constructor-arg value="classpath:${esign.template.pdf.file.name}" type="java.io.InputStream"/>
+	</bean>
+	
+	<bean id="signatureBox" class="com.sorrisotech.client.model.request.AddDocumentRequest$Field$BBox">
+		<constructor-arg index="0" value="${sign.field.horizontal.margin}"/>
+		<constructor-arg index="1" value="${sign.field.vertical.margin}"/>
+		<constructor-arg index="2" value="${sign.field.width}"/>
+		<constructor-arg index="3" value="${sign.field.height}"/>
+	</bean>
+	
+	<bean id="signatureField" class="com.sorrisotech.client.model.request.AddDocumentRequest$Field">
+		<constructor-arg index="0" value="${pdf.sign.field.name}"/>
+		<constructor-arg index="1" value="${pdf.page.number.sign}"/>
+		<constructor-arg index="2" ref="signatureBox"/>
+		<constructor-arg index="3" value="P1"/>
+		<constructor-arg index="4" value="Signature"/>
+	</bean>
+</beans>

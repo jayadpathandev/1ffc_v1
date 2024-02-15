@@ -18,76 +18,61 @@
  * Marketing", and "Persona Powered By Sorriso" are trademarks of Sorriso
  * Technologies, Inc.
  */
-package com.sorrisotech.client.model.request;
+package com.sorrisotech.client.model.response;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 /******************************************************************************
- * The request POJO for login endpoint.
+ * The response POJO for remote sign endpoint.
  * 
  * @author Rohit Singh
  */
-@JsonInclude(value = Include.NON_NULL)
-public class LoginRequest{
+public class RemoteSigningResponse{
 	
 	/******************************************************************************
-	 * Host Financial Institution ID. This will be provided by IMM
+	 * Used to get or set Email
 	 */
-    @JsonProperty("HostFIID") 
-    public String m_szHostFIID;
+    @JsonProperty("Email") 
+    public String email;
     
     /******************************************************************************
-	 * User existing in eSign. This will be provided by IMM
+	 * Used to get or set URL
 	 */
-    @JsonProperty("UserID") 
-    public String m_szUserID;
+    @JsonProperty("URI") 
+    public String uRI;
     
     /******************************************************************************
-	 * Business system or Windows User. This will be provided by IMM.
+	 * The session Id
 	 */
-    @JsonProperty("BusinessAppUserID") 
-    public String m_szBusinessAppUserID;
+    @JsonProperty("SessionID") 
+    public String sessionID;
     
     /******************************************************************************
-	 * PartnerID will be provided by IMM
+	 * This will be a read only property once all references are removed
 	 */
-    @JsonProperty("PartnerID") 
-    public String m_szPartnerID;
+    @JsonProperty("Status") 
+    public int status;
+    
     
     /******************************************************************************
-	 * Financial Institution Password set in eSign. This will be provided by IMM
+	 * This is a read only property that will be set when status code is set.
 	 */
-    @JsonProperty("APIKey") 
-    public String m_szAPIKey;
-    
-	public LoginRequest(
-			String hostFIID, 
-			String userID, 
-			String businessAppUserID, 
-			String partnerID, 
-			String aPIKey) {
-		this.m_szHostFIID = hostFIID;
-		this.m_szUserID = userID;
-		this.m_szBusinessAppUserID = businessAppUserID;
-		this.m_szPartnerID = partnerID;
-		this.m_szAPIKey = aPIKey;
-	}
+    @JsonProperty("Description") 
+    public String description;
 
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("LoginRequest [m_szHostFIID=");
-		builder.append(m_szHostFIID);
-		builder.append(", m_szUserID=");
-		builder.append(m_szUserID);
-		builder.append(", m_szBusinessAppUserID=");
-		builder.append(m_szBusinessAppUserID);
-		builder.append(", m_szPartnerID=");
-		builder.append(m_szPartnerID);
-		builder.append(", m_szAPIKey=");
-		builder.append(m_szAPIKey);
+		builder.append("RemoteSigningResponse [email=");
+		builder.append(email);
+		builder.append(", uRI=");
+		builder.append(uRI);
+		builder.append(", sessionID=");
+		builder.append(sessionID);
+		builder.append(", status=");
+		builder.append(status);
+		builder.append(", description=");
+		builder.append(description);
 		builder.append("]");
 		return builder.toString();
 	}
