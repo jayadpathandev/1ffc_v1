@@ -114,6 +114,14 @@ useCase paymentAutomatic [
     string sDeleteSourceTitle   = "{CONFIRM REMOVE RECURRING PAYMENT}"
  	volatile string sDeleteSourceText1 = I18n.translate ("paymentAutomatic_sConfirmDeleteText", sNickName)     
     string sDeleteSourceText2 = "{This action cannot be undone.}" 
+    native string sIpAddress         = Session.getExternalIpAddress()
+    native string sCategory          = "terms_and_conditions"
+    native string sType              = "recurring_payment"
+    native string sOperation         = "The user has successfully set up an automatic (recurring) payment"
+    native string sPortalChannel 	 = "portal"
+    native string sOrgId
+    
+    persistent input sGeolocation
     
     structure(message) msgPmtScheduledMsg1 [
 		string(title) sTitle = "{Payment warning}"
@@ -164,6 +172,11 @@ useCase paymentAutomatic [
     
     serviceParam(Payment.DeleteAutomaticPaymentHistory)  srDeleteAutomaticHistoryParam
     serviceResult(Payment.DeleteAutomaticPaymentHistory) srDeleteAutomaticHistoryResult
+    
+    serviceParam (Profile.AddLocationTrackedEvent) setLocationData
+	serviceResult (Profile.AddLocationTrackedEvent) setLocationResp
+	
+	serviceParam(FffcNotify.SetUserAddressNls) setDataFffc
       
     table tAutomaticPaymentsTable [
         emptyMsg: "{There are no details to display}"
@@ -362,14 +375,62 @@ useCase paymentAutomatic [
 
 	/* set automatic results for b2b */    
     action setAutomaticResultsB2b [
-    	tAutomaticPaymentsTable = srGetAutomaticResult.automatic 
-    	goto(checkAutomaticPaymentMethods) 
+    	tAutomaticPaymentsTable = srGetAutomaticResult.automatic
+    	switch status [
+			case "addSuccess" addLocationTrackedEvent
+			case "editSuccess" addLocationTrackedEvent			
+			default checkAutomaticPaymentMethods
+		]
     ]
 
 	/* set automatic results for b2c */    
     action setAutomaticResultsB2c [    	
-    	tAutomaticPaymentsTable = srGetAutomaticForAcctResult.automatic
-    	goto(checkAutomaticPaymentMethods) 
+    	tAutomaticPaymentsTable = srGetAutomaticForAcctResult.automatic	
+    	 switch status [
+			case "addSuccess" addLocationTrackedEvent
+			case "editSuccess" addLocationTrackedEvent			
+			default checkAutomaticPaymentMethods
+		]
+    ]
+    
+    
+	 /**************************************************************************
+	 *  Adding user geolocation tracked events.
+	 */
+    action addLocationTrackedEvent [
+    	setLocationData.sUser = sUserId
+    	setLocationData.sCategory = sCategory
+    	setLocationData.sType = sType
+    	setLocationData.sData = sPayAccountInternal
+    	setLocationData.sIpAddress = sIpAddress
+    	setLocationData.sBrowserGeo = sGeolocation
+    	setLocationData.sOperation = sOperation
+    	
+    	switch apiCall Profile.AddLocationTrackedEvent(setLocationData, setLocationResp, ssStatus) [
+    		case apiSuccess saveConsentAtNls
+    		default genericErrorMsg
+    	]
+    ]
+    
+	/**************************************************************************
+     * Save user's recurring payment consent. (NLS side).
+     * As per discussion saving channel name as "portal" and channel 
+     * address as internal account number.
+     */
+    action saveConsentAtNls [
+    	loadProfile(            
+            fffcCustomerId: sOrgId   
+            )
+    	setDataFffc.customerId = sOrgId
+    	setDataFffc.channel = sPortalChannel
+    	setDataFffc.address = sPayAccountInternal
+    	setDataFffc.browserGeo = sGeolocation
+    	setDataFffc.ipGeo = setLocationResp.IP_GEO
+    	setDataFffc.ipAddress = sIpAddress
+    	switch apiCall FffcNotify.SetUserAddressNls(setDataFffc, ssStatus) [
+    		case apiSuccess checkAutomaticPaymentMethods
+    		default genericErrorMsg
+    	]
     ]  
 
     /* 3. Check automatic payment methods */
@@ -676,6 +737,13 @@ useCase paymentAutomatic [
         
         form content [
         	class: "modal-content"
+        	
+        	display sGeolocation [
+		       control_attr_sorriso-geo: ""
+		       logic: [
+		      		if "true" == "true" then "hide"
+		       ]
+		    ]
         
 	        div heading [
 	            class: "modal-header"
@@ -710,6 +778,7 @@ useCase paymentAutomatic [
 				navigation tncConfirm(createAutomaticPaymentAction, "{Confirm}") [			                
                 	class: "btn btn-primary"
                 	require: [ fTncConsent ]
+                	data: [sGeolocation]
                 	attr_tabindex: "3"                			                    
                 ]        			
 				
