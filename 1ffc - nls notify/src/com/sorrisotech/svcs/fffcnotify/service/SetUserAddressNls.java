@@ -65,7 +65,7 @@ public class SetUserAddressNls extends SetUserAddressNlsBase {
 	 * Pattern of browser geolocation e.g. latitude,longitude.
 	 */
 	private static final Pattern m_cBrowserGeoPattern = Pattern
-	        .compile("(-?\\d+\\.\\d+),\\s*(-?\\d+\\.\\d+)");
+	        .compile("(-?\\d+(\\.\\d+)?),\\s*(-?\\d+(\\.\\d+)?)");
 	
 	/**************************************************************************
 	 * 1. Turn the request around. 2. Insert all the configuration parameters. 3.
@@ -253,7 +253,7 @@ public class SetUserAddressNls extends SetUserAddressNlsBase {
 		
 		if (matcher.matches()) {
 			// latitude, longitude
-			return new Location(matcher.group(1), matcher.group(2));
+			return new Location(matcher.group(1), matcher.group(3));
 		} else {
 			LOG.error(
 			        "SetUserAddressNls:parseLocationFromBrowserGeo() .. Failed to extract latitude and longitude from browser geolocation: {}",
