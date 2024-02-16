@@ -53,7 +53,7 @@ useCase fffcReg06LoginInfo [
         string(label) sLabel = "{* Create user name:}"      
 		input (control) pInput(usernameRegex, fUserName.sValidation)
 		string(required) sRequired = "{This field is required.}"
-		string(validation) sValidation = "{User name can be up to 50 characters in length, and it must consist of at least eight characters and include one upper-case, one lower-case letter, and one number.}"
+		string(validation) sValidation = "{User name must consist of at least eight characters and include one capital letter, one lowercase letter, and one number.}"
 		string(error) sError = "{Another user already has this user name. Please select another.}"
 		string(help) sHelp = "{User name should contain at least 1 upper-case, 1 lower-case, 1 number and must be at least eight characters in length.}"
     ]
@@ -266,7 +266,7 @@ useCase fffcReg06LoginInfo [
   	 * 12. User selects back link and the appType is not b2b.
      */
     action gotoRegBillingInfo [
-    	gotoUc(regBillingInfo)
+    	gotoUc(fffcReg05BillingInfo)
     ] 
    
     /**************************************************************************
