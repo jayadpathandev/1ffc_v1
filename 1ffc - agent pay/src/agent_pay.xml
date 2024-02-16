@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:context="http://www.springframework.org/schema/context"
+xsi:schemaLocation="http://www.springframework.org/schema/beans 
+http://www.springframework.org/schema/beans/spring-beans.xsd
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+	<!-- ************************************************************************* -->
+    <!-- ********      Import the Database Pool Bean                   *********** -->
+    <!-- ************************************************************************* -->
+    <context:annotation-config />
+    
+    <import resource="classpath:/db/common_config.xml"/>    
+    
+    <bean id="api.pay.find.user.id" class="java.lang.String">
+        <constructor-arg>
+            <value>
+				select 
+					id,
+					username,
+					companyid
+				from 
+					auth_user_profile,
+					auth_users,
+					prof_company_user
+				where
+					auth_users.userid = auth_user_profile.id and
+					auth_users.userid = prof_company_user.userid and
+					attrname = 'fffcCustomerId' and
+					id in (select id from auth_user_profile where attrname='accountStatus' and attrvalue='open') and
+					attrvalue = :customerId
+				
+            </value>
+        </constructor-arg>
+	</bean>
+
+    <bean id="api.pay.verify.account" class="java.lang.String">
+        <constructor-arg>
+            <value>
+				select 
+					tm_account.account_number_display,
+					tm_account.bill_group
+				from 
+					prof_company_user,
+					prof_company_account,
+					tm_account
+				where
+					prof_company_user.companyid     = prof_company_account.company_id and
+					prof_company_account.account_id = tm_account.id and
+					userid         = :userId and
+					account_number = :accountId				
+            </value>
+        </constructor-arg>
+	</bean>
+
+	
+	<bean id="api.pay.find.bill" class="java.lang.String">
+        <constructor-arg>
+            <value>
+				select 
+					bill.invoice_number,
+					bill_summary.due_date
+				from
+					prof_company_user,
+					prof_company_account,
+					tm_account,
+					bill_file_meta_data,
+					bill,
+					bill_summary
+				where
+					prof_company_user.userid = :userId and
+					prof_company_account.company_id = prof_company_user.companyid and
+					tm_account.id = prof_company_account.account_id and
+					tm_account.account_number = :accountId and 
+					bill_file_meta_data.payment_group = tm_account.bill_group and
+					bill_file_meta_data.bill_file_id = bill.bill_file_id and
+					bill.account = tm_account.account_number and
+					bill_summary.bill_id = bill.bill_id and 
+					bill_summary.due_date is not null
+				order by
+					bill_date desc
+				limit 1
+            </value>
+        </constructor-arg>   
+    </bean>    
+
+	<bean id="api.pay.scheduled.summary" class="java.lang.String">
+        <constructor-arg>
+            <value><![CDATA[ 				
+				select 
+					count(*),
+					sum(pay_amt),
+					max(pay_date)
+				from
+					pmt_schedule, pmt_grouping
+				where
+					pmt_schedule.online_trans_id = pmt_grouping.online_trans_id and
+					user_id = :userId and
+					internal_account_number = :accountId and
+					pay_date <= :date 					
+            ]]></value>
+        </constructor-arg>   
+    </bean>    
+
+	<bean id="api.pay.scheduled.summary.no.date" class="java.lang.String">
+        <constructor-arg>
+            <value><![CDATA[ 				
+				select 
+					count(*),
+					sum(pay_amt),
+					max(pay_date)
+				from
+					pmt_schedule, pmt_grouping
+				where
+					pmt_schedule.online_trans_id = pmt_grouping.online_trans_id and
+					user_id = :userId and
+					internal_account_number = :accountId
+            ]]></value>
+        </constructor-arg>   
+    </bean>    
+	
+	<bean id="api.pay.auto.pay" class="java.lang.String">
+        <constructor-arg>
+            <value>
+				select 
+					pay_date,
+					pay_prior_days,
+					expiry_cancel,
+					expiry_date,
+					pay_count,
+					pay_amt_rule,
+					pay_upto
+				from 
+					pmt_automatic,
+					pmt_automatic_grouping
+				where
+					pmt_automatic.automatic_id = pmt_automatic_grouping.automatic_id and
+					pmt_automatic.user_id = :userId and
+					pmt_automatic_grouping.internal_account_number = :accountId
+	    	</value>
+        </constructor-arg>   
+    </bean>    
+    
+    
+    <bean id="ApiPayDao" class="com.sorrisotech.fffc.agent.pay.ApiPayDao">
+    </bean>
+</beans>

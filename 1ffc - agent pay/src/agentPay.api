@@ -1,0 +1,28 @@
+define service AgentPay(com.sorrisotech.app.serviceapi.uc.UcRequestClient) [
+    
+    generate [
+       category: agentpay    						
+    ]
+
+    define method Start  [
+		string customerId
+    	string accountId	
+    ] returns [
+    	number userid
+    	string userName
+    	string companyId	
+    	string accountNumber
+    	string payGroup		
+
+		string invoice
+		string scheduledCount
+		string scheduledDate
+		string scheduledTotal
+		
+		boolean automaticEnabled
+		string automaticDate
+		string automaticAmount
+		string automaticCount
+	] 
+ ]
+ 

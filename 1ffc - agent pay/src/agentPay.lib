@@ -1,0 +1,24 @@
+library agentPay [
+    include [
+    	apiCancelPaymentForAgent
+    	apiMakeOneTimePaymentForAgent
+    	apiStartAddSource
+    	apiStartChooseSource
+    	apiStartPaymentForAgent
+    ]           
+    
+    audit [
+        group audit_agent_pay(1000 "{agent pay}") [       
+            event start_payment_for_agent_success			(10 "{Agent payment started [customerId={0} accountId={1}] success.}")
+            event start_payment_for_agent_failure			(11 "{Agent payment started [customerId={0} accountId={1}] failure.}")
+
+            event make_one_time_payment_for_agent_success	(12 "{Agent payment completed [customerId={0} accountId={1} paymentDate={2} paymentAmount={3}] success.}")
+            event make_one_time_payment_for_agent_failure	(13 "{Agent payment completed [customerId={0} accountId={1} paymentDate={2} paymentAmount={3}] failure.}")
+            event make_one_time_payment_for_agent_bad   	(14 "{Agent payment completed [transactionId={0} paymentDate={1} paymentAmount={2}] bad request.}")
+
+            event cancel_payment_for_agent_success			(15 "{Agent payment cancelled [customerId={0} accountId={1}] success.}")
+            event cancel_payment_for_agent_failure			(16 "{Agent payment cancelled [transactionId={0}] failure.}")
+
+         ]
+    ]
+]

@@ -61,6 +61,7 @@ application [
 		reportLib
 		
 		// 1FFC 
+		agentPay
 		fffcRenewNow
 		fffcViewDocument
 		fffcTransactionHistory 

@@ -73,11 +73,14 @@
 		<copy todir="deploy/${app}" overwrite="true">
 			<fileset dir="." includes="layout-pages/**/*"/>
 			<fileset dir="." includes="linked-root/**/*.*"/>
+			<fileset dir="../1ffc - agent pay" includes="linked-root/**/*.*"/>
         </copy>
     	<copy todir="deploy/${app}" overwrite="true">
     		<fileset dir="src-gen" includes="user.xml"/>
     		<fileset dir="src-gen" includes="usecases/*.xml"/>
     		<fileset dir="src-gen" includes="internationalization/*.properties"/>
+    		<fileset dir="../1ffc - agent pay/src-gen" includes="usecases/*.xml"/>
+    		<fileset dir="../1ffc - agent pay/src-gen" includes="internationalization/*.properties"/>
     	</copy>
     	<!-- pick up audit_config.xml and roles_config.xml  -->
     	<copy todir="deploy/${app}/classes" overwrite="true">

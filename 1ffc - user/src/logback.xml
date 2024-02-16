@@ -9,6 +9,7 @@
     <logger name="com" level="WARN"/>
     <logger name="org" level="WARN"/>
     <logger name="log" level="DEBUG"/>
+    <logger name="api.Log" level="INFO"/>
 	<logger name="com.sorrisotech.app.common" level="DEBUG"/>
 	
     <root level="OFF">

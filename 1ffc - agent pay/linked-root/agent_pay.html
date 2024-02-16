@@ -1,0 +1,182 @@
+<html>
+	<head>
+		<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta content="IE=Edge" http-equiv="X-UA-Compatible">
+		<meta content="width=device-width, initial-scale=1, maximum-scale=1" name="viewport">
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+		<meta charset="utf-8">
+		
+		<title>Agent Pay Test</title>
+		
+		<link href="css/lib/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+		<link href="css/lib/bootstrap-toggle.min.css" rel="stylesheet" type="text/css"/>
+        <link href="css/lib/font-awesome.min.css" rel="stylesheet"/>				
+        <link href="css/lib/jquery-ui.min.css" rel="stylesheet"/>
+        <link href="css/lib/jquery-ui.theme.min.css" rel="stylesheet"/>
+		
+		<link href="css/brand.css" rel="stylesheet" type="text/css"/>
+		<link href="css/customization.css" rel="stylesheet" type="text/css"/>
+		<link href="css/app.css" rel="stylesheet" type="text/css"/>
+		<link href="css/print.css" media="print" rel="stylesheet" type="text/css"/>
+		<link href="css/userProfile.css" rel="stylesheet" type="text/css"/>
+		
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+        <script src="js/lib/bootstrap.bundle.min.js"></script>        
+	</head>
+	<body>
+		<form class="container">
+			<div>
+				<h1 class="start_payment_header">startPaymentForAgent</h1>
+				<div class="mb-3">
+					<label class="form-label">Security token</label>
+					<input id="start_security_code" type="text" class="form-control" value="Sorriso10@"/>
+				</div>
+				<div class="mb-3">
+					<label class="form-label">Customer ID</label>
+					<input id="start_customer_id" type="text" class="form-control" value="2024756"/>
+				</div>
+				<div class="mb-3">
+					<label class="form-label">Account ID</label>
+					<input id="start_account_id" type="text" class="form-control" value="1945518"/>
+				</div>
+				<div class="mb-3">
+					<label class="form-label">Type</label>
+					<select id="start_type" class="form-select form-control">
+						<option selected value="oneTime">One Time</option>
+						<option value="automatic">Automatic</option>
+					</select>
+				</div>
+				<button id="start_button" class="btn btn-primary mb-3">Submit</button>
+				<div class="mb-3">
+					<label class="form-label">Result</label>
+					<textarea id="start_result" class="form-control" rows="13">
+					</textarea>
+				</div>
+<script>
+$(function() {
+	$('#start_button').on('click', function(event) {
+		event.preventDefault();
+		var token     = $('#start_security_code').val();
+		var custId    = $('#start_customer_id').val();
+		var accountId = $('#start_account_id').val();
+		var type      = $('#start_type').val();
+		
+		var url = 'startPaymentForAgent?' +
+				  'securityToken=' + encodeURIComponent(token) + '&' +
+				  'customerId=' + encodeURIComponent(custId) + '&' +
+				  'accountId=' + encodeURIComponent(accountId) + '&' +
+				  'paymentTransactionType=' + encodeURIComponent(type);
+				  
+		$.ajax({
+			url:  url,
+			type: 'get',
+			success: function(data) {
+				$('#start_result').val(JSON.stringify(data, null, 2));
+				
+				$('#choose_wallet').attr('src', data.payAccountUrl);				
+				$('#make_security_code').val($('#start_security_code').val());
+				$('#make_transaction_id').val(data.transactionId);
+				$('#make_result').val('');			
+	
+				$('#make_payment_header')[0].scrollIntoView(true);
+			}, 
+			error: function(data) {
+				$('#start_result').val(JSON.stringify(data.responseJSON, null, 2));
+			}
+			
+		});
+	});
+});
+</script>
+			</div>
+			<div id="make_payment_header" class="row">
+				<h1 class="col-12">makeOneTimePaymentForAgent</h1>
+				<div class="col-6">
+					<iframe id="choose_wallet" src="">
+					</iframe>
+				</div>
+				<div class="col-6">
+					<div class="mb-3">
+						<label class="form-label">Security token</label>
+						<input id="make_security_code" type="text" class="form-control"/>
+					</div>
+					<div class="mb-3">
+						<label class="form-label">Transaction ID</label>
+						<input id="make_transaction_id" type="text" class="form-control"/>
+					</div>
+					<div class="mb-3">
+						<label class="form-label">Payment Date</label>
+						<input id="make_date" type="text" class="form-control" value="today"/>
+					</div>
+					<div class="mb-3">
+						<label class="form-label">Payment Amount</label>
+						<input id="make_amount" type="text" class="form-control" value="50.00"/>
+					</div>
+					<div class="row">
+						<div class="col-6 text-center">
+							<button id="make_submit" class="btn btn-primary mb-3">Submit</button>
+						</div>					
+						<div class="col-6 text-center">
+							<button id="make_cancel" class="btn btn-primary mb-3">Cancel</button>
+						</div>
+					</div>					
+					<div class="mb-3">
+						<label class="form-label">Result</label>
+						<textarea id="make_result" class="form-control" rows="8">
+						</textarea>
+					</div>
+<script>
+$(function() {
+	$('#make_submit').on('click', function(event) {
+		event.preventDefault();
+		$.ajax({
+			url:  'makeOneTimePaymentForAgent',
+			type: 'post',
+			contentType: 'application/json',
+			data: JSON.stringify({
+				securityToken: $('#make_security_code').val(),
+				transactionId: $('#make_transaction_id').val(),
+				paymentDate:   $('#make_date').val(),
+				paymentAmount: $('#make_amount').val()
+			}),
+			success: function(data) {
+				$('#make_result').val(JSON.stringify(data, null, 2));
+				$('#choose_wallet').attr('src', '');				
+			}, 
+			error: function(data) {
+				$('#make_result').val(JSON.stringify(data.responseJSON, null, 2));
+				$('#choose_wallet').attr('src', '');				
+			}
+		});
+		$('#start_result').val('');			
+	});
+	$('#make_cancel').on('click', function(event) {
+		event.preventDefault();
+		var token   = $('#make_security_code').val();
+		var transId = $('#make_transaction_id').val();
+
+		var url = 'cancelPaymentForAgent?' +
+				  'securityToken=' + encodeURIComponent(token) + '&' +
+				  'transactionId=' + encodeURIComponent(transId);
+				  
+		$.ajax({
+			url:  url,
+			type: 'get',
+			success: function(data) {
+				$('#make_result').val(JSON.stringify(data, null, 2));				
+				$('#choose_wallet').attr('src', '');				
+			}, 
+			error: function(data) {
+				$('#make_result').val(JSON.stringify(data.responseJSON, null, 2));
+				$('#choose_wallet').attr('src', '');				
+			}			
+		});
+		$('#start_result').val('');
+	});
+});
+</script>
+				</div>				
+			</div>
+		</form>
+	</body>
+</html>
