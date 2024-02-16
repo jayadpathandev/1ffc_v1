@@ -50,12 +50,12 @@ useCase fffcReg06LoginInfo [
 	native string sAppType = Session.getAppType()
 	
     persistent field fUserName [
-        string(label) sLabel = "{* Create user name:}"      
+        string(label) sLabel = "{* Create Username:}"      
 		input (control) pInput(usernameRegex, fUserName.sValidation)
 		string(required) sRequired = "{This field is required.}"
-		string(validation) sValidation = "{User name must consist of at least eight characters and include one capital letter, one lowercase letter, and one number.}"
+		string(validation) sValidation = "{Username must consist of at least eight characters and include one capital letter, one lowercase letter, and one number.}"
 		string(error) sError = "{Another user already has this user name. Please select another.}"
-		string(help) sHelp = "{User name should contain at least 1 upper-case, 1 lower-case, 1 number and must be at least eight characters in length.}"
+		string(help) sHelp = "{Username must consist of at least eight characters and include one capital letter, one lowercase letter, and one number.}"
     ]
  	      
  	persistent field fFirstName [
