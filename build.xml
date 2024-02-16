@@ -144,6 +144,10 @@
 
         <!-- Copy the classpath from the base application -->
         <mkdir dir="${output.dir}/apps/admin/classes"/>
+        <javac srcdir="1ffc - admin/src" destdir="${output.dir}/apps/admin/classes/" includeAntRuntime="false">
+        </javac>
+        <fail/>
+
         <copy todir="${output.dir}/apps/admin/classes" overwrite="true">
             <fileset dir="${devkit.dir}/app - admin/resources">
             	<exclude name="linked-root/**"/>
