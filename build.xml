@@ -15,6 +15,8 @@
         <mkdir dir="${output.dir}"/>
         <mkdir dir="${artifacts.dir}"/>
 
+    	<property name="mod.package.dir" value="${artifacts.dir}/package/"/>
+
         <mkdir dir="${output.dir}/apps"/>
         <mkdir dir="${output.dir}/apps/admin"/>
         <mkdir dir="${output.dir}/apps/auth"/>
@@ -69,6 +71,7 @@
 		<ant dir="1ffc - nls notify" inheritAll="false" inheritRefs="false"/>
         <ant dir="1ffc batch - status processor" inheritAll="false" inheritRefs="false"/>
         <ant dir="1ffc - transaction history batch" inheritAll="false" inheritRefs="false"/>
+        <ant dir="1ffc - agent pay" inheritAll="false" inheritRefs="false"/>
     </target>
 
     <target name="-build.extdoc.uc" depends="-init">
@@ -144,9 +147,6 @@
 
         <!-- Copy the classpath from the base application -->
         <mkdir dir="${output.dir}/apps/admin/classes"/>
-        <javac srcdir="1ffc - admin/src" destdir="${output.dir}/apps/admin/classes/" includeAntRuntime="false">
-        </javac>
-        <fail/>
 
         <copy todir="${output.dir}/apps/admin/classes" overwrite="true">
             <fileset dir="${devkit.dir}/app - admin/resources">
@@ -333,6 +333,7 @@
 
         <copy todir="${artifacts.dir}/user" overwrite="true" flatten="true">
             <fileset dir="${devkit.dir}/app - user/usecases"/>
+            <fileset dir="${artifacts.dir}/package/user/usecases"/>
         </copy>
 
         <copy todir="${artifacts.dir}/user" overwrite="true" flatten="true">
@@ -351,9 +352,8 @@
 
         <ant dir="${devkit.dir}/build" antfile="persona.xml" inheritAll="false" inheritRefs="false">
             <property name="usecase.directories" value="${artifacts.dir}/user"/>
-            <property name="usecase.output" value="${output.dir}/apps/user"/>
+            <property name="usecase.output"      value="${output.dir}/apps/user"/>
         </ant>
-
         <delete dir="${output.dir}/apps/user/com"/>
     </target>
 
@@ -399,6 +399,7 @@
 		<copy todir="${output.dir}/apps/user" overwrite="true">
             <fileset dir="1ffc - user" includes="layout-pages/**/*"/>
             <fileset dir="1ffc - user" includes="linked-root/**/*"/>
+            <fileset dir="${mod.package.dir}/user" includes="linked-root/**/*"/>
         </copy>
 
         <propertyfile file="${output.dir}/apps/user/classes/app-config.properties">
@@ -409,12 +410,20 @@
         </propertyfile>
 
         <javac srcdir="1ffc - user/src" destdir="${output.dir}/apps/user/classes/" includeAntRuntime="false">
+            <src path="1ffc - user/src"/>
+            <src path="1ffc - agent pay/src"/>
             <classpath>
+                <fileset dir="${output.dir}/apps/user/lib">
+                    <include name="1ffcUser.jar"/>
+                </fileset>
                 <fileset dir="${devkit.dir}/app - user/lib">
                     <include name="*.jar"/>
                 </fileset>
 				<fileset dir="${artifacts.dir}/package/library/nls">
 					<include name="libraryNls.jar"/>
+				</fileset>
+				<fileset dir="${mod.package.dir}/user/jars">
+					<include name="*.jar"/>
 				</fileset>
             </classpath>
         </javac>
@@ -440,6 +449,9 @@
             <fileset dir="${artifacts.dir}/package/service/nls">
                 <include name="*.jar"/>
             </fileset>
+            <fileset dir="${mod.package.dir}/user/jars">
+                <include name="*.jar"/>
+            </fileset>
         </copy>
 
     	<propertyfile file="${output.dir}/apps/user/internationalization/topics_en.properties">
@@ -459,6 +471,12 @@
     </target>
 
     <target name="package-communicate" depends="-init">
+        <mkdir dir="${output.dir}/batch/payment_reconciliation/resources"/>
+        <copy file="${devkit.dir}/batch - payment reconciliation/resources/reconciliation.properties" todir="${output.dir}/batch/payment_reconciliation/resources"/>
+        <propertyfile file="${output.dir}/batch/payment_reconciliation/resources/reconciliation.properties">
+            <entry key="pmt.provider.id" value="1FFC-ea0f1923-255f-4f12-a603-16a1ed4f950c"/>
+        </propertyfile>
+
         <mkdir dir="${output.dir}/batch/notify_iq/resources/notification"/>
         <copy file="${devkit.dir}/server - notify iq/resources/notification/notification.properties" todir="${output.dir}/batch/notify_iq/resources/notification"/>
         <propertyfile file="${output.dir}/batch/notify_iq/resources/notification/notification.properties">
