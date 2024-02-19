@@ -149,7 +149,6 @@ useCase accountSummaryChild [
 	native string sPaymentFlag      = Session.arePaymentsEnabled()
 	native string sMultipleAccounts = Session.multipleAccounts()
 	
-	// -- since this is not referenced, I wonder if we are broken if bills are very old --
 	volatile string sOlderThanXMonths = UcBillingAction.checkBillAge(maxAge, srBillOverviewParam.billDate)
 	
 	native string sAccountDisplay
@@ -504,20 +503,20 @@ useCase accountSummaryChild [
 	
 	/* 4. Load the latest bill data into screen elements. */
     action loadLatestBill [    
-        sBillAccountInternal         = srBillOverviewParam.account   	// internalAccount
-        sBillAccountExternal 		 = sAccountDisplay               	// externalAccount
-        sBillGroup         			 = srBillOverviewParam.payGroup		// payment group for this account
-        sBillingPeriod               = sBillDate					 	// ubf:billdate -- date the bill was published, formatted
-		sLocalAccountBillDate		 = srBillOverviewResult.docDate		// used when calculating current balance
-		sLocalAccountBillAmount		 = srBillOverviewResult.totalDue	// used when calculating current balance
-        sBillStream 				 = srBillOverviewResult.docStream	// bill stream name for this account
-        sBillVersion 				 = srBillOverviewResult.docVersion  // document version for this account
-        sIsBill						 = srBillOverviewParam.isBill		// true if this is a bill, otherwise we are look at a doc.
+        sBillAccountInternal         			= srBillOverviewParam.account   		// internalAccount
+        sBillAccountExternal 				= sAccountDisplay               						// externalAccount
+        sBillGroup         			 					= srBillOverviewParam.payGroup		// payment group for this account
+        sBillingPeriod              			 		= sBillDate					 									// ubf:billdate -- date the bill was published, formatted
+		sLocalAccountBillDate		 		= srBillOverviewResult.docDate			// used when calculating current balance
+		sLocalAccountBillAmount		= srBillOverviewResult.totalDue		// used when calculating current balance
+        sBillStream 				 					= srBillOverviewResult.docStream	// bill stream name for this account
+        sBillVersion 				 					= srBillOverviewResult.docVersion 	// document version for this account
+        sIsBill						 						= srBillOverviewParam.isBill					// true if this is a bill, otherwise we are look at a doc.
         
-        sPayAccountInternal          = srBillOverviewParam.account 		// used when making payment?  
-        sPayAccountExternal 		 = sAccountDisplay                	// used when showing in payment?
-        sPayGroup         		     = srBillOverviewParam.payGroup		// used when making payment?
-        sPaySelectedDate			 = srBillOverviewResult.docDate		// used when making payment (unformatted)
+        sPayAccountInternal         		 = srBillOverviewParam.account 		// used when making payment?  
+        sPayAccountExternal 		 		= sAccountDisplay                						// used when showing in payment?
+        sPayGroup         		     					= srBillOverviewParam.payGroup		// used when making payment?
+        sPaySelectedDate			 			= srBillOverviewResult.docDate			// used when making payment (unformatted)
         			
 		goto(areAutomaticPaymentsEnabled) /** WE SKIP RIGHT OVER THE CURRENT BALANCE CHECK AND GO TO SCREEN */
 	]

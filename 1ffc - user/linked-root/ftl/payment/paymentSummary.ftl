@@ -54,6 +54,7 @@
 </#if>
 
 
+
 <#-- disabling payment is a "little bit" complicated at 1st Franklin, but when you boil it down, there's only
 	 	a couple of reasons that matter. Let's sort that out. organizing status.paymentEnabled -->
 
@@ -130,13 +131,16 @@
 <#-- ***************************** LET THE GAMES BEGIN ******************************************** -->
 
 <div class="st-payment-summary border border-5 rounded-3 border-primary p-3 mb-3">
-		<#if debug> <#--  shows extra varaibles if true -->
+
+<#-- ***************THE ITEMS BELOW ARE TURNED ON WHEN YOU SET debug=true  *******************-->
+<#if debug> <#--  shows extra varaibles if true -->
 	 <table class="table">
 	  <thead>
 	  	<th scope="col">Item</th>
 	  	<th scopy="col">Value</th>
 	  </thead>
 	  <tbody>
+	  
 	  	<tr>
 	  		<td><span class="fw-bold">Account Status:</span></td>
 	  		<td><span class="fw-bold">${accountStatus}</span></td>
@@ -208,10 +212,9 @@
 		
 	 </table>
 	</#if>
+<#-- ************END OF THE ITEMS BELOW ARE TURNED ON WHEN YOU SET debug=true  ****************-->
 
 	<div class="row">
-		<#assign bPmtDisabled = !((("enabled" == status.paymentEnabled) || ("disableDQ" == status.paymentEnabled)) &&
-								  ("activeAccount" == accountStatus) )>
 		<div class="col-10">
 			<div class="mb-2">
 				<span class="fw-bold">Account #:</span> <span class="fw-bold">${displayAccount}</span>
@@ -227,12 +230,14 @@
 							<a class="me-4" target="_blank" href="fffcViewDoc?sAccount=${bill.internalAccountNo}&sDate=${bill.dateNum?c}&sStreamId=${bill.stream}&sDocId=${bill.id?c}&sExtDocId=${bill.extDocId}">View statement</a>
 							<a class="me-4 text-nowrap" href="#" st-pop-in="fffcViewTransactions?displayaccount=${displayAccount}&offset=${jumpToOffset}">Transaction History</a>
 
-							<#if (bPmtDisabled || ("disableDQ" == status.paymentEnabled) || (scheduledPayment.hasAutomaticPmtRule)) >
-								<#--  payment is disabled -->
-								<a class="text-nowrap disabled pe-none opacity-50" aria-disabled="true">Set&nbsp;up&nbsp;recurring&nbsp;payment</a>				
-							<#else>
-								<#--  payment is enabled -->
+							<#--  Automatic (recurring) payments enable/disable control driven by status, currency of account, and if there's already
+											and automatic payment rule set  -->
+							<#if status. bAutoPayLinkEnabled>
+								<#--  automatic payment is enabled -->
 								<a class="text-nowrap" href="startAutomaticPayment">Set&nbsp;up&nbsp;recurring&nbsp;payments</a>				
+							<#else>
+								<#--  automatic payment is disabled -->
+								<a class="text-nowrap disabled pe-none opacity-50" aria-disabled="true">Set&nbsp;up&nbsp;recurring&nbsp;payment</a>				
 							</#if>
 							<#break>
 						<#case "newAccount">
@@ -245,8 +250,8 @@
 			</div>
 		</div>
 		<div class="col-2">
-			<a class="btn btn-primary <#if bPmtDisabled>disabled</#if>" href="startMakePayment" 
-										<#if bPmtDisabled>disabled="true"</#if>>PAY THIS BILL</a>
+			<a class="btn btn-primary <#if !status.bPayEnabled>disabled</#if>" href="startMakePayment" 
+										<#if !status.bPayEnabled>disabled="true"</#if>>PAY THIS BILL</a>
 		</div>
 	</div>
 	

@@ -10,6 +10,7 @@
 	   			closedAccount
 	   
 	   2023-Dec-11	jak-- first iteration
+	   2024-Feb-19 jak --changed wording for old bill
   -->
 
 <#--  "debug" -- if true will show the status and scheduled payment stuff on the screen for visual validation
@@ -130,7 +131,7 @@
 	<#elseif "activeAccount" == accountStatus >
 		<h2 class="mt-3 pt-3 border-top border-dark row">
 			<div class="col fw-bold text-center">
-				Our apologies, we can't find an online bill for your account.
+				Our apologies, we can't find a recent bill for your account.
 			</div>
 		</h2>
 		<div class="row">

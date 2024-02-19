@@ -26,6 +26,8 @@ import com.sorrisotech.svcs.itfc.exceptions.MargaritaDataException;
  * @since  2024-Jan-31
  * @version 2024-Jan-31 jak Hopefully works right away
  * @version 2024-Feb-07 jak Added min/max and several minor defect fixes around that.
+ * @version 2024-Feb-18 jak Added some checks around bill vs status comparison to prevent
+ * 																exceptions should one be empty.
  * 
  */
 public class BalanceHelper implements IExternalReuse {
@@ -195,11 +197,19 @@ public class BalanceHelper implements IExternalReuse {
 		GetPaymentHistoryAmountDaoImpl loPmtHist = new GetPaymentHistoryAmountDaoImpl();
 		LocalDate lBillDate = LocalDate.now();
 		LocalDate lStatusDate = LocalDate.now();
-
+		boolean bHasBillDate = false;
+		boolean bHasStatusDate = false;
+		
 		// -- get the date in proper format --
 		try {
-			lBillDate = LocalDate.parse(cszBillDate, DateTimeFormatter.BASIC_ISO_DATE);
-			lStatusDate = LocalDate.parse(cszStatusDate, DateTimeFormatter.BASIC_ISO_DATE);
+			if ((null != cszBillDate) && (0 != cszBillDate.length())) {
+				lBillDate = LocalDate.parse(cszBillDate, DateTimeFormatter.BASIC_ISO_DATE);
+				bHasBillDate = true;
+			}
+			if ((null != cszStatusDate) && (0 != cszStatusDate.length())) {
+				lStatusDate = LocalDate.parse(cszStatusDate, DateTimeFormatter.BASIC_ISO_DATE);
+				bHasStatusDate = true;
+			}
 		} catch (DateTimeParseException e) {
 			m_cLog.error("getCurrentBalanceInternal....An exception was thrown", e);
 			return ldRetVal;
@@ -207,17 +217,33 @@ public class BalanceHelper implements IExternalReuse {
 		
 		// -- pick which date and balance to use --
 		try {
-			if (lBillDate.isAfter(lStatusDate)) {
-				// -- use bill data --
-				lszStartDate = cszBillDate;
-				ldCurBalance = new BigDecimal(cszBillBalance);
-				m_cLog.debug("getCurrentBalanceInternal using Bill Data - Date: {}, starting balance {}", cszBillDate, cszBillBalance);
-			}
-			else {
+			if (bHasBillDate &&  bHasStatusDate) { // -- has both, compare --
+				if (lBillDate.isAfter(lStatusDate)) {
+					// -- use bill data --
+					lszStartDate = cszBillDate;
+					ldCurBalance = new BigDecimal(cszBillBalance);
+					m_cLog.debug("getCurrentBalanceInternal using Bill Data - Date: {}, starting balance {}", cszBillDate, cszBillBalance);
+				}
+				else {
+					// -- use status data --
+					lszStartDate = cszStatusDate;
+					ldCurBalance = new BigDecimal(cszStatusBalance);
+					m_cLog.debug("getCurrentBalanceInternal using Status Data - Date: {}, starting balance {}", cszStatusDate, cszStatusBalance);
+				}
+			} else if (bHasStatusDate) { // -- only status, use that --
 				// -- use status data --
 				lszStartDate = cszStatusDate;
 				ldCurBalance = new BigDecimal(cszStatusBalance);
 				m_cLog.debug("getCurrentBalanceInternal using Status Data - Date: {}, starting balance {}", cszStatusDate, cszStatusBalance);
+			} else if (bHasBillDate) { // -- only bill, use that --
+				// -- use bill data --
+				lszStartDate = cszBillDate;
+				ldCurBalance = new BigDecimal(cszBillBalance);
+				m_cLog.debug("getCurrentBalanceInternal using Bill Data - Date: {}, starting balance {}", cszBillDate, cszBillBalance);
+			} else {	// -- nothing.. we came up empty and send an error value back --
+				// -- don't have a bill date, don't have a status date -- this is an error --
+				m_cLog.error("getCurrentBalanceInternal no bill date or status date!");
+				return ldRetVal;
 			}
 		} catch (NumberFormatException e) {
 			m_cLog.debug("getCurrentBalanceInternal failed to convert balance from string");
