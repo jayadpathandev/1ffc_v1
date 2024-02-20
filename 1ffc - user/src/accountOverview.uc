@@ -65,6 +65,7 @@ useCase accountOverview [
     * 		2.1 2024-Jan-04  	JAK	Updated to use new template builder.
     * 		2.2	2024-Feb-19		JAK	Proper handling of recurring payment link, add test for old bills, and 
     * 																	general cleanup of comments and steps 
+    * 		2.3 2024-Feb-20		JAK	Add placeholders for nickname support.
     */
 
     documentation [
@@ -276,6 +277,10 @@ useCase accountOverview [
     																														//			sets this variable accordingly. System passes this variable to the template
     																														//			to minimize template based calculations. -- 	
 
+	// -- variables for holding nickname or last 4 masked display account --
+	native string sDisplayAccountNickname
+	native string sDisplayAccountNicknameUrl
+	
 	/*************************
 	* MAIN SUCCESS SCENARIOS
 	*************************/
@@ -382,14 +387,16 @@ useCase accountOverview [
  	 */
   	action setNoBillTemplateData [
  		// -- values for new account --
-		FtlTemplate.setItemValue(TemplateIdNoBills, "status",
-					"viewAccount", "string", srGetStatusResult.viewAccount)
-		FtlTemplate.setItemValue(TemplateIdNoBills, "status",
-					"accountStatus", "string", sLocalAccountStatus)
-		FtlTemplate.setItemValue(TemplateIdNoBills, "root",
-					"displayAccount", "string", sAccountDisplay)
-		FtlTemplate.setItemValue(TemplateIdNoBills, "root",
-					"jumpToOffset", "string", AccountOffset)
+		FtlTemplate.setItemValue(TemplateIdNoBills, "status", "viewAccount", "string", srGetStatusResult.viewAccount)
+		FtlTemplate.setItemValue(TemplateIdNoBills, "status", "accountStatus", "string", sLocalAccountStatus)
+		FtlTemplate.setItemValue(TemplateIdNoBills, "root",  "displayAccount", "string", sAccountDisplay)
+		FtlTemplate.setItemValue(TemplateIdNoBills, "root", 	"jumpToOffset", "string", AccountOffset)
+
+		// -- values for nickname --
+ 		sDisplayAccountNickname = sAccountDisplay
+ 		sDisplayAccountNicknameUrl = ""
+ 		FtlTemplate.setItemValue(TemplateIdNoBills, "nickname", "displayAccount", "string", sDisplayAccountNickname)
+		FtlTemplate.setItemValue(TemplateIdNoBills, "nickname", "url", "string", sDisplayAccountNicknameUrl)
 		
 		goto (showNoBillTemplate)
  	]	
@@ -474,9 +481,23 @@ useCase accountOverview [
 		FtlTemplate.setItemValue(TemplateIdPaymentSummary, "status", "achEnabled",     "string", srGetStatusResult.achEnabled)
 		FtlTemplate.setItemValue(TemplateIdPaymentSummary, "status", "viewAccount",    "string", srGetStatusResult.viewAccount)
 		FtlTemplate.setItemValue(TemplateIdPaymentSummary, "status", "accountBalance", "number", srGetStatusResult.accountBalance)
-		goto (doWeHaveBillsOrJustDocuments)
+
+		goto (setNicknameGroupVariables)
 	]
 
+	/**
+	 * A16. System assigns the nickname variable values to the template.
+	  */
+	action setNicknameGroupVariables [
+		// -- values for nickname --
+ 		sDisplayAccountNickname = sAccountDisplay
+ 		sDisplayAccountNicknameUrl = ""
+ 		FtlTemplate.setItemValue(TemplateIdPaymentSummary, "nickname",  "displayAccount", "string", sDisplayAccountNickname)
+		FtlTemplate.setItemValue(TemplateIdPaymentSummary, "nickname",  "url", "string", sDisplayAccountNicknameUrl)
+
+		goto (doWeHaveBillsOrJustDocuments)
+		
+	]
 	/**************************************************************************************
 	 * END 1ST FRANKLIN SPECIFIC
 	 ************************************************************************************** */
