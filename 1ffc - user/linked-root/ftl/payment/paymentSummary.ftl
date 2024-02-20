@@ -14,7 +14,10 @@
 	   						accounts into a different template.
 	   2024-Jan-02  jak-- bug fixes for 1st Franklin based on moving data around. Also
 	   						changes to accomodate negative balance.
-
+	   2024-Feb-18 jak -- eliminated calculations associated with determinining if payment and autopay should 
+	   						be enabled.
+	   2024-Feb-20 jam -- added support for nickname/link to edit edit nickname for account.
+	   
   -->
 
 <#--  "date_format" -- setting the date format here for just this template... was having a problem with the date 
@@ -95,10 +98,6 @@
 </#if>						
 
 
-<#--  ********************************************************************************************
-	  END - Settings for testing that should come from use case 
-	  ******************************************************************************************** -->
-	  
 <#--   ** VARIABLES THAT CONTROL STATEMENT MESSAGE BEHAVIOR ..
 
 	   This odd conversion of .now to a string with date format and then back to a date 
@@ -217,7 +216,10 @@
 	<div class="row">
 		<div class="col-10">
 			<div class="mb-2">
-				<span class="fw-bold">Account #:</span> <span class="fw-bold">${displayAccount}</span>
+				<span class="fw-bold">Account #:</span> <span class="fw-bold">${nickname.displayAccount}&nbsp</span>
+				<#if nickname.url?? && (nickname.url?length > 0)>
+				<a class="me-4" target="_blank" "href="#" st-pop-in="${nickname.url}">Edit nickname</a>
+				</#if>
 				
 			</div>
 			<div>
