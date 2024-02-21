@@ -117,6 +117,7 @@ useCase accountOverview [
     importJava CurrentBalanceHelper(com.sorrisotech.fffc.payment.BalanceHelper)
 	importJava AppConfig(com.sorrisotech.utils.AppConfig)
 	importJava UcBillingAction(com.sorrisotech.uc.bill.UcBillingAction)
+    importJava DisplayAccountMasked(com.sorrisotech.fffc.account.DisplayAccountMasked)
     
     // -- GetCurrentBalanceConfig tells us the source of information for current balance
     serviceStatus srStatus	
@@ -150,6 +151,9 @@ useCase accountOverview [
 	//		and whether or not we have smart bill. We will need to use that 
 	//		bills enabled piece in the template if we are supporting smart bill --
     native string sBillingType = UcPaymentAction.getBillingBalanceType()
+    
+    // TODO
+//    native string sAppUrl = AppConfig.get("user.app.url")
 	
 	/**
 	 * Comment out for now since we aren't using it at 1st Franklin or in the
@@ -278,7 +282,7 @@ useCase accountOverview [
     																														//			to minimize template based calculations. -- 	
 
 	// -- variables for holding nickname or last 4 masked display account --
-	native string sDisplayAccountNickname
+	volatile native string sDisplayAccountNickname = DisplayAccountMasked.getMaskedDisplayAccount(sAccount)
 	native string sDisplayAccountNicknameUrl
 	
 	/*************************
@@ -393,8 +397,8 @@ useCase accountOverview [
 		FtlTemplate.setItemValue(TemplateIdNoBills, "root", 	"jumpToOffset", "string", AccountOffset)
 
 		// -- values for nickname --
- 		sDisplayAccountNickname = sAccountDisplay
- 		sDisplayAccountNicknameUrl = ""
+// 		sDisplayAccountNickname = sAccountDisplay
+// 		sDisplayAccountNicknameUrl = sAppUrl + "fffcEditDisplayAccounts?offset=" + AccountOffset
  		FtlTemplate.setItemValue(TemplateIdNoBills, "nickname", "displayAccount", "string", sDisplayAccountNickname)
 		FtlTemplate.setItemValue(TemplateIdNoBills, "nickname", "url", "string", sDisplayAccountNicknameUrl)
 		
@@ -490,8 +494,8 @@ useCase accountOverview [
 	  */
 	action setNicknameGroupVariables [
 		// -- values for nickname --
- 		sDisplayAccountNickname = sAccountDisplay
- 		sDisplayAccountNicknameUrl = ""
+// 		sDisplayAccountNickname = sAccountDisplay
+// 		sDisplayAccountNicknameUrl = sAppUrl + "fffcEditDisplayAccounts?offset=" + AccountOffset
  		FtlTemplate.setItemValue(TemplateIdPaymentSummary, "nickname",  "displayAccount", "string", sDisplayAccountNickname)
 		FtlTemplate.setItemValue(TemplateIdPaymentSummary, "nickname",  "url", "string", sDisplayAccountNicknameUrl)
 

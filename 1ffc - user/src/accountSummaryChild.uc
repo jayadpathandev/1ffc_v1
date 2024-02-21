@@ -59,7 +59,8 @@ useCase accountSummaryChild [
 //	importJava FlexFieldInfo(com.sorrisotech.fffc.user.FlexFieldInformation)
 
 	// -- specific to 1st Franklin ... helps calculate current balance --
-	importJava CurrentBalanceHelper (com.sorrisotech.fffc.payment.BalanceHelper)    
+	importJava CurrentBalanceHelper (com.sorrisotech.fffc.payment.BalanceHelper)
+	importJava DisplayAccountMasked(com.sorrisotech.fffc.account.DisplayAccountMasked)    
 				
     import billCommon.sBillAccountInternal
     import billCommon.sBillAccountExternal
@@ -153,6 +154,8 @@ useCase accountSummaryChild [
 	
 	native string sAccountDisplay
 	native string sIsBill		// not being used, does this mean if there's no bill we don't work?
+	
+	native volatile string sDisplayAccountNickname = DisplayAccountMasked.getMaskedDisplayAccount(sBillAccountInternal)
 	
 	persistent native string sParent	
 		
@@ -604,7 +607,7 @@ useCase accountSummaryChild [
 	            		append_space: "true"
 	            	] 
 	            	
-                	display sBillAccountExternal [
+                	display sDisplayAccountNickname [
                 		class: "st-dashboard-summary-value"
                 		logic: [ if sMultipleAccounts == "true" then "remove" ]		                	
                 	]
