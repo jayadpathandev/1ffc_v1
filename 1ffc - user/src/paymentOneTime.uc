@@ -103,7 +103,8 @@ useCase paymentOneTime [
 	importJava LocalizedFormat(com.sorrisotech.common.LocalizedFormat)
 	// -- specific to 1st Franklin ... helps calculate current balance --
 	importJava CurrentBalanceHelper (com.sorrisotech.fffc.payment.BalanceHelper)
-	importJava FlexFieldInformation (com.sorrisotech.fffc.user.FlexFieldInformation)    
+	importJava FlexFieldInformation (com.sorrisotech.fffc.user.FlexFieldInformation)
+	importJava DisplayAccountMasked(com.sorrisotech.fffc.account.DisplayAccountMasked)    
             
     import validation.dateValidation
             
@@ -501,6 +502,8 @@ useCase paymentOneTime [
 	persistent string sIframeOnetime
 	persistent string sErrorMessageType
 	tag hSpinner = Spinner.getSpinnerTemplate("pageSpinner.ftl", "pageSpinner", sorrisoLanguage, sorrisoCountry)
+	
+	volatile native string sDisplayAccountNickname = DisplayAccountMasked.getMaskedDisplayAccount(sPayAccountInternal)
 
 
 	// -- handling impersonation --
@@ -1121,7 +1124,7 @@ useCase paymentOneTime [
 										if selectedBillsPlurality == "multiple" then "hide"				
 									]
 									class: "col-md-12 st-payment-onetime-bold-font"
-									display sPayAccountExternal									
+									display sDisplayAccountNickname									
 								]
 								div accountIdField2 [
 									logic: [
@@ -1311,7 +1314,7 @@ useCase paymentOneTime [
 										if selectedBillsPlurality == "multiple" then "remove"				
 									]
 									class: "col-md-12"
-									display sPayAccountExternal
+									display sDisplayAccountNickname
 								]
 								h4 accountIdComplete2 [
 									logic: [
