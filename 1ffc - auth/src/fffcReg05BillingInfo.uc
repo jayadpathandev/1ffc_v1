@@ -144,7 +144,7 @@ useCase fffcReg05BillingInfo [
     persistent field fSelfReg1 [
         native string(label) sLabel = UcBillStream.getLabel(sorrisoLanguage, sorrisoCountry, sSelfReg1Attr)       
         input(control) pInput ("^[01]\\d-[0-3]\\d-\\d{4}$" , fSelfReg1.sValidation)   
-		string(validation) sValidation = "{Birthday must be numeric and appear in a format mm-dd-yyyy.}" 
+		string(validation) sValidation = "{Birth date must be numeric and appear in a format mm-dd-yyyy.}" 
         native string(help) sHelp = UcBillStream.getHelpText(sorrisoLanguage, sorrisoCountry, sSelfReg1Attr)       
     ]
     
