@@ -143,13 +143,15 @@ useCase fffcReg05BillingInfo [
     
     persistent field fSelfReg1 [
         native string(label) sLabel = UcBillStream.getLabel(sorrisoLanguage, sorrisoCountry, sSelfReg1Attr)       
-        input(control) pInput = "" 
+        input(control) pInput ("^\\d{2}-\\d{2}-\\d{4}$" , fSelfReg1.sValidation)   
+		string(validation) sValidation = "{Birthday must be numeric and appear in a format mm-dd-yyyy.}" 
         native string(help) sHelp = UcBillStream.getHelpText(sorrisoLanguage, sorrisoCountry, sSelfReg1Attr)       
     ]
     
     persistent field fSelfReg2 [
         native string(label) sLabel = UcBillStream.getLabel(sorrisoLanguage, sorrisoCountry, sSelfReg2Attr) 
-        input(control) pInput = ""       
+        input(control) pInput ("^\\d{4}$" , fSelfReg2.sValidation)    
+        string(validation) sValidation = "{Social security number must be 4 digits only.}" 
         native string(help) sHelp = UcBillStream.getHelpText(sorrisoLanguage, sorrisoCountry, sSelfReg2Attr)       
     ]
     
