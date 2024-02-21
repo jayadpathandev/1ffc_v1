@@ -20,8 +20,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sorrisotech.utils.Spring;
+
+import api.Log;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sorrisotech.app.utils.Freemarker;
+import com.sorrisotech.fffc.agent.pay.PaySession.PayStatus;
 import com.sorrisotech.svcs.external.IExternalReuse;
 import com.sorrisotech.svcs.external.IFileLocator;
 import com.sorrisotech.svcs.external.IServiceLocator2;
@@ -94,6 +98,7 @@ public class ApiPay implements IExternalReuse {
 			mSessions.put(id, mCurrent);
 		}
 		mCurrent.saveSource(bSave);
+		mCurrent.setStatus(PayStatus.started);
 
 		return "success";
 	}
@@ -144,6 +149,7 @@ public class ApiPay implements IExternalReuse {
 			final String date,
 			final String amount
 			) {
+		
 		if (date.equalsIgnoreCase("today")) {
 			mDate = new Date();
 		} else {
@@ -152,10 +158,12 @@ public class ApiPay implements IExternalReuse {
 				mDate = format.parse(date);
 			} catch(ParseException e) {
 				LOG.error("Could not parse date [" + date + "].");
+				mCurrent.setStatus(PayStatus.error);
 				return "invalid_date";
 			}
 			
 			if (mDate.before(new Date()) ) {
+				mCurrent.setStatus(PayStatus.error);
 				return "invalid_date";
 			}
 		}
@@ -164,13 +172,19 @@ public class ApiPay implements IExternalReuse {
 			mAmount = new BigDecimal(amount);
 		} catch(NumberFormatException e) {
 			LOG.error("Could not parse amount [" + amount + "].");
+			mCurrent.setStatus(PayStatus.error);
 			return "invalid_amount";			
 		}
 		
 		if (mAmount.compareTo(BigDecimal.ZERO) <= 0 || mAmount.scale() > 2) {
 			LOG.error("Invalid amount amount [" + amount + "].");
+			mCurrent.setStatus(PayStatus.error);
 			return "invalid_amount";						
 		}
+		
+		// -- saving date and amount updates status to oneTimePmtInProgress --
+		if (mCurrent == null) throw new RuntimeException("There is no current session.");
+		mCurrent.setStatus(PayStatus.oneTimePmtInProgress);
 		
 		return "success";
 	}
@@ -384,10 +398,16 @@ public class ApiPay implements IExternalReuse {
 							source.getSourceExpiry(),
 							id
 						);
+						// -- when wallet is called, the status changes to PmtAccountChosen --
+						mCurrent.setStatus(PayStatus.pmtAccountChosen);
+
 						break;
 					}
 				}
 			}
+		}
+		else {
+			mCurrent.setStatus(PayStatus.error);
 		}
 	}
 	//*************************************************************************
@@ -564,4 +584,96 @@ public class ApiPay implements IExternalReuse {
 		response.setContentType("text/html; charset=utf-8");
 		response.setStatus(HttpServletResponse.SC_OK);		
 	}
+	
+	/**
+	 * Sets the status value internally as worker for external
+	 * 	status specific calls --
+	 * 
+	 * @param cszPayStatus
+	 * @return 'true' if success, 'false' if not
+	 */
+	private String setStatus(final String code, final PayStatus ceStatus) {
+
+		long id = -1;
+		PaySession lSession = null;
+		
+		try {
+			id = Long.parseLong(code);
+		} catch(NumberFormatException e) {
+			LOG.warn("Invalid code [" + code + "]");
+			return "false";
+		}
+		
+		synchronized(mSessions) {
+			lSession = mSessions.get(id);
+		}
+		
+		lSession.setStatus(ceStatus);
+		return "true";
+	}
+	
+	/**
+	 * Returns status for specified transaction. If its in a final state
+	 * gets rid of the current session.
+	 * 
+	 * @param code -- current session id
+	 * @return -- status value as a string
+	 */
+	public String getStatus(final String code) {
+
+		long id = -1;
+		PaySession lSession = null;
+		PayStatus eStatus = PayStatus.transactionIdNotFound;
+		
+		try {
+			id = Long.parseLong(code);
+		} catch(NumberFormatException e) {
+			LOG.warn("Invalid code [" + code + "]");
+			return PayStatus.error.toString();
+		}
+		
+		synchronized(mSessions) {
+			lSession = mSessions.get(id);
+		}
+
+		if (null != lSession) {
+			eStatus = lSession.getStatus();
+		
+			switch (eStatus) {
+			case error: 
+			case transactionComplete:
+			case transactionIdExpired:
+				lSession = null;
+				clear (code);
+				break;
+			default:
+				break;
+			}
+		}
+		return eStatus.toString();
+	}
+	
+	/**
+	 * Successful transactions set this when they are done
+	 * 
+	 * @param code -- transaction id
+	 * @return -- 'true' if this worked, 'false' otherwise
+	 */
+	public String setTransactionComplete(final String code) {
+
+		return setStatus(code, PayStatus.transactionComplete);
+	}
+	
+	/**
+	 * Transaction errors caught at use case level call this
+	 * 
+	 * @param code -- transaction id
+	 * @return -- 'true' if this worked, 'false' otherwise
+	 */
+	public String setTransactionError(final String code) {
+
+		return setStatus(code, PayStatus.error);
+	}
+	
+	
 }
