@@ -163,6 +163,8 @@ useCase apiMakeOneTimePaymentForAgent
 	 * 9. Issue the payment request.
 	 */
 	action actionMakePayment [
+		ApiPay.setStatus("oneTimePmtInProgress")	
+
 		ApiPay.jsonObject(makeRequest.GROUPING_JSON)
 		makeRequest.ONLINE_TRANS_ID = sPayId
 		ApiPay.amount(makeRequest.AMOUNT)
@@ -203,6 +205,7 @@ useCase apiMakeOneTimePaymentForAgent
 	 * 11. Response with success back to the client.
 	 */
 	 action actionSuccessResponse [
+		ApiPay.setStatus("transactionComplete")	
 		JsonResponse.reset()
 		JsonResponse.setString("status", "posted")
 
@@ -211,7 +214,7 @@ useCase apiMakeOneTimePaymentForAgent
 	    ]
 		Log.^success("startPaymentForAgent", sCustomerId, sAccountId, sPaymentDate, sPayAmount)
 
-		ApiPay.clear(sTransactionId)
+		ApiPay.setTransactionComplete(sTransactionId)
 		foreignHandler JsonResponse.send()	 	
 	 ]
 
@@ -219,6 +222,7 @@ useCase apiMakeOneTimePaymentForAgent
 	 * 10a. Record the failed transaction.
 	 */
 	action actionPayFailure [
+		ApiPay.setTransactionError(sTransactionId)	
     	logRequest.TRANSACTION_ID   = sPayId
 		logRequest.ONLINE_TRANS_ID  = sPayId
 		ApiPay.payGroup               (logRequest.PMT_PROVIDER_ID)

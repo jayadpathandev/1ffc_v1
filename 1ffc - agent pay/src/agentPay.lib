@@ -5,6 +5,7 @@ library agentPay [
     	apiStartAddSource
     	apiStartChooseSource
     	apiStartPaymentForAgent
+    	apiRequestPaymentStatusForAgent
     ]           
     
     audit [
