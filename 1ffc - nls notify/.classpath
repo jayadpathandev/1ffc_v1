@@ -13,7 +13,7 @@
 	<classpathentry kind="lib" path="/app - user/lib/angus-activation-2.0.0.jar"/>
 	<classpathentry kind="lib" path="/app - user/lib/antlr-2.7.2.jar"/>
 	<classpathentry kind="lib" path="/app - user/lib/antlr4-runtime-4.13.1.jar"/>
-	<classpathentry kind="lib" path="/app - user/lib/aspectjweaver-1.9.21.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/aspectjweaver-1.9.21.1.jar"/>
 	<classpathentry kind="lib" path="/app - user/lib/authnet_cim_api.jar"/>
 	<classpathentry kind="lib" path="/app - user/lib/bcprov-jdk15on-1.51.jar"/>
 	<classpathentry kind="lib" path="/app - user/lib/checker-qual-3.37.0.jar"/>
@@ -80,8 +80,8 @@
 	<classpathentry kind="lib" path="/app - user/lib/jersey-media-multipart-2.41.jar"/>
 	<classpathentry kind="lib" path="/app - user/lib/jersey-server-2.41.jar"/>
 	<classpathentry kind="lib" path="/app - user/lib/jettison-1.5.4.jar"/>
-	<classpathentry kind="lib" path="/app - user/lib/joda-time-2.12.6.jar"/>
-	<classpathentry kind="lib" path="/app - user/lib/json-20231013.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/joda-time-2.12.7.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/json-20240205.jar"/>
 	<classpathentry kind="lib" path="/app - user/lib/jsr305-3.0.2.jar"/>
 	<classpathentry kind="lib" path="/app - user/lib/jxls-core-1.0.6.jar"/>
 	<classpathentry kind="lib" path="/app - user/lib/jxls-reader-1.0.6.jar"/>

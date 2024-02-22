@@ -145,6 +145,7 @@ useCase apiStartPaymentForAgent
 	 * Everything is good, reply with the data the client needs.
 	 */
 	action actionSendResponse [
+		ApiPay.setTransactionStarted(id)
 		ApiPay.setCustomerId(customerId)
 		ApiPay.setAccountId(accountId)
 		ApiPay.setAccountNumber(srStart.accountNumber)
@@ -178,6 +179,7 @@ useCase apiStartPaymentForAgent
      * Send a response back that we could not process the request.
      */
     action actionFailure [
+		ApiPay.setTransactionError(id)
 		JsonResponse.reset()
 		JsonResponse.setNumber("statuscode", sErrorStatus)
 		JsonResponse.setBoolean("success", "false")
@@ -196,6 +198,7 @@ useCase apiStartPaymentForAgent
      * Invalid Security Token
      */
     action actionInvalidSecurityToken [
+		ApiPay.setTransactionError(id)
 		JsonResponse.reset()
 		JsonResponse.setNumber("statuscode", "401")
 		JsonResponse.setBoolean("success", "false")

@@ -4,5 +4,6 @@ public class AutoPayBean {
 	public String when;
 	public String amount;
 	public String stop;
+	public String id;
 	
 }

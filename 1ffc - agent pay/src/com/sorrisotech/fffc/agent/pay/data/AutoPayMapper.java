@@ -48,8 +48,13 @@ public class AutoPayMapper implements RowMapper<AutoPayBean> {
 		final var amt = result.getBigDecimal(7);
 		if (amt != null) {
 			retval.amount = "uptoAmount=" + amt.toPlainString();
-		}	
+		}
 		
+		final var id = result.getBigDecimal(8);
+		if (id != null) {
+			retval.id = id.toPlainString();
+		}
+
 		return retval; 
 	}
 

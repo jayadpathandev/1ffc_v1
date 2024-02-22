@@ -130,7 +130,8 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 					expiry_date,
 					pay_count,
 					pay_amt_rule,
-					pay_upto
+					pay_upto,
+					pmt_automatic.automatic_id
 				from 
 					pmt_automatic,
 					pmt_automatic_grouping

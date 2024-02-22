@@ -14,12 +14,25 @@ public class PaySession {
 	private String         mAccountNumber;
 	private String         mInvoice;
 	private String         mPayGroup;
+	private boolean        mAutomaticPayment = false;
 	private boolean        mSaveSource;
 	private String         mWalletName;
 	private String         mWalletType;
 	private String         mWalletAccount;
 	private String         mWalletExpiry;
 	private String         mWalletToken = "";
+	public  enum		   PayStatus {
+								created,
+								started,
+								error,
+								pmtAccountChosen,
+								oneTimePmtInProgress,
+								automaticPmtRuleInProgress,
+								transactionComplete,
+								transactionIdExpired,
+								transactionIdNotFound
+								}
+	private PayStatus		meSessStatus;
 	
 	// ************************************************************************
 	public PaySession(
@@ -28,6 +41,8 @@ public class PaySession {
 		mId        = id;
 		mExpiresAt = Calendar.getInstance();
 		mExpiresAt.add(Calendar.HOUR, 1);
+		// -- status starts with transactionIdExpired --
+		meSessStatus = PayStatus.created;
 	}
 	
 	// ************************************************************************
@@ -35,7 +50,10 @@ public class PaySession {
 		return mId;
 	}
 	public boolean isExpired() {
-		return Calendar.getInstance().after(mExpiresAt);
+		
+		// -- expiration by time or status --
+		return Calendar.getInstance().after(mExpiresAt) ||
+				(PayStatus.transactionIdExpired == meSessStatus);
 	}
 
 	// ************************************************************************
@@ -117,6 +135,16 @@ public class PaySession {
 	public String payGroup() {
 		return mPayGroup;
 	}
+
+	// ************************************************************************
+	public void automaticPayment(
+			final boolean value
+			) {
+		mAutomaticPayment = value;
+	}
+	public boolean automaticPayment() {
+		return mAutomaticPayment;
+	}
 	
 	// ************************************************************************
 	public void saveSource(
@@ -157,5 +185,42 @@ public class PaySession {
 	}
 	public String walletToken() {
 		return mWalletToken;
+	}
+	
+	/**
+	 * Returns status for this session... checks to see if its expired
+	 * 		first and expires it if we are at one of the end statuses.
+	 * 
+	 * @return status value
+	 */
+	public PayStatus getStatus() {
+		
+		PayStatus leStatus = meSessStatus;
+		// -- check for expiration of this session --
+		if (isExpired()) 
+			leStatus = PayStatus.transactionIdExpired;
+
+		// -- if the transaction is complete we can mark this expired for
+		//		the next status call --
+		switch (meSessStatus) {
+			case transactionComplete:
+			case error:
+			case transactionIdExpired:
+				meSessStatus = PayStatus.transactionIdExpired;
+				break;
+			default:
+				break;
+		}
+		return leStatus;
+	}
+	
+	/** 
+	 * Sets the status for this session from the api level
+	 * 
+	 * @param ceStatus new status setting
+	 */
+	public void setStatus(final PayStatus ceStatus) {
+		
+		meSessStatus = ceStatus;
 	}
 }

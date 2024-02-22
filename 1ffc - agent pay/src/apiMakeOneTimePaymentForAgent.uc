@@ -163,7 +163,9 @@ useCase apiMakeOneTimePaymentForAgent
 	 * 9. Issue the payment request.
 	 */
 	action actionMakePayment [
-		ApiPay.jsonObject(makeRequest.GROUPING_JSON)
+		ApiPay.setTransactionOneTimeInProgress(sTransactionId)	
+
+		ApiPay.makePaymentJson(makeRequest.GROUPING_JSON)
 		makeRequest.ONLINE_TRANS_ID = sPayId
 		ApiPay.amount(makeRequest.AMOUNT)
 		makeRequest.CURRENCY = "USD"
@@ -205,13 +207,14 @@ useCase apiMakeOneTimePaymentForAgent
 	 action actionSuccessResponse [
 		JsonResponse.reset()
 		JsonResponse.setString("status", "posted")
+		JsonResponse.setString("paymentId", makeResult.ONLINE_TRANS_ID)
 
 	    auditLog(audit_agent_pay.make_one_time_payment_for_agent_success) [
 	   		sCustomerId sAccountId sPaymentDate sPayAmount
 	    ]
 		Log.^success("startPaymentForAgent", sCustomerId, sAccountId, sPaymentDate, sPayAmount)
 
-		ApiPay.clear(sTransactionId)
+		ApiPay.setTransactionComplete(sTransactionId)
 		foreignHandler JsonResponse.send()	 	
 	 ]
 
@@ -241,7 +244,6 @@ useCase apiMakeOneTimePaymentForAgent
 	 */
 	 action actionFailureResponse [
 		JsonResponse.reset()
-		JsonResponse.setString("status", "posted")
 
 	    auditLog(audit_agent_pay.make_one_time_payment_for_agent_failure) [
 	   		sCustomerId sAccountId sPaymentDate sPayAmount
@@ -279,6 +281,7 @@ useCase apiMakeOneTimePaymentForAgent
      * Send a response back that we could not process the request.
      */
     action actionFailure [
+		ApiPay.setTransactionError(sTransactionId)
 		JsonResponse.reset()
 		JsonResponse.setNumber("statuscode", sErrorStatus)
 		JsonResponse.setBoolean("success", "false")
@@ -290,7 +293,6 @@ useCase apiMakeOneTimePaymentForAgent
 	    ]
 		Log.error("makeOneTimePaymentForAgent", sTransactionId, sPaymentDate, sPayAmount, sErrorDesc)
 
-		ApiPay.clear(sTransactionId)
 		foreignHandler JsonResponse.errorWithData(sErrorStatus)
     ]
 
@@ -298,6 +300,7 @@ useCase apiMakeOneTimePaymentForAgent
      * Invalid Security Token
      */
     action actionInvalidSecurityToken [
+		ApiPay.setTransactionError(sTransactionId)
 		JsonResponse.reset()
 		JsonResponse.setNumber("statuscode", "401")
 		JsonResponse.setBoolean("success", "false")
