@@ -240,6 +240,7 @@ function Line(props: LineProps) {
     const [ sPayAmt,  setPayAmt ]  = React.useState('');
     const [ sPaySurcharge,  setPaySurcharge ]  = React.useState('');
     const [ sPayTotalAmt,  setPayTotalAmt ]  = React.useState('');
+    const [ sDisplayAccountNum,  setDisplayAccountNum ]  = React.useState('');
 
     React.useEffect(()=> {
   
@@ -255,6 +256,8 @@ function Line(props: LineProps) {
             setPayTotalAmt(text);
         });     
         
+        setDisplayAccountNum(props.grouping.DISPLAY_ACCOUNT_NUMBER.replace(/(.)(?=.{4})/g, 'X'));
+
     },[props.grouping]);
     
     
@@ -267,7 +270,7 @@ function Line(props: LineProps) {
     return (
         <div id="step1_expandedView_displayAccountNumber" className="row st-payment-onetime-border-top">
             <div id="step1_collapsedView_sAccountNumLabel_content" className={col1Class}>
-                <span>{props.grouping.DISPLAY_ACCOUNT_NUMBER}</span>
+                <span>{sDisplayAccountNum}</span>
             </div>
 
             <div id="step1_collapsedView_sAccountsLabel_content" className={col2Class}>

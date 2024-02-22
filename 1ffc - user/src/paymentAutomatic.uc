@@ -46,6 +46,7 @@ useCase paymentAutomatic [
     importJava DateFormat(com.sorrisotech.common.DateFormat)
     importJava LocalizedFormat(com.sorrisotech.common.LocalizedFormat)	
 	importJava TermsAndConditions(com.sorrisotech.fffc.user.TermsAndConditions)
+	importJava DisplayAccountMasked(com.sorrisotech.fffc.account.DisplayAccountMasked)
     
     import apiPayment.pmtRequest
     import apiPayment.getAutomaticPaymentByUserId
@@ -375,7 +376,8 @@ useCase paymentAutomatic [
 
 	/* set automatic results for b2b */    
     action setAutomaticResultsB2b [
-    	tAutomaticPaymentsTable = srGetAutomaticResult.automatic
+    	DisplayAccountMasked.setAccountDataTableFromPaymentAutomaticData(srGetAutomaticResult.automatic, tAutomaticPaymentsTable)
+//    	tAutomaticPaymentsTable = srGetAutomaticResult.automatic
     	switch status [
 			case "addSuccess" addLocationTrackedEvent
 			case "editSuccess" addLocationTrackedEvent			
@@ -384,8 +386,9 @@ useCase paymentAutomatic [
     ]
 
 	/* set automatic results for b2c */    
-    action setAutomaticResultsB2c [    	
-    	tAutomaticPaymentsTable = srGetAutomaticForAcctResult.automatic	
+    action setAutomaticResultsB2c [
+    	DisplayAccountMasked.setAccountDataTableFromPaymentAutomaticData(srGetAutomaticForAcctResult.automatic, tAutomaticPaymentsTable)    	
+//    	tAutomaticPaymentsTable = srGetAutomaticForAcctResult.automatic	
     	 switch status [
 			case "addSuccess" addLocationTrackedEvent
 			case "editSuccess" addLocationTrackedEvent			
