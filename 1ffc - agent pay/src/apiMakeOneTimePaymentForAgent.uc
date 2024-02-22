@@ -163,7 +163,7 @@ useCase apiMakeOneTimePaymentForAgent
 	 * 9. Issue the payment request.
 	 */
 	action actionMakePayment [
-		ApiPay.setStatus("oneTimePmtInProgress")	
+		ApiPay.setTransactionOneTimeInProgress(sTransactionId)	
 
 		ApiPay.jsonObject(makeRequest.GROUPING_JSON)
 		makeRequest.ONLINE_TRANS_ID = sPayId
@@ -205,7 +205,6 @@ useCase apiMakeOneTimePaymentForAgent
 	 * 11. Response with success back to the client.
 	 */
 	 action actionSuccessResponse [
-		ApiPay.setStatus("transactionComplete")	
 		JsonResponse.reset()
 		JsonResponse.setString("status", "posted")
 
@@ -222,7 +221,6 @@ useCase apiMakeOneTimePaymentForAgent
 	 * 10a. Record the failed transaction.
 	 */
 	action actionPayFailure [
-		ApiPay.setTransactionError(sTransactionId)	
     	logRequest.TRANSACTION_ID   = sPayId
 		logRequest.ONLINE_TRANS_ID  = sPayId
 		ApiPay.payGroup               (logRequest.PMT_PROVIDER_ID)
@@ -283,6 +281,7 @@ useCase apiMakeOneTimePaymentForAgent
      * Send a response back that we could not process the request.
      */
     action actionFailure [
+		ApiPay.setTransactionError(sTransactionId)
 		JsonResponse.reset()
 		JsonResponse.setNumber("statuscode", sErrorStatus)
 		JsonResponse.setBoolean("success", "false")
@@ -294,7 +293,6 @@ useCase apiMakeOneTimePaymentForAgent
 	    ]
 		Log.error("makeOneTimePaymentForAgent", sTransactionId, sPaymentDate, sPayAmount, sErrorDesc)
 
-		ApiPay.clear(sTransactionId)
 		foreignHandler JsonResponse.errorWithData(sErrorStatus)
     ]
 
@@ -302,6 +300,7 @@ useCase apiMakeOneTimePaymentForAgent
      * Invalid Security Token
      */
     action actionInvalidSecurityToken [
+		ApiPay.setTransactionError(sTransactionId)
 		JsonResponse.reset()
 		JsonResponse.setNumber("statuscode", "401")
 		JsonResponse.setBoolean("success", "false")

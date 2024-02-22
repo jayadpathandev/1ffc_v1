@@ -24,5 +24,16 @@ define service AgentPay(com.sorrisotech.app.serviceapi.uc.UcRequestClient) [
 		string automaticAmount
 		string automaticCount
 	] 
+	
+	// -- returns automatic payment information --
+	define method GetAutoPay [
+		string customerId
+		string accountId
+	] returns [
+		boolean automaticEnabled
+		string automaticDate
+		string automaticAmount
+		string automaticCount
+	]
  ]
  

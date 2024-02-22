@@ -98,7 +98,6 @@ public class ApiPay implements IExternalReuse {
 			mSessions.put(id, mCurrent);
 		}
 		mCurrent.saveSource(bSave);
-		mCurrent.setStatus(PayStatus.started);
 
 		return "success";
 	}
@@ -675,5 +674,24 @@ public class ApiPay implements IExternalReuse {
 		return setStatus(code, PayStatus.error);
 	}
 	
+	/** 
+	 * One-time payment in progress
+	 * 
+	 * @param code
+	 * @return
+	 */
+	public String setTransactionOneTimeInProgress(final String code) {
+		return setStatus(code, PayStatus.oneTimePmtInProgress);
+	}
+	
+	/**
+	 * StartPaymentForAgent completed successfully
+	 * 
+	 * @param code
+	 * @return
+	 */
+	public String setTransactionStarted(final String code) {
+		return setStatus(code, PayStatus.started); 
+	}
 	
 }
