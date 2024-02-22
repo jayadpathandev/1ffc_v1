@@ -7,18 +7,19 @@
 		http://www.springframework.org/schema/context 
 		http://www.springframework.org/schema/context/spring-context.xsd">
 
+	<import resource="classpath:/db/common_config.xml"/>    
+	
 	<import resource="classpath:documentEsignClientContext.xml" />
 	
-	<bean id="pdfService" class="com.sorrisotech.pdf.service.PDFEsignService">
+	<bean id="pdfService" class="com.sorrisotech.fffc.documentesign.service.PDFEsignService">
 		<property name="client" ref="eSignClient"/>
-		<property name="templatePdf" ref="pdfDocument"/>
 		<property name="shortName" value="${pdf.short.name}"/>
 		<property name="longName" value="${pdf.long.name}"/>
 		<property name="description" value="${pdf.description}"/>
 		<property name="signatureField" ref="signatureField"/>
 	</bean>
 	
-	<bean id="pdfDocument" class="com.sorrisotech.pdf.service.PDFDocument">
+	<bean id="pdfDocument" class="com.sorrisotech.fffc.documentesign.service.PDFDocument" scope="prototype">
 		<constructor-arg value="classpath:${esign.template.pdf.file.name}" type="java.io.InputStream"/>
 	</bean>
 	
@@ -35,5 +36,28 @@
 		<constructor-arg index="2" ref="signatureBox"/>
 		<constructor-arg index="3" value="P1"/>
 		<constructor-arg index="4" value="Signature"/>
+	</bean>
+	
+	<bean id="documentEsignDao" class="com.sorrisotech.fffc.documentesign.service.Dao">
+		<property name="getWalletInfoSql" ref="getWalletInfoSql"/>
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+	
+	<bean id="getWalletInfoSql" class="java.lang.String">
+		<constructor-arg>
+			<value>
+				<![CDATA[
+					SELECT
+						source_name,
+						source_type,
+						source_num,
+						source_expiry
+					FROM
+						pmt_wallet
+					WHERE
+						source_id = ?
+				]]>
+			</value>
+		</constructor-arg >
 	</bean>
 </beans>
