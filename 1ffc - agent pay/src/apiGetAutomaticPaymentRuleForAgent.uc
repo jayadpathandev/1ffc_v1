@@ -113,10 +113,10 @@ useCase apiGetAutomaticPaymentRuleForAgent
 	 */
 	action actionSendResponse [
 		JsonResponse.reset()
-		JsonResponse.setBoolean("automaticPaymentRuleEnabled", srGetAutoPay.automaticEnabled)
-		JsonResponse.setString("automaticPaymentDateRule", srGetAutoPay.automaticDate)
-		JsonResponse.setString("automaticPaymentAmountRule", srGetAutoPay.automaticAmount)
-		JsonResponse.setString("automaticPaymentCountRule", srGetAutoPay.automaticCount)
+		JsonResponse.setBoolean("hasRule", srGetAutoPay.automaticEnabled)
+		JsonResponse.setString("paymentDateRule", srGetAutoPay.automaticDate)
+		JsonResponse.setString("paymentAmountRule", srGetAutoPay.automaticAmount)
+		JsonResponse.setString("paymentCountRule", srGetAutoPay.automaticCount)
 		
 	   	auditLog(audit_agent_pay.start_payment_for_agent_success) [
 			customerId accountId
