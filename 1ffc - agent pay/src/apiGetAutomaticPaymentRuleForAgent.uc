@@ -17,7 +17,6 @@ useCase apiGetAutomaticPaymentRuleForAgent
     native string securityToken
     native string customerId
     native string accountId
-    native string paymentTransactionType
 	
 	native string sErrorStatus
 	native string sErrorDesc

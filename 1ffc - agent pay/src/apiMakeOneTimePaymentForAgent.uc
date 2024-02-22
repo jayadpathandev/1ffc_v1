@@ -207,6 +207,7 @@ useCase apiMakeOneTimePaymentForAgent
 	 action actionSuccessResponse [
 		JsonResponse.reset()
 		JsonResponse.setString("status", "posted")
+		JsonResponse.setString("paymentId", makeResult.ONLINE_TRANS_ID)
 
 	    auditLog(audit_agent_pay.make_one_time_payment_for_agent_success) [
 	   		sCustomerId sAccountId sPaymentDate sPayAmount
@@ -243,7 +244,6 @@ useCase apiMakeOneTimePaymentForAgent
 	 */
 	 action actionFailureResponse [
 		JsonResponse.reset()
-		JsonResponse.setString("status", "posted")
 
 	    auditLog(audit_agent_pay.make_one_time_payment_for_agent_failure) [
 	   		sCustomerId sAccountId sPaymentDate sPayAmount
