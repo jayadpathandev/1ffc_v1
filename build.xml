@@ -439,6 +439,7 @@
                 <exclude name="logback.xml"/>
                 <exclude name="user.app"/>
             </fileset>
+            <fileset dir="${mod.package.dir}/user/resources"/>
         </copy>
         <copy todir="${output.dir}/apps/user/lib/">
             <fileset dir="${artifacts.dir}/package/service/status"/>

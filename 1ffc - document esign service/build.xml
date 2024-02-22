@@ -11,15 +11,17 @@
     	<property name="mod.artifacts.dir" value="${artifacts.dir}/build/${moduleName}"/>
     	<mkdir dir="${mod.artifacts.dir}"/>
 
-    	<property name="mod.package.dir"  value="${artifacts.dir}/package/user/"/>
-		<property name="jar.package.dir"  value="${mod.package.dir}/jars"/>
-		<property name="html.package.dir" value="${mod.package.dir}/linked-root"/>
-		<property name="uc.package.dir"   value="${mod.package.dir}/usecases"/>
+    	<property name="mod.package.dir"  		value="${artifacts.dir}/package/user/"/>
+		<property name="jar.package.dir"  		value="${mod.package.dir}/jars"/>
+		<property name="html.package.dir" 		value="${mod.package.dir}/linked-root"/>
+		<property name="uc.package.dir"   		value="${mod.package.dir}/usecases"/>
+		<property name="resources.package.dir"  value="${mod.package.dir}/resources"/>
 
     	<mkdir dir="${mod.package.dir}"/>
 		<mkdir dir="${jar.package.dir}"/>
 		<mkdir dir="${html.package.dir}"/>
 		<mkdir dir="${uc.package.dir}"/>
+		<mkdir dir="${resources.package.dir}"/>
 
     	<ivy:settings/>
     	<ivy:resolve/>
@@ -67,12 +69,15 @@
          # Package everything up.
          ################################################################## -->
 	<target name="package" depends="-init, compile">
-		<copy todir="${mod.package.dir}/usecases">
+		<copy todir="${uc.package.dir}/usecases">
 			<fileset dir="src">
 				<include name="**/*.lib"/>
 				<include name="**/*.uc"/>
 				<include name="**/*.api"/>
 			</fileset>
+		</copy>
+		<copy todir="${resources.package.dir}">
+			<fileset dir="resources"/>
 		</copy>
 		<jar destfile="${mod.package.dir}/jars/1ffc${moduleName}.jar">
 		    <fileset dir="${mod.artifacts.dir}/classes"/>
