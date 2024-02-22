@@ -7,6 +7,7 @@ library agentPay [
     	apiStartPaymentForAgent
     	apiRequestPaymentStatusForAgent
     	apiGetAutomaticPaymentRuleForAgent
+    	apiDeleteAutomaticPaymentRuleForAgent
     ]           
     
     audit [
@@ -21,6 +22,9 @@ library agentPay [
             event cancel_payment_for_agent_success			(15 "{Agent payment cancelled [customerId={0} accountId={1}] success.}")
             event cancel_payment_for_agent_failure			(16 "{Agent payment cancelled [transactionId={0}] failure.}")
 
+			event delete_autopay_for_agent_success			(17 "{Agent payment autopay delete [customerId={0} accountId={1}] success.}")
+			event delete_autopay_for_agent_failure			(18 "{Agent payment autopay delete [customerId={0} accountId={1}] failed.}")
+			
          ]
     ]
 ]

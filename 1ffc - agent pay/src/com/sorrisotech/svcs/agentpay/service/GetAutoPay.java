@@ -30,15 +30,18 @@ public class GetAutoPay extends GetAutoPayBase {
 		final var data = mDao.autoPay(userId, accountId);
 		
 		if (data != null) {
-			op.set(IApiAgentPay.Start.automaticEnabled, true);
-			op.set(IApiAgentPay.Start.automaticDate,    data.when);
-			op.set(IApiAgentPay.Start.automaticAmount,  data.amount);
-			op.set(IApiAgentPay.Start.automaticCount,   data.stop);
+			op.set(IApiAgentPay.GetAutoPay.automaticEnabled, true);
+			op.set(IApiAgentPay.GetAutoPay.automaticDate,    data.when);
+			op.set(IApiAgentPay.GetAutoPay.automaticAmount,  data.amount);
+			op.set(IApiAgentPay.GetAutoPay.automaticCount,   data.stop);
+			op.set(IApiAgentPay.GetAutoPay.automaticPaymentId, data.id);
 		} else {
-			op.set(IApiAgentPay.Start.automaticEnabled, false);
-			op.set(IApiAgentPay.Start.automaticDate,    "");
-			op.set(IApiAgentPay.Start.automaticAmount,  "0.00");
-			op.set(IApiAgentPay.Start.automaticCount,   "0");
+			op.set(IApiAgentPay.GetAutoPay.automaticEnabled, false);
+			op.set(IApiAgentPay.GetAutoPay.automaticDate,    "");
+			op.set(IApiAgentPay.GetAutoPay.automaticAmount,  "0.00");
+			op.set(IApiAgentPay.GetAutoPay.automaticCount,   "0");
+			op.set(IApiAgentPay.GetAutoPay.automaticPaymentId, "0");
+			
 		}
 	}
 
@@ -65,7 +68,7 @@ public class GetAutoPay extends GetAutoPayBase {
 			op.setRequestStatus(ServiceAPIErrorCode.Failure);
 			return ServiceAPIErrorCode.Failure;			
 		}
-
+		
 		populateAuto(user.userId, accountId, op);
 		
 		op.setRequestStatus(ServiceAPIErrorCode.Success);
