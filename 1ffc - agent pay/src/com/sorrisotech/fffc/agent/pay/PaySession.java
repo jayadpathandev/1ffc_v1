@@ -14,6 +14,7 @@ public class PaySession {
 	private String         mAccountNumber;
 	private String         mInvoice;
 	private String         mPayGroup;
+	private boolean        mAutomaticPayment = false;
 	private boolean        mSaveSource;
 	private String         mWalletName;
 	private String         mWalletType;
@@ -133,6 +134,16 @@ public class PaySession {
 	}
 	public String payGroup() {
 		return mPayGroup;
+	}
+
+	// ************************************************************************
+	public void automaticPayment(
+			final boolean value
+			) {
+		mAutomaticPayment = value;
+	}
+	public boolean automaticPayment() {
+		return mAutomaticPayment;
 	}
 	
 	// ************************************************************************

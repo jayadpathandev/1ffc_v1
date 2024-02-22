@@ -1,6 +1,7 @@
 library agentPay [
     include [
     	apiCancelPaymentForAgent
+    	apiCreateAutomaticPaymentRuleForAgent
     	apiMakeOneTimePaymentForAgent
     	apiStartAddSource
     	apiStartChooseSource
@@ -25,6 +26,9 @@ library agentPay [
 			event delete_autopay_for_agent_success			(17 "{Agent payment autopay delete [customerId={0} accountId={1}] success.}")
 			event delete_autopay_for_agent_failure			(18 "{Agent payment autopay delete [customerId={0} accountId={1}] failed.}")
 			
+            event create_auto_payment_for_agent_success		(19 "{Agent payment create automatic payment [customerId={0} accountId={1}] success.}")
+            event create_auto_payment_for_agent_failure		(20 "{Agent payment create automatic payment  [customerId={0} accountId={1}] failure.}")
+
          ]
     ]
 ]
