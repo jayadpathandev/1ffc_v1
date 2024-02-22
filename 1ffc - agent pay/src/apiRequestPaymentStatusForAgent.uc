@@ -98,7 +98,7 @@ useCase apiRequestPaymentStatusForAgent [
 	    auditLog(audit_agent_pay.cancel_payment_for_agent_success) [
 	   		customerId accountId
 	    ]
-		Log.^success("cancelPaymentForAgent", transactionId, "Success")
+		Log.^success("requestPaymentStatusForAgent", transactionId, "Success")
 		
 	    foreignHandler JsonResponse.send()
 	]
@@ -107,6 +107,7 @@ useCase apiRequestPaymentStatusForAgent [
      * Send a response back that we could not process the request.
      */
     action actionFailure [
+		ApiPay.setTransactionError(transactionId)
 		JsonResponse.reset()
 		JsonResponse.setNumber("statuscode", sErrorStatus)
 		JsonResponse.setBoolean("success", "false")
@@ -116,7 +117,7 @@ useCase apiRequestPaymentStatusForAgent [
 		auditLog(audit_agent_pay.cancel_payment_for_agent_failure) [
 	   		transactionId
    		]
-		Log.error("cancelPaymentForAgent", transactionId, sErrorDesc)
+		Log.error("requestPaymentStatusForAgent", transactionId, sErrorDesc)
 
 		foreignHandler JsonResponse.errorWithData(sErrorStatus)
     ]
@@ -125,6 +126,7 @@ useCase apiRequestPaymentStatusForAgent [
      * Invalid Security Token
      */
     action actionInvalidSecurityToken [
+		ApiPay.setTransactionError(transactionId)
 		JsonResponse.reset()
 		JsonResponse.setNumber("statuscode", "401")
 		JsonResponse.setBoolean("success", "false")
@@ -134,7 +136,7 @@ useCase apiRequestPaymentStatusForAgent [
 		auditLog(audit_agent_pay.cancel_payment_for_agent_failure) [
 	   		transactionId
    		]
-		Log.error("cancelPaymentForAgent", transactionId, "Invalid security token.")
+		Log.error("requestPaymentStatusForAgent", transactionId, "Invalid security token.")
 
 		foreignHandler JsonResponse.errorWithData("401")
     ]
