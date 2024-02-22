@@ -21,8 +21,6 @@ import org.slf4j.LoggerFactory;
 
 import com.sorrisotech.utils.Spring;
 
-import api.Log;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sorrisotech.app.utils.Freemarker;
 import com.sorrisotech.fffc.agent.pay.PaySession.PayStatus;
@@ -311,6 +309,18 @@ public class ApiPay implements IExternalReuse {
 	}	
 
 	//*************************************************************************
+	public void setAutomaticPayment(
+			final String value
+			) {
+		if (mCurrent == null) throw new RuntimeException("There is no current session.");
+		mCurrent.automaticPayment(value.equalsIgnoreCase("true"));
+	}	
+	public String automaticPayment() {
+		if (mCurrent == null) throw new RuntimeException("There is no current session.");
+		return mCurrent.automaticPayment() ? "true" : "false";
+	}	
+	
+	//*************************************************************************
 	public void amount(
 				final IStringData value
 			) 
@@ -419,7 +429,7 @@ public class ApiPay implements IExternalReuse {
 	}
 
 	//*************************************************************************
-	public void jsonObject(
+	public void makePaymentJson(
 				final IStringData value
 			) {
 		if (mCurrent == null) throw new RuntimeException("There is no current session.");
@@ -449,6 +459,34 @@ public class ApiPay implements IExternalReuse {
 		group.put("totalAmount", mAmount.toPlainString());
 		group.put("surcharge", "0.00");
 		group.put("interPayTransactionId", "N/A");
+		
+		grouping.add(group);
+		
+		root.set("grouping", grouping);
+		
+		try {
+			final var json = mapper.writeValueAsString(root);
+			value.putValue(json);
+		} catch (Throwable e) {
+			LOG.error("Internal error", e);
+		}
+	}
+
+	//*************************************************************************
+	public void createAutomaticJson(
+				final IStringData value
+			) {
+		if (mCurrent == null) throw new RuntimeException("There is no current session.");
+
+		final var mapper = new ObjectMapper();
+		final var root   = mapper.createObjectNode();
+		
+		final var grouping = mapper.createArrayNode();
+		final var group    = mapper.createObjectNode();
+		
+		group.put("internalAccountNumber", mCurrent.accountId());
+		group.put("displayAccountNumber", mCurrent.accountNumber());
+		group.put("paymentGroup", mCurrent.payGroup());
 		
 		grouping.add(group);
 		

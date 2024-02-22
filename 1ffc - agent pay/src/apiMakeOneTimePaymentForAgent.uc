@@ -165,7 +165,7 @@ useCase apiMakeOneTimePaymentForAgent
 	action actionMakePayment [
 		ApiPay.setTransactionOneTimeInProgress(sTransactionId)	
 
-		ApiPay.jsonObject(makeRequest.GROUPING_JSON)
+		ApiPay.makePaymentJson(makeRequest.GROUPING_JSON)
 		makeRequest.ONLINE_TRANS_ID = sPayId
 		ApiPay.amount(makeRequest.AMOUNT)
 		makeRequest.CURRENCY = "USD"
