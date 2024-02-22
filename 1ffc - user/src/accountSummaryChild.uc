@@ -57,6 +57,7 @@ useCase accountSummaryChild [
 	importJava LocalizedFormat(com.sorrisotech.common.LocalizedFormat)	
 	importJava UcBillingAction(com.sorrisotech.uc.bill.UcBillingAction)
 //	importJava FlexFieldInfo(com.sorrisotech.fffc.user.FlexFieldInformation)
+	importJava FFFCSession(com.sorrisotech.fffc.user.FFFCSession)
 
 	// -- specific to 1st Franklin ... helps calculate current balance --
 	importJava CurrentBalanceHelper (com.sorrisotech.fffc.payment.BalanceHelper)
@@ -159,7 +160,7 @@ useCase accountSummaryChild [
 	
 	persistent native string sParent	
 		
-	auto dropDown dAccounts 		[ Session.getAccounts() ]
+	auto dropDown dAccounts 		[ FFFCSession.getAllDisplayAccountMasked() ]
 	    
     structure(message) msgBillError [
         string(title) sTitle = "{Error}"
