@@ -1,0 +1,59 @@
+<project name="document esign library" default="package" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
+
+    <!-- ######################################################################
+	     # Verify that all needed properties are defined.
+         ################################################################## -->
+    <target name="-init">
+		<loadproperties srcFile="../build.properties"/>
+
+        <property name="moduleName" value="EsignLibrary"/>
+
+    	<property name="mod.artifacts.dir" value="${artifacts.dir}/build/${moduleName}"/>
+    	<mkdir dir="${mod.artifacts.dir}"/>
+
+    	<property name="mod.package.dir"  value="${artifacts.dir}/package/user/"/>
+		<property name="jar.package.dir"  value="${mod.package.dir}/jars"/>
+		<property name="html.package.dir" value="${mod.package.dir}/linked-root"/>
+		<property name="uc.package.dir"   value="${mod.package.dir}/usecases"/>
+
+    	<mkdir dir="${mod.package.dir}"/>
+		<mkdir dir="${jar.package.dir}"/>
+		<mkdir dir="${html.package.dir}"/>
+		<mkdir dir="${uc.package.dir}"/>
+
+    	<ivy:settings/>
+    	<ivy:resolve/>
+    	<ivy:retrieve type="jar" pattern="${jar.package.dir}/[artifact]-[revision].[ext]" setId="jars"/>
+    </target>
+
+    <!-- ######################################################################
+         # Compile the java files.
+         ################################################################## -->
+    <target name="compile" depends="-init">
+
+		<mkdir dir="${mod.artifacts.dir}/classes"/>
+    	<javac destdir="${mod.artifacts.dir}/classes" includeAntRuntime="false">
+    	    <src>
+    	        <pathelement location="src"/>
+    		</src>
+			<classpath>
+				<fileset dir="${devkit.dir}/app - user/lib">
+					<include name="*.jar"/>
+				</fileset>
+				<fileset dir="${jar.package.dir}">
+					<include name="*.jar"/>
+				</fileset>
+			</classpath>
+    	</javac>
+    </target>
+
+    <!-- ######################################################################
+         # Package everything up.
+         ################################################################## -->
+	<target name="package" depends="-init, compile">
+		<jar destfile="${mod.package.dir}/jars/1ffc${moduleName}.jar">
+		    <fileset dir="${mod.artifacts.dir}/classes"/>
+			<fileset dir="src" includes="**/*.xml"/>
+		</jar>
+	</target>
+</project>

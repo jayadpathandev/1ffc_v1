@@ -72,6 +72,8 @@
         <ant dir="1ffc batch - status processor" inheritAll="false" inheritRefs="false"/>
         <ant dir="1ffc - transaction history batch" inheritAll="false" inheritRefs="false"/>
         <ant dir="1ffc - agent pay" inheritAll="false" inheritRefs="false"/>
+        <ant dir="1ffc - document esign library" inheritAll="false" inheritRefs="false"/>
+        <ant dir="1ffc - document esign service" inheritAll="false" inheritRefs="false"/>
     </target>
 
     <target name="-build.extdoc.uc" depends="-init">
