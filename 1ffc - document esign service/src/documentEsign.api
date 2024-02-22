@@ -1,0 +1,39 @@
+define service DocumentEsign(com.sorrisotech.app.serviceapi.uc.UcRequestClient) [
+    
+    generate [
+       category: documentEsign    						
+    ]
+	
+	/* This endpoint will create and return esign URL for of the document */
+	define method GetDocumentEsignUrl [
+		string displayAccount
+		string internalAccount
+		string customerId
+		string extDocId
+    	string dateRule
+    	string countRule
+    	string sourceId
+		string fullName
+		string email
+		string phone
+		string flex1
+		string flex2
+		string flex3
+		string flex4
+	] returns [
+		string SESSION_ID
+		string URL
+	] 
+	
+	/* This endpoint will check the status of the esign */
+	define method GetDocumentEsignStatus [
+		string sessionId
+	] returns [
+    	list status [
+    		RemoteSessionComplete
+    		InProcess
+    		Expired
+    		Aborted
+    	]
+	] 
+ ]
