@@ -44,6 +44,7 @@ useCase paymentUpdateAutomaticPayment [
 	importJava UcPaymentAction(com.sorrisotech.uc.payment.UcPaymentAction)
 	importJava LocalizedFormat(com.sorrisotech.common.LocalizedFormat)
 	importJava DisplayAccountMasked(com.sorrisotech.fffc.account.DisplayAccountMasked)
+	importJava EsignHelper(com.sorrisotech.fffc.user.EsignHelper)
 			
     import validation.dateValidation
 		
@@ -117,7 +118,13 @@ useCase paymentUpdateAutomaticPayment [
     native string sSourceId     = ""
     native string sUserId       = Session.getUserId()
     native string sIsB2b        = Session.isB2bAsString()
-    native string sStatusFlag   = ""
+    native string sStatusFlag   = "" 	
+	native string sFirstName    = ""
+	native string sLastName     = ""
+	volatile string sPayCountStatement   = EsignHelper.getPayCountStatement(fPayEffective.pInput)
+	volatile string sExpiryDateStatement   = EsignHelper.getExpiryDateStatement(fPayEffective.aDate)
+	volatile string sPriorDaysStatement   = EsignHelper.getPriorDaysStatement(fPayInvoices.dPayPriorDays)
+	volatile string sDueDateStatement   = EsignHelper.getDueDateStatement(fPayInvoices.dPayDate)
                                                    
     field fPayInvoices [
         string(label) sLabel = "{Pay bills *}"        
@@ -212,6 +219,15 @@ useCase paymentUpdateAutomaticPayment [
 	serviceResult (Payment.GetWalletByToken) srGetWalletInfoResult
 	serviceParam (Payment.GetWalletByToken) srGetWalletInfoParam
 	
+	serviceParam(DocumentEsign.GetDocumentEsignUrl) srEsignUrlParams
+	serviceResult(DocumentEsign.GetDocumentEsignUrl) srEsignUrlResult
+	
+	serviceParam(DocumentEsign.GetDocumentEsignStatus) srEsignUrlStatusParams
+	serviceResult(DocumentEsign.GetDocumentEsignStatus) srEsignUrlStatusResult
+	
+	serviceParam(Notifications.GetUserAddresses) sUserDetailsParams
+	serviceResult(Notifications.GetUserAddresses) sUserDetailsResult
+	
 	// move over from B2B
     string scheduleFoundWithAccount = "false"   
        
@@ -227,6 +243,15 @@ useCase paymentUpdateAutomaticPayment [
     static sAccountNumLabel = "{Account #}"
     static sAccountsLabel = "{account(s)}"    
     string step1Content = "Java script failed to execute"    
+    
+    string (iframe) sEsignIframe = ""
+    string sEsignIframeHeader = "{Sign the document}"
+    native string bEsignComplete = "false"
+    
+    structure(message) oMsgRetrieveContactDetailsError [
+        string(title) sTitle = "{Something wrong happened}"
+        string(body) sBody = "{An error occurred while trying to retrieve contact details. Please try again later}"
+    ]
     
     structure msgAutoPmtScheduled [
         static sTitle = "{Payment warning}"
@@ -397,7 +422,7 @@ useCase paymentUpdateAutomaticPayment [
         sSourceIdOld           = dWalletItems
 		goto (updateAutomaticPaymentScreen)
 	]
-
+	
     /* 3. 8. Show the update automatic payment screen. */
     xsltScreen updateAutomaticPaymentScreen("{Payment}") [
     	
@@ -426,6 +451,11 @@ useCase paymentUpdateAutomaticPayment [
         		ng-init: "init();"
 		    	messages: "top"
 		    	
+		    								    	
+		    	display bEsignComplete [
+		    		class: "visually-hidden"
+		    	]
+		    	
 		    	/*-- Step 1 Container - Payment Summary  --*/		    	
 		    	div step1_container [
 		    		class: "row"
@@ -449,7 +479,7 @@ useCase paymentUpdateAutomaticPayment [
 							    	h4 step1_msgAutoPmtScheduled [
 							    		class: "col-md-12"							    		
 							    		display msgAutoPmtScheduled.sTitle
-							    	]	
+							    	]
 							    	
 							    	div step1_msgAutoPmtScheduledCreate [
 							    		class: "col-md-12"
@@ -744,11 +774,32 @@ useCase paymentUpdateAutomaticPayment [
 			                    class: "btn btn-primary disabled"	
 							]
 							
+							navigation signDocument(getUserDetails, "{SIGN DOCUMENT}") [	
+								logic:[
+									if bEsignComplete == "true" then "hide"
+								]							
+				            	class: "btn btn-primary"	
+				            	type: "popin"
+				            	popin_size: "lg"
+				            	ng-disabled: "isSourceEmpty() == 'true' || hasExceededPayUptoAmount() == 'true'"		                    
+				                data :[
+				                   		fPayInvoices,
+				                   		fPayAmount1,
+				                   		fPayAmount2,
+										fPayEffective							
+				                ]		                    
+			                    require: [
+			                    	dWalletItems
+			                    ]     
+				            	attr_tabindex: "14"
+   						    ]
+							
 							navigation createAutomaticPaymentButton(checkMinAmtFlag, "{CREATE RECURRING PAYMENT}") [
 								logic: [
 									if sSelectedAutomaticId  != "" then "remove"
 				                	// -- disabled button shows if agent is impersonating --
 									if bImpersonateActive == "true" then "remove"
+									if bEsignComplete != "true" then "hide"
 								]									
 				            	class: "btn btn-primary"	
 				                ng-disabled: "isSourceEmpty() == 'true' || hasExceededPayUptoAmount() == 'true'"		                    
@@ -783,6 +834,178 @@ useCase paymentUpdateAutomaticPayment [
 			]  
 		]	
     ]
+    
+    /* Loads user profile account and consent status and json object. */       
+    action getUserDetails [
+        sUserDetailsParams.userid = sUserId
+        
+        switch apiCall Notifications.GetUserAddresses(sUserDetailsParams, sUserDetailsResult, ssStatus) [
+		    case apiSuccess checkUserDetailsResult
+		    default retrieveContactDetailsError
+		]
+    ]
+    
+    /* Verify json response. */
+    action checkUserDetailsResult [
+		if sUserDetailsResult.jsonAddresses == "" then 
+			retrieveContactDetailsError 
+		else 
+			extractEmailFromAddresses    	
+    ]
+    
+    /* Could not retrieve contact details. */
+    action retrieveContactDetailsError [
+    	srEsignUrlParams.email = ""
+    	srEsignUrlParams.phone = ""
+    	displayMessage(type: "danger" msg: oMsgRetrieveContactDetailsError)
+    	goto(setDateRule)
+    ]
+    
+    /* Loads current email from database via the notifications service. */
+    action extractEmailFromAddresses [
+    	UcProfileAction.getAddress (
+            sUserDetailsResult.jsonAddresses,
+            "email",
+            srEsignUrlParams.email             
+        ) 
+        goto(extractSmsFromAddresses)
+    ]
+    
+    /* Loads current sms from database via the notifications service. */
+     action extractSmsFromAddresses [
+    	UcProfileAction.getAddress (
+            sUserDetailsResult.jsonAddresses,
+            "sms",
+            srEsignUrlParams.phone             
+        ) 
+        goto(setDateRule)
+    ]
+    
+    action setDateRule [
+		switch fPayInvoices.rInput [
+			case "option1"	setDateRuleToPayDate
+			default setDateRuleToPriorDays
+		]
+	]
+	
+	action setDateRuleToPayDate [
+		srEsignUrlParams.dateRule = sDueDateStatement
+		goto(setCountRule)
+	]
+	
+	action setDateRuleToPriorDays [
+		srEsignUrlParams.dateRule = sPriorDaysStatement
+		goto(setCountRule)
+	]
+	
+	action setCountRule [
+		switch fPayEffective.rInput [
+			case "option2" setCountRuleToExpiryDate
+			case "option3" setCountRuleToPayCount
+			default setCountRuleToUntilCancel
+		]
+	]
+	
+	action setCountRuleToExpiryDate [
+		srEsignUrlParams.countRule = sExpiryDateStatement
+		goto(createEsignUrl)
+	]
+	
+	action setCountRuleToPayCount [
+		srEsignUrlParams.countRule = sPayCountStatement
+		goto(createEsignUrl)
+	]
+	
+	action setCountRuleToUntilCancel [
+		srEsignUrlParams.countRule = "until canceled"
+		goto(createEsignUrl)
+	]
+	
+	action createEsignUrl [
+		loadProfile( 	
+			fffcCustomerId: srEsignUrlParams.customerId
+			firstName: sFirstName
+			lastName: sLastName
+		) 
+		
+		srEsignUrlParams.internalAccount = sPayAccountInternal
+		srEsignUrlParams.displayAccount = sPayAccountExternal
+		srEsignUrlParams.sourceId = dWalletItems
+		srEsignUrlParams.fullName = sFirstName + "\\ " + sLastName
+		srEsignUrlParams.extDocId = ""
+		srEsignUrlParams.flex1 = ""
+		srEsignUrlParams.flex2 = "Letter"
+		srEsignUrlParams.flex3 = "external"
+		srEsignUrlParams.flex4 = "portal"
+		
+		switch apiCall DocumentEsign.GetDocumentEsignUrl(srEsignUrlParams, srEsignUrlResult, ssStatus) [
+            case apiSuccess setEsignUrl
+            default documentEsignPopIn
+        ]
+	]
+	
+	action setEsignUrl [
+		sEsignIframe = srEsignUrlResult.URL
+		goto(documentEsignPopIn)
+	]
+	
+	xsltFragment documentEsignPopIn("{Sign document}") [
+		
+		div content [
+			class: "modal-content"
+			
+			div esignPopInHeader [
+	        	class: "modal-header"
+	            h2 heading [
+	            	display sEsignIframeHeader
+	            ]
+		   	]
+		   	
+			div esignPopInBody [
+	            class: "modal-body"     
+	            
+	            display sEsignIframe                   
+	        ]
+	        
+	        div esignPopInButtons [
+	            class: "modal-footer"
+	            
+				navigation signButton (checkEsignStatus, "{SUBMIT}") [
+	            	class: "btn btn-primary"	          
+	            	          
+	        	]
+	
+				navigation cancelButton (gotoPaymentAutomatic, "{CANCEL}") [
+	            	class: "btn btn-secondary"
+	            	type: "cancel"
+	        	]
+	        ]
+		]
+		
+	]
+	
+	// Here we will check the status of the esign
+	action checkEsignStatus [
+		srEsignUrlStatusParams.sessionId = srEsignUrlResult.SESSION_ID
+		
+		switch apiCall DocumentEsign.GetDocumentEsignStatus(srEsignUrlStatusParams, srEsignUrlStatusResult, ssStatus) [
+			case apiSuccess checkEsignStatusReponse
+			default updateAutomaticPaymentScreen
+		]
+
+	]
+	
+	action checkEsignStatusReponse [
+		if srEsignUrlStatusResult.status == "RemoteSessionComplete" then
+			setDocumetSignFlag
+		else
+			updateAutomaticPaymentScreen
+	]
+	
+	action setDocumetSignFlag [
+		bEsignComplete = "true"
+		goto(updateAutomaticPaymentScreen)
+	]
     
     /* 9. Check the minimum amount flag.*/ 
     action checkMinAmtFlag [
