@@ -178,6 +178,7 @@
 	<classpathentry kind="lib" path="/app - user/lib/xmlsec-3.0.2.jar"/>
 	<classpathentry kind="lib" path="/app - user/lib/xmltooling-1.4.4.jar"/>
 	<classpathentry kind="lib" path="/app - user/lib/log4j-api-2.21.1.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/1ffc - document esign service"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/1ffc - status service"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/app - user"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/1ffc - nls notify"/>

@@ -43,7 +43,7 @@ public class GetDocumentEsignUrl extends GetDocumentEsignUrlBase{
 	private static SimpleDateFormat dateFormatter = null;
 	
 	static {
-		try (var inputStream = GetDocumentEsignUrl.class.getClassLoader().getResourceAsStream("documentEsign.properties")) {
+		try (var inputStream = GetDocumentEsignUrl.class.getClassLoader().getResourceAsStream("app-config.properties")) {
 			
 			if (inputStream != null) {
 				config.load(inputStream);
