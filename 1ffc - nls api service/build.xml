@@ -6,29 +6,35 @@
     <target name="-init">
 		<loadproperties srcFile="../build.properties"/>
 
-        <property name="moduleName" value="service/nls"/>
+        <property name="moduleName" value="NlsService"/>
 
-    	<property name="mod.output.dir"    value="${artifacts.dir}/package/${moduleName}"/>
-    	<property name="mod.artifacts.dir" value="${artifacts.dir}/${moduleName}"/>
-
-    	<mkdir dir="${mod.output.dir}"/>
+    	<property name="mod.artifacts.dir" value="${artifacts.dir}/build/${moduleName}"/>
     	<mkdir dir="${mod.artifacts.dir}"/>
+
+    	<property name="user.package.dir" value="${artifacts.dir}/package/user/"/>
+		<property name="auth.package.dir" value="${artifacts.dir}/package/auth/"/>
+		<property name="extdoc.package.dir" value="${artifacts.dir}/package/extdoc/"/>
+
+    	<mkdir dir="${user.package.dir}/jars"/>
+		<mkdir dir="${auth.package.dir}/jars"/>
+		<mkdir dir="${extdoc.package.dir}"/>
 
     	<ivy:settings/>
     	<ivy:resolve/>
-
-    	<ivy:retrieve type="jar,bundle" pattern="${mod.output.dir}/[artifact]-[revision].[ext]" setId="jars"/>
-
-    	<path id="classpath">
-    	    <fileset refid="jars"/>
-    	</path>
+    	<ivy:retrieve type="jar,bundle" pattern="${user.package.dir}/jars/[artifact]-[revision].[ext]"/>
+		<ivy:retrieve type="jar,bundle" pattern="${auth.package.dir}/jars/[artifact]-[revision].[ext]"/>
+		<ivy:retrieve type="jar,bundle" pattern="${extdoc.package.dir}/[artifact]-[revision].[ext]"/>
     </target>
 
     <!-- ######################################################################
          # Compile the java files.
          ################################################################## -->
     <target name="compile" depends="-init">
-    	<javac destdir="${mod.artifacts.dir}" classpathref="classpath" includeAntRuntime="false">
+		<mkdir dir="${mod.artifacts.dir}/classes"/>
+    	<javac destdir="${mod.artifacts.dir}/classes" includeAntRuntime="false">
+			<classpath>
+				<fileset dir="${user.package.dir}/jars"/>
+			</classpath>
     	    <src>
     	        <pathelement location="src"/>
     		</src>
@@ -39,9 +45,10 @@
          # Package everything up.
          ################################################################## -->
 	<target name="package" depends="-init, compile">
-
-		<jar destfile="${mod.output.dir}/serviceNls.jar">
-		    <fileset dir="${mod.artifacts.dir}"/>
+		<jar destfile="${user.package.dir}/jars/1ffc${moduleName}.jar">
+		    <fileset dir="${mod.artifacts.dir}/classes"/>
 		</jar>
+		<copy file="${user.package.dir}/jars/1ffc${moduleName}.jar" todir="${auth.package.dir}/jars/"/>
+		<copy file="${user.package.dir}/jars/1ffc${moduleName}.jar" todir="${extdoc.package.dir}"/>
 	</target>
 </project>

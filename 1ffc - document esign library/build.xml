@@ -22,10 +22,6 @@
 		<mkdir dir="${html.package.dir}"/>
 		<mkdir dir="${uc.package.dir}"/>
 		<mkdir dir="${resources.package.dir}"/>
-
-    	<ivy:settings/>
-    	<ivy:resolve/>
-    	<ivy:retrieve type="jar" pattern="${jar.package.dir}/[artifact]-[revision].[ext]" setId="jars"/>
     </target>
 
     <!-- ######################################################################

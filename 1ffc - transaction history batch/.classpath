@@ -32,7 +32,7 @@
 	<classpathentry kind="lib" path="/batch - common/lib/batchVault.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/batchVideoTrigger.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/bcprov-jdk15on-1.51.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/checker-qual-3.41.0.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/checker-qual-3.42.0.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/commons-beanutils-1.9.4.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/commons-chain-1.1.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/commons-codec-1.16.0.jar"/>
@@ -127,7 +127,7 @@
 	<classpathentry kind="lib" path="/batch - common/lib/poi-5.2.5.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/poi-ooxml-5.2.5.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/poi-ooxml-lite-5.2.5.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/postgresql-42.7.1.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/postgresql-42.7.2.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/protobuf-java-3.25.1.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/reflections-0.10.2.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/serviceAPI.jar"/>

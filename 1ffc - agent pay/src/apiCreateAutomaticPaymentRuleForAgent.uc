@@ -21,6 +21,7 @@ useCase apiCreateAutomaticPaymentRuleForAgent
 	
 	native volatile string sCustomerId = ApiPay.customerId()
 	native volatile string sAccountId  = ApiPay.accountId()
+	native volatile string sIsOneTime  = ApiPay.isOneTime()
 	native volatile string sDecodeCode = Automatic.errorCode()
 	native volatile string sDecodeText = Automatic.errorText()
 	
@@ -250,7 +251,7 @@ useCase apiCreateAutomaticPaymentRuleForAgent
 	action actionCheckExitingAutoPay [ 
 		switch ApiPay.automaticPayment() [
 			case "true" actionExistingAutoPay
-			default	actionCreateAutomatic
+			default	actionCheckSavedSource
 		]
 	]
 	
@@ -268,6 +269,34 @@ useCase apiCreateAutomaticPaymentRuleForAgent
 		JsonResponse.setBoolean("success",   "false")
 		JsonResponse.setString("payload",    "Automatic payment exists.")
 		JsonResponse.setString("error",      "automatic_payment_exists")
+
+		foreignHandler JsonResponse.errorWithData("210")
+	 ]
+
+ 	/*************************
+	 * 16. Check for an existing automatic payment.
+	 */
+	action actionCheckSavedSource [ 
+		switch sIsOneTime [
+			case "true" actionMethodNotSaved
+			default	actionCreateAutomatic
+		]
+	]
+
+ 	/*************************
+	 * 16a. Payment method was not saved. 
+	 */
+	 action actionMethodNotSaved [
+	    auditLog(audit_agent_pay.create_auto_payment_for_agent_failure) [
+	   		sCustomerId sAccountId
+	    ]
+		Log.warn("createAutomaticPaymentRuleForAgent", sCustomerId, sAccountId, sDateRule, sAmountRule, sCountRule, "Payment method is one time.")
+
+		JsonResponse.reset()
+		JsonResponse.setNumber("statuscode", "210")
+		JsonResponse.setBoolean("success",   "false")
+		JsonResponse.setString("payload",    "Payment source was not saved.")
+		JsonResponse.setString("error",      "source_not_saved")
 
 		foreignHandler JsonResponse.errorWithData("210")
 	 ]
@@ -309,6 +338,7 @@ useCase apiCreateAutomaticPaymentRuleForAgent
 	 action actionSuccessResponse [
 		JsonResponse.reset()
 		JsonResponse.setString("status", "created")
+		ApiPay.setAutomaticPayment("true")
 
 	    auditLog(audit_agent_pay.create_auto_payment_for_agent_success) [
 	   		sCustomerId sAccountId

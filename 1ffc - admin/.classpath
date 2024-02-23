@@ -121,7 +121,7 @@
 	<classpathentry kind="lib" path="/app - admin/lib/poi-5.2.5.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/poi-ooxml-5.2.5.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/poi-ooxml-lite-5.2.5.jar"/>
-	<classpathentry kind="lib" path="/app - admin/lib/postgresql-42.7.1.jar"/>
+	<classpathentry kind="lib" path="/app - admin/lib/postgresql-42.7.2.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/reflections-0.10.2.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/serviceAPI.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/serviceBill.jar"/>

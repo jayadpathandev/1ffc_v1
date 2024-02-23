@@ -73,12 +73,21 @@ $(function() {
 			success: function(data) {
 				$('#start_result').val(JSON.stringify(data, null, 2));
 				
-				$('#choose_wallet').attr('src', data.payAccountUrl);				
-				$('#make_security_code').val($('#start_security_code').val());
-				$('#make_transaction_id').val(data.transactionId);
-				$('#make_result').val('');			
-	
-				$('#make_payment_header')[0].scrollIntoView(true);
+				if (type === 'oneTime') {
+					$('#make_choose_wallet').attr('src', data.payAccountUrl);				
+					$('#make_security_code').val($('#start_security_code').val());
+					$('#make_transaction_id').val(data.transactionId);
+					$('#make_result').val('');			
+		
+					$('#make_payment_header')[0].scrollIntoView(true);
+				} else {
+					$('#create_choose_wallet').attr('src', data.payAccountUrl);				
+					$('#create_security_code').val($('#start_security_code').val());
+					$('#create_transaction_id').val(data.transactionId);
+					$('#create_result').val('');			
+		
+					$('#create_auto_header')[0].scrollIntoView(true);
+				}
 			}, 
 			error: function(data) {
 				$('#start_result').val(JSON.stringify(data.responseJSON, null, 2));
@@ -92,7 +101,7 @@ $(function() {
 			<div id="make_payment_header" class="row">
 				<h1 class="col-12">makeOneTimePaymentForAgent</h1>
 				<div class="col-6">
-					<iframe id="choose_wallet" src="">
+					<iframe id="make_choose_wallet" src="">
 					</iframe>
 				</div>
 				<div class="col-6">
@@ -141,11 +150,11 @@ $(function() {
 			}),
 			success: function(data) {
 				$('#make_result').val(JSON.stringify(data, null, 2));
-				$('#choose_wallet').attr('src', '');				
+				$('#make_choose_wallet').attr('src', '');				
 			}, 
 			error: function(data) {
 				$('#make_result').val(JSON.stringify(data.responseJSON, null, 2));
-				$('#choose_wallet').attr('src', '');				
+				$('#make_choose_wallet').attr('src', '');				
 			}
 		});
 		$('#start_result').val('');			
@@ -164,14 +173,247 @@ $(function() {
 			type: 'get',
 			success: function(data) {
 				$('#make_result').val(JSON.stringify(data, null, 2));				
-				$('#choose_wallet').attr('src', '');				
+				$('#make_choose_wallet').attr('src', '');				
 			}, 
 			error: function(data) {
 				$('#make_result').val(JSON.stringify(data.responseJSON, null, 2));
-				$('#choose_wallet').attr('src', '');				
+				$('#make_choose_wallet').attr('src', '');				
 			}			
 		});
 		$('#start_result').val('');
+	});
+});
+</script>
+				</div>				
+			</div>
+			<div id="create_auto_header" class="row">
+				<h1 class="col-12">createAutomaticPaymentRuleForAgent</h1>
+				<div class="col-6">
+					<iframe id="create_choose_wallet" src="">
+					</iframe>
+				</div>
+				<div class="col-6">
+					<div class="mb-3">
+						<label class="form-label">Security token</label>
+						<input id="create_security_code" type="text" class="form-control"/>
+					</div>
+					<div class="mb-3">
+						<label class="form-label">Transaction ID</label>
+						<input id="create_transaction_id" type="text" class="form-control"/>
+					</div>
+					<div class="mb-5 row">
+						<div class="col-6">
+							<div class="form-check">
+								<input class="form-check-input" type="radio" name="date_rule" value="daysBefore" id="date_rule_before" checked>
+								<label class="form-check-label" for="date_rule_before">
+	    							Days before:
+	  							</label>
+							</div>
+						</div>
+						<div class="col-6">
+							<select id="days_before" class="form-select form-control">
+								<option value="-1">Day before</option>
+								<option value="0">Day of</option>
+								<option value="1" selected>1 Day</option>
+								<option value="2">2 Days</option>
+								<option value="3">3 Days</option>
+								<option value="4">4 Days</option>
+								<option value="5">5 Days</option>
+								<option value="6">6 Days</option>
+								<option value="7">7 Days</option>
+								<option value="8">8 Days</option>
+								<option value="9">9 Days</option>
+								<option value="10">10 Days</option>
+								<option value="11">11 Days</option>
+								<option value="12">12 Days</option>
+								<option value="13">13 Days</option>
+								<option value="14">14 Days</option>
+								<option value="15">15 Days</option>								
+							</select>
+						</div>
+						<div class="col-6">
+							<div class="form-check">
+								<input class="form-check-input" type="radio" name="date_rule" value="dayOfMonth" id="date_rule_day">
+							  	<label class="form-check-label" for="date_rule_day">
+							    	Day of month:
+							  	</label>
+							</div>
+						</div>
+						<div class="col-6">
+							<select id="day_of_month" class="form-select form-control">
+								<option value="0">0th</option>
+								<option value="1" selected>1st</option>
+								<option value="2">2nd</option>
+								<option value="3">3rd</option>
+								<option value="4">4th</option>
+								<option value="5">5th</option>
+								<option value="6">6th</option>
+								<option value="7">7th</option>
+								<option value="8">8th</option>
+								<option value="9">9th</option>
+								<option value="10">10th</option>
+								<option value="11">11th</option>
+								<option value="12">12th</option>
+								<option value="13">13th</option>
+								<option value="14">14th</option>
+								<option value="15">15th</option>
+								<option value="16">16th</option>
+								<option value="17">17th</option>
+								<option value="18">18th</option>
+								<option value="19">19th</option>
+								<option value="20">20th</option>
+								<option value="21">21st</option>
+								<option value="22">22nd</option>
+								<option value="23">23rd</option>
+								<option value="24">24th</option>
+								<option value="25">25th</option>
+								<option value="26">26th</option>
+								<option value="27">27th</option>
+								<option value="28">28th</option>
+								<option value="29">29th</option>
+								<option value="30">30th</option>
+								<option value="31">31st</option>
+								<option value="32">32nd</option>
+								<option value="33">33rd</option>
+							</select>
+						</div>											
+					</div>
+					<div class="mb-5 row">
+						<div class="col-12">
+							<div class="form-check">
+								<input class="form-check-input" type="radio" name="amount_rule" value="minimumAmountDue" id="amount_rule_min" checked>
+							  	<label class="form-check-label" for="amount_rule_min">
+							    	Minimum amount
+							  	</label>
+							</div>
+						</div>
+						<div class="col-12">
+							<div class="form-check">
+								<input class="form-check-input" type="radio" name="amount_rule" value="billAmount" id="amount_rule_due">
+							  	<label class="form-check-label" for="amount_rule_due">
+							    	Amount due
+							  	</label>
+							</div>
+						</div>
+						<div class="col-6">
+							<div class="form-check">
+								<input class="form-check-input" type="radio" name="amount_rule" value="uptoAmount" id="amount_rule_upto">
+							  	<label class="form-check-label" for="amount_rule_upto">
+							    	Up to:
+							  	</label>
+							</div>
+						</div>
+						<div class="col-6">
+							<input id="automatic_upto_amount" type="text" class="form-control"/>
+						</div>
+					</div>
+					<div class="mb-5 row">
+						<div class="col-12">
+							<div class="form-check">
+								<input class="form-check-input" type="radio" name="count_rule" value="untilCanceled" id="count_rule_cancel" checked>
+							  	<label class="form-check-label" for="count_rule_cancel">
+							    	Until cancelled
+							  	</label>
+							</div>
+						</div>
+						<div class="col-6">
+							<div class="form-check">
+								<input class="form-check-input" type="radio" name="count_rule" value="paymentCount" id="count_rule_payments">
+							  	<label class="form-check-label" for="count_rule_payments">
+							    	# of payments
+							  	</label>
+							</div>
+						</div>
+						<div class="col-6">
+							<input id="automatic_pay_count" type="text" class="form-control"/>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-6 text-center">
+							<button id="create_submit" class="btn btn-primary mb-3">Submit</button>
+						</div>					
+						<div class="col-6 text-center">
+							<button id="create_cancel" class="btn btn-primary mb-3">Cancel</button>
+						</div>
+					</div>					
+					<div class="mb-3">
+						<label class="form-label">Result</label>
+						<textarea id="create_result" class="form-control" rows="8">
+						</textarea>
+					</div>
+<script>
+$(function() {
+	$('#create_submit').on('click', function(event) {
+		event.preventDefault();
+		var data = {
+			securityToken: $('#create_security_code').val(),
+			transactionId: $('#create_transaction_id').val()
+		};
+		
+		var dateRule = $('input[name=date_rule]:checked').val();
+		
+		if (dateRule === 'daysBefore') {
+			data.paymentDateRule = 'daysBefore=' + $('#days_before').val();
+		} else if (dateRule === 'dayOfMonth') {
+			data.paymentDateRule = 'dayOfMonth=' + $('#day_of_month').val();
+		}
+
+		var amountRule = $('input[name=amount_rule]:checked').val();
+		
+		if (amountRule === 'minimumAmountDue') {
+			data.paymentAmountRule = 'minimumAmountDue';
+		} else if (amountRule === 'billAmount') {
+			data.paymentAmountRule = 'billAmount';
+		} else if (amountRule === 'uptoAmount') {
+			data.paymentAmountRule = 'uptoAmount=' + $('#automatic_upto_amount').val();
+		}
+		
+		var countRule = $('input[name=count_rule]:checked').val();
+		
+		if (countRule === 'untilCanceled') {
+			data.paymentCountRule = 'untilCanceled';
+		} else if (countRule === 'paymentCount') {
+			data.paymentCountRule = 'paymentCount=' + $('#automatic_pay_count').val();
+		}	
+
+		$.ajax({
+			url:  'createAutomaticPaymentRuleForAgent',
+			type: 'post',
+			contentType: 'application/json',
+			data: JSON.stringify(data),
+			success: function(data) {
+				$('#create_result').val(JSON.stringify(data, null, 2));
+				$('#create_choose_wallet').attr('src', '');				
+			}, 
+			error: function(data) {
+				$('#create_result').val(JSON.stringify(data.responseJSON, null, 2));
+				$('#create_choose_wallet').attr('src', '');				
+			}
+		});
+		$('#create_result').val('');			
+	});
+	$('#create_cancel').on('click', function(event) {
+		event.preventDefault();
+		var token   = $('#create_security_code').val();
+		var transId = $('#create_transaction_id').val();
+
+		var url = 'cancelPaymentForAgent?' +
+				  'securityToken=' + encodeURIComponent(token) + '&' +
+				  'transactionId=' + encodeURIComponent(transId);
+				  
+		$.ajax({
+			url:  url,
+			type: 'get',
+			success: function(data) {
+				$('#create_result').val(JSON.stringify(data, null, 2));				
+				$('#create_choose_wallet').attr('src', '');				
+			}, 
+			error: function(data) {
+				$('#create_result').val(JSON.stringify(data.responseJSON, null, 2));
+				$('#create_choose_wallet').attr('src', '');				
+			}			
+		});
+		$('#create_result').val('');
 	});
 });
 </script>
