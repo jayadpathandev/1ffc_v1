@@ -103,13 +103,14 @@ public class GetDocumentEsignUrl extends GetDocumentEsignUrlBase{
 
     	} else {
 
-    		final var sourceDetailsMap = getSourceDetails(sourceId);
+//			TODO: we will need this at the time we add logic to get routing number from payment app.
+//    		final var sourceDetailsMap = getSourceDetails(sourceId);
 
-    		if (sourceDetailsMap == null) {
-    			LOGGER.warn("Unable to finds the source details");
-    			request.setRequestStatus(ServiceAPIErrorCode.Failure);
-    			return ServiceAPIErrorCode.Failure;
-    		}
+//    		if (sourceDetailsMap == null) {
+//    			LOGGER.warn("Unable to finds the source details");
+//    			request.setRequestStatus(ServiceAPIErrorCode.Failure);
+//    			return ServiceAPIErrorCode.Failure;
+//    		}
 
     		pdfDetailsMap.put("EFFECTIVE_DATE", dateFormatter.format(new Date()));
     		pdfDetailsMap.put("NAME_ON_PMT_ACCOUNT", walletInfo.getSourceName());
@@ -125,7 +126,8 @@ public class GetDocumentEsignUrl extends GetDocumentEsignUrlBase{
     		pdfDetailsMap.put("ACH_CHECKBOX", "Yes");
     		pdfDetailsMap.put("BANK_NAME", walletInfo.getSourceName());
     		pdfDetailsMap.put("BANK_ACCOUNT_MASKED", walletInfo.getSourceNum());
-    		pdfDetailsMap.put("BANK_ROUTING_NUMBER", sourceDetailsMap.get("routingNumber"));
+//    		pdfDetailsMap.put("BANK_ROUTING_NUMBER", sourceDetailsMap.get("routingNumber"));
+    		pdfDetailsMap.put("BANK_ROUTING_NUMBER", "");
     	}
 
 
