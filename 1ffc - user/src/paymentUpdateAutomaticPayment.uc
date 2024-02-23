@@ -45,6 +45,7 @@ useCase paymentUpdateAutomaticPayment [
 	importJava LocalizedFormat(com.sorrisotech.common.LocalizedFormat)
 	importJava DisplayAccountMasked(com.sorrisotech.fffc.account.DisplayAccountMasked)
 	importJava EsignHelper(com.sorrisotech.fffc.user.EsignHelper)
+	importJava UcProfileAction(com.sorrisotech.app.profile.UcProfileAction)
 			
     import validation.dateValidation
 		
