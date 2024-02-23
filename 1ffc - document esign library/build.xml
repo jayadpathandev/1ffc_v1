@@ -56,9 +56,6 @@
 		<copy todir="${resources.package.dir}">
 			<fileset dir="resources"/>
 		</copy>
-		<propertyfile file="${resources.package.dir}/documentEsign.properties">
-			<entry key="payment.encryption.baseUrl" value="https://216.120.255.76:5001/payment"/>
-		</propertyfile>
 		<jar destfile="${mod.package.dir}/jars/1ffc${moduleName}.jar">
 		    <fileset dir="${mod.artifacts.dir}/classes"/>
 			<fileset dir="src" includes="**/*.xml"/>
