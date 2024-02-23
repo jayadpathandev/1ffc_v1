@@ -122,6 +122,7 @@ useCase paymentUpdateAutomaticPayment [
     native string sStatusFlag   = "" 	
 	native string sFirstName    = ""
 	native string sLastName     = ""
+	volatile string sFullName	= EsignHelper.getFullName(sFirstName, sLastName)
 	volatile string sPayCountStatement   = EsignHelper.getPayCountStatement(fPayEffective.pInput)
 	volatile string sExpiryDateStatement   = EsignHelper.getExpiryDateStatement(fPayEffective.aDate)
 	volatile string sPriorDaysStatement   = EsignHelper.getPriorDaysStatement(fPayInvoices.dPayPriorDays)
@@ -932,7 +933,7 @@ useCase paymentUpdateAutomaticPayment [
 		srEsignUrlParams.internalAccount = sPayAccountInternal
 		srEsignUrlParams.displayAccount = sPayAccountExternal
 		srEsignUrlParams.sourceId = dWalletItems
-		srEsignUrlParams.fullName = sFirstName + "\\ " + sLastName
+		srEsignUrlParams.fullName = sFullName
 		srEsignUrlParams.extDocId = ""
 		srEsignUrlParams.flex1 = ""
 		srEsignUrlParams.flex2 = "Letter"

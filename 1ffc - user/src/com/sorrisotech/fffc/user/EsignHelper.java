@@ -53,4 +53,8 @@ public class EsignHelper {
 	public static String getPayCountStatement(String value) {
 		return "for " + value + " payments";
 	}
+	
+	public static String getFullName(String firstName, String lastName) {
+		return firstName + " " + lastName;
+	}
 }
