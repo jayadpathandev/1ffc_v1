@@ -115,10 +115,15 @@
         	<fileset dir="${devkit.dir}/app - extdoc/resources" includes="layout-pages/**/*.*"/>
         </copy>
 
+    	<!-- Copy the NLS driver -->
+        <mkdir dir="${output.dir}/apps/extdoc/drivers/nls"/>
+        <copy todir="${output.dir}/apps/extdoc/drivers/nls">
+            <fileset dir="${mod.package.dir}/extdoc"/>
+        </copy>
+
     	<!-- Create the cofiguration. -->
         <mkdir dir="${output.dir}/apps/extdoc/drivers/billstreams"/>
         <echo file="${output.dir}/apps/extdoc/drivers/billstreams/1FFCBILLS.properties">drivername=nls</echo>
-
     </target>
 
     <target name="-build.admin.uc" depends="-init">
@@ -189,9 +194,6 @@
         <javac srcdir="1ffc - admin/src" destdir="${output.dir}/apps/admin/classes/" includeAntRuntime="false">
             <classpath>
                 <fileset dir="${devkit.dir}/app - admin/lib"/>
-				<fileset dir="${artifacts.dir}/package/library/nls">
-					<include name="libraryNls.jar"/>
-				</fileset>
             </classpath>
         </javac>
 		<copy todir="${output.dir}/apps/admin/classes" overwrite="true">
@@ -230,9 +232,7 @@
                 <include name="*.app"/>
                 <include name="*.uc"/>
             </fileset>
-			<fileset dir="1ffc - nls notify/src">
-                <include name="*.api"/>
-            </fileset>
+			<fileset dir="${mod.package.dir}/auth/usecases"/>
         </copy>
 
         <ant dir="${devkit.dir}/build" antfile="persona.xml" inheritAll="false" inheritRefs="false">
@@ -263,6 +263,7 @@
             <fileset dir="${devkit.dir}/app - admin/resources">
                 <include name="org-id/**.*"/>
             </fileset>
+            <fileset dir="${mod.package.dir}/auth/resources"/>
         </copy>
 
 		<!-- Usecases/I18N/services from the base application. -->
@@ -308,21 +309,15 @@
                 <fileset dir="${devkit.dir}/app - admin/lib">
                     <include name="serviceOrgId.jar"/>
                 </fileset>
-				<fileset dir="${artifacts.dir}/package/library/nls">
-					<include name="libraryNls.jar"/>
+				<fileset dir="${mod.package.dir}/auth/jars">
+					<include name="*.jar"/>
 				</fileset>
             </classpath>
         </javac>
         <copy todir="${output.dir}/apps/auth/lib">
-            <fileset dir="${artifacts.dir}/package/library/nls">
-                <include name="*.jar"/>
-            </fileset>
-            <fileset dir="${artifacts.dir}/package/library/nlsNotify">
-                <include name="*.jar"/>
-            </fileset>
-            <fileset dir="${artifacts.dir}/package/service/nls">
-                <include name="*.jar"/>
-            </fileset>
+				<fileset dir="${mod.package.dir}/auth/jars">
+					<include name="*.jar"/>
+				</fileset>
             <fileset dir="${devkit.dir}/app - admin/lib">
                 <include name="serviceOrgId.jar"/>
             </fileset>
@@ -347,9 +342,7 @@
             <fileset dir="1ffc - status service/src">
                 <include name="*.api"/>
             </fileset>
-			<fileset dir="1ffc - nls notify/src">
-                <include name="*.api"/>
-            </fileset>
+			<fileset dir="${mod.package.dir}/auth/usecases"/>
         </copy>
 
         <ant dir="${devkit.dir}/build" antfile="persona.xml" inheritAll="false" inheritRefs="false">
@@ -421,9 +414,6 @@
                 <fileset dir="${devkit.dir}/app - user/lib">
                     <include name="*.jar"/>
                 </fileset>
-				<fileset dir="${artifacts.dir}/package/library/nls">
-					<include name="libraryNls.jar"/>
-				</fileset>
 				<fileset dir="${mod.package.dir}/user/jars">
 					<include name="*.jar"/>
 				</fileset>
@@ -443,15 +433,6 @@
         </copy>
         <copy todir="${output.dir}/apps/user/lib/">
             <fileset dir="${artifacts.dir}/package/service/status"/>
-            <fileset dir="${artifacts.dir}/package/library/nls">
-                <include name="*.jar"/>
-            </fileset>
-            <fileset dir="${artifacts.dir}/package/library/nlsNotify">
-                <include name="*.jar"/>
-            </fileset>
-            <fileset dir="${artifacts.dir}/package/service/nls">
-                <include name="*.jar"/>
-            </fileset>
             <fileset dir="${mod.package.dir}/user/jars">
                 <include name="*.jar"/>
             </fileset>
@@ -512,6 +493,7 @@
 
         <ant dir="ui" target="qa"/>
         <ant dir="ui" target="package"/>
+
 
 		<propertyfile file="${output.dir}/apps/user/classes/app-config.properties">
             <entry key="nls.api.client.id" value="${nls.api.client.id}"/>

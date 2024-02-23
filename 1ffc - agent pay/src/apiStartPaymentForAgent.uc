@@ -154,6 +154,7 @@ useCase apiStartPaymentForAgent
 		ApiPay.setUserid(srStart.userid)
 		ApiPay.setUserName(srStart.userName)
 		ApiPay.setCompanyId(srStart.companyId)
+		ApiPay.setAutomaticPayment(srStart.automaticEnabled)
 		
 		JsonResponse.reset()
 		JsonResponse.setString("transactionId", id)
