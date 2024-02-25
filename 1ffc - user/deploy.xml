@@ -10,6 +10,8 @@
 
 		<mkdir dir="deploy/${app}"/> 
         <mkdir dir="deploy/${app}/classes"/>
+		<mkdir dir="deploy/${app}/linked-root"/>
+		<mkdir dir="deploy/${app}/linked-root/js"/>
     </target>
 		
 	<target name="-ui" depends="-init">
