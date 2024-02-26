@@ -723,6 +723,16 @@ public class ApiPay implements IExternalReuse {
 	}
 	
 	/**
+	 * Automatic payment rule setup in progress
+	 * 
+	 * @param code
+	 * @return
+	 */
+	public String setTransactionAutoPayScheduleInProgress (final String code) {
+		return setStatus(code, PayStatus.automaticPmtRuleInProgress);
+	}
+	
+	/**
 	 * StartPaymentForAgent completed successfully
 	 * 
 	 * @param code

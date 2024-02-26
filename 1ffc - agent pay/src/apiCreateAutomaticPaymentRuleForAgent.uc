@@ -311,7 +311,8 @@ useCase apiCreateAutomaticPaymentRuleForAgent
 		ApiPay.createAutomaticJson(createRequest.GROUPING_JSON)
 		ApiPay.walletToken        (createRequest.SOURCE_ID)
 		ApiPay.userid             (createRequest.USER_ID)
-		
+
+		ApiPay.setTransactionOneTimeInProgress(sTransactionId)	
 		switch apiCall Payment.SetAutomaticPayment(createRequest, createResponse, status) [
             case apiSuccess actionCreateAutomaticHistory
             default actionFailureResponse
@@ -345,7 +346,7 @@ useCase apiCreateAutomaticPaymentRuleForAgent
 	    ]
 		Log.^success("createAutomaticPaymentRuleForAgent", sCustomerId, sAccountId, sDateRule, sAmountRule, sCountRule, "success")
 
-		ApiPay.clear(sTransactionId)
+		ApiPay.setTransactionComplete(sTransactionId)
 		foreignHandler JsonResponse.send()	 	
 	 ]
 
@@ -353,6 +354,7 @@ useCase apiCreateAutomaticPaymentRuleForAgent
 	 * 16a. The operation failed.
 	 */
 	 action actionFailureResponse [
+		ApiPay.setTransactionError(sTransactionId)
 	    auditLog(audit_agent_pay.create_auto_payment_for_agent_failure) [
 	   		sCustomerId sAccountId
 	    ]
@@ -371,6 +373,7 @@ useCase apiCreateAutomaticPaymentRuleForAgent
      * Send a response back that we could not process the request.
      */
     action actionFailure [
+		ApiPay.setTransactionError(sTransactionId)
 		JsonResponse.reset()
 		JsonResponse.setNumber("statuscode", sErrorStatus)
 		JsonResponse.setBoolean("success", "false")
@@ -379,7 +382,6 @@ useCase apiCreateAutomaticPaymentRuleForAgent
 
 		Log.error("makeOneTimePaymentForAgent", sTransactionId, sDateRule, sAmountRule, sCountRule, sErrorDesc)
 
-		ApiPay.clear(sTransactionId)
 		foreignHandler JsonResponse.errorWithData(sErrorStatus)
     ]
 
@@ -387,6 +389,7 @@ useCase apiCreateAutomaticPaymentRuleForAgent
      * Invalid Security Token
      */
     action actionInvalidSecurityToken [
+		ApiPay.setTransactionError(sTransactionId)
 		JsonResponse.reset()
 		JsonResponse.setNumber("statuscode", "401")
 		JsonResponse.setBoolean("success",   "false")
@@ -402,6 +405,7 @@ useCase apiCreateAutomaticPaymentRuleForAgent
      * Send a response back that we could not decode some of the data.
      */
     action actionDecodeFailure [
+		ApiPay.setTransactionError(sTransactionId)
 		JsonResponse.reset()
 		JsonResponse.setNumber("statuscode", sErrorStatus)
 		JsonResponse.setBoolean("success", "false")

@@ -179,5 +179,6 @@
 	<classpathentry kind="lib" path="/app - user/lib/xmlbeans-5.2.0.jar"/>
 	<classpathentry kind="lib" path="/app - user/lib/xmlsec-3.0.2.jar"/>
 	<classpathentry kind="lib" path="/app - user/lib/xmltooling-1.4.4.jar"/>
+	<classpathentry kind="con" path="org.apache.ivyde.eclipse.cpcontainer.IVYDE_CONTAINER/?project=1ffc+-+agent+pay&amp;ivyXmlPath=ivy.xml&amp;confs=*"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
