@@ -168,7 +168,7 @@ useCase apiDeleteAutomaticPaymentRuleForAgent
 	    auditLog(audit_agent_pay.delete_autopay_for_agent_success) [
 	   		sCustomerId sAccountId
 	    ]
-		Log.^success("startPaymentForAgent", sCustomerId, sAccountId)
+		Log.^success("deleteAutomaticPaymentForAgent", sCustomerId, sAccountId)
 
 		foreignHandler JsonResponse.send()	 	
 	 ]
@@ -186,7 +186,7 @@ useCase apiDeleteAutomaticPaymentRuleForAgent
 	    auditLog(audit_agent_pay.delete_autopay_for_agent_failure) [
 	   		sCustomerId sAccountId
 	    ]
-		Log.error("makeOneTimePaymentForAgent", sCustomerId, sAccountId, sErrorDesc)
+		Log.error("deleteAutomaticPaymentForAgent", sCustomerId, sAccountId, sErrorDesc)
 
 		foreignHandler JsonResponse.errorWithData(sErrorStatus)
     ]

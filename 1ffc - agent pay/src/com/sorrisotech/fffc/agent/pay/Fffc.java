@@ -37,7 +37,7 @@ public class Fffc {
 		try {
 			retval = mContext.getBean(name, clazz);
 		} catch(BeansException e) {
-			final String msg ="Could not find bean [" + name + "] in 1ffc.xml."; 
+			final String msg ="Could not find bean [" + name + "] in agent_pay.xml."; 
 			LOG.error(msg, e);
 			throw new RuntimeException(msg, e);
 		}

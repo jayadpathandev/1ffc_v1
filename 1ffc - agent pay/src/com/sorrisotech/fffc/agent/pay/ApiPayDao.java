@@ -3,9 +3,13 @@ package com.sorrisotech.fffc.agent.pay;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
@@ -19,9 +23,15 @@ import com.sorrisotech.fffc.agent.pay.data.BillBean;
 import com.sorrisotech.fffc.agent.pay.data.BillMapper;
 import com.sorrisotech.fffc.agent.pay.data.ScheduledBean;
 import com.sorrisotech.fffc.agent.pay.data.ScheduledMapper;
+import com.sorrisotech.fffc.agent.pay.data.ScheduledPaymentBean;
+import com.sorrisotech.fffc.agent.pay.data.ScheduledPaymentMapper;
 
 public class ApiPayDao {
 
+
+	private static final Logger LOG = LoggerFactory.getLogger(ApiPayDao.class);
+
+	
 	/***************************************************************************
 	 * Spring object to make the JDBC calls.
 	 */
@@ -71,6 +81,14 @@ public class ApiPayDao {
 	@Autowired
 	@Qualifier("api.pay.auto.pay")	
 	private String mAutoPay = null;
+
+	/***************************************************************************
+	 * SQL to get details about the scheduled payments for an account.
+	 */
+	@Autowired
+	@Qualifier("api.pay.schedule.get")	
+	private String mScheduledPayments = null;
+	
 	
 	/***************************************************************************
 	 * Given a customerId look up the ID of the associated user.  If no user is 
@@ -213,6 +231,26 @@ public class ApiPayDao {
 			retval = mJdbc.queryForObject(mAutoPay, params, new AutoPayMapper());
 		} catch(IncorrectResultSizeDataAccessException e) {
 			// The account does not have an auto-pay set up.
+		}
+		
+		return retval;
+	}
+	
+	public List<ScheduledPaymentBean> scheduledPayments (
+			final BigDecimal userId,
+			final String accountId ) {
+		final var params = new HashMap<String, Object>();
+		
+		params.put("userId", userId.toPlainString());
+		params.put("accountId", accountId);
+		
+		List<ScheduledPaymentBean> retval = null;
+
+		try {
+			retval = mJdbc.query(mScheduledPayments, params, new ScheduledPaymentMapper());
+		} catch (DataAccessException e) {
+			// -- something bad happened --
+			LOG.error("ApiPayDao:scheduledPayments -- DataAccessException", e);
 		}
 		
 		return retval;
