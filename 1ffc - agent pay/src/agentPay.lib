@@ -9,6 +9,7 @@ library agentPay [
     	apiRequestPaymentStatusForAgent
     	apiGetAutomaticPaymentRuleForAgent
     	apiDeleteAutomaticPaymentRuleForAgent
+    	apiGetScheduledPaymentsForAgent
     ]           
     
     audit [

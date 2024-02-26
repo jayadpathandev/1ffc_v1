@@ -143,6 +143,28 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
         </constructor-arg>   
     </bean>    
     
+    <bean id="api.pay.schedule.get"  class= "java.lang.String">
+         <constructor-arg>
+            <value>
+                select 
+                	ps.online_trans_id as paymentId,
+					ps.source_details as paymentSourceNames,
+					ps.pay_type as paymentCategory, 
+					ps.pay_amt as paymentAmount, 
+					ps.pay_surcharge as paymentSurcharge,
+					ps.pay_total_amt as paymentTotalAmount,					   
+					ps.pay_date as paymentDate, 
+					ps.pay_status as paymentStatus
+				from   
+					pmt_schedule ps,
+					pmt_grouping pg 
+				where  
+					ps.online_trans_id = pg.online_trans_id AND
+					ps.user_id = :userId AND
+					pg.internal_account_number = :accountId
+            </value>
+       </constructor-arg>   
+    </bean>    
     
     <bean id="ApiPayDao" class="com.sorrisotech.fffc.agent.pay.ApiPayDao">
     </bean>

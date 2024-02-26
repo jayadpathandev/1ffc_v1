@@ -36,5 +36,50 @@ define service AgentPay(com.sorrisotech.app.serviceapi.uc.UcRequestClient) [
 		string automaticCount
 		string automaticPaymentId
 	]
+	
+	/**
+     * returns  future payment information associated with a single account
+     * as a JSON array of payments suitable for sending over the network. 
+     * If there are no future payments returns an empty string.
+     * 
+     * Information returned  looks like the example below:
+     * 
+     * 	 "scheduledPayments": [
+     *			{
+     * 				"paymentId": 				"1fa5baf1-5af0-4a87-aca6-a4c9ada77e32",
+     * 				"scheduledDate": 			"2024/03/01",
+     * 				"paymentAmount": 			"202.45",
+     * 				"surcharge":				"1.50",
+     * 				"totalPayment" : 			"203.95",
+     * 				"paymentCategory" :			"onetime"
+     * 				"paymentStatus" :			"scheduled"
+     * 				"paymentAccountNickname": 	"Erics Debit Card",
+     * 				"paymentAccountMasked" 		"xxxxx4325",
+     * 				"paymentAccountType" : 			"debit"
+     *			},
+     * 			{
+     *  			"paymentId": 				"f14dbb35-d48a-41e6-a7b0-d0d0efd854d9",
+     *  			"scheduleDate": 			"2024/02/25",
+     *  			"paymentAmount":			"23.99",
+     * 				"surcharge" :				"0.00",
+     * 				"totalPayment": 			"23.99",
+     * 				"paymentCateogry" :			"automatic"
+     * 				"paymentstatus" :			"processing"
+     *  			"paymentAccountNickname": 	"Erics Bank Acct",
+     * 				"paymentAccountMasked: 		"xxxxxxxx8888",		
+     * 				"paymentAccountType" : 			"bank"
+     *			}
+     * 		]
+     * 	
+     * @since 2024-Feb-24
+     * @version 2024-Feb-24 jak	
+     */
+    define method GetScheduledPaymentsAsJson [
+    	string customerId			
+    	string accountId	
+    ] returns [
+    	string scheduledPayments
+    ]
+    
  ]
  
