@@ -58,7 +58,7 @@ public class GetScheduledPaymentsAsJson extends GetScheduledPaymentsAsJsonBase {
 				}
 				bObj.add("paymentDate", pmt.paymentDate.toString());
 
-			
+				// -- need to format payment numbers for the json --
 				DecimalFormat dFmt = new DecimalFormat("#0.00");
 				
 				bObj.add("paymentAmount", dFmt.format(pmt.paymentAmount));

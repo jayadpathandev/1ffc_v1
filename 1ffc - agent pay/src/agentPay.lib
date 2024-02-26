@@ -10,6 +10,7 @@ library agentPay [
     	apiGetAutomaticPaymentRuleForAgent
     	apiDeleteAutomaticPaymentRuleForAgent
     	apiGetScheduledPaymentsForAgent
+    	apiDeleteScheduledPaymentForAgent
     ]           
     
     audit [
@@ -24,12 +25,14 @@ library agentPay [
             event cancel_payment_for_agent_success			(15 "{Agent payment cancelled [customerId={0} accountId={1}] success.}")
             event cancel_payment_for_agent_failure			(16 "{Agent payment cancelled [transactionId={0}] failure.}")
 
-			event delete_autopay_for_agent_success			(17 "{Agent payment autopay delete [customerId={0} accountId={1}] success.}")
-			event delete_autopay_for_agent_failure			(18 "{Agent payment autopay delete [customerId={0} accountId={1}] failed.}")
+			event delete_autopay_for_agent_success			(17 "{Agent payment automatic payment delete [customerId={0} accountId={1}] success.}")
+			event delete_autopay_for_agent_failure			(18 "{Agent payment automatic payment delete [customerId={0} accountId={1}] failed.}")
 			
             event create_auto_payment_for_agent_success		(19 "{Agent payment create automatic payment [customerId={0} accountId={1}] success.}")
             event create_auto_payment_for_agent_failure		(20 "{Agent payment create automatic payment  [customerId={0} accountId={1}] failure.}")
 
+			event delete_scheduledpay_for_agent_success		(21 "{Agent payment delete scheduled payment [customerId={0} accountId={1} paymentId={2}] success.}")
+			event delete_scheduledpay_for_agent_failed		(22 "{Agent payment delete scheduled payment [customerId={0} accountId={1} paymentId={2}] failed.}")
          ]
     ]
 ]
