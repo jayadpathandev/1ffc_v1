@@ -6,15 +6,13 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.ListIterator;
 
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sorrisotech.fffc.agent.pay.ApiPayDao;
 import com.sorrisotech.fffc.agent.pay.Fffc;
 import com.sorrisotech.fffc.agent.pay.data.ScheduledPaymentBean;
@@ -36,45 +34,45 @@ public class GetScheduledPaymentsAsJson extends GetScheduledPaymentsAsJsonBase {
 					final BigDecimal       userId,
 					final String           accountId,
 					final IRequestInternal op
-				) 
+				) throws JsonProcessingException 
 	{
 			
 		final List<ScheduledPaymentBean> data = mDao.scheduledPayments(userId, accountId);
-
-		JsonObjectBuilder bld = Json.createObjectBuilder();
-		JsonArrayBuilder abld = Json.createArrayBuilder();
+		final ObjectMapper mapper = new ObjectMapper();
+		
+		final ObjectNode bld = mapper.createObjectNode();
+		final ArrayNode abld = bld.withArray("scheduledPayments");
 		
 		if (!((null == data) || (0 == data.size()))) {
 			// -- create a builder, add each item in the list to the JsonArray --
 			ListIterator<ScheduledPaymentBean> it = data.listIterator();
 			while (it.hasNext()) {
 				ScheduledPaymentBean pmt = it.next();
-				JsonObjectBuilder bObj = Json.createObjectBuilder();
-				bObj.add("paymentId", pmt.paymentId);
+				final ObjectNode bObj = mapper.createObjectNode();
+				bObj.put("paymentId", pmt.paymentId);
 				{
 					SimpleDateFormat date = new SimpleDateFormat("yyyy/MM/dd");
 					String sDate = date.format(pmt.paymentDate);
-					bObj.add("paymentDate", sDate);
+					bObj.put("paymentDate", sDate);
 				}
-				bObj.add("paymentDate", pmt.paymentDate.toString());
+				bObj.put("paymentDate", pmt.paymentDate.toString());
 
 				// -- need to format payment numbers for the json --
 				DecimalFormat dFmt = new DecimalFormat("#0.00");
 				
-				bObj.add("paymentAmount", dFmt.format(pmt.paymentAmount));
-				bObj.add("paymentSurcharge", dFmt.format(pmt.paymentSurcharge));
-				bObj.add("paymentTotalAmount",dFmt.format(pmt.paymentTotalAmount));
-				bObj.add("paymentCategory", pmt.paymentCategory);
-				bObj.add("paymentStatus", pmt.paymentStatus);
-				bObj.add("paymentAccountNickname", pmt.paymentAccountNickname);
-				bObj.add("paymentAccountMasked", pmt.paymentAccountMasked);
-				bObj.add("paymentAccountType", pmt.paymentAccountType);
-				abld.add(bObj.build());
+				bObj.put("paymentAmount", dFmt.format(pmt.paymentAmount));
+				bObj.put("paymentSurcharge", dFmt.format(pmt.paymentSurcharge));
+				bObj.put("paymentTotalAmount",dFmt.format(pmt.paymentTotalAmount));
+				bObj.put("paymentCategory", pmt.paymentCategory);
+				bObj.put("paymentStatus", pmt.paymentStatus);
+				bObj.put("paymentAccountNickname", pmt.paymentAccountNickname);
+				bObj.put("paymentAccountMasked", pmt.paymentAccountMasked);
+				bObj.put("paymentAccountType", pmt.paymentAccountType);
+				abld.add(bObj);
 			}
 		}		
 		// -- add the array into this json object we are building, not the array may be empty --
-		bld.add("scheduledPayments",  abld.build()); 
-		op.set(IApiAgentPay.GetScheduledPaymentsAsJson.scheduledPayments, bld.build().toString());
+		op.set(IApiAgentPay.GetScheduledPaymentsAsJson.scheduledPayments, mapper.writeValueAsString(bld));
 
 	}
 	@Override
@@ -101,7 +99,12 @@ public class GetScheduledPaymentsAsJson extends GetScheduledPaymentsAsJsonBase {
 		return ServiceAPIErrorCode.Failure;			
 	}
 
-	getScheduledPaymentsFormatted(user.userId, accountId, op);
+	try {
+		getScheduledPaymentsFormatted(user.userId, accountId, op);
+	} catch (JsonProcessingException e) {
+		LOG.error("Error creating the JSON:", e);
+		return ServiceAPIErrorCode.Failure;
+	}
 
 	op.setRequestStatus(ServiceAPIErrorCode.Success);
 	return ServiceAPIErrorCode.Success;
