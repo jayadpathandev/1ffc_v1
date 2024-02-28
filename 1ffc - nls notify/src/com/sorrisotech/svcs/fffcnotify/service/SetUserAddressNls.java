@@ -20,16 +20,13 @@
  */
 package com.sorrisotech.svcs.fffcnotify.service;
 
-import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sorrisotech.app.library.nls.NLSClient;
 import com.sorrisotech.client.main.model.request.ContactPreferencesRequest;
 import com.sorrisotech.client.main.model.response.ContactPrefrences.ChannelAddress;
@@ -57,17 +54,6 @@ public class SetUserAddressNls extends SetUserAddressNlsBase {
 	private static final Logger LOG = LoggerFactory.getLogger(SetUserAddressNls.class);
 	
 	/**************************************************************************
-	 * JSON object mapper.
-	 */
-	private static final ObjectMapper m_cObjectMapper = new ObjectMapper();
-	
-	/**************************************************************************
-	 * Pattern of browser geolocation e.g. latitude,longitude.
-	 */
-	private static final Pattern m_cBrowserGeoPattern = Pattern
-	        .compile("(-?\\d+(\\.\\d+)?),\\s*(-?\\d+(\\.\\d+)?)");
-	
-	/**************************************************************************
 	 * 1. Turn the request around. 2. Insert all the configuration parameters. 3.
 	 * Return the request with success.
 	 */
@@ -90,8 +76,10 @@ public class SetUserAddressNls extends SetUserAddressNlsBase {
 		
 		CreateContactPrefrencesResponse contactPreferencesofUser = null;
 		
-		final Location cLocation = getLocation(szBrowserGeo, szIpGeolocation);
+		final Location cLocation = Location.getLocation(szBrowserGeo, szIpGeolocation);
+		
 		String latitude = null;
+		
 		String longitude = null;
 		
 		// --------------------------------------------------------------------------------------
@@ -134,17 +122,35 @@ public class SetUserAddressNls extends SetUserAddressNlsBase {
 		}
 		
 		if (null != contactPreferencesofUser) {
-			final String lLatitude = latitude;
+			final String lLatitude  = latitude;
 			final String lLongitude = longitude;
-			// --------------------------------------------------------------------------------------
-			// If channel is present at NLS side updating consent address as per request.
-			// The hasChange check address is changed or not.
-			boolean hasChange = contactPreferencesofUser.getPayload().getChannelAddresses().stream()
-			        .filter(cChannelAddress -> cChannelAddress.getChannelName()
-			                .equalsIgnoreCase(szChannel))
-			        .map(cChannelAddress -> updateChannelAddress(cChannelAddress, szAddress,
-			                szDateTime, szIpAddress, lLatitude, lLongitude))
-			        .findFirst().orElse(false);
+			
+			boolean hasChange = false;
+			
+			if (null != contactPreferencesofUser.getPayload().getChannelAddresses()) {
+				
+				// --------------------------------------------------------------------------------------
+				// If channel is present at NLS side updating consent address as per request.
+				// The hasChange check address is changed or not.
+				hasChange = contactPreferencesofUser.getPayload().getChannelAddresses().stream()
+				        .filter(cChannelAddress -> cChannelAddress.getChannelName()
+				                .equalsIgnoreCase(szChannel))
+				        .map(cChannelAddress -> updateChannelAddress(cChannelAddress, szAddress,
+				                szDateTime, szIpAddress, lLatitude, lLongitude))
+				        .findFirst().orElse(false);
+			} else {
+				// --------------------------------------------------------------------------------------
+				// If channel address is null we are adding the new channel.
+				var channelAddressList = new ArrayList<ChannelAddress>();
+				
+				channelAddressList.add(new ChannelAddress(szChannel, szAddress, szIpAddress,
+				        szDateTime, latitude, longitude));
+				
+				contactPreferencesofUser.getPayload().setChannelAddresses(channelAddressList);
+				
+				hasChange = true;
+				
+			}
 			
 			// --------------------------------------------------------------------------------------
 			// Flag that indicates that channel is new or not.
@@ -196,13 +202,8 @@ public class SetUserAddressNls extends SetUserAddressNlsBase {
 	 * 
 	 * @return boolean is value changed or not.
 	 */
-	private boolean updateChannelAddress(
-	        ChannelAddress cChannelAddress,
-	        String szAddress,
-	        String szDateTime,
-	        String szIpAddress,
-	        String latitude,
-	        String longitude) {
+	private boolean updateChannelAddress(ChannelAddress cChannelAddress, String szAddress,
+	        String szDateTime, String szIpAddress, String latitude, String longitude) {
 		
 		// --------------------------------------------------------------------------------------
 		// If the address is null or empty or changed then setting the address to NLS as
@@ -215,69 +216,6 @@ public class SetUserAddressNls extends SetUserAddressNlsBase {
 		cChannelAddress.setLongitude(longitude);
 		
 		return true;
-	}
-	
-	/**********************************************************************************************
-	 * This method is used to get geolocation of user either of using browserGeo or
-	 * ipGeo.
-	 * 
-	 * @param browserGeo Browser geolocation.
-	 * @param ipGeo      IP geolocation .
-	 * 
-	 * @return Geolocation of user.
-	 */
-	private static Location getLocation(
-			final String browserGeo, 
-			final String ipGeo) {
-		if (!browserGeo.isBlank()) {
-			return parseLocationFromBrowserGeo(browserGeo);
-		} else if (!ipGeo.isBlank()) {
-			return parseLocationFromIpGeo(ipGeo);
-		} else {
-			LOG.error("SetUserAddressNls:getLocation() ... Both browserGeo and ipGeo are blank.");
-			return null;
-		}
-	}
-	
-	/**********************************************************************************************
-	 * This method is used to get geolocation of user sing browserGeo.
-	 * 
-	 * @param browserGeo Browser geolocation.
-	 * 
-	 * @return Geolocation of user.
-	 */
-	private static Location parseLocationFromBrowserGeo(
-			final String browserGeo
-			) {
-		final Matcher matcher = m_cBrowserGeoPattern.matcher(browserGeo);
-		
-		if (matcher.matches()) {
-			// latitude, longitude
-			return new Location(matcher.group(1), matcher.group(3));
-		} else {
-			LOG.error(
-			        "SetUserAddressNls:parseLocationFromBrowserGeo() .. Failed to extract latitude and longitude from browser geolocation: {}",
-			        browserGeo);
-			return null;
-		}
-	}
-	
-	/**********************************************************************************************
-	 * This method is used to get geolocation of user either of using ipGeo.
-	 * 
-	 * @param ipGeo IP geolocation .
-	 * 
-	 * @return Geolocation of user.
-	 */
-	private static Location parseLocationFromIpGeo(final String ipGeo) {
-		try {
-			return m_cObjectMapper.readValue(ipGeo, Location.class);
-		} catch (IOException e) {
-			LOG.error(
-			        "SetUserAddressNls:parseLocationFromIpGeo() .. Error parsing location from IP geolocation: {}",
-			        e);
-			return null;
-		}
 	}
 	
 }
