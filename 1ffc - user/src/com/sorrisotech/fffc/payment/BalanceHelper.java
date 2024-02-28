@@ -173,7 +173,7 @@ public class BalanceHelper implements IExternalReuse {
 	
 	/**
 	 * Internal method to actually make the database call to get payments and calculate the 
-	 * 	current balance.
+	 * 	current balance.  Returns 0.00 as a floor if the amount calculated is less than 0.
 	 * 								
 	 * @param cszPayGroup
 	 * @param cszIntAccount
@@ -260,7 +260,11 @@ public class BalanceHelper implements IExternalReuse {
 		}
 		m_cLog.debug("getCurrentBalanceInternal amount to return: {}", ldCurBalance);
 		
-		ldRetVal = ldCurBalance;
+		if (1 == ldCurBalance.compareTo(BigDecimal.ZERO)) {
+			// -- only assign if > 0... otherwise we return the default
+			// 		which is 0 --
+			ldRetVal = ldCurBalance;
+		}
 		return ldRetVal;
 	}
 	

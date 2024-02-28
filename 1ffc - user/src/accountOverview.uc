@@ -255,31 +255,31 @@ useCase accountOverview [
 	
     number        previousAmt  = Math.subtract(srBillOverviewResult.totalDue, srBillOverviewResult.docAmount)                
     volatile native string sCurrentBalance = CurrentBalanceHelper.getCurrentBalanceRaw(
-    									sPayGroup,																	// -- payment group
-										sAccount,																	// -- internal account
+    									sPayGroup,											// -- payment group
+										sAccount,											// -- internal account
 										srBillOverviewResult.docDate,						// -- most recent bill date
 										srBillOverviewResult.totalDue,						// -- bill amount due
 										srGetStatusResult.statusDate,						// -- most recent status date
-										srGetStatusResult.currentAmountDue	)	// -- status amount due
+										srGetStatusResult.currentAmountDue	)				// -- status amount due
     
    volatile native string bIsAccountCurrent = CurrentBalanceHelper.isAccountCurrent(
-    									sPayGroup,																	// -- payment group
-										sAccount,																	// -- internal account
+    									sPayGroup,											// -- payment group
+										sAccount,											// -- internal account
 										srBillOverviewResult.docDate,						// -- most recent bill date
 										srBillOverviewResult.totalDue,						// -- bill amount due
 										srGetStatusResult.statusDate,						// -- most recent status date
-										srGetStatusResult.currentAmountDue	)	// -- status amount due
+										srGetStatusResult.currentAmountDue	)				// -- status amount due
     
     
     native string sLocalAccountStatus = "enabled" 						// -- this is work around to a "defect?" in persona.  API return structures appear to be
-    											  																			// 		appear to be immutable even though we can "assign a new value"... the 
-    											  																			//		    structure doesn't seem to get that new value . --
-    native string bLocalPaymentEnabled = 'false'	  						// -- System calculates whether payment is enabled and sets this variable 
-    																														// 		accordingly. System passes this variable to the template to minimize
-    																														//			template based calculations. --
-    native string bLocalAutomaticPaymentEnabled = 'false' 	// -- System calculates whether automatic payment should be enabled and
-    																														//			sets this variable accordingly. System passes this variable to the template
-    																														//			to minimize template based calculations. -- 	
+    											  						// 		appear to be immutable even though we can "assign a new value"... the 
+    											  						//		    structure doesn't seem to get that new value . --
+    native string bLocalPaymentEnabled = 'false'	  					// -- System calculates whether payment is enabled and sets this variable 
+    																	// 		accordingly. System passes this variable to the template to minimize
+    																	//			template based calculations. --
+    native string bLocalAutomaticPaymentEnabled = 'false'				// -- System calculates whether automatic payment should be enabled and
+    																	//			sets this variable accordingly. System passes this variable to the template
+    																	//			to minimize template based calculations. -- 	
 
 	// -- variables for holding nickname or last 4 masked display account --
 	volatile native string sDisplayAccountNickname = DisplayAccountMasked.getMaskedDisplayAccount(sAccount)
