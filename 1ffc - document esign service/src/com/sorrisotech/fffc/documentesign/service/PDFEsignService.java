@@ -102,7 +102,6 @@ public class PDFEsignService {
 	/**********************************************************************************************
 	 * @return the instance of this class
 	 */
-	@SuppressWarnings("resource")
 	public static PDFEsignService getInstance() {
 		if (instance != null) return instance;
 		
@@ -171,7 +170,7 @@ public class PDFEsignService {
 		final var addDocumentRequest = new AddDocumentRequest(
 				shortName, 
 				longName, 
-				description, 
+				description.replace("{customerName}", userFullName), 
 				base64Document
 		);
 		

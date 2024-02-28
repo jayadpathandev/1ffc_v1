@@ -61,23 +61,9 @@ function handle_trigger() {
     $('#paymentUpdateAutomaticPayment_fPayInvoices\\.dPayDate').on('change', function() {
         $('#paymentUpdateAutomaticPayment_fPayInvoices\\.rInput_option1').prop('checked', true);
     });
+
     $('#paymentUpdateAutomaticPayment_fPayInvoices\\.dPayPriorDays').on('change', function() {
         $('#paymentUpdateAutomaticPayment_fPayInvoices\\.rInput_option2').prop('checked', true);
-    });
-
-    // Below is the handler for esign change for recurring payment.
-    $(window).on('load', function() {
-
-        $('form[id^=paymentUpdateAutomaticPayment_updateAutomaticPaymentForm_] :input').on('change', function() {
-            const esignFlagSpan = $('#paymentUpdateAutomaticPayment_bEsignComplete');
-            
-            if (esignFlagSpan.text() === 'true') {
-                esignFlagSpan.text('false');
-                $('#paymentUpdateAutomaticPayment_signDocument').show();
-                $('#paymentUpdateAutomaticPayment_createAutomaticPaymentButton').hide();
-            }
-        });
-
     });
 }
 
