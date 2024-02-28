@@ -16,8 +16,8 @@
 	   						changes to accomodate negative balance.
 	   2024-Feb-18 jak -- eliminated calculations associated with determinining if payment and autopay should 
 	   						be enabled.
-	   2024-Feb-20 jam -- added support for nickname/link to edit edit nickname for account.
-	   
+	   2024-Feb-20 jak -- added support for nickname/link to edit edit nickname for account.
+	   2024-Feb-28 jak -- set a floor of 0 for the amount due instead of showing negative.   
   -->
 
 <#--  "date_format" -- setting the date format here for just this template... was having a problem with the date 
@@ -81,6 +81,10 @@
 
 <#if amount?has_content && amount?string?trim != "">
 	<#assign nAmountDue = amount>
+	<#-- if the there's a credit, then set the amount due for display to 0 -->
+	<#if nAmountDue <= 0>
+		<#assign nAmountDue = 0>
+	</#if>
  	<#if bBillHasOverdue == true && bill.minDue?has_content && bill.minDue?string?trim != "">
 		<#assign nAmountOverdue = nAmountDue - bill.minDue>
 	<#else>
