@@ -46,6 +46,7 @@ useCase paymentUpdateAutomaticPayment [
 	importJava DisplayAccountMasked(com.sorrisotech.fffc.account.DisplayAccountMasked)
 	importJava EsignHelper(com.sorrisotech.fffc.user.EsignHelper)
 	importJava UcProfileAction(com.sorrisotech.app.profile.UcProfileAction)
+	importJava Spinner(com.sorrisotech.app.utils.Spinner)
 			
     import validation.dateValidation
 		
@@ -159,7 +160,7 @@ useCase paymentUpdateAutomaticPayment [
         radioSet(control) rInput = option1 [        
             option1: "{Bill amount}"
 //            option2: "{Minimum due}"    
- //           option3: "{Up to}"            
+//            option3: "{Up to}"            
         ]
         input (option3_suffix) pInput("^(\\d{1,5}|\\d{0,5}\\.\\d{1,2})$", fPayAmount1.sValidation) = "1"   
         
@@ -248,7 +249,8 @@ useCase paymentUpdateAutomaticPayment [
     
     string (iframe) sEsignIframe = ""
     string sEsignIframeHeader = "{Sign the document}"
-    native string bEsignComplete = "false"
+    string sDeclinePromptText = "{Are you sure you want to close and not sign the EFT form?}"
+    tag hSpinner = Spinner.getSpinnerTemplate("pageSpinner.ftl", "pageSpinner", sorrisoLanguage, sorrisoCountry)
     
     structure(message) oMsgRetrieveContactDetailsError [
         string(title) sTitle = "{Something wrong happened}"
@@ -427,6 +429,7 @@ useCase paymentUpdateAutomaticPayment [
 	
     /* 3. 8. Show the update automatic payment screen. */
     xsltScreen updateAutomaticPaymentScreen("{Payment}") [
+    	display hSpinner
     	
     	div editScheduleContainer [
     		class: "col-md-12 st-payment-template-border st-scheduled-payment"
@@ -452,11 +455,6 @@ useCase paymentUpdateAutomaticPayment [
 		    	ng-controller: "ScheduleCtrl"
         		ng-init: "init();"
 		    	messages: "top"
-		    	
-		    								    	
-		    	display bEsignComplete [
-		    		class: "visually-hidden"
-		    	]
 		    	
 		    	/*-- Step 1 Container - Payment Summary  --*/		    	
 		    	div step1_container [
@@ -776,13 +774,12 @@ useCase paymentUpdateAutomaticPayment [
 			                    class: "btn btn-primary disabled"	
 							]
 							
-							navigation signDocument(getUserDetails, "{SIGN DOCUMENT}") [	
-								logic:[
-									if bEsignComplete == "true" then "hide"
-								]							
+							navigation signDocument(getUserDetails, "{SIGN DOCUMENT}") [								
 				            	class: "btn btn-primary"	
 				            	type: "popin"
 				            	popin_size: "lg"
+				            	popin_backdrop: "static"
+				            	popin_keyboard: "false"
 				            	ng-disabled: "isSourceEmpty() == 'true' || hasExceededPayUptoAmount() == 'true'"		                    
 				                data :[
 				                   		fPayInvoices,
@@ -794,28 +791,7 @@ useCase paymentUpdateAutomaticPayment [
 			                    	dWalletItems
 			                    ]     
 				            	attr_tabindex: "14"
-   						    ]
-							
-							navigation createAutomaticPaymentButton(checkMinAmtFlag, "{CREATE RECURRING PAYMENT}") [
-								logic: [
-									if sSelectedAutomaticId  != "" then "remove"
-				                	// -- disabled button shows if agent is impersonating --
-									if bImpersonateActive == "true" then "remove"
-									if bEsignComplete != "true" then "hide"
-								]									
-				            	class: "btn btn-primary"	
-				                ng-disabled: "isSourceEmpty() == 'true' || hasExceededPayUptoAmount() == 'true'"		                    
-				                data :[
-				                   		fPayInvoices,
-				                   		fPayAmount1,
-				                   		fPayAmount2,
-										fPayEffective										
-				                 ]		                    
-			                    require: [
-			                    	dWalletItems
-			                    ]            
-				                attr_tabindex: "14"
-				           ]  		               
+   						    ] 		               
 
 							navigation createAutomaticPaymentButtonDisabled(checkMinAmtFlag, "{CREATE DISABLED FOR AGENT}") [
 								logic: [
@@ -953,7 +929,7 @@ useCase paymentUpdateAutomaticPayment [
 	
 	xsltFragment documentEsignPopIn("{Sign document}") [
 		
-		div content [
+		div esignPopIn [
 			class: "modal-content"
 			
 			div esignPopInHeader [
@@ -966,20 +942,20 @@ useCase paymentUpdateAutomaticPayment [
 			div esignPopInBody [
 	            class: "modal-body"     
 	            
-	            display sEsignIframe                   
+	            display sEsignIframe                
 	        ]
 	        
 	        div esignPopInButtons [
 	            class: "modal-footer"
 	            
-				navigation signButton (checkEsignStatus, "{SUBMIT}") [
-	            	class: "btn btn-primary"	          
-	            	          
-	        	]
-	
-				navigation cancelButton (gotoPaymentAutomatic, "{CANCEL}") [
-	            	class: "btn btn-secondary"
-	            	type: "cancel"
+				navigation signButton (checkEsignStatus, "{CREATE RECURRING PAYMENT}") [
+	            	class: "btn btn-primary"
+	            	type: "popin"
+	            	popin_size: "md"
+	            	popin_backdrop: "static"
+	            	popin_keyboard: "false"
+	            	popin_conditional: "true"
+	            	attr_tabindex: "1"
 	        	]
 	        ]
 		]
@@ -999,14 +975,41 @@ useCase paymentUpdateAutomaticPayment [
 	
 	action checkEsignStatusReponse [
 		if srEsignUrlStatusResult.status == "RemoteSessionComplete" then
-			setDocumetSignFlag
+			checkMinAmtFlag 
 		else
-			updateAutomaticPaymentScreen
+			esignDeclineConfirmation
 	]
 	
-	action setDocumetSignFlag [
-		bEsignComplete = "true"
-		goto(updateAutomaticPaymentScreen)
+	xsltFragment esignDeclineConfirmation("{Decline Esign Prompt}") [
+		
+		div esignDeclineConfirmationPopIn [
+			class: "modal-content"
+
+			div esignDeclineConfirmationPopInBody [
+	            class: "modal-body"     
+	            
+	            display sDeclinePromptText                
+	        ]
+	        
+	        div esignDeclineConfirmationPopInButtons [
+	            class: "modal-footer"
+	            
+				navigation yesButton (gotoPaymentAutomatic, "{YES}") [
+	            	class: "btn btn-primary"
+	            	attr_tabindex: "2"
+	        	]
+	        	
+	        	navigation noButton (documentEsignPopIn, "{NO}") [
+	            	class: "btn btn-secondary"
+	            	type: "popin"
+	            	popin_size: "lg"
+	            	popin_backdrop: "static"
+	            	popin_keyboard: "false"   
+	            	attr_tabindex: "1"
+	        	]
+	        ]
+		]
+		
 	]
     
     /* 9. Check the minimum amount flag.*/ 

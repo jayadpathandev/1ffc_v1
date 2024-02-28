@@ -20,8 +20,8 @@
 // "Persona E-Service", "Persona Customer Intelligence", "Persona Active
 // Marketing", and "Persona Powered By Sorriso" are trademarks of Sorriso
 // Technologies, Inc.
-import $              from 'jquery';
 import * as bootstrap from 'bootstrap';
+import $ from 'jquery';
 
 //*****************************************************************************
 // Catch the click events on pop-in links and display the pop-in.
@@ -46,6 +46,35 @@ export function jquery_pop_in(
         const parent = $('<div class="modal" tabindex="-1"></div>').appendTo('main')[0];
         const dialog = $('<div class="modal-dialog"></div>').append(html).appendTo(parent);
         const size   = $(link).attr('st-pop-in-size');
+        const backdrop = $(link).attr('st-pop-in-backdrop');
+        const keyboard = $(link).attr('st-pop-in-keyboard');
+
+        const modalConfig: {
+            backdrop?: 'static' | boolean | undefined,
+            keyboard?: boolean | undefined,
+            focus?: boolean | undefined,
+        } = {}
+
+        switch(backdrop) {
+            case 'static':
+                modalConfig.backdrop = 'static';
+                break;
+            case 'false':
+                modalConfig.backdrop = false;
+                break;
+            default:
+                modalConfig.backdrop = true;
+                break;
+        }
+
+        switch(keyboard) {
+            case 'false':
+                modalConfig.keyboard = false;
+                break;
+            default:
+                modalConfig.keyboard = true;
+                break;
+        }
 
         if (typeof size === 'string') {
 			dialog.addClass('modal-' + size);
@@ -53,11 +82,8 @@ export function jquery_pop_in(
 			dialog.addClass('modal-dialog-scrollable');
         }
 
-        var instance = new bootstrap.Modal(parent, {
-            backdrop: true,
-            keyboard: true,
-            focus: true
-        });
+        var instance = new bootstrap.Modal(parent, modalConfig);
+
         parent.addEventListener('hidden.bs.modal', function() {
         	instance.dispose();
             parent.remove();
@@ -67,6 +93,8 @@ export function jquery_pop_in(
     }
 
     $(parent).find('*[st-pop-in]').each(function() {
+        const conditional = $(this).attr('st-pop-in-conditional');
+
         $(this).on('click', function($event) {
             if (lock.value == false) {
                 let post       = ($(this).attr('type') === 'submit')
@@ -81,7 +109,7 @@ export function jquery_pop_in(
                         processData: false,
                         contentType: false
                     };
-                    staticPage = true;
+                    staticPage = conditional === undefined || conditional !== 'true';
                 } else {
                     data = {
                         url:         form.attr('action') as string + '&_internalMovement=' + $(this).attr('name'),

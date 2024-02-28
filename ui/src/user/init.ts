@@ -20,16 +20,17 @@
 // "Persona E-Service", "Persona Customer Intelligence", "Persona Active
 // Marketing", and "Persona Powered By Sorriso" are trademarks of Sorriso
 // Technologies, Inc.
-import $     from 'jquery';
+import $ from 'jquery';
 import React from 'react';
 
-import { hydrateRoot       } from 'react-dom/client';
-import { UserProfile       } from './elements/user_profile';
-import { zingcharts        } from './elements/zingcharts';
-import { bill              } from './elements/bill';
-import { one_time_payment  } from './elements/one_time_payment';
+import { hydrateRoot } from 'react-dom/client';
+import { fffc } from './1ffc';
+import { bill } from './elements/bill';
+import { one_time_payment } from './elements/one_time_payment';
 import { scheduled_payment } from './elements/scheduled_payment';
-import { payment_wallet    } from './elements/wallet';
+import { UserProfile } from './elements/user_profile';
+import { payment_wallet } from './elements/wallet';
+import { zingcharts } from './elements/zingcharts';
 
 //*****************************************************************************
 // This method any special elements that need to be transformed into a react
@@ -56,4 +57,5 @@ export default function user_elements(
     one_time_payment(parent);
     scheduled_payment(parent);
     payment_wallet(parent);
+    fffc(parent);
 }
