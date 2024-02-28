@@ -20,11 +20,16 @@
  */
 package com.sorrisotech.svcs.fffcnotify.data;
 
+import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /******************************************************************************
  * This class is used to parse the JSON of Ip Geolocation and fetch latitude and
@@ -39,6 +44,17 @@ public class Location {
 	 * Logger for debug messages.
 	 */
 	private static final Logger LOG = LoggerFactory.getLogger(Location.class);
+	
+	/**************************************************************************
+	 * JSON ObjectMapper.
+	 */
+	private static ObjectMapper m_cObjectMapper = new ObjectMapper();
+	
+	/**************************************************************************
+	 * Pattern of browser geolocation e.g. latitude,longitude.
+	 */
+	private static final Pattern m_cBrowserGeoPattern = Pattern
+	        .compile("(-?\\d+(\\.\\d+)?),\\s*(-?\\d+(\\.\\d+)?)");
 	
 	/**********************************************************************************************
 	 * The latitude of geolocation.
@@ -109,4 +125,62 @@ public class Location {
 		this.longitude = longitude;
 	}
 	
+	/**********************************************************************************************
+	 * This method is used to get geolocation of user either of using browserGeo or
+	 * ipGeo.
+	 * 
+	 * @param browserGeo Browser geolocation.
+	 * @param ipGeo      IP geolocation .
+	 * 
+	 * @return Geolocation of user.
+	 */
+	public static Location getLocation(final String browserGeo, final String ipGeo) {
+		if (!browserGeo.isBlank()) {
+			return parseLocationFromBrowserGeo(browserGeo);
+		} else if (!ipGeo.isBlank()) {
+			return parseLocationFromIpGeo(ipGeo);
+		} else {
+			LOG.error("Location:getLocation() ... Both browserGeo and ipGeo are blank.");
+			return null;
+		}
+	}
+	
+	/**********************************************************************************************
+	 * This method is used to get geolocation of user sing browserGeo.
+	 * 
+	 * @param browserGeo Browser geolocation.
+	 * 
+	 * @return Geolocation of user.
+	 */
+	private static Location parseLocationFromBrowserGeo(final String browserGeo) {
+		final Matcher matcher = m_cBrowserGeoPattern.matcher(browserGeo);
+		
+		if (matcher.matches()) {
+			// latitude, longitude
+			return new Location(matcher.group(1), matcher.group(3));
+		} else {
+			LOG.error(
+			        "Location:parseLocationFromBrowserGeo() .. Failed to extract latitude and longitude from browser geolocation: {}",
+			        browserGeo);
+			return null;
+		}
+	}
+	
+	/**********************************************************************************************
+	 * This method is used to get geolocation of user either of using ipGeo.
+	 * 
+	 * @param ipGeo IP geolocation .
+	 * 
+	 * @return Geolocation of user.
+	 */
+	private static Location parseLocationFromIpGeo(final String ipGeo) {
+		try {
+			return m_cObjectMapper.readValue(ipGeo, Location.class);
+		} catch (IOException e) {
+			LOG.error(
+			        "Location:parseLocationFromIpGeo() .. Error parsing location from IP geolocation: {}",
+			        e);
+			return null;
+		}
+	}
 }

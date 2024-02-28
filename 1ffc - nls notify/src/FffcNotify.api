@@ -77,4 +77,26 @@ define service FffcNotify(com.sorrisotech.app.serviceapi.uc.UcRequestClient) [
     	    error
     	]
 	]
+	
+	// Create users default contact preferences setting at NLS.
+	define method RegisterUserNls [
+		
+		// The ID of the user we are setting the address for.
+		string customerId
+		
+		// The browser geo-location of user. 
+		string browserGeo
+		
+		// The IP geo-location of user. 
+		string ipGeo
+		
+		// IP address of user 
+		string ipAddress
+		
+		// The channel address configuration for the user.
+		string channelAddrJsonConfig
+		
+		// The contact preferences configuration for the user.
+		string contactPrefsJsonConfig
+	]
 ]
