@@ -18,12 +18,38 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
             <value>select org_id from tm_account where id = :account_id</value>
         </constructor-arg>   
     </bean>    
+    
 	<bean id="accountIdsFromOrgId" class="java.lang.String">
         <constructor-arg>
             <value>select id from tm_account where org_id = :org_id and end_date is null and bill_group != :ignore_group</value>
         </constructor-arg>   
     </bean>    
-    
+
+	<bean id="accountIdToUser" class="java.lang.String">
+        <constructor-arg>
+            <value>
+				select 
+					userid 
+				from 
+					prof_company_user, 
+					tm_account, 
+					auth_user_profile 
+				where 
+					tm_account.id         = :account_id and 
+					tm_account.company_id = prof_company_user.companyid and
+					auth_user_profile.id  = prof_company_user.userid and
+					auth_user_profile.attrname = 'registrationStatus' and
+					(auth_user_profile.attrvalue = 'pending' or auth_user_profile.attrvalue = 'agentpay') 
+			</value>
+        </constructor-arg>   
+    </bean>    
+
+	<bean id="userIdToCompanyId" class="java.lang.String">
+        <constructor-arg>
+            <value>select companyid from prof_company_user where userid = :user_id</value>
+        </constructor-arg>   		
+	</bean>
+
     <bean id="fffc_queries" class="com.sorrisotech.fffc.auth.Queries">
     </bean>
 </beans>

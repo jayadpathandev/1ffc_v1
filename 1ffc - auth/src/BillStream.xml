@@ -225,14 +225,19 @@
 			select 
 				target.account_number, 
 				tm_account.bill_group, 
-				tm_account.company_id
+				case 
+					when attrvalue = 'agentpay' then null
+					when attrvalue = 'pending' then null
+					else tm_account.company_id
+				end	as "company_id"
 			from 
-				tm_account, 
+				tm_account 
+					left join prof_company_user on companyid = company_id
+					left join auth_user_profile on auth_user_profile.id = prof_company_user.userid and attrname='registrationStatus',
 				target
 			where
 				tm_account.account_number = target.account_number
-				and tm_account.bill_group != 'STATUS_1FFC-ea0f1923-255f-4f12-a603-16a1ed4f950c'
-				    
+				and tm_account.bill_group != 'STATUS_1FFC-ea0f1923-255f-4f12-a603-16a1ed4f950c'				    
          	</value>         	
         </property>	   
                 

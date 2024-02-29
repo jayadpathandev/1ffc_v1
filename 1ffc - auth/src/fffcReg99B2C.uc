@@ -34,7 +34,6 @@ useCase fffcReg99B2C [
 	 * DATA ITEMS SECTION
 	 **************************/
 	
-	importJava AppName(com.sorrisotech.utils.AppName)  
 	importJava AuthUtil(com.sorrisotech.app.common.utils.AuthUtil) 
 	importJava CreateSaml(com.sorrisotech.app.^library.saml.CreateSaml)
 	importJava NotifUtil(com.sorrisotech.common.app.NotifUtil)
@@ -88,7 +87,6 @@ useCase fffcReg99B2C [
 	native string sCurrentTime
 	native string sUserAccountId =  UcBillRegistration.getUserAccountId()		
 	native string sNameSpace = CreateSaml.getNameSpace()	
-	native string sAppName = AppName.getAppName(sAppType)
 	native string sEmailChannel = "email"
 	native string sSmsChannel = "sms"
     native string sPortalChannel = "portal"
@@ -97,10 +95,7 @@ useCase fffcReg99B2C [
     native string sCategory = "terms_and_conditions "
     native string sType = "web_site "
     native string sOperation = "User signed consent related to terms and conditions during registration process."
-
-	serviceStatus srStatus			
-	serviceParam(Profile.AddPasswordHistory) srAddReq
-    serviceResult (Profile.AddPasswordHistory) srAddResp
+	
     serviceParam (Profile.AddLocationTrackedEvent) setLocationData
 	serviceResult (Profile.AddLocationTrackedEvent) setLocationResp
     
@@ -188,17 +183,42 @@ useCase fffcReg99B2C [
 	 */     
     action verifyEmail [    
         switch UserProfile.isAddressAvailable(sNameSpace, "email", fUserEmail.pInput) [         
-            case "yes" performEnrollment
+            case "yes" areWeHijacking
             case "no"  resetContactInfoFields
             default genericErrorMsg
         ]
     ]
+
+    /**************************************************************************
+     * 5a. See if we are hijacking an existing account.
+     */
+    action areWeHijacking [
+    	FffcRegistration.hijack_user(sUserAccountId, sUserId)
+    	
+    	if sUserId == "" then
+    		performEnrollment
+    	else
+    		performHijack
+    ]
     
+    /**************************************************************************
+     * 5b. Change the user name.
+     */
+    action performHijack [
+ 		updateAuthentication (
+ 			userId:   sUserId
+            username: fUserName.pInput
+ 		)		
+ 
+        if success then addProfileDetails
+        if duplicateUsername then resetLoginInfoFields
+        if failure then deleteUserProfile
+    ]
+	    
     /**************************************************************************
      * 5. Everything looks good, perform the enrollment.
      */
-    action performEnrollment [   
-	
+    action performEnrollment [
         sUserId = enroll(
             username: fUserName.pInput
             password: "7c289e59-7f6d-4a6c-8254-8185c4ad69ad"
@@ -516,13 +536,15 @@ useCase fffcReg99B2C [
     	
     /**************************************************************************
      * Delete User Profile when something goes wrong.
-     */
+     */    
     action deleteUserProfile [    
     	auditLog(audit_registration.registratrion_failure)  [
     		primary: sUserId
     		secondary: sUserId
     	]	
     	
+  		FffcRegistration.delete_users_company(sUserId)
+  		
         deleteUser(
             userId: sUserId           
             namespace: sNameSpace            
@@ -535,17 +557,22 @@ useCase fffcReg99B2C [
      * Delete User Profile due to the unavailability of the NLS system.
      */
     action deleteNlsUserProfile [    
+    	goto(generateAuthCode)
+    	/*
     	auditLog(audit_registration.registratrion_failure)  [
     		primary: sUserId
     		secondary: sUserId
     	]	
+
+  		FffcRegistration.delete_users_company(sUserId)
     	
         deleteUser(
             userId: sUserId           
             namespace: sNameSpace            
             )            
         if success then nlsUnavailableErrorMsg      
-        if failure then nlsUnavailableErrorMsg    
+        if failure then nlsUnavailableErrorMsg
+        */
     ]		
 
     /**************************************************************************

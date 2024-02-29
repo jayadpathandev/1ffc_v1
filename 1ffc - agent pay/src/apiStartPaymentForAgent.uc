@@ -13,6 +13,7 @@ useCase apiStartPaymentForAgent
 	importJava JsonResponse(com.sorrisotech.app.common.JsonResponse)
 	importJava Config(com.sorrisotech.utils.AppConfig)
 	importJava ApiPay(com.sorrisotech.fffc.agent.pay.ApiPay)
+	importJava Enroll(com.sorrisotech.fffc.agent.pay.Enroll)
 
 	native string sServiceUserName  = Config.get("service.api.username")
     native string sServiceNameSpace = Config.get("service.api.namespace")
@@ -122,13 +123,40 @@ useCase apiStartPaymentForAgent
 		spStart.accountId  = accountId
 		
 		switch apiCall AgentPay.Start(spStart, srStart, ssStart) [
-		   case apiSuccess actionCreateSession
+		   case apiSuccess actionCheckForUser
            default         actionFailure    
 		]
 	]
 
  	/*************************
-	 * 8. Create the session.
+	 * 9. Check if the user exists.
+	 */
+	action actionCheckForUser [
+		
+		if srStart.userid != "" then
+			actionCreateSession
+		else
+			actionCreateUser
+	]
+
+ 	/*************************
+	 * 9a. Check if the user exists.
+	 */
+	action actionCreateUser [
+    	sErrorStatus = "402"
+    	sErrorDesc = "There was an internal error while creating the user."
+    	sErrorCode = "internal_error"
+		
+		switch Enroll.create_account(customerId, accountId) [
+			case "invalid" actionInvalidCustomerAccountPair
+			case "success" actionProcess
+			default actionFailure
+		]
+	]
+
+
+ 	/*************************
+	 * 10. Create the session.
 	 */
 	action actionCreateSession [
 		sErrorStatus = "400"
@@ -142,7 +170,7 @@ useCase apiStartPaymentForAgent
 	]
 
  	/*************************
-	 * Everything is good, reply with the data the client needs.
+	 * 11. Everything is good, reply with the data the client needs.
 	 */
 	action actionSendResponse [
 		ApiPay.setTransactionStarted(id)
@@ -212,6 +240,25 @@ useCase apiStartPaymentForAgent
 		Log.error("startPaymentForAgent", customerId, accountId, "Invalid security token.")
 
 		foreignHandler JsonResponse.errorWithData("401")
+    ]
+
+    /********************************
+     * Invalid Security Token
+     */
+    action actionInvalidCustomerAccountPair [
+		ApiPay.setTransactionError(id)
+		JsonResponse.reset()
+		JsonResponse.setNumber("statuscode", "400")
+		JsonResponse.setBoolean("success", "false")
+		JsonResponse.setString("payload", "Account ID does not belong to Customer ID.")
+		JsonResponse.setString("error", "invalid_customer_account_pair")
+
+		auditLog(audit_agent_pay.start_payment_for_agent_failure) [
+			customerId accountId
+	   	]
+		Log.error("startPaymentForAgent", customerId, accountId, "Account ID does not belong to Customer ID.")
+
+		foreignHandler JsonResponse.errorWithData("400")
     ]
     
 ]

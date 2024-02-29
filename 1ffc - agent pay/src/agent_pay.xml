@@ -28,7 +28,6 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 					auth_users.userid = auth_user_profile.id and
 					auth_users.userid = prof_company_user.userid and
 					attrname = 'fffcCustomerId' and
-					id in (select id from auth_user_profile where attrname='accountStatus' and attrvalue='open') and
 					attrvalue = :customerId
 				
             </value>
@@ -142,7 +141,7 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 	    	</value>
         </constructor-arg>   
     </bean>    
-    
+
     <bean id="api.pay.schedule.get"  class= "java.lang.String">
          <constructor-arg>
             <value>
@@ -165,6 +164,12 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
             </value>
        </constructor-arg>   
     </bean>    
+	<bean id="api.pay.accounts.for.org.id" class="java.lang.String">
+        <constructor-arg>
+            <value>select id, account_number from tm_account where org_id = :org_id and end_date is null and bill_group != :ignore_group</value>
+        </constructor-arg>   
+    </bean>    
+
     
     <bean id="ApiPayDao" class="com.sorrisotech.fffc.agent.pay.ApiPayDao">
     </bean>

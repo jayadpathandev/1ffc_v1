@@ -84,12 +84,28 @@ public class Start extends StartBase {
 		
 		op.setToResponse();
 		
-		final var user = mDao.user(customerId);
+		var user = mDao.user(customerId);
 		
 		if (user == null) {
-			LOG.warn("Could not find user with customerId [" + customerId + "].");
-			op.setRequestStatus(ServiceAPIErrorCode.Failure);
-			return ServiceAPIErrorCode.Failure;
+			LOG.info("Could not find user with customerId [" + customerId + "].");
+			op.set(IApiAgentPay.Start.userid, "");
+			op.set(IApiAgentPay.Start.userName, "");
+			op.set(IApiAgentPay.Start.companyId, "");
+			op.set(IApiAgentPay.Start.accountNumber, "");
+			op.set(IApiAgentPay.Start.payGroup, "");
+
+			op.set(IApiAgentPay.Start.invoice, "");
+			op.set(IApiAgentPay.Start.scheduledCount, "");
+			op.set(IApiAgentPay.Start.scheduledDate, "");
+			op.set(IApiAgentPay.Start.scheduledTotal, "");
+
+			op.set(IApiAgentPay.Start.automaticEnabled, "");
+			op.set(IApiAgentPay.Start.automaticDate, "");
+			op.set(IApiAgentPay.Start.automaticAmount, "");
+			op.set(IApiAgentPay.Start.automaticCount, "");
+			
+			op.setRequestStatus(ServiceAPIErrorCode.Success);
+			return ServiceAPIErrorCode.Success;
 		}
 		
 		final var account = mDao.lookupAccount(user.userId, accountId);

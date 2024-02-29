@@ -26,6 +26,7 @@ import com.sorrisotech.persona.comgmt.api.ICompany;
 import com.sorrisotech.persona.usercompanylink.api.UserCompanyLinkFactory;
 import com.sorrisotech.saas.orgid.api.OrgIdFactory;
 import com.sorrisotech.svcs.itfc.data.IStringData;
+import com.sorrisotech.svcs.itfc.exceptions.MargaritaDataException;
 import com.sorrisotech.utils.AppConfig;
 
 import java.math.BigDecimal;
@@ -44,7 +45,25 @@ public class FffcRegistration {
 	 */
 	private static final Logger LOG = LoggerFactory.getLogger(FffcRegistration.class);	  
 				
-    /**************************************************************************
+    // ************************************************************************
+	public static void hijack_user(
+				final String      accountId,
+				final IStringData retval
+			) {
+		try {
+			retval.putValue("");
+			
+			final var userId = Queries.lookupUser(new BigDecimal(accountId));
+			
+			if (userId != null) {
+				retval.putValue(userId.toPlainString());
+			}			
+		} catch(Throwable e) {
+			LOG.error("Error tracking down user.", e);
+		}
+	}
+
+	/**************************************************************************
      * Assign user to an account with a new company.
      * 
      * @param szAccountId The account id.
@@ -58,6 +77,19 @@ public class FffcRegistration {
 		        final String userId,
 		        final IStringData saveOrgId
 	        ) {
+		// ----------------------------------------------------------------------------------------
+		// Make sure we are not hijacking an account.
+		final var exists = Queries.lookupCompany(new BigDecimal(userId));
+			
+		if (exists != null) {
+			try {
+				saveOrgId.putValue(exists.toPlainString());
+			} catch(MargaritaDataException e) {
+	        	LOG.error("FffcRegistration.....assignUserToAccountWithNewCompany()...An exception was thrown", e);          
+	        }
+			return "success";
+		}			
+		
 		// ----------------------------------------------------------------------------------------
 		// Grab the information we need for 1ffc IF this is a 1ffc status payment group.
 		final String orgId = Queries.lookupOrgId(
@@ -118,6 +150,29 @@ public class FffcRegistration {
         }
         LOG.debug("FffcRegistration.....assignUserToAccountWithNewCompany()...Result: " +szResult);
         return szResult;
+    }
+
+	// ************************************************************************
+	public static void delete_users_company(
+		        final String userId,
+		        final String orgId
+	        ) {
+		// ----------------------------------------------------------------------------------------
+		final var companyId = Queries.lookupCompany(new BigDecimal(userId)); 
+		
+		if (companyId != null) {
+			/*
+            final var ignore   = AppConfig.get("1ffc.ignore.group");
+            final var accounts = Queries.findAccounts(orgId, ignore); 
+			final var repo     = CompanyManagementFactory.getCompanyRepository();
+					
+			for(var account : accounts) {
+				repo.removeAccount(companyId, account);
+			}
+			*/
+			
+			CompanyManagementFactory.getCompanyRepository().delete(companyId);
+		}
     }
 	
 }

@@ -14,6 +14,8 @@ import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import com.sorrisotech.fffc.agent.pay.data.AccountBean;
+import com.sorrisotech.fffc.agent.pay.data.AccountIdBean;
+import com.sorrisotech.fffc.agent.pay.data.AccountIdMapper;
 import com.sorrisotech.fffc.agent.pay.data.AccountMapper;
 import com.sorrisotech.fffc.agent.pay.data.ApiPayUser;
 import com.sorrisotech.fffc.agent.pay.data.ApiPayUserMapper;
@@ -89,6 +91,13 @@ public class ApiPayDao {
 	@Qualifier("api.pay.schedule.get")	
 	private String mScheduledPayments = null;
 	
+	
+	/***************************************************************************
+	 * SQL to final all the accounts associated with an org_id.
+	 */
+	@Autowired
+	@Qualifier("api.pay.accounts.for.org.id")	
+	private String mAccountsForOrg = null;
 	
 	/***************************************************************************
 	 * Given a customerId look up the ID of the associated user.  If no user is 
@@ -235,7 +244,7 @@ public class ApiPayDao {
 		
 		return retval;
 	}
-	
+
 	public List<ScheduledPaymentBean> scheduledPayments (
 			final BigDecimal userId,
 			final String accountId ) {
@@ -255,5 +264,30 @@ public class ApiPayDao {
 		
 		return retval;
 	}
-
+	
+	/***************************************************************************
+	 * Finds all the account IDS associated with an customer/org id.
+	 * 
+	 * @param OrgId   The customer/org id to get the account IDs for.
+	 * @param ignore  The name of the status payment group we are ignoring.
+	 * 
+	 * @return  A list of associated accounts or null if none were found..
+	 */
+	public List<AccountIdBean> accountsForOrg(
+			final String orgId,
+			final String ignore
+			) {
+		final var params = new HashMap<String, Object>();
+		
+		params.put("org_id",       orgId);
+		params.put("ignore_group", ignore);
+		
+		var retval = mJdbc.query(mAccountsForOrg, params, new AccountIdMapper());
+		
+		if (retval != null && retval.size() == 0) {
+			return null;
+		}
+		
+		return retval;
+	}	
 }
