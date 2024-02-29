@@ -64,7 +64,7 @@ public class ProcessListener implements ItemProcessListener<User, User>{
 			cParams.put("paymentDate", cPayment.getScheduledPaymentDate().toString());
 			cParams.put("amount", cPayment.getAmount().setScale(2, RoundingMode.HALF_UP).toString());
 			
-			if (cOutput.isPaymentDisabled()) {
+			if (!cOutput.isAchDisabled()) {
 				LOG.info("Sending payment disabled notification for record : {}", cPayment.getId());
 				
 				NotificationDispatcher.dispatchNotification(
@@ -90,7 +90,7 @@ public class ProcessListener implements ItemProcessListener<User, User>{
 			cParams.put("accountNumber", cPayment.getAccounutNumber());
 			cParams.put("walletNickName", cPayment.getWalletNickName());
 
-			if (cOutput.isPaymentDisabled()) {
+			if (!cOutput.isAchDisabled()) {
 				LOG.info("Sending payment disabled notification for record : {}", cPayment.getId());
 				
 				NotificationDispatcher.dispatchNotification(
