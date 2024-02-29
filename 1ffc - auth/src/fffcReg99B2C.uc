@@ -557,8 +557,7 @@ useCase fffcReg99B2C [
      * Delete User Profile due to the unavailability of the NLS system.
      */
     action deleteNlsUserProfile [    
-    	goto(generateAuthCode)
-    	/*
+    	// goto(generateAuthCode)
     	auditLog(audit_registration.registratrion_failure)  [
     		primary: sUserId
     		secondary: sUserId
@@ -572,7 +571,6 @@ useCase fffcReg99B2C [
             )            
         if success then nlsUnavailableErrorMsg      
         if failure then nlsUnavailableErrorMsg
-        */
     ]		
 
     /**************************************************************************
