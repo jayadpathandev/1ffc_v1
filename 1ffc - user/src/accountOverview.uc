@@ -152,8 +152,8 @@ useCase accountOverview [
 	//		bills enabled piece in the template if we are supporting smart bill --
     native string sBillingType = UcPaymentAction.getBillingBalanceType()
     
-    // TODO
-//    native string sAppUrl = AppConfig.get("user.app.url")
+    // The app url used to create the edit nickname popin url
+    native string sAppUrl = AppConfig.get("user.app.url")
 	
 	/**
 	 * Comment out for now since we aren't using it at 1st Franklin or in the
@@ -282,7 +282,7 @@ useCase accountOverview [
     																	//			to minimize template based calculations. -- 	
 
 	// -- variables for holding nickname or last 4 masked display account --
-	volatile native string sDisplayAccountNickname = DisplayAccountMasked.getMaskedDisplayAccount(sAccount)
+	volatile native string sDisplayAccountNickname = DisplayAccountMasked.displayAccountLookup(sUserId,sAccount,sPayGroup)
 	native string sDisplayAccountNicknameUrl
 	
 	/*************************
@@ -396,9 +396,8 @@ useCase accountOverview [
 		FtlTemplate.setItemValue(TemplateIdNoBills, "root",  "displayAccount", "string", sAccountDisplay)
 		FtlTemplate.setItemValue(TemplateIdNoBills, "root", 	"jumpToOffset", "string", AccountOffset)
 
-		// -- values for nickname --
-// 		sDisplayAccountNickname = sAccountDisplay
-// 		sDisplayAccountNicknameUrl = sAppUrl + "fffcEditDisplayAccounts?offset=" + AccountOffset
+		// building edit nickname popin url
+ 		sDisplayAccountNicknameUrl = sAppUrl + "fffcEditDisplayAccounts?offset=" + AccountOffset
  		FtlTemplate.setItemValue(TemplateIdNoBills, "nickname", "displayAccount", "string", sDisplayAccountNickname)
 		FtlTemplate.setItemValue(TemplateIdNoBills, "nickname", "url", "string", sDisplayAccountNicknameUrl)
 		
@@ -493,9 +492,8 @@ useCase accountOverview [
 	 * A16. System assigns the nickname variable values to the template.
 	  */
 	action setNicknameGroupVariables [
-		// -- values for nickname --
-// 		sDisplayAccountNickname = sAccountDisplay
-// 		sDisplayAccountNicknameUrl = sAppUrl + "fffcEditDisplayAccounts?offset=" + AccountOffset
+		// building edit nickname popin url
+ 		sDisplayAccountNicknameUrl = sAppUrl + "fffcEditDisplayAccounts?offset=" + AccountOffset
  		FtlTemplate.setItemValue(TemplateIdPaymentSummary, "nickname",  "displayAccount", "string", sDisplayAccountNickname)
 		FtlTemplate.setItemValue(TemplateIdPaymentSummary, "nickname",  "url", "string", sDisplayAccountNicknameUrl)
 

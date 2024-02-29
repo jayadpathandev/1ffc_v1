@@ -12,23 +12,29 @@
 	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
 	<!-- ************************************************************************* -->
-    <!-- ********      Import the Database Pool Bean                   *********** -->
-    <!-- ************************************************************************* -->
-    <context:annotation-config />
-    
-    <import resource="classpath:/db/common_config.xml"/>    
-    
+	<!-- ******** Import the Database Pool Bean *********** -->
+	<!-- ************************************************************************* -->
+	<context:annotation-config />
+
+	<import resource="classpath:/db/common_config.xml" />
+	
+	<!-- ********************************************************************************** -->
+    <!-- ********  					Account DAO                                  ********** -->
+    <!-- ********************************************************************************** -->
+
 	<bean id="getDisplayAccountNumberSQL" class="java.lang.String">
-        <constructor-arg>
-            <value>
-				SELECT account_number_display
-				FROM tm_account
-				WHERE account_number = :INT_ACCOUNT
+		<constructor-arg>
+			<value>
+				SELECT ACCOUNT_NUMBER_DISPLAY
+				FROM TM_ACCOUNT
+				WHERE
+				ACCOUNT_NUMBER = :INT_ACCOUNT
 				LIMIT 1;
 			</value>
-        </constructor-arg>   
-    </bean>    
-    
-    <bean id="dao" class="com.sorrisotech.fffc.account.dao.AccountDao">
-    </bean>
+		</constructor-arg>
+	</bean>
+
+	<bean id="dao" class="com.sorrisotech.fffc.account.dao.AccountDao">
+	</bean>
+
 </beans>

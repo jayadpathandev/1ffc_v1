@@ -1,3 +1,23 @@
+/*
+ * (c) Copyright 2017-2024 Sorriso Technologies, Inc(r), All Rights Reserved,
+ * Patents Pending.
+ * 
+ * This product is distributed under license from Sorriso Technologies, Inc. Use
+ * without a proper license is strictly prohibited. To license this software,
+ * you may contact Sorriso Technologies at:
+ * 
+ * Sorriso Technologies, Inc. 40 Nagog Park Acton, MA 01720 +1.978.635.3900
+ * 
+ * "Sorriso Technologies", "You and Your Customers Together, Online", "Persona
+ * Solution Suite by Sorriso", the Sorriso Logo and Persona Solution Suite Logo
+ * are all Registered Trademarks of Sorriso Technologies, Inc. "Information Is
+ * The New Online Currency", "e-TransPromo", "Persona Enterprise Edition",
+ * "Persona SaaS", "Persona Services", "SPN - Synergy Partner Network",
+ * "Sorriso Synergy", "Our DNA Is In Online", "Persona E-Bill & E-Pay",
+ * "Persona E-Service", "Persona Customer Intelligence", "Persona Active
+ * Marketing", and "Persona Powered By Sorriso" are trademarks of Sorriso
+ * Technologies, Inc.
+ */
 package com.sorrisotech.fffc.account.dao;
 
 import java.util.HashMap;
@@ -11,7 +31,13 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
+/******************************************************************************
+ * Account DAO class.
+ * 
+ * @author Asrar Saloda
+ */
 public class AccountDao {
+	
 	/**********************************************************************************************
 	 * Logger for debug messages.
 	 */
@@ -20,7 +46,7 @@ public class AccountDao {
 	/**********************************************************************************************
 	 * The singleton instance of this class.
 	 */
-	private static AccountDao singleton = null;
+	private static AccountDao m_cSingleton = null;
 	
 	/**********************************************************************************************
 	 * Template class with a basic set of JDBC operations, allowing the use of named
@@ -31,20 +57,20 @@ public class AccountDao {
 	private NamedParameterJdbcTemplate jdbc;
 	
 	/**********************************************************************************************
-	 * Injecting the bean of SQL fetch userId based on attrName and attrValue.
+	 * Injecting the bean of SQL fetch display account number based on internal
+	 * account number.
 	 */
 	@Autowired
 	@Qualifier("getDisplayAccountNumberSQL")
 	private String getDisplayAccountNumberSQL;
 	
 	/**********************************************************************************************
-	 * This method is calling sqlUserIdFromAttrNameAndValue query and returning the
+	 * This method is calling getDisplayAccountNumberSQL query and returning the
 	 * results. This method returns null if no record found.
 	 * 
-	 * @param szAttributeValue The value of attribute in auth_user_profile table.
-	 * @param szInternalAccountNumber  The value of attribute in auth_user_profile table.
+	 * @param szInternalAccountNumber Internal account number.
 	 * 
-	 * @return String userId
+	 * @return String Display account number.
 	 */
 	public String queryDisplayAccountNumber(final String szInternalAccountNumber) {
 		
@@ -55,31 +81,33 @@ public class AccountDao {
 		
 		try {
 			// --------------------------------------------------------------------------------------
-			// Fetching userId based on attribute name and attribute value.
-			displayAccountNumber = jdbc.queryForObject(getDisplayAccountNumberSQL, cParams, String.class);
+			// Fetching display account number based on internal account number.
+			displayAccountNumber = jdbc.queryForObject(getDisplayAccountNumberSQL, cParams,
+			        String.class);
 		} catch (EmptyResultDataAccessException e) {
-			LOG.warn("AccountDao.....queryDisplayAccountNumber()...No record found for customerId: "
-			        );
+			LOG.warn(
+			        "AccountDao.....queryDisplayAccountNumber()...No record found for internalAccount: ");
 		} catch (DataAccessException e) {
-			LOG.error("AccountDao.....queryDisplayAccountNumber()...An exception was thrown: " + e, e);
+			LOG.error("AccountDao.....queryDisplayAccountNumber()...An exception was thrown: " + e,
+			        e);
 		}
 		
 		return displayAccountNumber;
 	}
 	
 	/**********************************************************************************************
-	 * This method is reading DAO bean defined in NotificationsService.xml and
-	 * assigns to singleton member variable if it is null.
+	 * This method is reading DAO bean defined in 1ffcdisplayaccount.xml and assigns
+	 * to singleton member variable if it is null.
 	 * 
-	 * @return Singleton instance of FffcNotifyDao class
+	 * @return Singleton instance of AccountDao class
 	 */
 	public static synchronized AccountDao get() {
-		if (singleton == null) {
+		if (m_cSingleton == null) {
 			ClassPathXmlApplicationContext context = null;
 			
 			try {
 				context = new ClassPathXmlApplicationContext("1ffcdisplayaccount.xml");
-				singleton = context.getBean(AccountDao.class);
+				m_cSingleton = context.getBean(AccountDao.class);
 			} catch (Exception e) {
 				LOG.error("Unable load 1ffcdisplayaccount.xml", e, e);
 			} finally {
@@ -88,6 +116,6 @@ public class AccountDao {
 				}
 			}
 		}
-		return singleton;
+		return m_cSingleton;
 	}
 }

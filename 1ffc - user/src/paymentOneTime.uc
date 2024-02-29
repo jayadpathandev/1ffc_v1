@@ -503,8 +503,7 @@ useCase paymentOneTime [
 	persistent string sErrorMessageType
 	tag hSpinner = Spinner.getSpinnerTemplate("pageSpinner.ftl", "pageSpinner", sorrisoLanguage, sorrisoCountry)
 	
-	volatile native string sDisplayAccountNickname = DisplayAccountMasked.getMaskedDisplayAccount(sPayAccountInternal)
-
+	volatile native string sDisplayAccountNickname = DisplayAccountMasked. displayAccountLookup(sUserId, sPayAccountInternal, sPayGroup)
 
 	// -- handling impersonation --
  	import utilImpersonationActive.sImpersonationActive

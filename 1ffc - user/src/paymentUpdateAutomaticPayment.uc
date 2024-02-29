@@ -43,7 +43,7 @@ useCase paymentUpdateAutomaticPayment [
 	importJava Session(com.sorrisotech.app.utils.Session)
 	importJava UcPaymentAction(com.sorrisotech.uc.payment.UcPaymentAction)
 	importJava LocalizedFormat(com.sorrisotech.common.LocalizedFormat)
-	importJava DisplayAccountMasked(com.sorrisotech.fffc.account.DisplayAccountMasked)
+	importJava FffcAccountAction(com.sorrisotech.fffc.account.FffcAccountAction)
 	importJava EsignHelper(com.sorrisotech.fffc.user.EsignHelper)
 	importJava UcProfileAction(com.sorrisotech.app.profile.UcProfileAction)
 	importJava Spinner(com.sorrisotech.app.utils.Spinner)
@@ -77,7 +77,7 @@ useCase paymentUpdateAutomaticPayment [
     string sPaymentMethodHeaderHelp   = "{Choose the payment method for this recurring payment}"
     string sSelectedAutomaticId	      = ""
     string sGroupJson				  = ""	
-    volatile string sSafeGroupJson	  =  DisplayAccountMasked.escapeGroupingJson(sGroupJson)
+    volatile string sSafeGroupJson	  =  FffcAccountAction.escapeGroupingJson(sGroupJson, sUserId)
     
     native string sFuturePaymentsFound = "false"
 	native string sHistoryText          = "Recurring payment created." 

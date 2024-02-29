@@ -1,27 +1,37 @@
+/*
+ * (c) Copyright 2017-2024 Sorriso Technologies, Inc(r), All Rights Reserved,
+ * Patents Pending.
+ * 
+ * This product is distributed under license from Sorriso Technologies, Inc. Use
+ * without a proper license is strictly prohibited. To license this software,
+ * you may contact Sorriso Technologies at:
+ * 
+ * Sorriso Technologies, Inc. 40 Nagog Park Acton, MA 01720 +1.978.635.3900
+ * 
+ * "Sorriso Technologies", "You and Your Customers Together, Online", "Persona
+ * Solution Suite by Sorriso", the Sorriso Logo and Persona Solution Suite Logo
+ * are all Registered Trademarks of Sorriso Technologies, Inc. "Information Is
+ * The New Online Currency", "e-TransPromo", "Persona Enterprise Edition",
+ * "Persona SaaS", "Persona Services", "SPN - Synergy Partner Network",
+ * "Sorriso Synergy", "Our DNA Is In Online", "Persona E-Bill & E-Pay",
+ * "Persona E-Service", "Persona Customer Intelligence", "Persona Active
+ * Marketing", and "Persona Powered By Sorriso" are trademarks of Sorriso
+ * Technologies, Inc.
+ */
 package com.sorrisotech.fffc.account;
-
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.sorrisotech.app.common.utils.I18n;
+import com.sorrisotech.app.utils.UserProfile;
 import com.sorrisotech.fffc.account.dao.AccountDao;
 import com.sorrisotech.svcs.external.IServiceLocator2;
-import com.sorrisotech.svcs.itfc.data.ITable2Data;
-import com.sorrisotech.svcs.itfc.data.IUserData;
-import com.sorrisotech.svcs.itfc.data.table2.ITable2ColumnData;
-import com.sorrisotech.svcs.itfc.data.table2.ITable2RowData;
-import com.sorrisotech.uc.payment.UcPaymentAction;
 
+/******************************************************************************
+ * This class have methods that are masking the display account number.
+ * 
+ * @author Asrar Saloda
+ */
 public class DisplayAccountMasked {
 	
 	/***************************************************************************
@@ -34,17 +44,12 @@ public class DisplayAccountMasked {
 	 */
 	private static final AccountDao m_cDao = AccountDao.get();
 	
-	/**********************************************************************************************
-	 * JSON Object Mapper to read and write.
-	 */
-	private static ObjectMapper m_cObjectMapper = new ObjectMapper();
-	
 	/**************************************************************************
-	 * This method returns the masked email address.
+	 * This method returns the masked display account number.
 	 * 
 	 * @param szInternalAccountNumber Internal account number.
 	 * 
-	 * @return masked display account number or nickname.
+	 * @return masked display account number.
 	 */
 	public String getMaskedDisplayAccount(final String szInternalAccountNumber) {
 		
@@ -53,6 +58,8 @@ public class DisplayAccountMasked {
 		
 		var szMaskedDisplayAccount = "";
 		
+		// --------------------------------------------------------------------------------------
+		// Fetching display account number from database using internal account number.
 		var displayAccountNumber = m_cDao.queryDisplayAccountNumber(szInternalAccountNumber);
 		
 		if (null != displayAccountNumber)
@@ -64,245 +71,64 @@ public class DisplayAccountMasked {
 		return szMaskedDisplayAccount;
 	}
 	
-	public static String maskDisplayAccount(final String displayAccount) {
+	/**************************************************************************
+	 * This method returns the masked display account number.
+	 * 
+	 * @param szDisplayAccount display account number.
+	 * 
+	 * @return masked display account number.(*** followed by last 4 digits)
+	 */
+	private static String maskDisplayAccount(final String szDisplayAccount) {
 		
-		var maskedDigits = new StringBuilder("X".repeat(Math.max(0, displayAccount.length() - 4)));
+		var maskedDigits = new StringBuilder("***");
 		
-		var lastFourDigits = displayAccount.substring(Math.max(0, displayAccount.length() - 4));
+		var lastFourDigits = szDisplayAccount.substring(Math.max(0, szDisplayAccount.length() - 4));
 		
 		return maskedDigits.append(lastFourDigits).toString();
 	}
 	
-	public static String escapeGroupingJson(final String sGroupJson) {
+	/**************************************************************************
+	 * This lookup method which returns masked display account number(e.g. ***1234)
+	 * or if nick name available it will return nickname space 3 stars followed by
+	 * last 4 digits of display account number(e.g. TestBoat ***1234)
+	 * 
+	 * @param sUserId   The user id.
+	 * @param sAccount  The internal account number.
+	 * @param sPayGroup Pay group.
+	 * 
+	 * @return Masked display account number.(*** followed by last 4 digits) or
+	 *         nickname space 3 star followed by last 4 digits of display account
+	 *         number(e.g. TestNls ***1234)
+	 */
+	public String displayAccountLookup(IServiceLocator2 cLocator, final String sUserId,
+	        final String sAccount, final String sPayGroup) {
 		
-		final UcPaymentAction ucPaymentAction = new UcPaymentAction();
+		String szReturnValue = null;
 		
-		String sGroupJsonString = null;
-		
-		try {
-			GroupJson[] GroupJsonArray = m_cObjectMapper.readValue(sGroupJson, GroupJson[].class);
+		if (!sAccount.isBlank() && !sPayGroup.isBlank()) {
 			
-			Arrays.stream(GroupJsonArray).forEach(group -> group.setsDisplayAccountNumber(
-			        maskDisplayAccount(group.getsDisplayAccountNumber())));
+			// --------------------------------------------------------------------------------------
+			// Fetching display account number using internal account number.
+			final String szMaskedDisplayAccount = getMaskedDisplayAccount(sAccount);
 			
-			sGroupJsonString = m_cObjectMapper.writeValueAsString(GroupJsonArray);
+			// --------------------------------------------------------------------------------------
+			// Creating nick name attribute name as per requirement.
+			// Nickname-<paymentGroup>-<internalaccountnumber>
+			final String sNicknameAttrName = "Nickname" + "-" + sPayGroup + "-" + sAccount;
 			
-		} catch (JsonProcessingException e) {
-			LOG.debug("DisplayAccountMasked.....escapeGroupingJson()...exception thrown: " + e, e);
+			// --------------------------------------------------------------------------------------
+			// Fetching nickname from user profile.
+			final String szNicknameValue = UserProfile.getProfileAttrValue(cLocator, sUserId,
+			        sNicknameAttrName);
+			
+			if (null != szNicknameValue && !szNicknameValue.isBlank()) {
+				szReturnValue = szNicknameValue + " " + szMaskedDisplayAccount;
+			} else {
+				szReturnValue = szMaskedDisplayAccount;
+			}
 		}
-		return ucPaymentAction.escapeGroupingJson(sGroupJsonString);
+		
+		return szReturnValue;
 	}
 	
-	@SuppressWarnings("unused")
-	private static class GroupJson {
-		
-		@JsonProperty("internalAccountNumber")
-		private String sInternalAccountNumber;
-		
-		@JsonProperty("displayAccountNumber")
-		private String sDisplayAccountNumber;
-		
-		@JsonProperty("paymentGroup")
-		private String paymentGroup;
-		
-		public String getsInternalAccountNumber() {
-			return sInternalAccountNumber;
-		}
-		
-		public void setsInternalAccountNumber(String sInternalAccountNumber) {
-			this.sInternalAccountNumber = sInternalAccountNumber;
-		}
-		
-		public String getsDisplayAccountNumber() {
-			return sDisplayAccountNumber;
-		}
-		
-		public void setsDisplayAccountNumber(String sDisplayAccountNumber) {
-			this.sDisplayAccountNumber = sDisplayAccountNumber;
-		}
-		
-		public String getPaymentGroup() {
-			return paymentGroup;
-		}
-		
-		public void setPaymentGroup(String paymentGroup) {
-			this.paymentGroup = paymentGroup;
-		}
-		
-	}
-	
-	// TODO Will have to move this method to right place when working for nickname.
-	public void setAccountDataTableFromPaymentAutomaticData(IServiceLocator2 locator,
-	        IUserData userData, ITable2Data cDataTable, ITable2Data cDisplayTable) {
-		try {
-			
-			cDisplayTable.empty();
-			
-			for (int i = 0; i < cDataTable.getTotalRows(); i++) {
-				ITable2RowData      cRow  = cDataTable.getRow(i);
-				Map<Object, Object> mData = cRow.getDataValues();
-				
-				cRow.setDataValue("GRP_DISP_ACC",
-				        maskDisplayAccount(mData.get("GRP_DISP_ACC").toString()));
-				
-				cDisplayTable.saveRow(cRow);
-			}
-			
-		} catch (Exception e) {
-			LOG.error("setAccountDataTableFromPaymentAutomaticData() An exception was thrown", e);
-		}
-	}
-	
-	// TODO Will have to move this method to right place when working for nickname.
-	public void setAccountDataTableFromPaymentHistoryDataMaskedAccount(IServiceLocator2 locator,
-	        IUserData userData, ITable2Data cDataTable, ITable2Data cDisplayTable,
-	        String configColumns) {
-		try {
-			
-			final HashSet<String> columns = new HashSet<String>();
-			for (final String column : configColumns.split("\\|")) {
-				columns.add(column);
-			}
-			
-			cDisplayTable.empty();
-			
-			for (int i = 0; i < cDataTable.getTotalRows(); i++) {
-				ITable2RowData      cRow       = cDataTable.getRow(i);
-				Map<Object, Object> mData      = cRow.getDataValues();
-				ArrayNode           cJsonArray = (ArrayNode) m_cObjectMapper
-				        .readTree((String) mData.get("GROUPING_JSON"));
-				
-				String szSourceName = cRow.getDataValue("PAY_FROM_ACCOUNT");
-				String szSourceType = cRow.getDataValue("PAY_SOURCE_TYPE");
-				
-				// i18n Payment Type
-				if (szSourceType != null && szSourceType.equalsIgnoreCase("bank")) {
-					cRow.setDataValue("PAY_SOURCE_TYPE",
-					        I18n.translate(locator, userData, "paymentHistory_type_bank"));
-				} else if (szSourceType != null && szSourceType.equalsIgnoreCase("credit")) {
-					cRow.setDataValue("PAY_SOURCE_TYPE",
-					        I18n.translate(locator, userData, "paymentHistory_type_credit"));
-				} else if (szSourceType != null && szSourceType.equalsIgnoreCase("debit")) {
-					cRow.setDataValue("PAY_SOURCE_TYPE",
-					        I18n.translate(locator, userData, "paymentHistory_type_debit"));
-				} else if (szSourceType != null && szSourceType.equalsIgnoreCase("sepa")) {
-					cRow.setDataValue("PAY_SOURCE_TYPE",
-					        I18n.translate(locator, userData, "paymentHistory_type_sepa"));
-				}
-				
-				// i18n Payment Name
-				String szText = "";
-				if (szSourceName != null && szSourceName.equalsIgnoreCase("unsaved")) {
-					if (szSourceType.equalsIgnoreCase("bank")) {
-						szText = I18n.translate(locator, userData,
-						        "paymentHistory_unsavedBankAcct");
-					} else if (szSourceType.equalsIgnoreCase("credit")) {
-						szText = I18n.translate(locator, userData,
-						        "paymentHistory_unsavedCreditCard");
-					} else if (szSourceType.equalsIgnoreCase("debit")) {
-						szText = I18n.translate(locator, userData,
-						        "paymentHistory_unsavedDebitCard");
-					} else if (szSourceType.equalsIgnoreCase("sepa")) {
-						szText = I18n.translate(locator, userData,
-						        "paymentHistory_unsavedSepaAcct");
-					}
-					
-					cRow.setDataValue("PAY_FROM_ACCOUNT", szText);
-				}
-				
-				boolean bFound = false;
-				
-				for (JsonNode cGroupingNode : cJsonArray) {
-					if (bFound) {
-						szText = "";
-						szText = I18n.translate(locator, userData,
-						        "paymentHistory_sMultipleAccounts");
-						cRow.setDataValue("BILLING_ACCOUNT_ID", szText);
-						break; // Breaking because we only care about the first element in the array
-					} else {
-						cRow.setDataValue("BILLING_ACCOUNT_ID", maskDisplayAccount(
-						        cGroupingNode.get("displayAccountNumber").textValue()));
-						bFound = true;
-					}
-				}
-				
-				cDisplayTable.saveRow(cRow);
-			}
-			
-			List<ITable2ColumnData> tblCols = cDisplayTable.getColumns();
-			
-			for (ITable2ColumnData tblCol : tblCols) {
-				String tblColId = tblCol.getId();
-				
-				if (columns.contains(tblColId)) {
-					tblCol.removeDisplayTag("visually-hidden");
-				}
-			}
-			
-		} catch (Exception e) {
-			LOG.error("setAccountDataTableFromPaymentData() An exception was thrown", e);
-		}
-	}
-	
-	// TODO Will have to move this method to right place when working for nickname.
-	public void setAccountDataTableFromPaymentDataMaskedAccount(IServiceLocator2 locator, IUserData userData, ITable2Data cDataTable,
-			ITable2Data cDisplayTable) {
-		try {
-			cDisplayTable.empty();
-
-			for (int i = 0; i < cDataTable.getTotalRows(); i++) {
-				ITable2RowData cRow = cDataTable.getRow(i);
-				Map<Object, Object> mData = cRow.getDataValues();
-				ArrayNode cJsonArray = (ArrayNode) m_cObjectMapper.readTree((String) mData.get("GROUPING_JSON"));
-
-				String szSourceName = cRow.getDataValue("SOURCE_NAME");
-				String szSourceType = cRow.getDataValue("SOURCE_TYPE");
-
-				// i18n Payment Type
-				if (szSourceType != null && szSourceType.equalsIgnoreCase("bank")) {
-					cRow.setDataValue("SOURCE_TYPE", I18n.translate(locator, userData, "paymentHistory_type_bank"));
-				} else if (szSourceType != null && szSourceType.equalsIgnoreCase("credit")) {
-					cRow.setDataValue("SOURCE_TYPE", I18n.translate(locator, userData, "paymentHistory_type_credit"));
-				} else if (szSourceType != null && szSourceType.equalsIgnoreCase("debit")) {
-					cRow.setDataValue("SOURCE_TYPE", I18n.translate(locator, userData, "paymentHistory_type_debit"));
-				} else if (szSourceType != null && szSourceType.equalsIgnoreCase("sepa")) {
-					cRow.setDataValue("SOURCE_TYPE", I18n.translate(locator, userData, "paymentHistory_type_sepa"));
-				}
-
-				// i18n Payment Name
-				String szText = "";
-				if (szSourceName != null && szSourceName.equalsIgnoreCase("unsaved")) {
-					if (szSourceType.equalsIgnoreCase("bank")) {
-						szText = I18n.translate(locator, userData, "paymentHistory_unsavedBankAcct");
-					} else if (szSourceType.equalsIgnoreCase("credit")) {
-						szText = I18n.translate(locator, userData, "paymentHistory_unsavedCreditCard");
-					} else if (szSourceType.equalsIgnoreCase("debit")) {
-						szText = I18n.translate(locator, userData, "paymentHistory_unsavedDebitCard");
-					} else if (szSourceType.equalsIgnoreCase("sepa")) {
-						szText = I18n.translate(locator, userData, "paymentHistory_unsavedSepaAcct");
-					}
-					cRow.setDataValue("SOURCE_NAME", szText);
-				}
-
-				boolean bFound = false;
-
-				for (JsonNode cGroupingNode : cJsonArray) {
-					if (bFound) {
-						szText = "";
-						szText = I18n.translate(locator, userData, "paymentHistory_sMultipleAccounts");
-						cRow.setDataValue("BILLING_ACCOUNT_ID", maskDisplayAccount(szText));
-						break; // Breaking because we only care about the first element in the array
-					} else {
-						cRow.setDataValue("BILLING_ACCOUNT_ID", maskDisplayAccount(cGroupingNode.get("displayAccountNumber").textValue()));
-						bFound = true;
-					}
-				}
-
-				cDisplayTable.saveRow(cRow);
-
-			}
-		} catch (Exception e) {
-			LOG.error("setAccountDataTableFromPaymentData() An exception was thrown", e);
-		}
-	}
 }
