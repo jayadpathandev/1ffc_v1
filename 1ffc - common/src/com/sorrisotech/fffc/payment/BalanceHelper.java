@@ -8,13 +8,11 @@ import java.time.format.DateTimeParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sorrisotech.app.common.utils.I18n;
 import com.sorrisotech.common.LocalizedFormat;
 import com.sorrisotech.fffc.payment.dao.GetPaymentHistoryAmountDaoImpl;
 import com.sorrisotech.svcs.external.IExternalReuse;
 import com.sorrisotech.svcs.external.IServiceLocator2;
 import com.sorrisotech.svcs.itfc.data.INumberData;
-import com.sorrisotech.svcs.itfc.data.IStringData;
 import com.sorrisotech.svcs.itfc.data.IUserData;
 import com.sorrisotech.svcs.itfc.exceptions.MargaritaDataException;
 

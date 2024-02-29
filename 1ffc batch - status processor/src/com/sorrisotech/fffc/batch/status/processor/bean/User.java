@@ -39,14 +39,69 @@ public class User {
 	private String m_szUserId;
 	
 	/**************************************************************************
-	 * Flag denotes if the payment is diabled.
+	 * Flag denotes if the payment is disabled.
 	 */
 	private boolean m_bPaymentDisabled;
 	
 	/**************************************************************************
-	 * Flag denotes if the ach is diabled.
+	 * Flag denotes if the payment disabledDQ.
+	 */
+	private boolean m_bPaymentDisabledDQ;
+	
+	/**************************************************************************
+	 * Flag denotes if the ach is disabled.
 	 */
 	private boolean m_bAchDisabled;
+	
+	/**************************************************************************
+	 * Flag denotes if the portal access is disabled.
+	 */
+	private boolean m_bPortalAcessDisabled;
+	
+	/**************************************************************************
+	 * Flag denotes if the recurring payment is disabled.
+	 */
+	private boolean m_bRecurringPaymentDisabled;
+	
+	/**************************************************************************
+	 * Flag denotes if the recurring payment is disabled until current.
+	 */
+	private boolean m_bRecurringPaymentDisabledUntilCurrent;
+	
+	/**************************************************************************
+	 * Bill date of the status feed.
+	 */
+	private String m_szBillDate;
+	
+	/**************************************************************************
+	 * The internal account number of the bill.
+	 */
+	private String m_szInternalAccount;
+	
+	/**************************************************************************
+	 * The current amount due of the bill.
+	 */
+	private String m_szCurrentAmountDue;
+	
+	/**************************************************************************
+	 * The bill amount.
+	 */
+	private String m_szMonthlyPaymentAnount;
+	
+	/**************************************************************************
+	 * The payment group of the bill.
+	 */
+	private String m_szPaymentGroup;
+	
+	/**************************************************************************
+	 * The status date of the bill.
+	 */
+	private String m_szStatusDate;
+	
+	/**************************************************************************
+	 * The flag denotes if the account is current.
+	 */
+	private boolean m_bAccountCurrent;
 	
 	/**************************************************************************
 	 * List of all scheduled payment records for user.
@@ -109,6 +164,204 @@ public class User {
 	 */
 	public void setAchDisabled(boolean achDiabled) {
 		this.m_bAchDisabled = achDiabled;
+	}
+
+	/**************************************************************************
+	 * Gets the value of m_bPaymentDisabledDQ.
+	 * 
+	 * @return m_bPaymentDisabledDQ
+	 */
+	public boolean isPaymentDisabledDQ() {
+		return m_bPaymentDisabledDQ;
+	}
+
+	/**
+	 * Sets the value of m_bPaymentDisabledDQ.
+	 * 
+	 * @param paymentDisabledDQ
+	 */
+	public void setPaymentDisabledDQ(boolean paymentDisabledDQ) {
+		this.m_bPaymentDisabledDQ = paymentDisabledDQ;
+	}
+
+	/**************************************************************************
+	 * Gets the value of m_bPortalAcessDisabled.
+	 * 
+	 * @return m_bPortalAcessDisabled
+	 */
+	public boolean isPortalAcessDisabled() {
+		return m_bPortalAcessDisabled;
+	}
+
+	/**************************************************************************
+	 * Sets the value of m_bPortalAcessDisabled.
+	 * 
+	 * @param portalAcessDisabled
+	 */
+	public void setPortalAcessDisabled(boolean portalAcessDisabled) {
+		this.m_bPortalAcessDisabled = portalAcessDisabled;
+	}
+
+	/**************************************************************************
+	 * Gets the value of m_bRecurringPaymentDisabled.
+	 * 
+	 * @return m_bRecurringPaymentDisabled
+	 */
+	public boolean isRecurringPaymentDisabled() {
+		return m_bRecurringPaymentDisabled;
+	}
+
+	/**************************************************************************
+	 * Sets the value of m_bRecurringPaymentDisabled.
+	 * 
+	 * @param recurringPaymentDisabled
+	 */
+	public void setRecurringPaymentDisabled(boolean recurringPaymentDisabled) {
+		this.m_bRecurringPaymentDisabled = recurringPaymentDisabled;
+	}
+
+	/**************************************************************************
+	 * Gets the value of m_bRecurringPaymentDisabledUntilCurrent.
+	 * 
+	 * @return m_bRecurringPaymentDisabledUntilCurrent
+	 */
+	public boolean isRecurringPaymentDisabledUntilCurrent() {
+		return m_bRecurringPaymentDisabledUntilCurrent;
+	}
+
+	/**************************************************************************
+	 * Sets the value of m_bRecurringPaymentDisabledUntilCurrent.
+	 * 
+	 * @param recurringPaymentDisabledUntilCurrent
+	 */
+	public void setRecurringPaymentDisabledUntilCurrent(boolean recurringPaymentDisabledUntilCurrent) {
+		this.m_bRecurringPaymentDisabledUntilCurrent = recurringPaymentDisabledUntilCurrent;
+	}
+
+	/**************************************************************************
+	 * Gets the value of m_szBillDate.
+	 * 
+	 * @return m_szBillDate
+	 */
+	public String getBillDate() {
+		return m_szBillDate;
+	}
+
+	/**************************************************************************
+	 * Sets the value of m_szBillDate.
+	 * 
+	 * @param billDate
+	 */
+	public void setBillDate(String billDate) {
+		this.m_szBillDate = billDate;
+	}
+
+	/**************************************************************************
+	 * Gets the value of m_szInternalAccount.
+	 * 
+	 * @return m_szInternalAccount
+	 */
+	public String getInternalAccount() {
+		return m_szInternalAccount;
+	}
+
+	/**************************************************************************
+	 * Sets the value of m_szInternalAccount.
+	 * 
+	 * @param internalAccount
+	 */
+	public void setInternalAccount(String internalAccount) {
+		this.m_szInternalAccount = internalAccount;
+	}
+
+	/**************************************************************************
+	 * Gets the value of m_szCurrentAmountDue.
+	 * 
+	 * @return m_szCurrentAmountDue
+	 */
+	public String getCurrentAmountDue() {
+		return m_szCurrentAmountDue;
+	}
+
+	/**************************************************************************
+	 * Sets the value of m_szCurrentAmountDue.
+	 * 
+	 * @param currentAmountDue
+	 */
+	public void setCurrentAmountDue(String currentAmountDue) {
+		this.m_szCurrentAmountDue = currentAmountDue;
+	}
+
+	/**************************************************************************
+	 * Gets the value of m_szMonthlyPaymentAnount.
+	 * 
+	 * @return m_szMonthlyPaymentAnount
+	 */
+	public String getMonthlyPaymentAnount() {
+		return m_szMonthlyPaymentAnount;
+	}
+
+	/**************************************************************************
+	 * Sets the value of m_szMonthlyPaymentAnount.
+	 * 
+	 * @param monthlyPaymentAnount
+	 */
+	public void setMonthlyPaymentAnount(String monthlyPaymentAnount) {
+		this.m_szMonthlyPaymentAnount = monthlyPaymentAnount;
+	}
+
+	/**************************************************************************
+	 * Gets the value of m_szPaymentGroup.
+	 * 
+	 * @return m_szPaymentGroup
+	 */
+	public String getPaymentGroup() {
+		return m_szPaymentGroup;
+	}
+
+	/**************************************************************************
+	 * Sets the value of m_szPaymentGroup.
+	 * 
+	 * @param paymentGroup
+	 */
+	public void setPaymentGroup(String paymentGroup) {
+		this.m_szPaymentGroup = paymentGroup;
+	}
+
+	/**************************************************************************
+	 * Gets the value of m_szStatusDate.
+	 * 
+	 * @return m_szStatusDate
+	 */
+	public String getStatusDate() {
+		return m_szStatusDate;
+	}
+
+	/**************************************************************************
+	 * Sets the value of m_szStatusDate.
+	 * 
+	 * @param statusDate
+	 */
+	public void setStatusDate(String statusDate) {
+		this.m_szStatusDate = statusDate;
+	}
+
+	/**************************************************************************
+	 * Gets the value of m_bAccountCurrent.
+	 * 
+	 * @return m_bAccountCurrent
+	 */
+	public boolean isAccountCurrent() {
+		return m_bAccountCurrent;
+	}
+
+	/**************************************************************************
+	 * Sets the value of m_bAccountCurrent.
+	 * 
+	 * @param bAccountCurrent
+	 */
+	public void setAccountCurrent(boolean bAccountCurrent) {
+		this.m_bAccountCurrent = bAccountCurrent;
 	}
 
 	/**************************************************************************

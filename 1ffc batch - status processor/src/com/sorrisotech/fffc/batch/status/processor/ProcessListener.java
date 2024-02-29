@@ -57,7 +57,7 @@ public class ProcessListener implements ItemProcessListener<User, User>{
 		
 		LOG.info("Sending notifications for scheduled payments for user : {}", cOutput.getUserId());
 		
-		for(ScheduledPayment cPayment : cOutput.getScheduledPayments()) {
+		for (ScheduledPayment cPayment : cOutput.getScheduledPayments()) {
 			Map<String, String> cParams = new HashMap<>();
 			cParams.put("accountNumber", cPayment.getAccounutNumber());
 			cParams.put("walletNickName", cPayment.getWalletNickName());
@@ -85,7 +85,7 @@ public class ProcessListener implements ItemProcessListener<User, User>{
 		
 		LOG.info("Sending notifications for recurring payments for user : {}", cOutput.getUserId());
 		
-		for(RecurringPayment cPayment : cOutput.getRecurringPayments()) {
+		for (RecurringPayment cPayment : cOutput.getRecurringPayments()) {
 			Map<String, String> cParams = new HashMap<>();
 			cParams.put("accountNumber", cPayment.getAccounutNumber());
 			cParams.put("walletNickName", cPayment.getWalletNickName());
