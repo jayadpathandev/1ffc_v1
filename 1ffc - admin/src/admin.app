@@ -26,7 +26,11 @@ application [
 		item itemUserSearch ("{Assist Customer}", customerSearch) [ 
 			class: "menu"   
 		]
-				
+
+        item itemFindDocuments ("{Find Documents}", documentSearch) [ 
+			class: "menu"   
+		]   	
+					
         item itemAudit ("{Audit Log}", auditView) [
             class: "menu"           
         ]       
