@@ -66,6 +66,7 @@ application [
 		fffcViewDocument
 		fffcTransactionHistory 
 		fffcContactPreferencesApi
+		fffcEditDisplayAccount
 		
 		statusTest
 		testFtlTemplating

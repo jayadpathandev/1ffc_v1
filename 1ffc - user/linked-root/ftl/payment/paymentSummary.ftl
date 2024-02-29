@@ -222,7 +222,7 @@
 			<div class="mb-2">
 				<span class="fw-bold">Account #:</span> <span class="fw-bold">${nickname.displayAccount}&nbsp</span>
 				<#if nickname.url?? && (nickname.url?length > 0)>
-				<a class="me-4" target="_blank" "href="#" st-pop-in="${nickname.url}">Edit nickname</a>
+				<a class="payment-edit-img st-left-space" target="_blank" "href="#" st-pop-in="${nickname.url}"></a>
 				</#if>
 				
 			</div>

@@ -156,7 +156,8 @@ useCase accountSummaryChild [
 	native string sAccountDisplay
 	native string sIsBill		// not being used, does this mean if there's no bill we don't work?
 	
-	native volatile string sDisplayAccountNickname = DisplayAccountMasked.getMaskedDisplayAccount(sBillAccountInternal)
+	// -- variables for holding nickname or last 4 masked display account --
+	native volatile string sDisplayAccountNickname = DisplayAccountMasked.displayAccountLookup(sUserId,sBillAccountInternal,sPayGroup)
 	
 	persistent native string sParent	
 		

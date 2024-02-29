@@ -39,7 +39,7 @@ useCase paymentHistory [
     importJava I18n(com.sorrisotech.app.common.utils.I18n)   
     importJava UcPaymentAction(com.sorrisotech.uc.payment.UcPaymentAction) 
     importJava LocalizedFormat(com.sorrisotech.common.LocalizedFormat)
-    importJava DisplayAccountMasked(com.sorrisotech.fffc.account.DisplayAccountMasked)	
+    importJava FffcAccountAction(com.sorrisotech.fffc.account.FffcAccountAction)	
     
     import billCommon.sPayAccountInternal
     import billCommon.sPayGroup       
@@ -653,7 +653,7 @@ useCase paymentHistory [
     
     /* 3. Populate the scheduled payments table. */
 	action getScheduledResults [
-        DisplayAccountMasked.setAccountDataTableFromPaymentDataMaskedAccount(srGetScheduledResult.schedule, tScheduledPaymentsTable)      
+        FffcAccountAction.setAccountDataTableFromPaymentData(srGetScheduledResult.schedule, tScheduledPaymentsTable, sUserId)      
         goto(getHistory)   
     ]
     
@@ -698,7 +698,7 @@ useCase paymentHistory [
     
     /* 5. Populate the payments history table. */
     action getHistoryResults [  
-        DisplayAccountMasked.setAccountDataTableFromPaymentHistoryDataMaskedAccount(srHistoryResult.history, tHistoryTable, srGetResponse.RSP_CONFIG)      
+        FffcAccountAction.setAccountDataTableFromPaymentHistoryData(srHistoryResult.history, tHistoryTable, srGetResponse.RSP_CONFIG, sUserId)      
         goto(paymentStatusScreen)   
     ]
     
