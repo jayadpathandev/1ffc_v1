@@ -27,6 +27,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import org.slf4j.Logger;
@@ -76,6 +77,21 @@ public class Queries {
 	@Autowired
 	@Qualifier("accountIdsFromOrgId")  
 	private String mGetAccounts;	
+
+	/**********************************************************************************************
+     * SQL to take an accountId and find the existing user with that account.  The registration
+     * status for the user must be "agentpay" or "pending".
+     */	
+	@Autowired
+	@Qualifier("accountIdToUser")  
+	private String mGetUser;	
+
+	/**********************************************************************************************
+     * SQL to take a user ID and find the company they belong to.
+     */	
+	@Autowired
+	@Qualifier("userIdToCompanyId")  
+	private String mGetCompanyId;	
 	
 	/***************************************************************************
 	 * Given an account ID find the OrgId.
@@ -104,4 +120,41 @@ public class Queries {
 		
 		return mSingleton.mJdbc.queryForList(mSingleton.mGetAccounts, params, BigDecimal.class);
 	}
+	
+	/***************************************************************************
+	 * Given an account ID find the user.
+	 */
+	static public BigDecimal lookupUser(
+				final BigDecimal accountId
+			) {
+		final HashMap<String, Object> params = new HashMap<String, Object>();
+		
+		params.put("account_id", accountId);
+		
+		return mSingleton.mJdbc.queryForObject(mSingleton.mGetUser, params, BigDecimal.class);
+	}
+
+	/***************************************************************************
+	 * Given an account ID find the user.
+	 */
+	static public BigDecimal lookupCompany(
+				final BigDecimal userId
+			) {
+		final HashMap<String, Object> params = new HashMap<String, Object>();
+		
+		params.put("user_id", userId);
+		
+		BigDecimal retval = null;
+		
+		try {
+			retval = mSingleton.mJdbc.queryForObject(mSingleton.mGetCompanyId, params, BigDecimal.class); 
+		} catch(IncorrectResultSizeDataAccessException e) {
+			if (e.getActualSize() > 0) {
+				throw e;
+			}
+		}
+		
+		return retval;
+	}
+	
 }
