@@ -24,6 +24,7 @@
 package com.sorrisotech.fffc.batch.status.processor;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -89,30 +90,65 @@ public class Processor extends NamedParameterJdbcDaoSupport implements ItemProce
 		List<ScheduledPayment> cScheduledPayments = getScheduledPaymentsForUser(cUser.getUserId());
 		List<RecurringPayment> cRecurringPayments = getRecurringPaymentsForUser(cUser.getUserId());
 		
-		if (!cUser.isPaymentDisabled() && cUser.isAchDisabled()) {
-			LOG.info("Removing records for non ACH payments");
-			cScheduledPayments.removeIf(payment -> !"bank".equals(payment.getSourceType()));
-			cRecurringPayments.removeIf(payment -> !"bank".equals(payment.getSourceType()));
+		boolean bAllDeleted = false;
+		
+		List<String> cScheduledRecordsIds = new ArrayList<String>();
+		List<BigDecimal> cRecurringRecordsIds = new ArrayList<BigDecimal>();
+		
+		if (cUser.isPortalAcessDisabled()
+				|| (cUser.isPaymentDisabled() && !cUser.isPaymentDisabledDQ())
+				|| (cUser.isPaymentDisabledDQ() && !cUser.isAccountCurrent())) {
+			bAllDeleted = true;
+			
+			cScheduledRecordsIds = cScheduledPayments.stream()
+					.map(val -> val.getId())
+					.collect(Collectors.toList());
+			
+			cRecurringRecordsIds = cRecurringPayments.stream()
+					.map(val -> val.getId())
+					.collect(Collectors.toList());
+			
 		}
 		
-		List<String> cScheduledRecordsIds = cScheduledPayments.stream()
-				.map(val -> val.getId()).collect(Collectors.toList());
+		if ( !bAllDeleted && cUser.isAchDisabled() ) {
+			
+			cScheduledRecordsIds = cScheduledPayments.stream()
+					.filter(payment -> "bank".equals(payment.getSourceType()))
+					.map(val -> val.getId())
+					.collect(Collectors.toList());
+			
+			cRecurringRecordsIds = cRecurringPayments.stream()
+					.filter(payment -> "bank".equals(payment.getSourceType()))
+					.map(val -> val.getId())
+					.collect(Collectors.toList());
+		}
+		
+		if (!bAllDeleted && cUser.isRecurringPaymentDisabled()) {
+			cRecurringRecordsIds = cRecurringPayments.stream()
+					.map(val -> val.getId())
+					.collect(Collectors.toList());
+		}
 		
 		LOG.info("List of scheduled records : {}", cScheduledRecordsIds);
 		
-		List<BigDecimal> cRecurringRecordsIds = cRecurringPayments.stream()
-				.map(val -> val.getId()).collect(Collectors.toList());
-		
 		LOG.info("List of recurring payment records : {}", cRecurringRecordsIds);
 				
-		cUser.setScheduledPayments(cScheduledPayments);
-		cUser.setRecurringPayments(cRecurringPayments);
+		if (!cRecurringRecordsIds.isEmpty()) {
+			final var recurringPaymentIds = cRecurringRecordsIds;
+			cRecurringPayments.removeIf(payment -> !recurringPaymentIds.contains(payment.getId()));
+			cUser.setRecurringPayments(cRecurringPayments);
+			int iRecurringRowsAffected = deleteRecurringPaymentsForUser(cRecurringRecordsIds);
+			LOG.info("Number of recurring records deleted : {} for user : {}", iRecurringRowsAffected, cUser.getUserId());
+		}
 		
-		int iScheduledRowsAffected = deleteScheduledPaymentsForUser(cScheduledRecordsIds);
-		LOG.info("Number of scheduled records deleted : {} for user : {}", iScheduledRowsAffected, cUser.getUserId());
+		if (!cScheduledPayments.isEmpty()) {
+			final var schedulePayymentIds = cScheduledRecordsIds;
+			cScheduledPayments.removeIf(payment -> !schedulePayymentIds.contains(payment.getId()));
+			cUser.setScheduledPayments(cScheduledPayments);
+			int iScheduledRowsAffected = deleteScheduledPaymentsForUser(cScheduledRecordsIds);
+			LOG.info("Number of scheduled records deleted : {} for user : {}", iScheduledRowsAffected, cUser.getUserId());
+		}
 		
-		int iRecurringRowsAffected = deleteRecurringPaymentsForUser(cRecurringRecordsIds);
-		LOG.info("Number of recurring records deleted : {} for user : {}", iRecurringRowsAffected, cUser.getUserId());
 		
 		LOG.info("Records deleted successfully for userId : {}", cUser.getUserId());
 		

@@ -29,6 +29,7 @@ import java.sql.SQLException;
 import org.springframework.jdbc.core.RowMapper;
 
 import com.sorrisotech.fffc.batch.status.processor.bean.User;
+import com.sorrisotech.fffc.payment.BalanceHelper;
 
 /**************************************************************************************************
  * RowMapper implementation class for User
@@ -43,7 +44,28 @@ public class UserMapper implements RowMapper<User> {
 		User cUser = new User();
 		cUser.setUserId(rs.getString("userid"));
 		cUser.setPaymentDisabled("Y".equals(rs.getString("payment_disabled")));
+		cUser.setPaymentDisabledDQ("Y".equals(rs.getString("payment_disabled_dq")));
 		cUser.setAchDisabled("Y".equals(rs.getString("ach_disabled")));
+		cUser.setPortalAcessDisabled("Y".equals(rs.getString("portal_access_disabled")));
+		cUser.setRecurringPaymentDisabled("Y".equals(rs.getString("recurring_payment_disabled")));
+		cUser.setRecurringPaymentDisabledUntilCurrent("Y".equals(rs.getString("recurring_payment_disabled_until_current")));
+		cUser.setBillDate(rs.getString("bill_date"));
+		cUser.setInternalAccount(rs.getString("internal_account"));
+		cUser.setCurrentAmountDue(rs.getString("current_amount_due"));
+		cUser.setMonthlyPaymentAnount(rs.getString("monthly_payment_amount"));
+		cUser.setPaymentGroup(rs.getString("payment_group"));
+		cUser.setStatusDate(rs.getString("status_date"));
+		cUser.setAccountCurrent(
+			new BalanceHelper().isAccountCurrent(
+				null, null, 
+				cUser.getPaymentGroup(), 
+				cUser.getInternalAccount(), 
+				cUser.getBillDate(), 
+				cUser.getMonthlyPaymentAnount(), 
+				cUser.getStatusDate(), 
+				cUser.getCurrentAmountDue()
+			).equals("true")
+		);
 		return cUser;
 	}
 

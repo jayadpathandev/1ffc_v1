@@ -59,36 +59,64 @@
 						and bfmd.status_update_date::date = NOW()::date
 					ORDER BY
 						bfmd.status_update_date
-				), pmt_disabled_accounts AS (		-- get  all the diabled account from the `latest_status_feeds`
+				), pmt_disabled_accounts AS (		-- get all the disabled account from the `latest_status_feeds`
 					SELECT
 						DISTINCT ON (b.account)
 						b.account,
-						CASE WHEN (b.flex6 IS NOT NULL AND b.flex6 NOT IN ('enabled', 'disabledDelinquent')) THEN 'Y' ELSE 'N'
+						CASE WHEN (b.flex6 IS NOT NULL AND b.flex6 NOT IN ('enabled')) THEN 'Y' ELSE 'N'
 				   		END AS payment_disabled,
+				   		CASE WHEN (b.flex6 IS NOT NULL AND b.flex6 IN ('disableDQ')) THEN 'Y' ELSE 'N'
+				   		END AS payment_disabled_dq,
 				    	CASE WHEN (b.flex7 IS NOT NULL AND b.flex7 NOT IN ('enabled')) THEN 'Y' ELSE 'N'
-				    	END AS ach_disabled
+				    	END AS ach_disabled,
+				    	CASE WHEN (b.flex8 IS NOT NULL AND b.flex8 NOT IN ('enabled')) THEN 'Y' ELSE 'N'
+				    	END AS portal_access_disabled,
+				    	CASE WHEN (b.flex15 IS NOT NULL AND b.flex15 NOT IN ('eligible', 'enrolled')) THEN 'Y' ELSE 'N'
+				    	END AS recurring_payment_disabled,
+				    	CASE WHEN (b.flex15 IS NOT NULL AND b.flex15 IN ('disabledUntilCurrent')) THEN 'Y' ELSE 'N'
+				    	END AS recurring_payment_disabled_until_current,
+				    	b.bill_date AS bill_date,
+				    	b.account AS internal_account,
+				    	b.flex18 AS current_amount_due,
+				    	b.self_reg3 AS monthly_payment_amount,
+				    	bfmd.payment_group AS payment_group,
+				    	bfmd.status_update_date AS status_date
 					FROM
 						bill_summary bs
 					JOIN bill b ON
 						b.bill_id = bs.bill_id
+					LEFT JOIN bill_file_meta_data bfmd ON
+						bfmd.bill_file_id = b.bill_file_id
 					WHERE
 						bs.bill_file_id in (
 							SELECT * FROM latest_status_feeds
 						) AND (
-							b.flex6 IS NOT NULL AND b.flex6 NOT IN ('enabled', 'disabledDelinquent')	-- payment disable reason.
+							b.flex6 IS NOT NULL AND b.flex6 NOT IN ('enabled')							-- payment disable reason.
 							OR b.flex7 IS NOT NULL AND b.flex7 NOT IN ('enabled') 						-- ach disable reason.
+							OR b.flex8 IS NOT NULL AND b.flex8 NOT IN ('enabled') 						-- portal access disbaled reason
+							OR b.flex15 IS NOT NULL AND b.flex8 NOT IN ('eligible', 'enrolled') 		-- recurring payment status
 						)
 				) SELECT							-- get all user_id related to the account numbers of `pmt_disabled_accounts`
 					pcu.userid::varchar,
 					pda.payment_disabled,
-					pda.ach_disabled
+					pda.payment_disabled_dq,
+					pda.ach_disabled,
+					pda.portal_access_disabled,
+					pda.recurring_payment_disabled,
+					pda.recurring_payment_disabled_until_current,
+					pda.bill_date,
+					pda.internal_account,
+					pda.current_amount_due,
+					pda.monthly_payment_amount,
+					pda.payment_group,
+					pda.status_date
 				FROM
 					prof_company_user pcu
 				JOIN prof_company_account pca ON
 					pca.company_id = pcu.companyid
 				JOIN tm_account ta ON
 					ta.id = pca.account_id
-				JOIN pmt_disabled_accounts pda ON ta.account_number_display = pda.account
+				JOIN pmt_disabled_accounts pda ON ta.account_number = pda.account
             </value>
         </property>
     </bean>
