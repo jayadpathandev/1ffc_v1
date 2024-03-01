@@ -65,7 +65,7 @@ echo "Requesting access token... completed"
 
 # Getting status of File
 echo "Checking file availability..."
-STATUS_CODE=$(curl -s -X GET -I --location "$nls_api_base_url/api/v$nls_api_version/$file_check_endpoint" \
+STATUS_CODE=$(curl -s -X GET -I --location "$nls_api_base_url/api/v$nls_api_version/$file_check_endpoint?filetype=$INPUT_FILE_TYPE" \
 --header 'accept: */*' \
 --header "Authorization: Bearer $ACCESS_TOKEN" | awk 'NR==1 {print $2}')
 
