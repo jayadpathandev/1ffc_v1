@@ -183,6 +183,7 @@ public class PDFEsignService {
 		addDocumentRequest.m_cPartyMappings = List.of(partyMappingDoc);
 		addDocumentRequest.m_cFields = List.of(signatureField);
 		addDocumentRequest.m_bFlatten = false;
+		addDocumentRequest.m_bArchive = true;
 		
 		if (metadata != null && !metadata.isEmpty()) {
 			addDocumentRequest.m_cDocumentIndexes = metadata.entrySet().stream()
