@@ -26,12 +26,12 @@ package com.sorrisotech.fffc.batch.status.processor.bean;
 import java.util.List;
 
 /**************************************************************************************************
- * Class which holds records for User.
+ * Class which holds records for Records.
  * 
  * @author Rohit Singh
  * 
  */
-public class User {
+public class Reecord {
 	
 	/**************************************************************************
 	 * Ids of the user.
