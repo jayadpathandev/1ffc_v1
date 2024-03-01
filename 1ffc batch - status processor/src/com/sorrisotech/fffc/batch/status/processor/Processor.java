@@ -37,7 +37,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcDaoSupport;
 
 import com.sorrisotech.fffc.batch.status.processor.bean.RecurringPayment;
 import com.sorrisotech.fffc.batch.status.processor.bean.ScheduledPayment;
-import com.sorrisotech.fffc.batch.status.processor.bean.Reecord;
+import com.sorrisotech.fffc.batch.status.processor.bean.Record;
 
 /**************************************************************************************************
  * Implementation class for ItemProcessor.
@@ -45,7 +45,7 @@ import com.sorrisotech.fffc.batch.status.processor.bean.Reecord;
  * @author Rohit Singh
  * 
  */
-public class Processor extends NamedParameterJdbcDaoSupport implements ItemProcessor<Reecord, Reecord> {
+public class Processor extends NamedParameterJdbcDaoSupport implements ItemProcessor<Record, Record> {
 	
 	/**************************************************************************
      * Development level logging.
@@ -83,7 +83,7 @@ public class Processor extends NamedParameterJdbcDaoSupport implements ItemProce
 	private RowMapper<RecurringPayment> m_cRecurringPaymentMapper = null;
 
 	@Override
-	public Reecord process(Reecord cUser) throws Exception {
+	public Record process(Record cUser) throws Exception {
 		
 		LOG.info("Processing user : {}", cUser.getUserId());
 		
@@ -135,18 +135,20 @@ public class Processor extends NamedParameterJdbcDaoSupport implements ItemProce
 		
 		LOG.info("List of recurring payment records : {}", cRecurringRecordsIds);
 				
+		final var recurringPaymentIds = cRecurringRecordsIds;
+		cRecurringPayments.removeIf(payment -> !recurringPaymentIds.contains(payment.getId()));
+		cUser.setRecurringPayments(cRecurringPayments);
+		
 		if (!cRecurringRecordsIds.isEmpty()) {
-			final var recurringPaymentIds = cRecurringRecordsIds;
-			cRecurringPayments.removeIf(payment -> !recurringPaymentIds.contains(payment.getId()));
-			cUser.setRecurringPayments(cRecurringPayments);
 			int iRecurringRowsAffected = deleteRecurringPaymentsForUser(cRecurringRecordsIds);
 			LOG.info("Number of recurring records deleted : {} for user : {}", iRecurringRowsAffected, cUser.getUserId());
 		}
 		
+		final var schedulePayymentIds = cScheduledRecordsIds;
+		cScheduledPayments.removeIf(payment -> !schedulePayymentIds.contains(payment.getId()));
+		cUser.setScheduledPayments(cScheduledPayments);
+
 		if (!cScheduledPayments.isEmpty()) {
-			final var schedulePayymentIds = cScheduledRecordsIds;
-			cScheduledPayments.removeIf(payment -> !schedulePayymentIds.contains(payment.getId()));
-			cUser.setScheduledPayments(cScheduledPayments);
 			int iScheduledRowsAffected = deleteScheduledPaymentsForUser(cScheduledRecordsIds);
 			LOG.info("Number of scheduled records deleted : {} for user : {}", iScheduledRowsAffected, cUser.getUserId());
 		}

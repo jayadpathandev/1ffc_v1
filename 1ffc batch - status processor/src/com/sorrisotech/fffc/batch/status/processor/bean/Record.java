@@ -31,7 +31,7 @@ import java.util.List;
  * @author Rohit Singh
  * 
  */
-public class Reecord {
+public class Record {
 	
 	/**************************************************************************
 	 * Ids of the user.
@@ -86,7 +86,7 @@ public class Reecord {
 	/**************************************************************************
 	 * The bill amount.
 	 */
-	private String m_szMonthlyPaymentAnount;
+	private String m_szMonthlyPaymentAmount;
 	
 	/**************************************************************************
 	 * The payment group of the bill.
@@ -297,17 +297,17 @@ public class Reecord {
 	 * 
 	 * @return m_szMonthlyPaymentAnount
 	 */
-	public String getMonthlyPaymentAnount() {
-		return m_szMonthlyPaymentAnount;
+	public String getMonthlyPaymentAmount() {
+		return m_szMonthlyPaymentAmount;
 	}
 
 	/**************************************************************************
-	 * Sets the value of m_szMonthlyPaymentAnount.
+	 * Sets the value of m_szMonthlyPaymentAmount.
 	 * 
-	 * @param monthlyPaymentAnount
+	 * @param monthlyPaymentAmount
 	 */
-	public void setMonthlyPaymentAnount(String monthlyPaymentAnount) {
-		this.m_szMonthlyPaymentAnount = monthlyPaymentAnount;
+	public void setMonthlyPaymentAmount(String monthlyPaymentAmount) {
+		this.m_szMonthlyPaymentAmount = monthlyPaymentAmount;
 	}
 
 	/**************************************************************************
