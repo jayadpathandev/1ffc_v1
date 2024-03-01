@@ -124,7 +124,7 @@
     <!-- ********************************************************************************** -->
     <!-- *** User row mapper class bean.                                                *** -->
     <!-- ********************************************************************************** -->
-    <bean id="userRowMapper" class="com.sorrisotech.fffc.batch.status.processor.mapper.UserMapper"/>
+    <bean id="userRowMapper" class="com.sorrisotech.fffc.batch.status.processor.mapper.RecordMapper"/>
     
     <!-- ********************************************************************************** -->
     <!-- *** The bean for paymentDisabledScheduledRemover processor                     *** -->

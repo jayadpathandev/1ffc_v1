@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
@@ -39,9 +40,8 @@ public class GetPaymentHistoryAmountDaoImpl implements IGetPaymentHistoryAmountD
 	private static GetPaymentHistoryAmountDaoImpl mDao = null;
 	static {	
 		try {
-			final ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("1ffcbalancehelper.xml");
-			mDao = context.getBean("getHistoryForAccountSinceDateDao", GetPaymentHistoryAmountDaoImpl.class);
-			context.close();			
+			final ApplicationContext context = new ClassPathXmlApplicationContext("1ffcbalancehelper.xml");
+			mDao = context.getBean("getHistoryForAccountSinceDateDao", GetPaymentHistoryAmountDaoImpl.class);		
 		}
 		catch (Throwable e) {
 			LOG.error("Could not load 1ffcbalancehelper.xml", e); 

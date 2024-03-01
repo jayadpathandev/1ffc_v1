@@ -33,7 +33,7 @@ import org.springframework.batch.core.ItemProcessListener;
 
 import com.sorrisotech.fffc.batch.status.processor.bean.RecurringPayment;
 import com.sorrisotech.fffc.batch.status.processor.bean.ScheduledPayment;
-import com.sorrisotech.fffc.batch.status.processor.bean.Reecord;
+import com.sorrisotech.fffc.batch.status.processor.bean.Record;
 import com.sorrisotech.persona.notification.api.NotificationTypes;
 
 /**************************************************************************************************
@@ -43,7 +43,7 @@ import com.sorrisotech.persona.notification.api.NotificationTypes;
  * @author Rohit Singh
  * 
  */
-public class ProcessListener implements ItemProcessListener<Reecord, Reecord>{
+public class ProcessListener implements ItemProcessListener<Record, Record>{
 	
 	/**************************************************************************
      * Development level logging.
@@ -51,7 +51,7 @@ public class ProcessListener implements ItemProcessListener<Reecord, Reecord>{
     private static final Logger LOG = LoggerFactory.getLogger(ProcessListener.class);
 
 	@Override
-	public void afterProcess(Reecord cInput, Reecord cOutput) {
+	public void afterProcess(Record cInput, Record cOutput) {
 		
 		LOG.info("Sending notificaiton for user : {}", cOutput.getUserId());
 		
@@ -111,9 +111,9 @@ public class ProcessListener implements ItemProcessListener<Reecord, Reecord>{
 	}
 
 	@Override
-	public void beforeProcess(Reecord input) {}
+	public void beforeProcess(Record input) {}
 
 	@Override
-	public void onProcessError(Reecord input, Exception output) {}
+	public void onProcessError(Record input, Exception output) {}
 
 }

@@ -29,7 +29,7 @@ import java.text.SimpleDateFormat;
 
 import org.springframework.jdbc.core.RowMapper;
 
-import com.sorrisotech.fffc.batch.status.processor.bean.Reecord;
+import com.sorrisotech.fffc.batch.status.processor.bean.Record;
 import com.sorrisotech.fffc.payment.BalanceHelper;
 
 /**************************************************************************************************
@@ -38,13 +38,13 @@ import com.sorrisotech.fffc.payment.BalanceHelper;
  * @author Rohit Singh
  * 
  */
-public class RecordMapper implements RowMapper<Reecord> {
+public class RecordMapper implements RowMapper<Record> {
 	
 	private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyyMMdd");
 
 	@Override
-	public Reecord mapRow(ResultSet rs, int index) throws SQLException {
-		Reecord cUser = new Reecord();
+	public Record mapRow(ResultSet rs, int index) throws SQLException {
+		Record cUser = new Record();
 		cUser.setUserId(rs.getString("userid"));
 		cUser.setPaymentDisabled("Y".equals(rs.getString("payment_disabled")));
 		cUser.setPaymentDisabledDQ("Y".equals(rs.getString("payment_disabled_dq")));
@@ -55,7 +55,7 @@ public class RecordMapper implements RowMapper<Reecord> {
 		cUser.setBillDate(rs.getString("bill_date"));
 		cUser.setInternalAccount(rs.getString("internal_account"));
 		cUser.setCurrentAmountDue(rs.getString("current_amount_due"));
-		cUser.setMonthlyPaymentAnount(rs.getString("monthly_payment_amount"));
+		cUser.setMonthlyPaymentAmount(rs.getString("monthly_payment_amount"));
 		cUser.setPaymentGroup(rs.getString("payment_group"));
 		cUser.setStatusDate(DATE_FORMATTER.format(rs.getDate("status_date")));
 		cUser.setAccountCurrent(
@@ -64,7 +64,7 @@ public class RecordMapper implements RowMapper<Reecord> {
 				cUser.getPaymentGroup(), 
 				cUser.getInternalAccount(), 
 				cUser.getBillDate(), 
-				cUser.getMonthlyPaymentAnount(), 
+				cUser.getMonthlyPaymentAmount(), 
 				cUser.getStatusDate(), 
 				cUser.getCurrentAmountDue()
 			).equals("true")
