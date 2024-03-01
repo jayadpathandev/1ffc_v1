@@ -37,7 +37,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcDaoSupport;
 
 import com.sorrisotech.fffc.batch.status.processor.bean.RecurringPayment;
 import com.sorrisotech.fffc.batch.status.processor.bean.ScheduledPayment;
-import com.sorrisotech.fffc.batch.status.processor.bean.User;
+import com.sorrisotech.fffc.batch.status.processor.bean.Reecord;
 
 /**************************************************************************************************
  * Implementation class for ItemProcessor.
@@ -45,7 +45,7 @@ import com.sorrisotech.fffc.batch.status.processor.bean.User;
  * @author Rohit Singh
  * 
  */
-public class Processor extends NamedParameterJdbcDaoSupport implements ItemProcessor<User, User> {
+public class Processor extends NamedParameterJdbcDaoSupport implements ItemProcessor<Reecord, Reecord> {
 	
 	/**************************************************************************
      * Development level logging.
@@ -83,7 +83,7 @@ public class Processor extends NamedParameterJdbcDaoSupport implements ItemProce
 	private RowMapper<RecurringPayment> m_cRecurringPaymentMapper = null;
 
 	@Override
-	public User process(User cUser) throws Exception {
+	public Reecord process(Reecord cUser) throws Exception {
 		
 		LOG.info("Processing user : {}", cUser.getUserId());
 		
@@ -123,7 +123,9 @@ public class Processor extends NamedParameterJdbcDaoSupport implements ItemProce
 					.collect(Collectors.toList());
 		}
 		
-		if (!bAllDeleted && cUser.isRecurringPaymentDisabled()) {
+		if (!bAllDeleted 
+				&& (cUser.isRecurringPaymentDisabled() 
+						|| (cUser.isRecurringPaymentDisabledUntilCurrent() && !cUser.isAccountCurrent()))) {
 			cRecurringRecordsIds = cRecurringPayments.stream()
 					.map(val -> val.getId())
 					.collect(Collectors.toList());
