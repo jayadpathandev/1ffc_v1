@@ -71,7 +71,7 @@
 				    	END AS ach_disabled,
 				    	CASE WHEN (b.flex8 IS NOT NULL AND b.flex8 NOT IN ('enabled')) THEN 'Y' ELSE 'N'
 				    	END AS portal_access_disabled,
-				    	CASE WHEN (b.flex15 IS NOT NULL AND b.flex15 NOT IN ('eligible', 'enrolled')) THEN 'Y' ELSE 'N'
+				    	CASE WHEN (b.flex15 IS NOT NULL AND b.flex15 IN ('disabled')) THEN 'Y' ELSE 'N'
 				    	END AS recurring_payment_disabled,
 				    	CASE WHEN (b.flex15 IS NOT NULL AND b.flex15 IN ('disabledUntilCurrent')) THEN 'Y' ELSE 'N'
 				    	END AS recurring_payment_disabled_until_current,
