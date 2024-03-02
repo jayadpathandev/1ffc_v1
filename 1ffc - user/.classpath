@@ -186,5 +186,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/1ffc - agent pay"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/1ffc - nls api service"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/1ffc - common"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/1ffc - payment"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

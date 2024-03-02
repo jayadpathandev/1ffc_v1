@@ -5,8 +5,6 @@
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="src" path="resources"/>
 	<classpathentry kind="lib" path="/app - user/lib/accountServices.jar"/>
 	<classpathentry kind="lib" path="/app - user/lib/angus-activation-2.0.0.jar"/>
 	<classpathentry kind="lib" path="/app - user/lib/antlr-2.7.2.jar"/>
@@ -179,6 +177,5 @@
 	<classpathentry kind="lib" path="/app - user/lib/xmlbeans-5.2.0.jar"/>
 	<classpathentry kind="lib" path="/app - user/lib/xmlsec-3.0.2.jar"/>
 	<classpathentry kind="lib" path="/app - user/lib/xmltooling-1.4.4.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/1ffc - payment"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
