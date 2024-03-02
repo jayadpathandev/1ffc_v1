@@ -544,13 +544,7 @@ useCase fffcReg99B2C [
     	]	
     	
   		FffcRegistration.delete_users_company(sUserId)
-  		
-        deleteUser(
-            userId: sUserId           
-            namespace: sNameSpace            
-            )            
-        if success then genericErrorMsg      
-        if failure then genericErrorMsg    
+ 		goto(genericErrorMsg)   	
     ]	
     
     /**************************************************************************
@@ -564,13 +558,7 @@ useCase fffcReg99B2C [
     	]	
 
   		FffcRegistration.delete_users_company(sUserId)
-    	
-        deleteUser(
-            userId: sUserId           
-            namespace: sNameSpace            
-            )            
-        if success then nlsUnavailableErrorMsg      
-        if failure then nlsUnavailableErrorMsg
+ 		goto(nlsUnavailableErrorMsg)   	
     ]		
 
     /**************************************************************************

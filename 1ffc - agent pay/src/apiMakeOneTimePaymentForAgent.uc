@@ -22,8 +22,12 @@ useCase apiMakeOneTimePaymentForAgent
 	native string sPaymentDate   = JsonRequest.value("paymentDate")
 	native string sPayAmount     = JsonRequest.value("paymentAmount")
 	
-	native volatile string sCustomerId = ApiPay.customerId()
-	native volatile string sAccountId  = ApiPay.accountId()
+	native volatile string sCustomerId   = ApiPay.customerId()
+	native volatile string sAccountId    = ApiPay.accountId()
+	native volatile string sHasPaySource = ApiPay.hasWallet()
+	
+	native string sStatus
+	native string sTransId
 	
 	native string sErrorStatus
 	native string sErrorDesc
@@ -33,6 +37,9 @@ useCase apiMakeOneTimePaymentForAgent
 	
 	serviceParam (Payment.MakePayment)  makeRequest
 	serviceResult (Payment.MakePayment) makeResult
+
+	serviceParam (Payment.SetScheduledPayment)  schedRequest
+	serviceResult (Payment.SetScheduledPayment) schedResult
 	
 	serviceParam(Payment.StartPaymentTransaction) logRequest
 	
@@ -107,6 +114,20 @@ useCase apiMakeOneTimePaymentForAgent
     	sErrorCode   = "no_payment_amount"
 
     	if sPayAmount != "" then 
+    		verifyWalletSelected
+    	else
+    		actionFailure 
+    ]
+
+ 	/*************************
+	 * 5a. Verify a wallet item was selected.
+	 */
+    action verifyWalletSelected [
+    	sErrorStatus = "400"
+    	sErrorDesc   = "No payment source selected/created."
+    	sErrorCode   = "no_payment_source"
+
+    	if sHasPaySource == "true" then 
     		authenticateRequest
     	else
     		actionFailure 
@@ -154,13 +175,23 @@ useCase apiMakeOneTimePaymentForAgent
 		switch ApiPay.saveDateAndAmount(sPaymentDate, sPayAmount) [
 		   case "invalid_date"   actionInvalidDate
 		   case "invalid_amount" actionInvalidAmount
-		   case "success"        actionMakePayment
+		   case "success"        isPaymentImmediate
            default               actionFailure    
 		]
 	]
 
  	/*************************
-	 * 9. Issue the payment request.
+	 * 9. Determine what type of payment is being done.
+	 */
+	action isPaymentImmediate [
+		switch ApiPay.is_immediate_payment() [
+			case "true" actionMakePayment
+			case "false" actionSchedulePayment
+		]	
+	]
+	
+ 	/*************************
+	 * 9a. Issue the payment request.
 	 */
 	action actionMakePayment [
 		ApiPay.setTransactionOneTimeInProgress(sTransactionId)	
@@ -175,39 +206,76 @@ useCase apiMakeOneTimePaymentForAgent
 		ApiPay.walletToken(makeRequest.TOKEN)
 		
 		switch apiCall Payment.MakePayment(makeRequest, makeResult, status) [
-			case apiSuccess actionPaySuccess
+			case apiSuccess actionMakeSuccess
 			default         actionPayFailure
 		]		
 	]
 
  	/*************************
-	 * 10. Record the successful transaction.
+	 * 9b. Record the successful transaction.
 	 */
-	action actionPaySuccess [
-    	logRequest.TRANSACTION_ID   = sPayId
-		logRequest.ONLINE_TRANS_ID  = sPayId
-		ApiPay.payGroup               (logRequest.PMT_PROVIDER_ID)
-		ApiPay.jsonObject             (logRequest.GROUPING_JSON)
-		ApiPay.walletFrom             (logRequest.PAY_FROM_ACCOUNT)
-		logRequest.PAY_CHANNEL      = "online"
-		ApiPay.payDate                (logRequest.PAY_DATE)
-		ApiPay.amount                 (logRequest.PAY_AMT)		
-		logRequest.PAY_STATUS       = "posted"
-		ApiPay.userid                 (logRequest.USER_ID)
+	action actionMakeSuccess [
+		sStatus  = "posted"
+		sTransId = makeResult.ONLINE_TRANS_ID
+		
+    	logRequest.TRANSACTION_ID  = sPayId
+		logRequest.ONLINE_TRANS_ID = sPayId
+		logRequest.PAY_CHANNEL     = "online"
+		logRequest.PAY_STATUS      = "posted"
+
+		ApiPay.payGroup       (logRequest.PMT_PROVIDER_ID)
+		ApiPay.makePaymentJson(logRequest.GROUPING_JSON)
+		ApiPay.walletFrom     (logRequest.PAY_FROM_ACCOUNT)
+		ApiPay.payDate        (logRequest.PAY_DATE)
+		ApiPay.amount         (logRequest.PAY_AMT)		
+		ApiPay.userid         (logRequest.USER_ID)
 		
 		switch apiCall Payment.StartPaymentTransaction(logRequest, status) [
             case apiSuccess actionSuccessResponse
-            default        actionSuccessResponse
+            default         actionSuccessResponse
         ]	
+	]
+
+ 	/*************************
+	 * 9c. Schedule the payment.
+	 */
+	action actionSchedulePayment [
+		ApiPay.setTransactionOneTimeInProgress(sTransactionId)	
+
+		schedRequest.ONLINE_TRANS_ID = sPayId
+		schedRequest.PAY_TYPE        = "onetime"
+		schedRequest.PAY_STATUS      = "scheduled"		
+			
+		ApiPay.makePaymentJson(schedRequest.GROUPING_JSON)
+		ApiPay.walletToken    (schedRequest.SOURCE_ID)
+		ApiPay.amount         (schedRequest.PAY_AMT)
+		ApiPay.payDate        (schedRequest.PAY_DATE)
+		ApiPay.userid         (schedRequest.USER_ID)
+		ApiPay.walletFrom     (schedRequest.SOURCE_DETAILS)
+		
+		switch apiCall Payment.SetScheduledPayment(schedRequest, schedResult, status) [
+            case apiSuccess schedulePaymentSuccess
+            default         actionFailureResponse
+        ]	
+			
+	]
+
+ 	/*************************
+	 * 9b. Record the successful transaction.
+	 */
+	action schedulePaymentSuccess [
+		sStatus = "scheduled"
+		sTransId = schedResult.ONLINE_TRANS_ID
+		goto(actionSuccessResponse)
 	]
 	
  	/*************************
-	 * 11. Response with success back to the client.
+	 * 10. Response with success back to the client.
 	 */
 	 action actionSuccessResponse [
 		JsonResponse.reset()
-		JsonResponse.setString("status", "posted")
-		JsonResponse.setString("paymentId", makeResult.ONLINE_TRANS_ID)
+		JsonResponse.setString("status", sStatus)
+		JsonResponse.setString("paymentId", sTransId)
 
 	    auditLog(audit_agent_pay.make_one_time_payment_for_agent_success) [
 	   		sCustomerId sAccountId sPaymentDate sPayAmount
@@ -225,7 +293,7 @@ useCase apiMakeOneTimePaymentForAgent
     	logRequest.TRANSACTION_ID   = sPayId
 		logRequest.ONLINE_TRANS_ID  = sPayId
 		ApiPay.payGroup               (logRequest.PMT_PROVIDER_ID)
-		ApiPay.jsonObject             (logRequest.GROUPING_JSON)
+		ApiPay.makePaymentJson        (logRequest.GROUPING_JSON)
 		ApiPay.walletFrom             (logRequest.PAY_FROM_ACCOUNT)
 		logRequest.PAY_CHANNEL      = "online"
 		ApiPay.payDate                (logRequest.PAY_DATE)

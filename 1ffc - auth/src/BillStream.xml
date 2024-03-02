@@ -227,7 +227,6 @@
 				tm_account.bill_group, 
 				case 
 					when attrvalue = 'agentpay' then null
-					when attrvalue = 'pending' then null
 					else tm_account.company_id
 				end	as "company_id"
 			from 

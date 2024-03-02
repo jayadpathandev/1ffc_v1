@@ -4,13 +4,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -60,10 +60,11 @@ public class ApiPay implements IExternalReuse {
 	}
 	
 	//*************************************************************************
-	private PaySession mCurrent = null;
-	private Date       mDate    = null;
-	private BigDecimal mAmount  = null;
-	private String     mIFrame  = null;
+	private PaySession mCurrent   = null;
+	private Calendar   mDate      = null;
+	private boolean    mImmediate = false;
+	private BigDecimal mAmount    = null;
+	private String     mIFrame    = null;
 	
 	//*************************************************************************
 	@Override
@@ -146,25 +147,37 @@ public class ApiPay implements IExternalReuse {
 			final String date,
 			final String amount
 			) {
-		
+		if (mCurrent == null) throw new RuntimeException("There is no current session.");
+
+		//---------------------------------------------------------------------
+		final var today = Calendar.getInstance();
+				
 		if (date.equalsIgnoreCase("today")) {
-			mDate = new Date();
+			mDate = (Calendar) today.clone();
 		} else {
 			final var format = new SimpleDateFormat("yyyy/MM/dd");
 			try {
-				mDate = format.parse(date);
+				mDate = Calendar.getInstance();
+				mDate.setTime(format.parse(date));				
 			} catch(ParseException e) {
 				LOG.error("Could not parse date [" + date + "].");
 				mCurrent.setStatus(PayStatus.error);
 				return "invalid_date";
 			}
-			
-			if (mDate.before(new Date()) ) {
-				mCurrent.setStatus(PayStatus.error);
-				return "invalid_date";
-			}
 		}
+		//---------------------------------------------------------------------
+		final var toLong   = new SimpleDateFormat("yyyyMMdd");
+		final var todayNum = Long.parseLong(toLong.format(today.getTime()));
+		final var payNum   = Long.parseLong(toLong.format(mDate.getTime()));
 		
+		if (payNum < todayNum) {
+			mCurrent.setStatus(PayStatus.error);
+			return "invalid_date";			
+		} 
+		
+		mImmediate = (payNum == todayNum);
+
+		//---------------------------------------------------------------------
 		try {
 			mAmount = new BigDecimal(amount);
 		} catch(NumberFormatException e) {
@@ -178,14 +191,15 @@ public class ApiPay implements IExternalReuse {
 			mCurrent.setStatus(PayStatus.error);
 			return "invalid_amount";						
 		}
-		
-		// -- saving date and amount updates status to oneTimePmtInProgress --
-		if (mCurrent == null) throw new RuntimeException("There is no current session.");
 		mCurrent.setStatus(PayStatus.oneTimePmtInProgress);
-		
+
 		return "success";
 	}
 	
+	//*************************************************************************
+	public String is_immediate_payment() {
+		return mImmediate ? "true" : "false";	
+	}
 	
 	//*************************************************************************
 	public String id() {
@@ -326,7 +340,9 @@ public class ApiPay implements IExternalReuse {
 			) 
 				throws MargaritaDataException {
 		if (mAmount == null) throw new RuntimeException("No amount set.");
-		value.putValue(mAmount.toPlainString());
+		final var df = new DecimalFormat("###.00");
+		
+		value.putValue(df.format(mAmount));
 	}
 	
 	//*************************************************************************
@@ -334,9 +350,9 @@ public class ApiPay implements IExternalReuse {
 				final IStringData value
 			) 
 				throws MargaritaDataException {
-		if (mAmount == null) throw new RuntimeException("No date set.");
+		if (mDate == null) throw new RuntimeException("No date set.");
 		final var f = new SimpleDateFormat("yyyy-MM-dd");	
-		value.putValue(f.format(mDate));
+		value.putValue(f.format(mDate.getTime()));
 	}
 
 	//*************************************************************************
@@ -390,7 +406,10 @@ public class ApiPay implements IExternalReuse {
 	
 	//*************************************************************************
 	public void setWallet(
-				final String id
+				final String type,
+				final String account,
+				final String expiry,
+				final String token
 			) {
 		if (mCurrent == null) throw new RuntimeException("There is no current session.");
 
@@ -399,13 +418,13 @@ public class ApiPay implements IExternalReuse {
 		if (wallet != null && wallet.length > 0) {
 			for(final PaymentWalletFields source : wallet) {
 				if (isValid(source)) {
-					if (source.getSourceId().equals(id)) {
+					if (source.getSourceId().equals(token)) {
 						mCurrent.wallet(
 							source.getSourceName(),
 							source.getSourceType(),
 							source.getSourceNum(),
 							source.getSourceExpiry(),
-							id
+							token
 						);
 						// -- when wallet is called, the status changes to PmtAccountChosen --
 						mCurrent.setStatus(PayStatus.pmtAccountChosen);
@@ -416,9 +435,22 @@ public class ApiPay implements IExternalReuse {
 			}
 		}
 		else {
-			mCurrent.setStatus(PayStatus.error);
+			mCurrent.wallet(
+				"Unsaved",
+				type,
+				account,
+				expiry,
+				token
+			);
 		}
 	}
+
+	//*************************************************************************
+	public String hasWallet() {
+		if (mCurrent == null) throw new RuntimeException("There is no current session.");
+		return mCurrent.walletToken().isEmpty() ? "false" : "true";
+	}
+	
 	//*************************************************************************
 	public void walletFrom(
 				final IStringData value
@@ -438,7 +470,7 @@ public class ApiPay implements IExternalReuse {
 		final var root   = mapper.createObjectNode();
 		final var date   = new SimpleDateFormat("yyyy-MM-dd");
 		
-		root.put("payDate", date.format(mDate));
+		root.put("payDate", date.format(mDate.getTime()));
 		root.put("paymentGroup", mCurrent.payGroup());
 		root.put("autoScheduledConfirm", false);
 		
@@ -455,8 +487,9 @@ public class ApiPay implements IExternalReuse {
 		group.put("displayAccountNumber", mCurrent.accountNumber());
 		group.put("paymentGroup", mCurrent.payGroup());
 		group.put("documentNumber", mCurrent.invoice());
-		group.put("amount", mAmount.toPlainString());
-		group.put("totalAmount", mAmount.toPlainString());
+		final var df = new DecimalFormat("###.00");
+		group.put("amount", df.format(mAmount));
+		group.put("totalAmount", df.format(mAmount));
 		group.put("surcharge", "0.00");
 		group.put("interPayTransactionId", "N/A");
 		
@@ -511,7 +544,13 @@ public class ApiPay implements IExternalReuse {
 
 		// --------------------------------------------------------------------
 		final var wallet = mWalletDao.getPaymentWallet(mCurrent.userId());
-		final var items  = new ArrayList<HashMap<String, Object>>();
+		final var items  = new LinkedList<HashMap<String, Object>>();
+		
+		final var currentName  = mCurrent.walletName();
+		final var currentNum   = mCurrent.walletAccount();
+		final var currentToken = mCurrent.walletToken();
+		
+		var found = false;
 		
 		if (wallet != null && wallet.length > 0) {
 			for(final PaymentWalletFields source : wallet) {
@@ -521,13 +560,30 @@ public class ApiPay implements IExternalReuse {
 					item.put("text", source.getSourceName() + " " + source.getSourceNum());
 					items.add(item);
 					
-					if (mCurrent.walletToken() == null || mCurrent.walletToken().isEmpty()) {
-						setWallet(source.getSourceId());
+					if (currentToken == null || currentToken.isEmpty()) {
+						mCurrent.wallet(
+							source.getSourceName(),
+							source.getSourceType(),
+							source.getSourceNum(),
+							source.getSourceExpiry(),
+							source.getSourceId()
+						);
+						found = true;
+					} else if (currentToken.equals(source.getSourceId())) {
+						found = true;
 					}
 				}
 			}
 		}
 
+		// --------------------------------------------------------------------
+		if (found == false && currentToken != null && currentToken.isEmpty() == false) {
+			final var item = new HashMap<String, Object>();
+			item.put("val", currentToken);
+			item.put("text", currentName + " " + currentNum);
+			items.addFirst(item);
+		}
+		
 		// --------------------------------------------------------------------
 		context.put("code", mCurrent.id());
 		context.put("type", mCurrent.saveSource() ? "automatic" : "onetime");

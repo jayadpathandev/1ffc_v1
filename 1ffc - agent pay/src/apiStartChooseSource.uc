@@ -8,7 +8,10 @@ useCase apiStartChooseSource [
 	]
 	
 	shortcut startUseSource(actionUseSource) [
-		walletItem
+		walletType
+		walletAccount
+		walletExpiry
+		walletToken
 	]
 	shortcut startChooseSourceFailure(actionWalletError) 
 	
@@ -21,7 +24,12 @@ useCase apiStartChooseSource [
 	
 	native string code
 	native string itemType
-	native string walletItem
+	
+	native string walletType
+	native string walletAccount
+	native string walletExpiry
+	native string walletToken
+	
 	native volatile string sUserId   = ApiPay.userid()
 	native volatile string sUserName = ApiPay.userName()
 	
@@ -50,7 +58,7 @@ useCase apiStartChooseSource [
 	
 	
 	action actionUseSource [
-		ApiPay.setWallet(walletItem)
+		ApiPay.setWallet(walletType, walletAccount, walletExpiry, walletToken)
 		ApiPay.prepareIframe(itemType)
 		foreignHandler ApiPay.showIframe()		
 	]

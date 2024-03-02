@@ -27,6 +27,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
@@ -131,7 +132,13 @@ public class Queries {
 		
 		params.put("account_id", accountId);
 		
-		return mSingleton.mJdbc.queryForObject(mSingleton.mGetUser, params, BigDecimal.class);
+		BigDecimal retval = null;
+		
+		try {
+			retval = mSingleton.mJdbc.queryForObject(mSingleton.mGetUser, params, BigDecimal.class); 
+		} catch(EmptyResultDataAccessException e) {
+		}
+		return retval;
 	}
 
 	/***************************************************************************
