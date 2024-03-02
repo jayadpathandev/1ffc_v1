@@ -16,7 +16,6 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 
-
 /**
  * Implements DAO to retrieve sum of payment history since a specific date for a specific
  * account in a payment group
@@ -41,7 +40,7 @@ public class GetPaymentHistoryAmountDaoImpl implements IGetPaymentHistoryAmountD
 	static {	
 		try {
 			final ApplicationContext context = new ClassPathXmlApplicationContext("1ffcbalancehelper.xml");
-			mDao = context.getBean("getHistoryForAccountSinceDateDao", GetPaymentHistoryAmountDaoImpl.class);		
+			mDao = context.getBean("getHistoryForAccountSinceDateDao", GetPaymentHistoryAmountDaoImpl.class);				
 		}
 		catch (Throwable e) {
 			LOG.error("Could not load 1ffcbalancehelper.xml", e); 
