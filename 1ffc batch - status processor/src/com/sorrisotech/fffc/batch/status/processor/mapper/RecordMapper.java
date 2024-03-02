@@ -30,7 +30,7 @@ import java.text.SimpleDateFormat;
 import org.springframework.jdbc.core.RowMapper;
 
 import com.sorrisotech.fffc.batch.status.processor.bean.Record;
-import com.sorrisotech.fffc.payment.BalanceHelper;
+import com.sorrisotech.fffc.payment.FffcBalance;
 
 /**************************************************************************************************
  * RowMapper implementation class for User
@@ -59,8 +59,7 @@ public class RecordMapper implements RowMapper<Record> {
 		cUser.setPaymentGroup(rs.getString("payment_group"));
 		cUser.setStatusDate(DATE_FORMATTER.format(rs.getDate("status_date")));
 		cUser.setAccountCurrent(
-			new BalanceHelper().isAccountCurrent(
-				null, null, 
+		FffcBalance.isAccountCurrent(
 				cUser.getPaymentGroup(), 
 				cUser.getInternalAccount(), 
 				cUser.getBillDate(), 
