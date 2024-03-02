@@ -75,7 +75,11 @@
 				});
 				function success(data) {
 					$.ajax({
-						url: 'startUseSource?walletItem=' + encodeURIComponent(data.token),
+						url: 'startUseSource' + 
+							 '?walletType=' + encodeURIComponent(data.sourceType) +
+							 '&walletAccount=' + encodeURIComponent(data.sourceNum) +
+							 '&walletExpiry=' + encodeURIComponent(data.sourceExpiry) +
+						     '&walletToken=' + encodeURIComponent(data.token),
 						type: 'get',
 						success: function() {
 							document.location.href = "startChooseSource?code=${code?c}"

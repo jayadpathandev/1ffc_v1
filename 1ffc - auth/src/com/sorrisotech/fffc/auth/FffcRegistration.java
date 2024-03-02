@@ -26,7 +26,6 @@ import com.sorrisotech.persona.comgmt.api.ICompany;
 import com.sorrisotech.persona.usercompanylink.api.UserCompanyLinkFactory;
 import com.sorrisotech.saas.orgid.api.OrgIdFactory;
 import com.sorrisotech.svcs.itfc.data.IStringData;
-import com.sorrisotech.svcs.itfc.exceptions.MargaritaDataException;
 import com.sorrisotech.utils.AppConfig;
 
 import java.math.BigDecimal;
@@ -76,20 +75,7 @@ public class FffcRegistration {
 		        final String accountId,
 		        final String userId,
 		        final IStringData saveOrgId
-	        ) {
-		// ----------------------------------------------------------------------------------------
-		// Make sure we are not hijacking an account.
-		final var exists = Queries.lookupCompany(new BigDecimal(userId));
-			
-		if (exists != null) {
-			try {
-				saveOrgId.putValue(exists.toPlainString());
-			} catch(MargaritaDataException e) {
-	        	LOG.error("FffcRegistration.....assignUserToAccountWithNewCompany()...An exception was thrown", e);          
-	        }
-			return "success";
-		}			
-		
+	        ) {		
 		// ----------------------------------------------------------------------------------------
 		// Grab the information we need for 1ffc IF this is a 1ffc status payment group.
 		final String orgId = Queries.lookupOrgId(
@@ -106,6 +92,12 @@ public class FffcRegistration {
     		// Setting(saving) orgId(customerId) 
         	saveOrgId.putValue(orgId);
         	
+    		// ----------------------------------------------------------------------------------------
+    		// Make sure we are not hijacking an account.
+    		if (Queries.lookupCompany(new BigDecimal(userId)) != null) { 
+    			return "success";
+    		}			
+        	
             // ------------------------------------------------------------------------------------
             // Create the "company" for the user. 
         	final ICompany cCompany = CompanyManagementFactory.createCompany();                      
@@ -115,6 +107,13 @@ public class FffcRegistration {
             cCompany.setType("b2c");
             
             final BigDecimal companyId = CompanyManagementFactory.getCompanyRepository().create(cCompany);            
+            
+            // ------------------------------------------------------------------------------------
+            // Add the user to the company.
+            UserCompanyLinkFactory.getUserCompanyLinkRepository().linkUserToCompany(
+                    new BigDecimal(userId), 
+                    companyId
+                );            	
             
             // ------------------------------------------------------------------------------------
             // Add the OrgId to the company.
@@ -136,15 +135,6 @@ public class FffcRegistration {
             	if (!szResult.equals("success")) break;
             }
             
-            // ------------------------------------------------------------------------------------
-            // Add the OrgId(s) to the company.
-            if (szResult.equals("success")) {
-                UserCompanyLinkFactory.getUserCompanyLinkRepository().linkUserToCompany(
-                    new BigDecimal(userId), 
-                    companyId
-                );            	
-            }
-            
         } catch(Exception e) {
         	LOG.error("FffcRegistration.....assignUserToAccountWithNewCompany()...An exception was thrown", e);          
         }
@@ -154,23 +144,12 @@ public class FffcRegistration {
 
 	// ************************************************************************
 	public static void delete_users_company(
-		        final String userId,
-		        final String orgId
+		        final String userId
 	        ) {
 		// ----------------------------------------------------------------------------------------
 		final var companyId = Queries.lookupCompany(new BigDecimal(userId)); 
 		
 		if (companyId != null) {
-			/*
-            final var ignore   = AppConfig.get("1ffc.ignore.group");
-            final var accounts = Queries.findAccounts(orgId, ignore); 
-			final var repo     = CompanyManagementFactory.getCompanyRepository();
-					
-			for(var account : accounts) {
-				repo.removeAccount(companyId, account);
-			}
-			*/
-			
 			CompanyManagementFactory.getCompanyRepository().delete(companyId);
 		}
     }
