@@ -78,7 +78,6 @@ useCase documentSearch [
 
 	importJava GetColumnNames(com.sorrisotech.uc.documents.GetColumnNames)
 	importJava Dates(com.sorrisotech.uc.documents.Dates)
-	importJava UcVaultDownload(com.sorrisotech.uc.bill.UcVaultDownload)
 	importJava UcUbfDownload(com.sorrisotech.uc.bill.UcUbfDownload)
 	importJava LocalizedFormat(com.sorrisotech.common.LocalizedFormat)
 	importJava ExternalDocuments(com.sorrisotech.uc.bill.ExternalDocuments)
@@ -1486,28 +1485,9 @@ useCase documentSearch [
 	 */ 
 	action viewDocument [
 		switch sSelectedType [
-//			case "HTML" viewHtml
-//			case "PDF" viewPdf
-//			case "View" viewVault
 			case "U" viewHtml
 			case "D" viewExtDoc
-			case "View" viewVault
-		]
-	]
-	
-	/*==========================================
-	 * 12. User selects a PDF to view.
-	 */ 
-	action viewPdf [
-		UcVaultDownload.setVaultParams(sSelectedAccount, sSelectedDate, sSelectedExtDocId)	    
-	    //foreignHandler UcVaultDownload.openPdfOrHtml()
-	    foreignHandler UcVaultDownload.open()  
-	]
-	
-	action viewVault [
-		UcVaultDownload.setVaultParams(sSelectedAccount, sSelectedDate, sSelectedExtDocId)	    
-	    foreignHandler UcVaultDownload.open()
-	]
+		]	]
 	
 	/*==========================================
 	 * 13. User selects a UBF to view.
