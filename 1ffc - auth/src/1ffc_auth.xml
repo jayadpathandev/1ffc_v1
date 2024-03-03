@@ -29,17 +29,13 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
         <constructor-arg>
             <value>
 				select 
-					userid 
-				from 
-					prof_company_user, 
-					tm_account, 
-					auth_user_profile 
+					auth_user_profile.id
+				from
+					auth_user_profile,
+					tm_account
 				where 
-					tm_account.id         = :account_id and 
-					tm_account.company_id = prof_company_user.companyid and
-					auth_user_profile.id  = prof_company_user.userid and
-					auth_user_profile.attrname = 'registrationStatus' and
-					(auth_user_profile.attrvalue = 'pending' or auth_user_profile.attrvalue = 'agentpay') 
+					tm_account.id = :account_id and
+					attrvalue = tm_account.org_id 
 			</value>
         </constructor-arg>   
     </bean>    
