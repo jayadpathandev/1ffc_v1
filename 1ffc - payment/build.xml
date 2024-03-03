@@ -1,0 +1,54 @@
+<project name="payment" default="package" basedir=".">
+
+    <!-- ######################################################################
+	     # Verify that all needed properties are defined.
+         ################################################################## -->
+    <target name="-init">
+		<loadproperties srcFile="../build.properties"/>
+
+        <property name="moduleName" value="Payment"/>
+
+    	<property name="mod.artifacts.dir" value="${artifacts.dir}/build/${moduleName}"/>
+    	<mkdir dir="${mod.artifacts.dir}"/>
+
+		<property name="jar.package.dir"     value="${artifacts.dir}/package/user/jars"/>
+		<property name="classes.package.dir" value="${artifacts.dir}/package/user/classes"/>
+		<property name="bat.package.dir"     value="${artifacts.dir}/package/batch"/>
+
+		<mkdir dir="${jar.package.dir}"/>
+		<mkdir dir="${classes.package.dir}"/>
+		<mkdir dir="${bat.package.dir}"/>
+    </target>
+
+    <!-- ######################################################################
+         # Compile the java files.
+         ################################################################## -->
+    <target name="compile" depends="-init">
+
+		<mkdir dir="${mod.artifacts.dir}/classes"/>
+
+    	<javac destdir="${mod.artifacts.dir}/classes" includeAntRuntime="false">
+    	    <src>
+    	        <pathelement location="src"/>
+    		</src>
+			<classpath>
+				<fileset dir="${devkit.dir}/batch - common/lib">
+					<include name="*.jar"/>
+				</fileset>
+			</classpath>
+    	</javac>
+    </target>
+
+    <!-- ######################################################################
+         # Package everything up.
+         ################################################################## -->
+	<target name="package" depends="-init, compile">
+		<jar destfile="${jar.package.dir}/1ffc${moduleName}.jar">
+		    <fileset dir="${mod.artifacts.dir}/classes"/>
+		</jar>
+		<copy file="${jar.package.dir}/1ffc${moduleName}.jar" todir="${bat.package.dir}"/>
+		<copy todir="${classes.package.dir}" >
+			<fileset dir="resources"/>
+		</copy>
+	</target>
+</project>
