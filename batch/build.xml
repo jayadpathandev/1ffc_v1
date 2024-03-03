@@ -1,0 +1,34 @@
+<project name="batch" default="package" basedir=".">
+
+    <!-- ######################################################################
+	     # Verify that all needed properties are defined.
+         ################################################################## -->
+    <target name="-init">
+		<loadproperties srcFile="../build.properties"/>
+
+        <property name="moduleName" value="batch"/>
+    </target>
+
+    <!-- ######################################################################
+         # Package the xfer job.
+         ################################################################## -->
+	<target name="package" depends="-init">
+		<mkdir dir="${output.dir}/batch/1ffc_file_available"/>
+
+        <copy todir="${output.dir}/batch/1ffc_file_available">
+            <fileset dir=".">
+				<include name="config.properties"/>
+				<include name="FileAvailable.sh"/>
+			</fileset>
+        </copy>
+		<propertyfile file="${output.dir}/batch/1ffc_file_available/config.properties">
+            <entry key="nls.api.client.id" value="${nls.api.client.id}"/>
+            <entry key="nls.api.client.secret" value="${nls.api.client.secret}"/>
+			<entry key="nls.api.base.url" value="${nls.api.base.url}"/>
+			<entry key="nls.api.version" value="${nls.api.version}"/>
+        </propertyfile>
+
+		<mkdir dir="${output.dir}/jenkins/1ffc_file_available"/>
+		<copy file="1ffc_file_available.xml" tofile="${output.dir}/jenkins/1ffc_file_available/config.xml"/>
+	</target>
+</project>

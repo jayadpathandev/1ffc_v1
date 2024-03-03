@@ -6,11 +6,15 @@
     <target name="-init">
 		<loadproperties srcFile="../build.properties"/>
 
-        <property name="moduleName" value="batch/1ffc_update_status"/>
+        <property name="moduleName" value="UpdateStatus"/>
 
-    	<property name="mod.artifacts.dir" value="${artifacts.dir}/${moduleName}"/>
-
+    	<property name="mod.artifacts.dir" value="${artifacts.dir}/build/${moduleName}"/>
     	<mkdir dir="${mod.artifacts.dir}"/>
+
+		<property name="mod.package.dir"  value="${artifacts.dir}/package"/>
+		<property name="bat.package.dir"  value="${mod.package.dir}/batch"/>
+
+		<mkdir dir="${bat.package.dir}"/>
 
     	<path id="classpath">
     		<fileset dir="${devkit.dir}/batch - common/lib">
@@ -24,6 +28,9 @@
          ################################################################## -->
     <target name="compile" depends="-init">
     	<javac destdir="${mod.artifacts.dir}" classpathref="classpath" includeAntRuntime="false">
+			<classpath>
+				<fileset dir="${bat.package.dir}"/>
+			</classpath>
     	    <src>
     	        <pathelement location="src"/>
     		</src>
@@ -53,6 +60,9 @@ jar.dir           = /sorriso/batch/lib
 		<jar destfile="${output.dir}/batch/lib/batchStatusProcessor.jar">
 		    <fileset dir="${mod.artifacts.dir}"/>
 		</jar>
+		<copy todir="${output.dir}/batch/lib">
+			<fileset dir="${mod.package.dir}/batch"/>
+		</copy>
 		<mkdir dir="${output.dir}/jenkins/1ffc_update_status"/>
 		<copy file="1ffc_update_status.xml" tofile="${output.dir}/jenkins/1ffc_update_status/config.xml"/>
 	</target>

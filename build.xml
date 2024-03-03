@@ -69,11 +69,13 @@
         <ant dir="1ffc - extdoc" inheritAll="false" inheritRefs="false"/>
         <ant dir="1ffc - status service" inheritAll="false" inheritRefs="false"/>
 		<ant dir="1ffc - nls notify" inheritAll="false" inheritRefs="false"/>
+        <ant dir="1ffc - payment" inheritAll="false" inheritRefs="false"/>
         <ant dir="1ffc batch - status processor" inheritAll="false" inheritRefs="false"/>
         <ant dir="1ffc - transaction history batch" inheritAll="false" inheritRefs="false"/>
         <ant dir="1ffc - agent pay" inheritAll="false" inheritRefs="false"/>
         <ant dir="1ffc - document esign library" inheritAll="false" inheritRefs="false"/>
         <ant dir="1ffc - document esign service" inheritAll="false" inheritRefs="false"/>
+        <ant dir="batch" inheritAll="false" inheritRefs="false"/>
     </target>
 
     <target name="-build.extdoc.uc" depends="-init">
@@ -127,14 +129,14 @@
     </target>
 
     <target name="-build.admin.uc" depends="-init">
-        <delete dir="${artifacts.dir}/admin"/>
+        <delete dir="${artifacts.dir}/build/admin"/>
         <mkdir  dir="${output.dir}/apps/admin"/>
 
-        <copy todir="${artifacts.dir}/admin" overwrite="true" flatten="true">
+        <copy todir="${artifacts.dir}/build/admin" overwrite="true" flatten="true">
             <fileset dir="${devkit.dir}/app - admin/usecases"/>
         </copy>
 
-        <copy todir="${artifacts.dir}/admin" overwrite="true" flatten="true">
+        <copy todir="${artifacts.dir}/build/admin" overwrite="true" flatten="true">
             <fileset dir="1ffc - admin/src">
                 <include name="**/*.app"/>
                 <include name="**/*.uc"/>
@@ -142,7 +144,7 @@
         </copy>
 
         <ant dir="${devkit.dir}/build" antfile="persona.xml" inheritAll="false" inheritRefs="false">
-            <property name="usecase.directories" value="${artifacts.dir}/admin"/>
+            <property name="usecase.directories" value="${artifacts.dir}/build/admin"/>
             <property name="usecase.output" value="${output.dir}/apps/admin"/>
         </ant>
 
@@ -220,14 +222,14 @@
     </target>
 
     <target name="-build.auth.uc" depends="-init">
-        <delete dir="${artifacts.dir}/auth"/>
+        <delete dir="${artifacts.dir}/build/auth"/>
         <mkdir  dir="${output.dir}/apps/auth"/>
 
-        <copy todir="${artifacts.dir}/auth" overwrite="true" flatten="true">
+        <copy todir="${artifacts.dir}/build/auth" overwrite="true" flatten="true">
             <fileset dir="${devkit.dir}/app - auth/usecases"/>
         </copy>
 
-        <copy todir="${artifacts.dir}/auth" overwrite="true" flatten="true">
+        <copy todir="${artifacts.dir}/build/auth" overwrite="true" flatten="true">
             <fileset dir="1ffc - auth/src">
                 <include name="*.app"/>
                 <include name="*.uc"/>
@@ -236,7 +238,7 @@
         </copy>
 
         <ant dir="${devkit.dir}/build" antfile="persona.xml" inheritAll="false" inheritRefs="false">
-            <property name="usecase.directories" value="${artifacts.dir}/auth"/>
+            <property name="usecase.directories" value="${artifacts.dir}/build/auth"/>
             <property name="usecase.output" value="${output.dir}/apps/auth"/>
         </ant>
 
@@ -325,15 +327,15 @@
     </target>
 
     <target name="-build.user.uc" depends="-init">
-        <delete dir="${artifacts.dir}/user"/>
+        <delete dir="${artifacts.dir}/build/user"/>
         <mkdir  dir="${output.dir}/apps/user"/>
 
-        <copy todir="${artifacts.dir}/user" overwrite="true" flatten="true">
+        <copy todir="${artifacts.dir}/build/user" overwrite="true" flatten="true">
             <fileset dir="${devkit.dir}/app - user/usecases"/>
             <fileset dir="${artifacts.dir}/package/user/usecases"/>
         </copy>
 
-        <copy todir="${artifacts.dir}/user" overwrite="true" flatten="true">
+        <copy todir="${artifacts.dir}/build/user" overwrite="true" flatten="true">
             <fileset dir="1ffc - user/src">
                 <include name="*.app"/>
                 <include name="*.uc"/>
@@ -346,7 +348,7 @@
         </copy>
 
         <ant dir="${devkit.dir}/build" antfile="persona.xml" inheritAll="false" inheritRefs="false">
-            <property name="usecase.directories" value="${artifacts.dir}/user"/>
+            <property name="usecase.directories" value="${artifacts.dir}/build/user"/>
             <property name="usecase.output"      value="${output.dir}/apps/user"/>
         </ant>
         <delete dir="${output.dir}/apps/user/com"/>
@@ -363,6 +365,9 @@
             	<exclude name="linked-root/**"/>
             	<exclude name="layout-pages/**"/>
                 <exclude name="roles_config.xml"/>
+            </fileset>
+            <fileset dir="${devkit.dir}/app - admin/resources">
+                <include name="org-id/**.*"/>
             </fileset>
         </copy>
 
@@ -414,6 +419,9 @@
                 <fileset dir="${devkit.dir}/app - user/lib">
                     <include name="*.jar"/>
                 </fileset>
+                <fileset dir="${devkit.dir}/app - admin/lib">
+                    <include name="serviceOrgId.jar"/>
+                </fileset>
 				<fileset dir="${mod.package.dir}/user/jars">
 					<include name="*.jar"/>
 				</fileset>
@@ -435,6 +443,9 @@
             <fileset dir="${artifacts.dir}/package/service/status"/>
             <fileset dir="${mod.package.dir}/user/jars">
                 <include name="*.jar"/>
+            </fileset>
+            <fileset dir="${devkit.dir}/app - admin/lib">
+                <include name="serviceOrgId.jar"/>
             </fileset>
         </copy>
 
@@ -486,6 +497,9 @@
             <entry key="precisely.secret" value="${precisely.secret}"/>
             <entry key="precisely.customer.id" value="${precisely.customer.id}"/>
         </propertyfile>
+
+        <mkdir dir="${output.dir}/batch/update_company_accounts"/>
+        <echo file="${output.dir}/batch/update_company_accounts/build.xml"><![CDATA[<project name="update_company_accounts" default="run" basedir="."><target name="run"><echo>Disabled.</echo></target></project>]]></echo>
     </target>
 
     <target name="package" depends="-init, build.admin, build.auth, build.user, build.extdoc, package-libraries, package-communicate">
@@ -493,7 +507,6 @@
 
         <ant dir="ui" target="qa"/>
         <ant dir="ui" target="package"/>
-
 
 		<propertyfile file="${output.dir}/apps/user/classes/app-config.properties">
             <entry key="nls.api.client.id" value="${nls.api.client.id}"/>

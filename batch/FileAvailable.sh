@@ -26,7 +26,8 @@ echo "Reading configuration file..."
 while IFS='=' read -r key value; do
     # Normalize key and assign value to variable
     normalized_key=$(echo "$key" | tr '.' '_')
-    eval "$normalized_key=\"$value\""
+    normalized_val=$(echo "$value" | tr -d '\\')
+    eval "$normalized_key=\"$normalized_val\""
 done < "$CONFIG_FILE_PATH"
 echo "Configuration file loaded successfully."
 

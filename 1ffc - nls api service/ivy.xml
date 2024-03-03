@@ -4,12 +4,10 @@
 
     <dependencies>
          <dependency org="org.slf4j" name="slf4j-api" rev="2.0.0"/>
-         <dependency org="org.springframework" name="spring-web" rev="6.0.7"/>
-         <dependency org="com.fasterxml.jackson.core" name="jackson-annotations" rev="latest.integration"/>
-         <dependency org="jakarta.validation" name="jakarta.validation-api" rev="3.0.2"/>
          <dependency org="org.hibernate.validator" name="hibernate-validator" rev="8.0.1.Final"/>
 
         <exclude org="log4j"/>
         <exclude org="org.apache.logging.log4j"/>
+        <exclude org="com.fasterxml.jackson.core"/>
     </dependencies>
 </ivy-module>
