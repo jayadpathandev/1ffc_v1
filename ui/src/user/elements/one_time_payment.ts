@@ -307,12 +307,14 @@ class OverBalance extends ValidatorBase {
 }
 
 //*****************************************************************************
-class LessThanMinDue extends ValidatorBase {
+class AmountIsInLimit extends ValidatorBase {
 
     private locale  : string = '';
-    private balance : number = 0;
-    private custom  : JQuery<any> | undefined;
-    private checkbox: JQuery<any> | undefined;
+    private minDue : number = 0;
+    private maxDue : number = 0;
+    private belowMinPrompt  : JQuery<any> | undefined;
+    private continueBtn: JQuery<any> | undefined;
+    private overMaxPrompt : JQuery<any> | undefined;
 
     //*************************************************************************
     constructor(
@@ -320,64 +322,20 @@ class LessThanMinDue extends ValidatorBase {
                 field : JQuery<any>
             ) {
         super(state, field);
-        this.custom = this.field.siblings('*[sorriso-error="below-min"]');
-        this.checkbox = $('#paymentOneTime_fCheckBoxes\\.sField_Agree');
+        this.belowMinPrompt = this.field.siblings('*[sorriso-error="below-min"]');
+        this.overMaxPrompt = this.field.siblings('*[sorriso-error="over-max"]');
+        this.continueBtn = $('#paymentOneTime_paymentSummaryContinueLink');
 
         const language = ($('.st-language input').val() as string).toLowerCase();
         const country  = ($('.st-country input').val() as string).toUpperCase();
         this.locale = language + '-' + country;
-        this.balance = parseAmount(
+
+        this.minDue = parseAmount(
             $('.st-minimum').text(),
             this.locale
         )
-    }
 
-    //*************************************************************************
-    protected validate() : boolean|undefined {
-        const str = this.as_string();
-
-        if (str === '') {
-            this.custom?.addClass('visually-hidden');
-            return true;
-        };
-
-        const amount = parseAmount(str, this.locale);
-
-        if (isNaN(amount)) {
-            this.custom?.addClass('visually-hidden');
-            return true;
-        }
-
-        if (amount !== 0 && amount < this.balance) {
-            this.custom?.removeClass('visually-hidden');
-            this.checkbox?.attr('disabled','disabled');
-        } else {
-            this.custom?.addClass('visually-hidden');
-            this.checkbox?.removeAttr('disabled');
-        }
-
-        return true;
-    }
-}
-
-//*****************************************************************************
-class GreaterThanMaxDue extends ValidatorBase {
-
-    private locale  : string = '';
-    private balance : number = 0;
-    private custom  : JQuery<any> | undefined;
-    //*************************************************************************
-    constructor(
-                state : ElementState,
-                field : JQuery<any>
-            ) {
-        super(state, field);
-        this.custom = this.field.siblings('*[sorriso-error="over-max"]');
-
-        const language = ($('.st-language input').val() as string).toLowerCase();
-        const country  = ($('.st-country input').val() as string).toUpperCase();
-        this.locale = language + '-' + country;
-        this.balance = parseAmount(
+        this.maxDue = parseAmount(
             $('.st-maximum').text(),
             this.locale
         )
@@ -388,21 +346,33 @@ class GreaterThanMaxDue extends ValidatorBase {
         const str = this.as_string();
 
         if (str === '') {
-            this.custom?.addClass('visually-hidden');
+            this.belowMinPrompt?.addClass('visually-hidden');
+            this.overMaxPrompt?.addClass('visually-hidden');
             return true;
         };
 
         const amount = parseAmount(str, this.locale);
 
         if (isNaN(amount)) {
-            this.custom?.addClass('visually-hidden');
+            this.belowMinPrompt?.addClass('visually-hidden');
+            this.overMaxPrompt?.addClass('visually-hidden');
             return true;
         }
 
-        if (amount > this.balance) {
-            this.custom?.removeClass('visually-hidden');
+        if (amount == 0) {
+            this.belowMinPrompt?.addClass('visually-hidden');
+            this.overMaxPrompt?.addClass('visually-hidden');
+            this.continueBtn?.addClass('disabled');
+        } else if (amount < this.minDue) {
+            this.belowMinPrompt?.removeClass('visually-hidden');
+            this.continueBtn?.addClass('disabled');
+        } else if (amount > this.maxDue) {
+            this.overMaxPrompt?.removeClass('visually-hidden');
+            this.continueBtn?.addClass('disabled');
         } else {
-            this.custom?.addClass('visually-hidden');
+            this.belowMinPrompt?.addClass('visually-hidden');
+            this.overMaxPrompt?.addClass('visually-hidden');
+            this.continueBtn?.removeClass('disabled');
         }
 
         return true;
@@ -518,8 +488,7 @@ function payment_summary() {
             new ValidatorRequiredInput(state, field),
             new IsAmount(state, field),
             new NotZero(state, field),
-            new LessThanMinDue(state, field),
-            new GreaterThanMaxDue(state, field),
+            new AmountIsInLimit(state, field),
             new OverBalance(state, field)
         ]}
     );
