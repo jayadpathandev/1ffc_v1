@@ -49,6 +49,7 @@ useCase documentSearch [
     static tdocList_amtDue = "Amount due"
     static tdocList_docDate = "Document date"
     static tdocList_docNum = "Document name"
+    static tdocList_docFormat = "Document format"
     static tdocList_dontShow = "Don't Show"
     static tdocList_flex1 = "Flex 1"
     static tdocList_flex10 = "Flex 10"
@@ -505,6 +506,8 @@ useCase documentSearch [
         "extDocId"                      => string sExtDocId
         "docDateNum"				    => number nDocDateNum
         "billId"						=> string sBillId
+        "docFormat"						=> string sDocFormat
+        
 
         column column1(sColName1) [
         	tags: [ "column1" ]
