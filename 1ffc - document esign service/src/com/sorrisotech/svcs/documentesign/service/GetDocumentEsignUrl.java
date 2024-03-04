@@ -1,7 +1,6 @@
 package com.sorrisotech.svcs.documentesign.service;
 
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -9,7 +8,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -103,14 +101,13 @@ public class GetDocumentEsignUrl extends GetDocumentEsignUrlBase{
 
     	} else {
     		
-//			TODO: we will need this at the time we add logic to get routing number from payment app.
-//    		final var sourceDetailsMap = getSourceDetails(sourceId);
+    		final var routingNumber = getBinFromToken(sourceId);
     		
-//    		if (sourceDetailsMap == null) {
-//    			LOGGER.warn("Unable to finds the source details");
-//    			request.setRequestStatus(ServiceAPIErrorCode.Failure);
-//    			return ServiceAPIErrorCode.Failure;
-//    		}
+    		if (routingNumber == null) {
+    			LOGGER.warn("Unable to finds the routing number for sourceId : {}", sourceId);
+    			request.setRequestStatus(ServiceAPIErrorCode.Failure);
+    			return ServiceAPIErrorCode.Failure;
+    		}
     		
     		pdfDetailsMap.put("EFFECTIVE_DATE", dateFormatter.format(new Date()));
     		pdfDetailsMap.put("NAME_ON_PMT_ACCOUNT", walletInfo.getSourceName());
@@ -126,8 +123,7 @@ public class GetDocumentEsignUrl extends GetDocumentEsignUrlBase{
     		pdfDetailsMap.put("ACH_CHECKBOX", "Yes");
     		pdfDetailsMap.put("BANK_NAME", walletInfo.getSourceName());
     		pdfDetailsMap.put("BANK_ACCOUNT_MASKED", walletInfo.getSourceNum());
-//    		pdfDetailsMap.put("BANK_ROUTING_NUMBER", sourceDetailsMap.get("routingNumber"));
-    		pdfDetailsMap.put("BANK_ROUTING_NUMBER", "");
+    		pdfDetailsMap.put("BANK_ROUTING_NUMBER", routingNumber);
     	}
     	
 		
@@ -197,7 +193,7 @@ public class GetDocumentEsignUrl extends GetDocumentEsignUrlBase{
 
 	}
 	
-	private Map<String, String> getSourceDetails(String sourceId) {
+	private String getBinFromToken(String sourceId) {
 		final var restTemplate = new RestTemplate();
 
         final var headers = new HttpHeaders();
@@ -218,7 +214,7 @@ public class GetDocumentEsignUrl extends GetDocumentEsignUrlBase{
 
         HttpEntity<String> requestEntity = new HttpEntity<>(requestBodyJson, headers);
         
-        final var url = config.getProperty("payment.encryption.baseUrl") + "/detokenize";
+        final var url = config.getProperty("epayment.url") + "getIIN";
         
         try {
 	        ResponseEntity<String> responseEntity = restTemplate.exchange(
@@ -239,14 +235,11 @@ public class GetDocumentEsignUrl extends GetDocumentEsignUrlBase{
 	        	return null;
 	        }
 	        
-        	final var data = objectMapper.readTree(responseEntity.getBody()).get("data").asText();
+        	final var data = objectMapper.readTree(responseEntity.getBody()).get("iin").asText();
             
             if (data == null || data.isBlank()) return null;
             
-            return Arrays.asList(data.split(";")).stream()
-        			.map(val -> val.split("="))
-        			.filter(val -> val.length == 2)
-        			.collect(Collectors.toMap(val -> val[0], val -> val[1]));
+            return data;
 
         } catch (Exception ex) {
         	LOGGER.error("Error occurred while detokenizing source: {}, exception: {}", sourceId, ex);
