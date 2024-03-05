@@ -8,11 +8,16 @@ useCase apiStartChooseSource [
 	]
 	
 	shortcut startUseSource(actionUseSource) [
+		walletToken
+	]
+	
+	shortcut startNewSource(actionNewSource) [
 		walletType
 		walletAccount
 		walletExpiry
 		walletToken
 	]
+	
 	shortcut startChooseSourceFailure(actionWalletError) 
 	
 	startAt init [
@@ -52,12 +57,16 @@ useCase apiStartChooseSource [
 	]
 	
  	action actionWalletError [
-		foreignHandler ApiPay.showHtmlError("api_start_wallet_error.html")		
-		
+		foreignHandler ApiPay.showHtmlError("api_start_wallet_error.html")				
+	]	
+
+	action actionUseSource [
+		ApiPay.setWallet(walletToken)
+		ApiPay.prepareIframe(itemType)
+		foreignHandler ApiPay.showIframe()		
 	]
 	
-	
-	action actionUseSource [
+	action actionNewSource [
 		ApiPay.setWallet(walletType, walletAccount, walletExpiry, walletToken)
 		ApiPay.prepareIframe(itemType)
 		foreignHandler ApiPay.showIframe()		

@@ -403,12 +403,9 @@ public class ApiPay implements IExternalReuse {
 				
 		return Calendar.getInstance().before(expiryDate);
 	}
-	
+
 	//*************************************************************************
 	public void setWallet(
-				final String type,
-				final String account,
-				final String expiry,
 				final String token
 			) {
 		if (mCurrent == null) throw new RuntimeException("There is no current session.");
@@ -426,15 +423,45 @@ public class ApiPay implements IExternalReuse {
 							source.getSourceExpiry(),
 							token
 						);
-						// -- when wallet is called, the status changes to PmtAccountChosen --
 						mCurrent.setStatus(PayStatus.pmtAccountChosen);
-
 						break;
 					}
 				}
 			}
 		}
-		else {
+	}
+
+	//*************************************************************************
+	public void setWallet(
+				final String type,
+				final String account,
+				final String expiry,
+				final String token
+			) {
+		if (mCurrent == null) throw new RuntimeException("There is no current session.");
+
+		final var wallet = mWalletDao.getPaymentWallet(mCurrent.userId());
+		var       found  = false;
+		if (wallet != null && wallet.length > 0) {
+			for(final PaymentWalletFields source : wallet) {
+				if (isValid(source)) {
+					if (source.getSourceId().equals(token)) {
+						mCurrent.wallet(
+							source.getSourceName(),
+							source.getSourceType(),
+							source.getSourceNum(),
+							source.getSourceExpiry(),
+							token
+						);
+						mCurrent.setStatus(PayStatus.pmtAccountChosen);
+						found = true;
+						break;
+					}
+				}
+			}
+		}
+		
+		if (found == false) {
 			mCurrent.wallet(
 				"Unsaved",
 				type,
@@ -547,9 +574,9 @@ public class ApiPay implements IExternalReuse {
 		final var wallet = mWalletDao.getPaymentWallet(mCurrent.userId());
 		final var items  = new LinkedList<HashMap<String, Object>>();
 		
-		final var currentName  = mCurrent.walletName();
-		final var currentNum   = mCurrent.walletAccount();
-		final var currentToken = mCurrent.walletToken();
+		var currentName  = mCurrent.walletName();
+		var currentNum   = mCurrent.walletAccount();
+		var currentToken = mCurrent.walletToken();
 		
 		var found = false;
 		
@@ -569,6 +596,11 @@ public class ApiPay implements IExternalReuse {
 							source.getSourceExpiry(),
 							source.getSourceId()
 						);
+						currentName  = source.getSourceName();
+						currentNum   = source.getSourceNum();
+						currentToken = source.getSourceId();
+						
+						mCurrent.setStatus(PayStatus.pmtAccountChosen);						
 						found = true;
 					} else if (currentToken.equals(source.getSourceId())) {
 						found = true;
