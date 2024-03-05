@@ -82,10 +82,10 @@ useCase apiRequestPaymentStatusForAgent [
     	sErrorDesc   = "Invalid [transactionId] no matching transaction."
     	sErrorCode   = "invalid_transaction_id"
 		
-		if "transactionIdNotFound" == transactionStatus then
-			actionFailure
-		else
-			actionSendResponse
+		switch ApiPay.load(transactionId) [
+			case "true" actionSendResponse
+			default actionFailure
+		] 
 	]
 
  	/*************************

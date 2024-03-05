@@ -21,10 +21,11 @@ useCase apiCreateAutomaticPaymentRuleForAgent
 	
 	native volatile string sCustomerId = ApiPay.customerId()
 	native volatile string sAccountId  = ApiPay.accountId()
+	native volatile string sHasPaySource = ApiPay.hasWallet()
 	native volatile string sIsOneTime  = ApiPay.isOneTime()
 	native volatile string sDecodeCode = Automatic.errorCode()
 	native volatile string sDecodeText = Automatic.errorText()
-	
+
 	native string sErrorStatus
 	native string sErrorDesc
 	native string sErrorCode
@@ -149,10 +150,24 @@ useCase apiCreateAutomaticPaymentRuleForAgent
     	sErrorCode   = "invalid_transaction_id"
 
 		switch ApiPay.load(sTransactionId) [
-			case "true" decodeAmountOption
+			case "true" verifyWalletSelected
 			default	actionFailure
 		]
 	]	
+
+ 	/*************************
+	 * 8a. Verify a wallet item was selected.
+	 */
+    action verifyWalletSelected [
+    	sErrorStatus = "400"
+    	sErrorDesc   = "No payment source selected/created."
+    	sErrorCode   = "no_payment_source"
+
+    	if sHasPaySource == "true" then 
+    		decodeAmountOption
+    	else
+    		actionFailure 
+    ]
 
  	/*************************
 	 * 9. Decode the paymentAmountRule value.

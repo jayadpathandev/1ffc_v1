@@ -442,6 +442,7 @@ public class ApiPay implements IExternalReuse {
 				expiry,
 				token
 			);
+			mCurrent.setStatus(PayStatus.pmtAccountChosen);
 		}
 	}
 
@@ -713,35 +714,18 @@ public class ApiPay implements IExternalReuse {
 	 * @return -- status value as a string
 	 */
 	public String getStatus(final String code) {
-
-		long id = -1;
-		PaySession lSession = null;
-		PayStatus eStatus = PayStatus.transactionIdNotFound;
+		if (mCurrent == null) throw new RuntimeException("There is no current session.");
 		
-		try {
-			id = Long.parseLong(code);
-		} catch(NumberFormatException e) {
-			LOG.warn("Invalid code [" + code + "]");
-			return PayStatus.error.toString();
-		}
+		final var eStatus = mCurrent.getStatus();
 		
-		synchronized(mSessions) {
-			lSession = mSessions.get(id);
-		}
-
-		if (null != lSession) {
-			eStatus = lSession.getStatus();
-		
-			switch (eStatus) {
-			case error: 
-			case transactionComplete:
-			case transactionIdExpired:
-				lSession = null;
-				clear (code);
-				break;
-			default:
-				break;
-			}
+		switch (eStatus) {
+		case error: 
+		case transactionComplete:
+		case transactionIdExpired:
+			clear (code);
+			break;
+		default:
+			break;
 		}
 		return eStatus.toString();
 	}
