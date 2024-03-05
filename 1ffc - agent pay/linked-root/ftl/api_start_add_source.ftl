@@ -71,11 +71,11 @@
 			$(function() {
 				$('#apipay_wallet').on('change', function() {
 					var item = $(this).val();
-					document.location.href = 'startUseSource?walletItem=' + encodeURIComponent(item);
+					document.location.href = 'startUseSource?walletToken=' + encodeURIComponent(item);
 				});
 				function success(data) {
 					$.ajax({
-						url: 'startUseSource' + 
+						url: 'startNewSource' + 
 							 '?walletType=' + encodeURIComponent(data.sourceType) +
 							 '&walletAccount=' + encodeURIComponent(data.sourceNum) +
 							 '&walletExpiry=' + encodeURIComponent(data.sourceExpiry) +
