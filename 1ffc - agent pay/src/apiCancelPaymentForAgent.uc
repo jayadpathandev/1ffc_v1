@@ -19,6 +19,9 @@ useCase apiCancelPaymentForAgent
     native volatile string customerId = ApiPay.customerId()
     native volatile string accountId  = ApiPay.accountId()
 	
+	string saveCustomerId
+	string saveAccountId
+	
 	native string sErrorStatus
 	native string sErrorDesc
 	native string sErrorCode
@@ -67,10 +70,33 @@ useCase apiCancelPaymentForAgent
             password: securityToken
             namespace: sServiceNameSpace
             )
-        if success then actionProcess
+        if success               then loadTransaction
         if authenticationFailure then actionInvalidSecurityToken
-        if failure then actionFailure
+        if failure               then actionFailure
     ]
+
+ 	/*************************
+	 * 6a. Load session.
+	 */
+	action loadTransaction [
+		sErrorStatus = "401"
+    	sErrorDesc   = "Invalid [transactionId] no matching transaction."
+    	sErrorCode   = "invalid_transaction_id"
+		
+		switch ApiPay.load(transactionId) [
+			case "true" actionSaveInfo
+			default     actionFailure 
+		]		
+	]
+
+ 	/*************************
+	 * 6b. Load session.
+	 */
+	action actionSaveInfo [
+		saveCustomerId = customerId
+		saveAccountId  = accountId
+		goto(actionProcess)
+	]
 
  	/*************************
 	 * 7. Query the database for payment information about the account.
@@ -94,7 +120,7 @@ useCase apiCancelPaymentForAgent
 		JsonResponse.setString("status", "cancelled")
 		
 	    auditLog(audit_agent_pay.cancel_payment_for_agent_success) [
-	   		customerId accountId
+	   		saveCustomerId saveAccountId
 	    ]
 		Log.^success("cancelPaymentForAgent", transactionId, "Success")
 		

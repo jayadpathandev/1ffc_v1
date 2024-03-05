@@ -114,20 +114,6 @@ useCase apiMakeOneTimePaymentForAgent
     	sErrorCode   = "no_payment_amount"
 
     	if sPayAmount != "" then 
-    		verifyWalletSelected
-    	else
-    		actionFailure 
-    ]
-
- 	/*************************
-	 * 5a. Verify a wallet item was selected.
-	 */
-    action verifyWalletSelected [
-    	sErrorStatus = "400"
-    	sErrorDesc   = "No payment source selected/created."
-    	sErrorCode   = "no_payment_source"
-
-    	if sHasPaySource == "true" then 
     		authenticateRequest
     	else
     		actionFailure 
@@ -159,10 +145,24 @@ useCase apiMakeOneTimePaymentForAgent
     	sErrorCode   = "invalid_transaction_id"
 
 		switch ApiPay.load(sTransactionId) [
-			case "true" actionVerifyData
+			case "true" verifyWalletSelected
 			default	actionFailure
 		]
 	]
+	
+ 	/*************************
+	 * 7a. Verify a wallet item was selected.
+	 */
+    action verifyWalletSelected [
+    	sErrorStatus = "400"
+    	sErrorDesc   = "No payment source selected/created."
+    	sErrorCode   = "no_payment_source"
+
+    	if sHasPaySource == "true" then 
+    		actionVerifyData
+    	else
+    		actionFailure 
+    ]
 
  	/*************************
 	 * 8. Query the database for payment information about the account.
