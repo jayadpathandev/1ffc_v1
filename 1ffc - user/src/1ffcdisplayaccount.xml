@@ -32,6 +32,21 @@
 				LIMIT 1;
 			</value>
 		</constructor-arg>
+	</bean> 
+	
+	<bean id="sqlAttrValueFromUserIdAndAttrName" class="java.lang.String">
+		<constructor-arg>
+			<value>
+				SELECT 
+					AUP.ATTRVALUE
+				FROM 
+					AUTH_USER_PROFILE AUP 
+				WHERE 
+					AUP.ID = :USERID
+				AND 
+					AUP.ATTRNAME = :ATTRNAME 
+			</value>
+		</constructor-arg>
 	</bean>
 
 	<bean id="dao" class="com.sorrisotech.fffc.account.dao.AccountDao">

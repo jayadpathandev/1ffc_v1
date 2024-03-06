@@ -52,6 +52,16 @@ public class RecurringPayment {
 	 * Recurring payment source type
 	 */
 	private String m_szSourceType;
+	
+	/**************************************************************************
+	 * Internal account number for which the payment is scheduled
+	 */
+	private String m_szInternalAccount;
+	
+	/**************************************************************************
+	 * Payment group.
+	 */
+	private String m_szPayGroup;
 
 	/**************************************************************************
 	 * Gets the value of m_cId
@@ -124,5 +134,35 @@ public class RecurringPayment {
 	public void setSourceType(String sourceType) {
 		this.m_szSourceType = sourceType;
 	}
+	
+	/**************************************************************************
+	 * Getter method for internal account number.
+	 * @return the internal account number
+	 */
+	public String getInternalAccount() {
+		return m_szInternalAccount;
+	}
 
+	/**************************************************************************
+	 * Setter method for internal account number.
+	 * @param internalAccount The internal account number to set.
+	 */
+	public void setInternalAccount(String internalAccount) {
+		this.m_szInternalAccount = internalAccount;
+	}
+
+	/**************************************************************************
+	 * Getter method for payment group.
+	 * @return the payGroup
+	 */
+	public String getPayGroup() {
+		return m_szPayGroup;
+	}
+
+	/**************************************************************************
+	 * @param payGroup the payGroup to set
+	 */
+	public void setPayGroup(String payGroup) {
+		this.m_szPayGroup = payGroup;
+	}
 }

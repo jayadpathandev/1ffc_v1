@@ -100,8 +100,11 @@ public class DisplayAccountMasked {
 	 *         nickname space 3 star followed by last 4 digits of display account
 	 *         number(e.g. TestNls ***1234)
 	 */
-	public String displayAccountLookup(IServiceLocator2 cLocator, final String sUserId,
-	        final String sAccount, final String sPayGroup) {
+	public String displayAccountLookup(
+	        IServiceLocator2 cLocator,
+	        final String sUserId,
+	        final String sAccount,
+	        final String sPayGroup) {
 		
 		String szReturnValue = null;
 		
@@ -116,10 +119,16 @@ public class DisplayAccountMasked {
 			// Nickname-<paymentGroup>-<internalaccountnumber>
 			final String sNicknameAttrName = "Nickname" + "-" + sPayGroup + "-" + sAccount;
 			
-			// --------------------------------------------------------------------------------------
-			// Fetching nickname from user profile.
-			final String szNicknameValue = UserProfile.getProfileAttrValue(cLocator, sUserId,
-			        sNicknameAttrName);
+			String szNicknameValue = null;
+			
+			if (null != cLocator) {
+				// --------------------------------------------------------------------------------------
+				// Fetching nickname from user profile.
+				szNicknameValue = UserProfile.getProfileAttrValue(cLocator, sUserId,
+				        sNicknameAttrName);
+			} else {
+				szNicknameValue = m_cDao.queryNickname(sUserId, sNicknameAttrName);
+			}
 			
 			if (null != szNicknameValue && !szNicknameValue.isBlank()) {
 				szReturnValue = szNicknameValue + " " + szMaskedDisplayAccount;

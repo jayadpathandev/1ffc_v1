@@ -47,6 +47,7 @@ useCase paymentUpdateAutomaticPayment [
 	importJava EsignHelper(com.sorrisotech.fffc.user.EsignHelper)
 	importJava UcProfileAction(com.sorrisotech.app.profile.UcProfileAction)
 	importJava Spinner(com.sorrisotech.app.utils.Spinner)
+	importJava DisplayAccountMasked(com.sorrisotech.fffc.account.DisplayAccountMasked)  
 			
     import validation.dateValidation
 		
@@ -106,6 +107,7 @@ useCase paymentUpdateAutomaticPayment [
     native string sNtfParams = "" 
     native string sSendEditEmailFlag = NotifUtil.isNotificationEnabled(sUserId, "payment_automatic_edit_success")
     native string sSendCreateEmailFlag = NotifUtil.isNotificationEnabled(sUserId, "payment_automatic_create_success")
+    volatile native string sDisplayAccountNickname = DisplayAccountMasked.displayAccountLookup(sUserId, sPayAccountInternal, sPayGroup)
     native string sToken = ""
     native string sPayUpto = UcPaymentAction.getAutoPayUpto()
     native string sThousand = "1000"
@@ -1234,14 +1236,14 @@ useCase paymentUpdateAutomaticPayment [
 
 	/* 18 Send create success email */
 	action sendCreateSuccessEmail [		
-		sNtfParams = "accountNumber=" + sPayAccountExternal
+		sNtfParams = "accountNumber=" + sDisplayAccountNickname
 		NotifUtil.sendRegisteredUserEmail(sUserId, sNtfParams, "payment_automatic_create_success")		
 		goto(gotoPaymentAutomatic)
 	]
 		
 	/* 18.1 Sends edit success email. */
 	action sendEditSuccessEmail [
-		sNtfParams = "accountNumber=" + sPayAccountExternal
+		sNtfParams = "accountNumber=" + sDisplayAccountNickname
 		NotifUtil.sendRegisteredUserEmail(sUserId, sNtfParams, "payment_automatic_edit_success")	
 		
 		goto(gotoPaymentAutomatic)

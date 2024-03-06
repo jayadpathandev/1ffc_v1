@@ -66,12 +66,14 @@ useCase paymentWallet [
 	importJava NotifUtil(com.sorrisotech.common.app.NotifUtil)
     importJava Session(com.sorrisotech.app.utils.Session)    
     importJava UcPaymentAction(com.sorrisotech.uc.payment.UcPaymentAction)
+    importJava DisplayAccountMasked(com.sorrisotech.fffc.account.DisplayAccountMasked)
             
     import apiPayment.pmtRequest    			    	
 	import apiPayment.getWallet
 	import apiPayment.deleteWallet   
     import billCommon.sPayGroup
-    import billCommon.sPayAccountExternal  
+    import billCommon.sPayAccountExternal
+    import billCommon.sPayAccountInternal  
 	import paymentCommon.sNumSources
     import paymentCommon.sMaxSources
     import paymentCommon.sPmtGroupConfigResult    
@@ -164,6 +166,7 @@ useCase paymentWallet [
     native string sSendEditEmailFlag   = NotifUtil.isNotificationEnabled(sUserId, "payment_wallet_edit_success")
     native string sSendDeleteEmailFlag = NotifUtil.isNotificationEnabled(sUserId, "payment_wallet_delete_success")
     native string sSourceStatus        = UcPaymentAction.checkSource(sUserId, sPaymentSourceId)
+    volatile native string sDisplayAccountNickname = DisplayAccountMasked.displayAccountLookup(sUserId, sPayAccountInternal, sPayGroup)
     
     persistent native string sMessageError = ""    
     persistent native string sNickName = ""
@@ -838,7 +841,7 @@ useCase paymentWallet [
 	
 	/* 19. Sends wallet delete success email. */
 	action sendDeleteSuccessEmail [
-		sNtfParams = "nickName=" + sNickName + "|" + "accountNumber=" + sPayAccountExternal
+		sNtfParams = "nickName=" + sNickName + "|" + "accountNumber=" + sDisplayAccountNickname
 		NotifUtil.sendRegisteredUserEmail(sUserId, sNtfParams, "payment_wallet_delete_success")		
 		goto(startPaymentWallet)
 	]
@@ -932,7 +935,7 @@ useCase paymentWallet [
 	
 	/* 25. Sends wallet create success email. */
 	action sendCreateSuccessEmail [
-		sNtfParams = "nickName=" + sNickName + "|" + "accountNumber=" + sPayAccountExternal
+		sNtfParams = "nickName=" + sNickName + "|" + "accountNumber=" + sDisplayAccountNickname
 		NotifUtil.sendRegisteredUserEmail(sUserId, sNtfParams, "payment_wallet_create_success")		
 		goto(jsonPaymentResponse)
 	]
@@ -1002,7 +1005,7 @@ useCase paymentWallet [
 	
 	/* 28. Send wallet edit success email. */
 	action sendEditSuccessEmail [
-		sNtfParams = "nickName=" + sNickName + "|" + "accountNumber=" + sPayAccountExternal
+		sNtfParams = "nickName=" + sNickName + "|" + "accountNumber=" + sDisplayAccountNickname
 		NotifUtil.sendRegisteredUserEmail(sUserId, sNtfParams, "payment_wallet_edit_success")		
 		goto(jsonPaymentResponse)
 	]

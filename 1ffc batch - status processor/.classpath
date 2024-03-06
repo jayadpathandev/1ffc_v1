@@ -178,5 +178,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/batch - common"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/batch - payment process"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/1ffc - payment"/>
+    <classpathentry combineaccessrules="false" kind="src" path="/1ffc - user"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
