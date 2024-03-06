@@ -45,6 +45,8 @@ public class RecurringPaymentMapper implements RowMapper<RecurringPayment>{
 		cRecurringPayment.setAccounutNumber(rs.getString("account_number"));
 		cRecurringPayment.setWalletNickName(rs.getString("wallet_name"));
 		cRecurringPayment.setSourceType(rs.getString("source_type"));
+		cRecurringPayment.setInternalAccount(rs.getString("internal_account"));
+		cRecurringPayment.setPayGroup(rs.getString("pay_group"));
 		return cRecurringPayment;
 	}
 

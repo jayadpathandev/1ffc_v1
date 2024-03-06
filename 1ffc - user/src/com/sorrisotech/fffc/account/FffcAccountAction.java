@@ -20,6 +20,7 @@
  */
 package com.sorrisotech.fffc.account;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,6 +40,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sorrisotech.app.common.utils.I18n;
 import com.sorrisotech.common.app.RestResponseUtil;
 import com.sorrisotech.common.rest.Result;
@@ -84,8 +86,12 @@ public class FffcAccountAction implements IExternalReuse {
 	 * @param szUserId      The user id.
 	 * 
 	 */
-	public void setAccountDataTableFromPaymentData(IServiceLocator2 locator, IUserData userData,
-	        ITable2Data cDataTable, ITable2Data cDisplayTable, final String szUserId) {
+	public void setAccountDataTableFromPaymentData(
+	        IServiceLocator2 locator,
+	        IUserData userData,
+	        ITable2Data cDataTable,
+	        ITable2Data cDisplayTable,
+	        final String szUserId) {
 		try {
 			cDisplayTable.empty();
 			
@@ -172,9 +178,13 @@ public class FffcAccountAction implements IExternalReuse {
 	 * @param szUserId      The user id.
 	 * 
 	 */
-	public void setAccountDataTableFromPaymentHistoryData(IServiceLocator2 locator,
-	        IUserData userData, ITable2Data cDataTable, ITable2Data cDisplayTable,
-	        String configColumns, final String szUserId) {
+	public void setAccountDataTableFromPaymentHistoryData(
+	        IServiceLocator2 locator,
+	        IUserData userData,
+	        ITable2Data cDataTable,
+	        ITable2Data cDisplayTable,
+	        String configColumns,
+	        final String szUserId) {
 		try {
 			
 			final HashSet<String> columns = new HashSet<String>();
@@ -278,8 +288,11 @@ public class FffcAccountAction implements IExternalReuse {
 	 * @param cDisplayTable automatic payment table (Display table)
 	 * 
 	 */
-	public void setAutomaticPaymentsTableFromPaymentAutomaticData(IServiceLocator2 locator,
-	        IUserData userData, ITable2Data cDataTable, ITable2Data cDisplayTable) {
+	public void setAutomaticPaymentsTableFromPaymentAutomaticData(
+	        IServiceLocator2 locator,
+	        IUserData userData,
+	        ITable2Data cDataTable,
+	        ITable2Data cDisplayTable) {
 		try {
 			
 			cDisplayTable.empty();
@@ -338,8 +351,10 @@ public class FffcAccountAction implements IExternalReuse {
 	 * @return escape grouping JSON in string format.
 	 * 
 	 */
-	public static String escapeGroupingJson(final IServiceLocator2 locator2,
-	        final String sGroupJson, final String szUserId) {
+	public static String escapeGroupingJson(
+	        final IServiceLocator2 locator2,
+	        final String sGroupJson,
+	        final String szUserId) {
 		
 		final UcPaymentAction ucPaymentAction = new UcPaymentAction();
 		
@@ -411,14 +426,40 @@ public class FffcAccountAction implements IExternalReuse {
 	 * @param locator  Service locator.
 	 * @param userData User data.
 	 */
-	public void getPaymentRecord(HttpServletRequest httpReq, HttpServletResponse httpResp,
-	        IServiceLocator2 locator, IUserData userData, String szPayDate, String szPayReqDate,
-	        String szPayStatus, String szPayFromAccount, String szPayChannel, BigDecimal bdPayAmt,
-	        BigDecimal bdSurcharge, BigDecimal bdPayTotalAmt, String szFlex1, String szFlex2,
-	        String szFlex3, String szFlex4, String szFlex5, String szFlex6, String szFlex7,
-	        String szFlex8, String szFlex9, String szFlex10, String szFlex11, String szFlex12,
-	        String szFlex13, String szFlex14, String szFlex15, String szFlex16, String szFlex17,
-	        String szFlex18, String szFlex19, String szFlex20, ITable2Data cTable,
+	public void getPaymentRecord(
+	        HttpServletRequest httpReq,
+	        HttpServletResponse httpResp,
+	        IServiceLocator2 locator,
+	        IUserData userData,
+	        String szPayDate,
+	        String szPayReqDate,
+	        String szPayStatus,
+	        String szPayFromAccount,
+	        String szPayChannel,
+	        BigDecimal bdPayAmt,
+	        BigDecimal bdSurcharge,
+	        BigDecimal bdPayTotalAmt,
+	        String szFlex1,
+	        String szFlex2,
+	        String szFlex3,
+	        String szFlex4,
+	        String szFlex5,
+	        String szFlex6,
+	        String szFlex7,
+	        String szFlex8,
+	        String szFlex9,
+	        String szFlex10,
+	        String szFlex11,
+	        String szFlex12,
+	        String szFlex13,
+	        String szFlex14,
+	        String szFlex15,
+	        String szFlex16,
+	        String szFlex17,
+	        String szFlex18,
+	        String szFlex19,
+	        String szFlex20,
+	        ITable2Data cTable,
 	        String szUserId) {
 		
 		try {
@@ -476,5 +517,39 @@ public class FffcAccountAction implements IExternalReuse {
 		} catch (Exception e) {
 			RestResponseUtil.createJsonResponse(httpResp, Result.ise());
 		}
+	}
+	
+	public static String getGroupingJsonAsString(
+	        IServiceLocator2 iServiceLocator2,
+	        String szJson,
+	        final String szUserId) {
+		
+		String szDocPayments = "";
+		
+		try {
+			
+			JsonNode cJsonNode = m_cObjectMapper.readTree(szJson);
+			
+			JsonNode cGroupingsNode = cJsonNode.get("grouping");
+			
+			for (JsonNode cElement : cGroupingsNode) {
+				
+				final String szAccount = cElement.get("internalAccountNumber").asText();
+				
+				final String szPayGroup = cJsonNode.get("paymentGroup").asText();
+				
+				final String szDisplayAccountNickname = new DisplayAccountMasked()
+				        .displayAccountLookup(iServiceLocator2, szUserId, szAccount, szPayGroup);
+				
+				((ObjectNode) cElement).put("displayAccountNumber", szDisplayAccountNickname);
+				
+			}
+			
+			szDocPayments = m_cObjectMapper.writeValueAsString(cGroupingsNode);
+		} catch (IOException e) {
+			LOG.error("getGroupingJsonAsString() An exception was thrown", e);
+		}
+		
+		return szDocPayments;
 	}
 }

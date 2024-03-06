@@ -47,6 +47,7 @@ useCase paymentAutomatic [
     importJava LocalizedFormat(com.sorrisotech.common.LocalizedFormat)	
 	importJava TermsAndConditions(com.sorrisotech.fffc.user.TermsAndConditions)
 	importJava FffcAccountAction(com.sorrisotech.fffc.account.FffcAccountAction)
+	importJava DisplayAccountMasked(com.sorrisotech.fffc.account.DisplayAccountMasked)
     
     import apiPayment.pmtRequest
     import apiPayment.getAutomaticPaymentByUserId
@@ -101,6 +102,7 @@ useCase paymentAutomatic [
     native string sShowCreateFlag  = "false"
     native string scheduleFoundWithAccount = "false"
     native string sSendDeleteEmailFlag = NotifUtil.isNotificationEnabled(sUserId, "payment_automatic_delete_success")
+    volatile native string sDisplayAccountNickname = DisplayAccountMasked.displayAccountLookup(sUserId, sPayAccountInternal, sPayGroup)
     native string sPmtScheduledFlag = UcPaymentAction.getPaymentScheduledFlag(
         sUserId,
 		sPayAccountInternal,
@@ -1004,7 +1006,7 @@ useCase paymentAutomatic [
 	
 	/* 16. Sends wallet delete success email. */
 	action sendDeleteSuccessEmail [
-		sNtfParams = "accountNumber=" + sPayAccountExternal
+		sNtfParams = "accountNumber=" + sDisplayAccountNickname
 		NotifUtil.sendRegisteredUserEmail(sUserId, sNtfParams, "payment_automatic_delete_success")		
 		goto(getPayments)
 	]

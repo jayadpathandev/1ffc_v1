@@ -104,7 +104,8 @@ useCase paymentOneTime [
 	// -- specific to 1st Franklin ... helps calculate current balance --
 	importJava CurrentBalanceHelper (com.sorrisotech.fffc.payment.BalanceHelper)
 	importJava FlexFieldInformation (com.sorrisotech.fffc.user.FlexFieldInformation)
-	importJava DisplayAccountMasked(com.sorrisotech.fffc.account.DisplayAccountMasked)    
+	importJava DisplayAccountMasked(com.sorrisotech.fffc.account.DisplayAccountMasked)
+	importJava FffcAccountAction(com.sorrisotech.fffc.account.FffcAccountAction)    
             
     import validation.dateValidation
             
@@ -244,7 +245,7 @@ useCase paymentOneTime [
 	volatile native string sAuditIteratorHasNext = PaymentAuditIterator.hasNext()
 	volatile native string sAuditIteratorNext = PaymentAuditIterator.next()  
 	native string sCompanyId = Session.getUserCompanyId()
-	native string sGroupingDataString = UcPaymentAction.getGroupingJsonAsString(sPayData)
+	native string sGroupingDataString = FffcAccountAction.getGroupingJsonAsString(sPayData, sUserId)
 	
 	//flag indicating whether user has selected bills to pay from dashboard
 	native string sHasBillsSelectedForPayment = OneTimePaymentHelperAction.hasBillsForPayment()
@@ -2029,7 +2030,7 @@ useCase paymentOneTime [
 	
 	/* 13. Sends wallet create success email. */
 	action sendCreateSuccessEmail [
-		sNtfParams = "nickName=" + sNickName
+		sNtfParams = "nickName=" + sNickName + "|" +"accountNumber=" + sDisplayAccountNickname
 		NotifUtil.sendRegisteredUserEmail(sUserId, sNtfParams, "payment_wallet_create_success")		
 		goto(getWalletCount)
 	]

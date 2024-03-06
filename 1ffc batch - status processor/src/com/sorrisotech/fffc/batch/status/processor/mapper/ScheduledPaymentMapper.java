@@ -47,6 +47,8 @@ public class ScheduledPaymentMapper implements RowMapper<ScheduledPayment> {
 		cScheduledPayment.setWalletNickName(rs.getString("wallet_name"));
 		cScheduledPayment.setAmount(rs.getBigDecimal("amount"));
 		cScheduledPayment.setSourceType(rs.getString("source_type"));
+		cScheduledPayment.setInternalAccount(rs.getString("internal_account"));
+		cScheduledPayment.setPayGroup(rs.getString("pay_group"));
 		return cScheduledPayment;
 	}
 

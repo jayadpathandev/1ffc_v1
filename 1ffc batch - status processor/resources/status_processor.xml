@@ -140,6 +140,8 @@
 	    		select
 					ps.online_trans_id, 
 					ta.account_number_display as account_number,
+					ta.account_number as internal_account,
+					ta.bill_group as pay_group,
 					ps.pay_date as payment_date,
 					pw.source_num as wallet_name,
 					ps.pay_amt as amount,
@@ -160,6 +162,8 @@
 	    		select
 					pa.automatic_id, 
 					ta.account_number_display as account_number,
+					ta.account_number as internal_account,
+					ta.bill_group as pay_group,
 					pw.source_num  as wallet_name,
 					pw.source_type 
 				from

@@ -20,6 +20,7 @@
  */
 package com.sorrisotech.fffc.account.dao;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 
 import org.slf4j.Logger;
@@ -65,6 +66,13 @@ public class AccountDao {
 	private String getDisplayAccountNumberSQL;
 	
 	/**********************************************************************************************
+	 * Injecting the bean of SQL fetch attribute value based on userId and attrName.
+	 */
+	@Autowired
+	@Qualifier("sqlAttrValueFromUserIdAndAttrName")
+	private String sqlAttrValueFromUserIdAndAttrName;
+	
+	/**********************************************************************************************
 	 * This method is calling getDisplayAccountNumberSQL query and returning the
 	 * results. This method returns null if no record found.
 	 * 
@@ -96,6 +104,39 @@ public class AccountDao {
 	}
 	
 	/**********************************************************************************************
+	 * This method is calling sqlAttrValueFromUserIdAndAttrName query and returning
+	 * the results. This method returns null if no record found.
+	 * 
+	 * @param szAttributeValue The value of attribute in auth_user_profile table.
+	 * @param szUserId         The user id in auth_user_profile table.
+	 * 
+	 * @return String Nickname of user account.
+	 */
+	public String queryNickname(final String szUserId, final String szAttributeValue) {
+		
+		String szNickname = null;
+		
+		final HashMap<String, Object> cParams = new HashMap<>(1);
+		cParams.put("USERID", new BigDecimal(szUserId));
+		cParams.put("ATTRNAME", szAttributeValue);
+		
+		try {
+			// --------------------------------------------------------------------------------------
+			// Fetching nickname based on attribute name and userId
+			szNickname = jdbc.queryForObject(sqlAttrValueFromUserIdAndAttrName, cParams,
+			        String.class);
+		} catch (EmptyResultDataAccessException e) {
+			LOG.warn(
+			        "AccountDao.....queryNickname()...No record found/ No nickname set for userId: "
+			                + szUserId);
+		} catch (DataAccessException e) {
+			LOG.error("AccountDao.....queryNickname()...An exception was thrown: " + e, e);
+		}
+		
+		return szNickname;
+	}
+	
+	/**********************************************************************************************
 	 * This method is reading DAO bean defined in 1ffcdisplayaccount.xml and assigns
 	 * to singleton member variable if it is null.
 	 * 
@@ -110,10 +151,6 @@ public class AccountDao {
 				m_cSingleton = context.getBean(AccountDao.class);
 			} catch (Exception e) {
 				LOG.error("Unable load 1ffcdisplayaccount.xml", e, e);
-			} finally {
-				if (context != null) {
-					context.close();
-				}
 			}
 		}
 		return m_cSingleton;

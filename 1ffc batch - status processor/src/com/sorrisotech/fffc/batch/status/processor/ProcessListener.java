@@ -33,6 +33,7 @@ import org.springframework.batch.core.ItemProcessListener;
 
 import com.sorrisotech.fffc.batch.status.processor.bean.RecurringPayment;
 import com.sorrisotech.fffc.batch.status.processor.bean.ScheduledPayment;
+import com.sorrisotech.fffc.account.DisplayAccountMasked;
 import com.sorrisotech.fffc.batch.status.processor.bean.Record;
 import com.sorrisotech.persona.notification.api.NotificationTypes;
 
@@ -59,7 +60,12 @@ public class ProcessListener implements ItemProcessListener<Record, Record>{
 		
 		for (ScheduledPayment cPayment : cOutput.getScheduledPayments()) {
 			Map<String, String> cParams = new HashMap<>();
-			cParams.put("accountNumber", cPayment.getAccounutNumber());
+			
+			final String displayAccountNickname = new DisplayAccountMasked().displayAccountLookup(
+			        null, cOutput.getUserId(), cPayment.getInternalAccount(),
+			        cPayment.getPayGroup());
+			
+			cParams.put("accountNumber", displayAccountNickname);
 			cParams.put("walletNickName", cPayment.getWalletNickName());
 			cParams.put("paymentDate", cPayment.getScheduledPaymentDate().toString());
 			cParams.put("amount", cPayment.getAmount().setScale(2, RoundingMode.HALF_UP).toString());
@@ -87,7 +93,12 @@ public class ProcessListener implements ItemProcessListener<Record, Record>{
 		
 		for (RecurringPayment cPayment : cOutput.getRecurringPayments()) {
 			Map<String, String> cParams = new HashMap<>();
-			cParams.put("accountNumber", cPayment.getAccounutNumber());
+			
+			final String displayAccountNickname = new DisplayAccountMasked().displayAccountLookup(
+			        null, cOutput.getUserId(), cPayment.getInternalAccount(),
+			        cPayment.getPayGroup());
+			
+			cParams.put("accountNumber", displayAccountNickname);
 			cParams.put("walletNickName", cPayment.getWalletNickName());
 
 			if (!cOutput.isAchDisabled()) {
