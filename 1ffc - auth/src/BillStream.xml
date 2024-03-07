@@ -221,6 +221,7 @@
 				    BILL_FILE_META_DATA.PAYMENT_GROUP = TM_ACCOUNT.BILL_GROUP and
 				    BILL_FILE_META_DATA.BILL_STREAM = :bill_stream
 	    			@@QUERY@@
+	    		LIMIT 1
 			)  
 			select 
 				target.account_number, 
