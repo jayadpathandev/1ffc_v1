@@ -67,7 +67,15 @@ useCase customerSearch [
 	// -- extends the standard consumer search to search for information needed by 1FFC --
 	importJava UcConsumerSearchAction(com.sorrisotech.uc.admin1ffc.Uc1FFCSearchByCustomerId)
 	importJava UcProfile2FAAction(com.sorrisotech.app.profile.UcProfile2FAAction)
-		
+	importJava Session(com.sorrisotech.app.utils.Session)
+	importJava Initialize(com.sorrisotech.uc.admin1ffc.Initialize)
+	
+	serviceStatus status
+	serviceParam(Notifications.SetUserAddress) setData
+	serviceParam(FffcNotify.SetUserAddressNls) setDataFffc
+	serviceParam (Profile.AddLocationTrackedEvent) setLocationData
+	serviceResult (Profile.AddLocationTrackedEvent) setLocationResp
+	
 	string sPageName = "{Customer Search}"
 	string sResultsHeading = "{Search results}"
 	string sPopinTitle1 = "{Resend confirmation & enrollment e-mail}"
@@ -103,6 +111,14 @@ useCase customerSearch [
     // -- used to hide non-1stFranklinSearchFields and to show the 1st Franklin style search
     native string bHideProductSearch = "true"
     native string bShow1stFranklinSearch = "true"
+    
+    native string sIpAddress         = Session.getExternalIpAddress()
+    native string sEmailChannel      = "email"
+    native string sCategory          = "address"
+    native string sOperation         = "The agent successfully updated users email address."
+    native string sSelectedCustomerId
+    
+    input sGeolocation
     			
 	field fUserName [   
         string(label) sLabel = "{Username}"      
@@ -259,14 +275,18 @@ useCase customerSearch [
         link "{Resend confirmation & enrollment e-mail}" resendEmail(assignFieldsResendEmailPopin) [            
             sSelectedUserId: sUserId       
             sSelectedUserName: sUsername   
-            sEmailAddress: sEmail     
+            sEmailAddress: sEmail
+            sOldEmailAddress: sEmail   
             sMaskedEmailId: sEmailMasked
+            sSelectedCustomerId: sCustomerId       
         ]
         
         link "{Reset secret questions & password}" resetUserDetails(assignFieldsResetPwdPopin) [
             sSelectedUserId: sUserId                          
-            sEmailAddress: sEmail     
+            sEmailAddress: sEmail
+            sOldEmailAddress: sEmail      
             sMaskedEmailId: sEmailMasked
+            sSelectedCustomerId: sCustomerId
         ]
 
         link "{View Audit Logs}" viewAuditLogs(viewAuditLogs) [
@@ -345,7 +365,7 @@ useCase customerSearch [
     /* 1. System loads the name of the current user. */ 
 	action actionInit [
 	    sUserName = getUserName()
-	    
+	    Initialize.init()
 	    goto(customerSearchScreen)
 	]
 	
@@ -625,9 +645,16 @@ useCase customerSearch [
             div resendEmailbuttons [
                 class: "modal-footer"
                 
+                 display sGeolocation [ 
+                   control_attr_sorriso-geo: ""
+                      logic: [ 
+                	      if "true" == "true" then "hide" 
+                      ]  
+                ] 
+                
                 navigation resendEmailsubmit (verifyResendEmailPopinFields, "{Submit}") [
                     class: "btn btn-primary"
-                    data: [fUserEmail, fUserEmailRetype]
+                    data: [fUserEmail, fUserEmailRetype, sGeolocation]
                     require: [fUserEmail, fUserEmailRetype] 
                     type: "popin"
                     attr_tabindex: "12"		                    
@@ -658,18 +685,49 @@ useCase customerSearch [
     action updateUserDetails [       	
 		 loadProfile(        	
 	    	userId: sSelectedUserId    
-	    	emailAddress : sOldEmailAddress   	
 	    	firstName: sFirstName
         	lastName: sLastName
-	        ) 
-	     updateProfile(
-        	userId: sSelectedUserId     
-        	emailAddress: sEmailAddress   	        	       	
-            )                	
-        goto(generateAuthCode)
+	        )  
+		setData.userid = sSelectedUserId
+    	setData.channel = sEmailChannel
+    	setData.address = sEmailAddress
+        switch apiCall Notifications.SetUserAddress(setData, status) [
+		    case apiSuccess addLocationTrackedEvent
+		    default genericErrorMsg
+		]
     ]
     
-    /* 16. Create Authorization code. */
+     /* 16. Adding geolocation track event */
+    action addLocationTrackedEvent [
+    	setLocationData.sUser = sSelectedUserId
+    	setLocationData.sCategory = sCategory
+    	setLocationData.sType = sEmailChannel
+    	setLocationData.sData = sEmailAddress
+    	setLocationData.sIpAddress = sIpAddress
+    	setLocationData.sBrowserGeo = sGeolocation
+    	setLocationData.sOperation = sOperation
+    	
+    	switch apiCall Profile.AddLocationTrackedEvent(setLocationData, setLocationResp, status) [
+    		case apiSuccess saveEmailAddressAtNls
+    		default genericErrorMsg
+    	]
+    ]
+    
+    /* 17. Saves the new email address via NLS API service */
+    action saveEmailAddressAtNls [
+    	setDataFffc.customerId = sSelectedCustomerId
+    	setDataFffc.channel = sEmailChannel
+    	setDataFffc.address = sEmailAddress
+    	setDataFffc.browserGeo = sGeolocation
+    	setDataFffc.ipGeo = setLocationResp.IP_GEO
+    	setDataFffc.ipAddress = sIpAddress
+    	switch apiCall FffcNotify.SetUserAddressNls(setDataFffc, status) [
+    		case apiSuccess generateAuthCode
+    		default genericErrorMsg
+    	]
+    ]
+    
+    /* 18. Create Authorization code. */
     action generateAuthCode [    	  	   	
         switch AuthUtil.generateAuthCode(sAuthCode) [        
             case "success" getCurrentTimeStamp
@@ -678,7 +736,7 @@ useCase customerSearch [
         ]   
     ] 
     
-    /* 17. Get current time. */
+    /* 19. Get current time. */
     action getCurrentTimeStamp [    
         switch AuthUtil.getCurrentTime(sCurrentTime) [        
             case "success" saveAuthCodeDetails
@@ -687,7 +745,7 @@ useCase customerSearch [
         ]   
     ]  
     
-    /* 18. Save auth code details. */
+    /* 20. Save auth code details. */
     action saveAuthCodeDetails [
     	 updateProfile(        	
         	userId: sSelectedUserId    
@@ -698,7 +756,7 @@ useCase customerSearch [
         if failure then genericErrorMsg  
     ]    
     
-    /* 19. Updates the user's profile attributes. */    
+    /* 21. Updates the user's profile attributes. */    
     action resetAttributes [
         updateProfile(
             userId: sSelectedUserId    
@@ -712,7 +770,7 @@ useCase customerSearch [
         goto(sendNotificationEmail)     
     ]  
 
-	/* 20. Send email notification */    
+	/* 22. Send email notification */    
 	action sendNotificationEmail [
 		if resetPasswordFlag == "false" then
 			sendRegistrationEmail
@@ -720,7 +778,7 @@ useCase customerSearch [
 			clearRecognizedPCs
 	]    
         
-    /* 21. Send email. */
+    /* 23. Send email. */
     action sendRegistrationEmail [    
     	switch NotifUtil.sendOrgAdminRegistration(sSelectedUserId, sSelectedUserName, sAuthCode, sAuthCode, sFirstName, sLastName) [         
            case "success" resendSuccess
@@ -729,7 +787,7 @@ useCase customerSearch [
         ]   
     ]   
 
-    /* 22. Checks if email address has changed. */   
+    /* 24. Checks if email address has changed. */   
     action resendSuccess [
     	if sOldEmailAddress == sEmailAddress then
     		resendSameEmailSuccessMsg
@@ -737,19 +795,19 @@ useCase customerSearch [
     		resendNewEmailSuccessMsg	
     ]
     
-    /* 23. Resend to the same email success message. */
+    /* 25. Resend to the same email success message. */
     action resendSameEmailSuccessMsg [
         displayMessage(type: "success" msg: oMsgResendSameEmailNotifSuccess)
         goto(customerSearchScreen)
     ] 
     
-    /* 24. Resend to the new email success message. */
+    /* 26. Resend to the new email success message. */
     action resendNewEmailSuccessMsg [
         displayMessage(type: "success" msg: oMsgResendNewEmailNotifSuccess)
         goto(verifyInputData)
     ] 
    
-    /* 25. Assign values to the popin fields. */    
+    /* 27. Assign values to the popin fields. */    
 	action assignFieldsResetPwdPopin [
     	 fUserEmail.pInput = sMaskedEmailId
 		 fUserEmailRetype.pInput = sMaskedEmailId
@@ -758,7 +816,7 @@ useCase customerSearch [
 		 goto(resetPwdPopin)
     ]
     
-    /* 26. Reset password & secret questions popin. */
+    /* 28. Reset password & secret questions popin. */
     xsltFragment resetPwdPopin [
         
         form content [
@@ -812,9 +870,16 @@ useCase customerSearch [
             div resetPwdbuttons [
                 class: "modal-footer"
                 
+                display sGeolocation [ 
+                   control_attr_sorriso-geo: ""
+                      logic: [ 
+                	      if "true" == "true" then "hide" 
+                      ]  
+                ] 
+                
                 navigation resetPwdSubmit (verifyResetPwdPopinFields, "{Submit}") [
                     class: "btn btn-primary"
-                    data: [fUserEmail, fUserEmailRetype]
+                    data: [fUserEmail, fUserEmailRetype, sGeolocation]
                     require: [fUserEmail, fUserEmailRetype] 
                     type: "popin"
                     attr_tabindex: "12"		                    
@@ -828,7 +893,7 @@ useCase customerSearch [
         ]
 	]
     
-    /* 27. Verify field values. */
+    /* 29. Verify field values. */
 	action verifyResetPwdPopinFields [
     	switch NotifUtil.verifyEmailFields(sEmailAddress, fUserEmail.pInput, sMaskedEmailId) [
     		case "equal" getUserDetails
@@ -838,20 +903,48 @@ useCase customerSearch [
     	]
     ]
     
-    /* 28. System updated the email address. */ 
-    action getUserDetails [       	
-		 loadProfile(        	
-	    	userId: sSelectedUserId    
-	    	emailAddress : sOldEmailAddress   	
-	        ) 
-	     updateProfile(
-        	userId: sSelectedUserId     
-        	emailAddress: sEmailAddress   	        	       	
-            )                	
-        goto(resetCsrPasswordFlag)
+    /* 30. System updated the email address. */ 
+    action getUserDetails [       	 
+		setData.userid = sSelectedUserId
+    	setData.channel = sEmailChannel
+    	setData.address = sEmailAddress
+        switch apiCall Notifications.SetUserAddress(setData, status) [
+		    case apiSuccess addLocationTrackedEventResetPwd
+		    default genericErrorMsg
+		]                	
+    ]
+    
+     /* 31. Adding geolocation track event */
+    action addLocationTrackedEventResetPwd [
+    	setLocationData.sUser = sSelectedUserId
+    	setLocationData.sCategory = sCategory
+    	setLocationData.sType = sEmailChannel
+    	setLocationData.sData = sEmailAddress
+    	setLocationData.sIpAddress = sIpAddress
+    	setLocationData.sBrowserGeo = sGeolocation
+    	setLocationData.sOperation = sOperation
+    	
+    	switch apiCall Profile.AddLocationTrackedEvent(setLocationData, setLocationResp, status) [
+    		case apiSuccess saveEmailAddressAtNlsResetPwd
+    		default genericErrorMsg
+    	]
+    ]
+    
+    /* 32. Saves the new email address via NLS API service */
+    action saveEmailAddressAtNlsResetPwd [
+    	setDataFffc.customerId = sSelectedCustomerId
+    	setDataFffc.channel = sEmailChannel
+    	setDataFffc.address = sEmailAddress
+    	setDataFffc.browserGeo = sGeolocation
+    	setDataFffc.ipGeo = setLocationResp.IP_GEO
+    	setDataFffc.ipAddress = sIpAddress
+    	switch apiCall FffcNotify.SetUserAddressNls(setDataFffc, status) [
+    		case apiSuccess resetCsrPasswordFlag
+    		default genericErrorMsg
+    	]
     ]
         
-    /* 29. Updates the user's profile attributes. */    
+    /* 33. Updates the user's profile attributes. */    
     action resetCsrPasswordFlag [
         updateProfile(
             userId: sSelectedUserId    
@@ -866,7 +959,7 @@ useCase customerSearch [
         goto(generateAuthCode)        
     ]  
         
-    /* 30. Resets the cookies. */
+    /* 34. Resets the cookies. */
     action clearRecognizedPCs [
         switch CookieUtil.clearRecognizedPCs(sSelectedUserId) [      
             case "success" sendResetNotification           
@@ -875,7 +968,7 @@ useCase customerSearch [
         ]
     ]
     
-    /* 31. Sends an email to the user with the new password and secret question answer. */
+    /* 35. Sends an email to the user with the new password and secret question answer. */
     action sendResetNotification [
         switch NotifUtil.sendResetPasswordAuthCode(sSelectedUserId, sAuthCode, sAppName) [
             case "success" resetNotifSuccess
@@ -885,7 +978,7 @@ useCase customerSearch [
         ]
     ]
     
-    /* 32. Checks if the email has changed. */
+    /* 36. Checks if the email has changed. */
     action resetNotifSuccess [
     	if sOldEmailAddress == sEmailAddress then
     		resetSameEmailSuccessMsg
@@ -893,32 +986,32 @@ useCase customerSearch [
     		resetNewEmailSuccessMsg	
     ]
     
-    /* 33. Reset success message. */
+    /* 37. Reset success message. */
     action resetSameEmailSuccessMsg [
         displayMessage(type: "success" msg: oMsgResetSameEmailNotifSuccess)
         goto(customerSearchScreen)
     ] 
     
-    /* 34. Reset success message. */ 
+    /* 38. Reset success message. */ 
     action resetNewEmailSuccessMsg [
         displayMessage(type: "success" msg: oMsgResetNewEmailNotifSuccess)
         goto(verifyInputData)
     ] 
     
-    /* 35. System displays audit logs for the user. */
+    /* 39. System displays audit logs for the user. */
     action viewAuditLogs [
         gotoUc(auditView) [
             sArgUserId: sSelectedUserId
         ]
     ]
     
-    /* 36. Reset 2FA Popin screen. */    
+    /* 40. Reset 2FA Popin screen. */    
 	action reset2FAOptionPopin [
     	 	
 		 goto(reset2FAPopin)
     ]
     
-    /* 40. Reset 2FA Security Option popin. */
+    /* 41. Reset 2FA Security Option popin. */
     xsltFragment reset2FAPopin [
         
         form content [
@@ -979,7 +1072,7 @@ useCase customerSearch [
         ]
 	]
     
-    /* 41. Submit 2FA de-registration request. */
+    /* 42. Submit 2FA de-registration request. */
 	action submit2FAResetRequest [
     	switch UcProfile2FAAction.deRegister2FAMethod(sSelectedUserId) [
     		case "success" send2FAResetNotification
@@ -988,7 +1081,7 @@ useCase customerSearch [
     	]
     ]
     
-    /* 42. Sends an email to the user to notify changes in their 2FA login option. */
+    /* 43. Sends an email to the user to notify changes in their 2FA login option. */
     action send2FAResetNotification [
     	
     	loadProfile(        	

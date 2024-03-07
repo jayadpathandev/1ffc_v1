@@ -174,5 +174,7 @@
 	<classpathentry kind="lib" path="/app - admin/lib/xmlsec-3.0.2.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/xmltooling-1.4.4.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/app - admin"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/1ffc - nls api library"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/1ffc - nls notify"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
