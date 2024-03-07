@@ -86,6 +86,9 @@ application [
         feature document [ 
             assist_document
         ]
+        feature documentController [ 
+            assist_document_controller
+        ]
         feature payment [
             assist_payment
         ]
@@ -142,5 +145,12 @@ application [
             doc_search_assist 
             video
         ]
+        
+        role Role_Admin_DocumentController [
+            profile
+            document
+            doc_search_assist 
+            documentController
+         ]
 	]
 ]
