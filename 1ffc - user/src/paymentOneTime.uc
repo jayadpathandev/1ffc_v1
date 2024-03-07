@@ -284,7 +284,7 @@ useCase paymentOneTime [
 	static type_sepa    = "{SEPA ACCOUNT}"
 	static type_unsaved = "{UNSAVED METHOD}"
 	
-    static msgAutoScheduled_body = "{There is an recurring payment set up for this <1>. Recurring payments pay bills on your behalf, but you can choose to proceed with this manual payment if you choose. Recurring payments will then just pay whatever balance remains. If you want to view, edit or cancel the recurring payment, click [a href='<2>']here[/a]}"
+    static msgAutoScheduled_body = "{There is an recurring payment set up for this <1>. Recurring payments pay bills on your behalf, but you can choose to proceed with this manual payment if you choose. Recurring payments will then just pay whatever balance remains. If you want to view or cancel the recurring payment, click [a href='<2>']here[/a]}"
     static msgPmtScheduled_body = "{There is a future-scheduled payment configured for this <1>. These amounts should already have been taken into account, but be sure to only pay the 'Current balance' for bills to avoid over-paying. If you want to view or cancel the upcoming payments, click [a href='<2>']here[/a]}"
     
     static addSourceGenericError = "{Failed to add payment source.}"
@@ -355,7 +355,7 @@ useCase paymentOneTime [
 	string sAutomaticPaymentsHeader = "{Activate recurring payments for this account}"
 	string sAutomaticPaymentsBody = "{Save time and energy by scheduling repeating payments to occur automatically on a specific date, every month.}"
 	string sHeaderEdit = "{edit}"
-	string fAutoScheduledConfirm_body = "{I acknowledge that there is an automatic payment set up for this account. Making one time payment will override the automatic payment.}"
+	string fAutoScheduledConfirm_body = "{I acknowledge that there is a recurring payment set up for this account. Making one time payment will be in addition to the recurring payment.}"
 	
 	string sPaySourceEdit = "{edit}"    
 	   
