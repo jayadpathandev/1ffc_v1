@@ -38,6 +38,7 @@ useCase documentSearch [
 	 
 	actors[
 		view_doc_search
+		assist_document_controller
 	]
 	
     /**************************
@@ -174,8 +175,15 @@ useCase documentSearch [
 	    string(label) sLabel = "{Document display:}" 
         dropDown (control) pInput [
         	None: ""
-	        Internal: "{internal}"
-	        External: "{external}"       	
+	        Internal: "{Internal}"
+	        External: "{External}"       	
+	   ]
+    ]  
+
+ 	field fFlex3A [						// Document display for Flex3
+	    string(label) sLabel = "{Document display:}" 
+        dropDown (control) pInput [
+	        External: "{External}"       	
 	   ]
     ]  
 
@@ -482,8 +490,10 @@ useCase documentSearch [
     native string sSelectedStreamId     = DocumentSearch.selectedValue(tdocList, selectRow, "billStream")
     native string sSelectedDocId        = DocumentSearch.selectedValue(tdocList, selectRow, "billId")
     native string sSelectedExtDocId     = DocumentSearch.selectedValue(tdocList, selectRow, "extDocId")
-
-    table tdocList [
+    
+	native string hasActorDocController = "false"
+    
+     table tdocList [
     	
         emptyMsg: "{There are no documents to display}"
          checkSelect cSelect
@@ -590,10 +600,22 @@ useCase documentSearch [
 		GetColumnNames.init()
 		srGetResponseParam.REQ_APP = "csr"
 		switch apiCall SearchSettings.GetSearchFields (srGetResponseParam,srGetResponse, srStatus) [
-		    case apiSuccess documentSearchScreen
+		    case apiSuccess setDocumentController
 		    default errorReport
 		]	    
 	]
+
+	action setDocumentController [
+		switch on actors [
+            has assist_document_controller actionEnableDocController
+            default documentSearchScreen
+        ]
+	]	
+
+	action actionEnableDocController [
+		hasActorDocController = "true"
+		goto (documentSearchScreen)
+	]	
 			
 	/*=============================================================================================
 	 * 2. User provides search criteria to find a user.
@@ -612,6 +634,7 @@ useCase documentSearch [
 	                display sPageName
 				]
             ]
+            
                   
             // display the message and search button                           
             div row1 [
@@ -691,7 +714,19 @@ useCase documentSearch [
 	               		class: "row st-padding-bottom"    
 	               		label_class: "col-4"
 	                	field_class: "col-6"     
-	               		logic: [ if srGetResponse.RSP_SUBSTRING_ENABLE == "true" then "remove"]        		  					
+	                	
+	               		logic: [ if srGetResponse.RSP_SUBSTRING_ENABLE == "true" then "remove"
+	               			     if hasActorDocController == "false" then "remove"
+	               		]        		  					
+	  				]
+
+	  				display fFlex3A [
+	               		class: "row st-padding-bottom"    
+	               		label_class: "col-4"
+	                	field_class: "col-6"     
+	               		logic: [ if srGetResponse.RSP_SUBSTRING_ENABLE == "true" then "remove"
+	               			     if hasActorDocController == "true" then "remove"
+	               		]        		  					
 	  				]
 		  		   	
  		  			display fAccountNumberSub [
@@ -1213,7 +1248,7 @@ useCase documentSearch [
 		if srFindRequest.REQ_FLEX3 == "None" then
 		   resetFlex3
 		else
-		   isFlexField6Empty
+		   isDocumentController
 	]
 
 	action resetFlex3 [
@@ -1221,6 +1256,18 @@ useCase documentSearch [
 		goto (isFlexField6Empty)
 	]		
 
+	action isDocumentController [
+		if hasActorDocController == "false" then
+		   setFlex3
+		else
+		   isFlexField6Empty
+	]
+
+	action setFlex3 [
+		srFindRequest.REQ_FLEX3= "External"
+		goto (isFlexField6Empty)
+	]
+	
 	action isFlexField6Empty [
 		if srFindRequest.REQ_FLEX6 == "None" then
 		   resetFlex6
