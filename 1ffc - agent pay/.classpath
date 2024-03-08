@@ -7,7 +7,6 @@
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry combineaccessrules="false" kind="src" path="/app - user"/>
 	<classpathentry kind="lib" path="/app - user/lib/accountServices.jar"/>
 	<classpathentry kind="lib" path="/app - user/lib/angus-activation-2.0.0.jar"/>
 	<classpathentry kind="lib" path="/app - user/lib/antlr-2.7.2.jar"/>
@@ -180,5 +179,7 @@
 	<classpathentry kind="lib" path="/app - user/lib/xmlsec-3.0.2.jar"/>
 	<classpathentry kind="lib" path="/app - user/lib/xmltooling-1.4.4.jar"/>
 	<classpathentry kind="lib" path="/app - admin/lib/serviceOrgId.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/app - user"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/1ffc - status service"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

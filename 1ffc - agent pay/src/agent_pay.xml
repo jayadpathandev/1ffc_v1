@@ -37,18 +37,14 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
     <bean id="api.pay.verify.account" class="java.lang.String">
         <constructor-arg>
             <value>
-				select 
+				select distinct
 					tm_account.account_number_display,
-					tm_account.bill_group
+					'1FFC-ea0f1923-255f-4f12-a603-16a1ed4f950c' "bill_group"
 				from 
-					prof_company_user,
-					prof_company_account,
 					tm_account
 				where
-					prof_company_user.companyid     = prof_company_account.company_id and
-					prof_company_account.account_id = tm_account.id and
-					userid         = :userId and
-					account_number = :accountId				
+					org_id         = :customerId and
+					account_number = :accountId
             </value>
         </constructor-arg>
 	</bean>
@@ -166,7 +162,13 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
     </bean>    
 	<bean id="api.pay.accounts.for.org.id" class="java.lang.String">
         <constructor-arg>
-            <value>select id, account_number from tm_account where org_id = :org_id and end_date is null and bill_group != :ignore_group</value>
+            <value>
+				select 
+					id, account_number, bill_group
+				from 
+					tm_account 
+				where org_id = :org_id and end_date is null
+			</value>
         </constructor-arg>   
     </bean>    
 

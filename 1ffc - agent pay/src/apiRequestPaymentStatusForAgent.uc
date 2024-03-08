@@ -49,7 +49,7 @@ useCase apiRequestPaymentStatusForAgent [
     action verifyTransactionId[
     	sErrorStatus = "400"
     	sErrorDesc   = "Missing required parameter [transactionId]."
-    	sErrorCode   = "no_customer_id"
+    	sErrorCode   = "no_transaction_id"
     	
     	if transactionId != "" then 
     		authenticateRequest

@@ -2,14 +2,21 @@ package com.sorrisotech.fffc.agent.pay;
 
 import java.math.BigDecimal;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sorrisotech.svcs.itfc.data.IStringData;
+import com.sorrisotech.svcs.itfc.data.IUserData;
 import com.sorrisotech.svcs.itfc.exceptions.MargaritaDataException;
 
 public class Automatic {
+	//*************************************************************************
+	private static final Logger LOG = LoggerFactory.getLogger(MakePayment.class);
+	
 	// ************************************************************************
 	private String mErrorCode = "none";
 	private String mErrorText = "<none>";
-	
 	
 	// ************************************************************************
 	public String errorCode() {
@@ -216,5 +223,32 @@ public class Automatic {
 		
 		return retval;
 	}
-	
+	//*************************************************************************
+	public void accountJson(
+				final IUserData   data,
+				final IStringData value
+			) throws ClassNotFoundException {
+		final PaySession current = data.getJavaObj(ApiPay.class).current();
+
+		final var mapper = new ObjectMapper();
+		final var root   = mapper.createObjectNode();
+		
+		final var grouping = mapper.createArrayNode();
+		final var group    = mapper.createObjectNode();
+		
+		group.put("internalAccountNumber", current.accountId());
+		group.put("displayAccountNumber", current.accountNumber());
+		group.put("paymentGroup", current.payGroup());
+		
+		grouping.add(group);
+		
+		root.set("grouping", grouping);
+		
+		try {
+			final var json = mapper.writeValueAsString(root);
+			value.putValue(json);
+		} catch (Throwable e) {
+			LOG.error("Internal error", e);
+		}
+	}	
 }

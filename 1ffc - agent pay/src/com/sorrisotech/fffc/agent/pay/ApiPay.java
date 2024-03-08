@@ -3,8 +3,6 @@ package com.sorrisotech.fffc.agent.pay;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.math.BigDecimal;
-import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -21,7 +19,6 @@ import org.slf4j.LoggerFactory;
 
 import com.sorrisotech.utils.Spring;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sorrisotech.app.utils.Freemarker;
 import com.sorrisotech.fffc.agent.pay.PaySession.PayStatus;
 import com.sorrisotech.svcs.external.IExternalReuse;
@@ -32,6 +29,7 @@ import com.sorrisotech.svcs.itfc.data.IUserData;
 import com.sorrisotech.svcs.itfc.exceptions.MargaritaDataException;
 import com.sorrisotech.svcs.payment.dao.PaymentWalletDao;
 import com.sorrisotech.svcs.payment.model.PaymentWalletFields;
+import com.sorrisotech.uc.payment.UcPaymentAction;
 
 public class ApiPay implements IExternalReuse {
 	
@@ -61,9 +59,6 @@ public class ApiPay implements IExternalReuse {
 	
 	//*************************************************************************
 	private PaySession mCurrent   = null;
-	private Calendar   mDate      = null;
-	private boolean    mImmediate = false;
-	private BigDecimal mAmount    = null;
 	private String     mIFrame    = null;
 	
 	//*************************************************************************
@@ -141,64 +136,11 @@ public class ApiPay implements IExternalReuse {
 		
 		return mCurrent != null ? "true" : "false";
 	}
-
-	//*************************************************************************
-	public String saveDateAndAmount(
-			final String date,
-			final String amount
-			) {
-		if (mCurrent == null) throw new RuntimeException("There is no current session.");
-
-		//---------------------------------------------------------------------
-		final var today = Calendar.getInstance();
-				
-		if (date.equalsIgnoreCase("today")) {
-			mDate = (Calendar) today.clone();
-		} else {
-			final var format = new SimpleDateFormat("yyyy/MM/dd");
-			try {
-				mDate = Calendar.getInstance();
-				mDate.setTime(format.parse(date));				
-			} catch(ParseException e) {
-				LOG.error("Could not parse date [" + date + "].");
-				mCurrent.setStatus(PayStatus.error);
-				return "invalid_date";
-			}
-		}
-		//---------------------------------------------------------------------
-		final var toLong   = new SimpleDateFormat("yyyyMMdd");
-		final var todayNum = Long.parseLong(toLong.format(today.getTime()));
-		final var payNum   = Long.parseLong(toLong.format(mDate.getTime()));
-		
-		if (payNum < todayNum) {
-			mCurrent.setStatus(PayStatus.error);
-			return "invalid_date";			
-		} 
-		
-		mImmediate = (payNum == todayNum);
-
-		//---------------------------------------------------------------------
-		try {
-			mAmount = new BigDecimal(amount);
-		} catch(NumberFormatException e) {
-			LOG.error("Could not parse amount [" + amount + "].");
-			mCurrent.setStatus(PayStatus.error);
-			return "invalid_amount";			
-		}
-		
-		if (mAmount.compareTo(BigDecimal.ZERO) <= 0 || mAmount.scale() > 2) {
-			LOG.error("Invalid amount amount [" + amount + "].");
-			mCurrent.setStatus(PayStatus.error);
-			return "invalid_amount";						
-		}
-		mCurrent.setStatus(PayStatus.oneTimePmtInProgress);
-
-		return "success";
-	}
 	
 	//*************************************************************************
-	public String is_immediate_payment() {
-		return mImmediate ? "true" : "false";	
+	public PaySession current() {
+		if (mCurrent == null) throw new RuntimeException("There is no current session.");
+		return mCurrent;
 	}
 	
 	//*************************************************************************
@@ -240,6 +182,13 @@ public class ApiPay implements IExternalReuse {
 		if (mCurrent == null) throw new RuntimeException("There is no current session.");
 		return mCurrent.accountId();
 	}	
+	public void accountId(
+			final IStringData value
+		) 
+			throws MargaritaDataException {
+		if (mCurrent == null) throw new RuntimeException("There is no current session.");
+		value.putValue(mCurrent.accountId());
+	}
 
 	//*************************************************************************
 	public void setAccountNumber(
@@ -334,27 +283,6 @@ public class ApiPay implements IExternalReuse {
 		return mCurrent.automaticPayment() ? "true" : "false";
 	}	
 	
-	//*************************************************************************
-	public void amount(
-				final IStringData value
-			) 
-				throws MargaritaDataException {
-		if (mAmount == null) throw new RuntimeException("No amount set.");
-		final var df = new DecimalFormat("###.00");
-		
-		value.putValue(df.format(mAmount));
-	}
-	
-	//*************************************************************************
-	public void payDate(
-				final IStringData value
-			) 
-				throws MargaritaDataException {
-		if (mDate == null) throw new RuntimeException("No date set.");
-		final var f = new SimpleDateFormat("yyyy-MM-dd");	
-		value.putValue(f.format(mDate.getTime()));
-	}
-
 	//*************************************************************************
 	public void walletToken(
 				final IStringData value
@@ -478,7 +406,21 @@ public class ApiPay implements IExternalReuse {
 		if (mCurrent == null) throw new RuntimeException("There is no current session.");
 		return mCurrent.walletToken().isEmpty() ? "false" : "true";
 	}
-	
+
+	//*************************************************************************
+	public String doSurcharge(
+			final IUserData data
+			) {
+		if (mCurrent == null) throw new RuntimeException("There is no current session.");
+		final var surcharge = UcPaymentAction.getSurchargeStatus();
+		
+		if (surcharge.equalsIgnoreCase("true") && mCurrent.walletType().equalsIgnoreCase("debit")) {
+			return "true";
+		}
+		
+		return "false";
+	}
+
 	//*************************************************************************
 	public void walletFrom(
 				final IStringData value
@@ -486,79 +428,6 @@ public class ApiPay implements IExternalReuse {
 				throws MargaritaDataException{
 		if (mCurrent == null) throw new RuntimeException("There is no current session.");
 		value.putValue(mCurrent.walletName() + "|" + mCurrent.walletType() + "|" + mCurrent.walletAccount());
-	}
-
-	//*************************************************************************
-	public void makePaymentJson(
-				final IStringData value
-			) {
-		if (mCurrent == null) throw new RuntimeException("There is no current session.");
-
-		final var mapper = new ObjectMapper();
-		final var root   = mapper.createObjectNode();
-		final var date   = new SimpleDateFormat("yyyy-MM-dd");
-		
-		root.put("payDate", date.format(mDate.getTime()));
-		root.put("paymentGroup", mCurrent.payGroup());
-		root.put("autoScheduledConfirm", false);
-		
-		final var method = mapper.createObjectNode();
-		method.put("nickName", mCurrent.walletName());
-		method.put("expiry", mCurrent.walletExpiry());
-		method.put("token",mCurrent.walletToken());
-		root.set("payMethod", method);
-		
-		final var grouping = mapper.createArrayNode();
-		final var group    = mapper.createObjectNode();
-		
-		group.put("internalAccountNumber", mCurrent.accountId());
-		group.put("displayAccountNumber", mCurrent.accountNumber());
-		group.put("paymentGroup", mCurrent.payGroup());
-		group.put("documentNumber", mCurrent.invoice());
-		final var df = new DecimalFormat("###.00");
-		group.put("amount", df.format(mAmount));
-		group.put("totalAmount", df.format(mAmount));
-		group.put("surcharge", "0.00");
-		group.put("interPayTransactionId", "N/A");
-		
-		grouping.add(group);
-		
-		root.set("grouping", grouping);
-		
-		try {
-			final var json = mapper.writeValueAsString(root);
-			value.putValue(json);
-		} catch (Throwable e) {
-			LOG.error("Internal error", e);
-		}
-	}
-
-	//*************************************************************************
-	public void createAutomaticJson(
-				final IStringData value
-			) {
-		if (mCurrent == null) throw new RuntimeException("There is no current session.");
-
-		final var mapper = new ObjectMapper();
-		final var root   = mapper.createObjectNode();
-		
-		final var grouping = mapper.createArrayNode();
-		final var group    = mapper.createObjectNode();
-		
-		group.put("internalAccountNumber", mCurrent.accountId());
-		group.put("displayAccountNumber", mCurrent.accountNumber());
-		group.put("paymentGroup", mCurrent.payGroup());
-		
-		grouping.add(group);
-		
-		root.set("grouping", grouping);
-		
-		try {
-			final var json = mapper.writeValueAsString(root);
-			value.putValue(json);
-		} catch (Throwable e) {
-			LOG.error("Internal error", e);
-		}
 	}
 	
 	//*************************************************************************

@@ -108,7 +108,7 @@ public class Start extends StartBase {
 			return ServiceAPIErrorCode.Success;
 		}
 		
-		final var account = mDao.lookupAccount(user.userId, accountId);
+		final var account = mDao.lookupAccount(customerId, accountId);
 		
 		if (account == null) {
 			LOG.warn("Could not find account for customerId [" + customerId + "] and accountId [" + accountId + "].");

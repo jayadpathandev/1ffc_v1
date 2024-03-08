@@ -91,7 +91,7 @@ public class GetScheduledPaymentsAsJson extends GetScheduledPaymentsAsJsonBase {
 		return ServiceAPIErrorCode.Failure;
 	}
 	
-	final var account = mDao.lookupAccount(user.userId, accountId);
+	final var account = mDao.lookupAccount(customerId, accountId);
 	
 	if (account == null) {
 		LOG.warn("GetScheduledPaymentsAsJson:processInternal -- could not find account for customerId [" + customerId + "] and accountId [" + accountId + "].");

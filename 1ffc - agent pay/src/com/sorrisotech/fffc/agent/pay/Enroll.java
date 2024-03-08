@@ -102,6 +102,7 @@ public class Enroll {
         cCompany.setCreatedBy(user);
         cCompany.setType("b2c");
         
+        
         return CompanyManagementFactory.getCompanyRepository().create(cCompany);
 	}
 
@@ -121,7 +122,7 @@ public class Enroll {
 			companyId, 
             orgIds
         );			
-
+		
         // ------------------------------------------------------------------------------------
         // Add the OrgId(s) to the company.
         final UcUserAssignmentAction standard = new UcUserAssignmentAction();
@@ -140,6 +141,7 @@ public class Enroll {
         	userId, 
             companyId
         );
+        
         
         return true;
 	}
@@ -171,19 +173,21 @@ public class Enroll {
 				final String           accountId
 			) {
 		// --------------------------------------------------------------------
-        final String ignore = AppConfig.get("1ffc.ignore.group");
-		final var    verify = mDao.accountsForOrg(customerId, ignore);
+		final var verify = mDao.accountsForOrg(customerId);
 		
 		if (verify == null) return "invalid";
 
 		var accounts = new ArrayList<BigDecimal>();
 		var found    = false;
 		
+        final String ignore = AppConfig.get("1ffc.ignore.group");
 		for(var bean : verify) {
+			if (bean.payGroup.equals(ignore) == false) {
+				accounts.add(bean.id);
+			}
 			if (bean.account.equals(accountId)) {
 				found = true;
 			}
-			accounts.add(bean.id);
 		}
 		
 		if (found == false) {
