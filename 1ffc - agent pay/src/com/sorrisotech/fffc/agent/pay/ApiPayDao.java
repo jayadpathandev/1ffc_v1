@@ -134,12 +134,12 @@ public class ApiPayDao {
 	 *          account.
 	 */
 	public AccountBean lookupAccount(
-			final BigDecimal userId,
-			final String     accountId			
+			final String customerId,
+			final String accountId			
 			) {
 		final var params = new HashMap<String, Object>();
-		params.put("userId", userId);	
-		params.put("accountId", accountId);
+		params.put("customerId", customerId);	
+		params.put("accountId",  accountId);
 		
 		AccountBean retval = null;
 		try {
@@ -268,19 +268,16 @@ public class ApiPayDao {
 	/***************************************************************************
 	 * Finds all the account IDS associated with an customer/org id.
 	 * 
-	 * @param OrgId   The customer/org id to get the account IDs for.
-	 * @param ignore  The name of the status payment group we are ignoring.
+	 * @param orgId   The customer/org id to get the account IDs for.
 	 * 
 	 * @return  A list of associated accounts or null if none were found..
 	 */
 	public List<AccountIdBean> accountsForOrg(
-			final String orgId,
-			final String ignore
+			final String orgId
 			) {
 		final var params = new HashMap<String, Object>();
 		
-		params.put("org_id",       orgId);
-		params.put("ignore_group", ignore);
+		params.put("org_id", orgId);
 		
 		var retval = mJdbc.query(mAccountsForOrg, params, new AccountIdMapper());
 		

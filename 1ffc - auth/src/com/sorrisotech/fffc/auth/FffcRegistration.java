@@ -134,6 +134,9 @@ public class FffcRegistration {
             	szResult = standard.assignAccountToCompany(id.toPlainString(), companyId.toPlainString());
             	if (!szResult.equals("success")) break;
             }
+            if (accounts.size() == 0) {
+            	szResult = "success";
+            }
             
         } catch(Exception e) {
         	LOG.error("FffcRegistration.....assignUserToAccountWithNewCompany()...An exception was thrown", e);          

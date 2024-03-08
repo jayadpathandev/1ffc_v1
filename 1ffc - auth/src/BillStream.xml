@@ -204,40 +204,32 @@
                 
         <property name="getUserCountByBillDetails">
         	 <value>       	 
-			with target as (
 				select distinct 
-				    tm_account.account_number, 
-				    tm_account.bill_group, 
-				    tm_account.company_id
+					tm_account.account_number, 
+					tm_account.bill_group, 
+					customers.company_id
 				from
-				    BILL_FILE_META_DATA,
-				    BILL,
-				    BILL_SUMMARY,
-				    TM_ACCOUNT
+					BILL_FILE_META_DATA,
+					BILL_SUMMARY,
+					BILL,
+					TM_ACCOUNT
+					left join (
+						select 
+							attrvalue as company_id
+						from
+							auth_user_profile 
+						where
+							attrname='fffcCustomerId' and
+							id not in (select id from auth_user_profile where attrname='registrationStatus' and attrvalue = 'agentpay')
+					) customers on tm_account.org_id = customers.company_id
 				where
-				    BILL_FILE_META_DATA.BILL_FILE_ID = BILL.BILL_FILE_ID and
-				    BILL.BILL_ID = BILL_SUMMARY.BILL_ID and
-				    BILL.ACCOUNT = TM_ACCOUNT.ACCOUNT_NUMBER and
-				    BILL_FILE_META_DATA.PAYMENT_GROUP = TM_ACCOUNT.BILL_GROUP and
-				    BILL_FILE_META_DATA.BILL_STREAM = :bill_stream
-	    			@@QUERY@@
-	    		LIMIT 1
-			)  
-			select 
-				target.account_number, 
-				tm_account.bill_group, 
-				case 
-					when attrvalue = 'agentpay' then null
-					else tm_account.company_id
-				end	as "company_id"
-			from 
-				tm_account 
-					left join prof_company_user on companyid = company_id
-					left join auth_user_profile on auth_user_profile.id = prof_company_user.userid and attrname='registrationStatus',
-				target
-			where
-				tm_account.account_number = target.account_number
-				and tm_account.bill_group != 'STATUS_1FFC-ea0f1923-255f-4f12-a603-16a1ed4f950c'				    
+					BILL_FILE_META_DATA.BILL_FILE_ID = BILL.BILL_FILE_ID and
+					BILL.BILL_ID = BILL_SUMMARY.BILL_ID and
+					BILL.ACCOUNT = TM_ACCOUNT.ACCOUNT_NUMBER and
+					BILL_FILE_META_DATA.PAYMENT_GROUP = TM_ACCOUNT.BILL_GROUP and
+					BILL_FILE_META_DATA.BILL_STREAM = :bill_stream
+					@@QUERY@@
+				limit 1
          	</value>         	
         </property>	   
                 

@@ -9,6 +9,7 @@ useCase apiMakeOneTimePaymentForAgent
 	importJava JsonRequest(com.sorrisotech.app.common.JsonRequest)
 	importJava JsonResponse(com.sorrisotech.app.common.JsonResponse)
 	importJava Log(api.Log)
+	importJava MakePayment(com.sorrisotech.fffc.agent.pay.MakePayment)
     importJava TransactionIdGen(com.sorrisotech.svcs.payment.util.RequestTransactionIdUtil)    
 
 	native string sServiceUserName  = Config.get("service.api.username")
@@ -21,6 +22,7 @@ useCase apiMakeOneTimePaymentForAgent
 	native string sTransactionId = JsonRequest.value("transactionId")
 	native string sPaymentDate   = JsonRequest.value("paymentDate")
 	native string sPayAmount     = JsonRequest.value("paymentAmount")
+	native string sDoSurcharge   = ApiPay.doSurcharge()
 	
 	native volatile string sCustomerId   = ApiPay.customerId()
 	native volatile string sAccountId    = ApiPay.accountId()
@@ -42,6 +44,9 @@ useCase apiMakeOneTimePaymentForAgent
 	serviceResult (Payment.SetScheduledPayment) schedResult
 	
 	serviceParam(Payment.StartPaymentTransaction) logRequest
+	
+    serviceParam (AccountStatus.GetDebitConvenienceFee) surchargeRequest
+    serviceResult (AccountStatus.GetDebitConvenienceFee) surchargeResult	
 	
    /*************************
      * MAIN SUCCESS SCENARIO
@@ -172,19 +177,62 @@ useCase apiMakeOneTimePaymentForAgent
     	sErrorDesc   = "Internal error verifying date and amount."
     	sErrorCode   = "internal_verify_error"
 				
-		switch ApiPay.saveDateAndAmount(sPaymentDate, sPayAmount) [
+		switch MakePayment.saveDateAndAmount(sPaymentDate, sPayAmount) [
 		   case "invalid_date"   actionInvalidDate
 		   case "invalid_amount" actionInvalidAmount
-		   case "success"        isPaymentImmediate
+		   case "success"        checkSurcharge
            default               actionFailure    
 		]
+	]
+
+ 	/*************************
+	 * 9. Check on the surcharge (convenience fee).
+	 */
+	 action checkSurcharge [
+	 	if sDoSurcharge == "true" then
+	 		queryForSurcharge
+	 	else
+	 		isPaymentImmediate 
+	 ]
+
+ 	/*************************
+	 * 9. Call the service to get the surcharge (convenience fee).
+	 */
+	action queryForSurcharge [
+    	sErrorStatus = "400"
+    	sErrorDesc   = "Could not retrieve the convenience fee for the account."
+    	sErrorCode   = "convenience_fee_failure"
+		
+		ApiPay.userid   (surchargeRequest.user)
+		ApiPay.payGroup (surchargeRequest.paymentGroup)
+		ApiPay.accountId(surchargeRequest.account)
+		
+		// getting the convenienceFee value
+   		switch apiCall AccountStatus.GetDebitConvenienceFee(surchargeRequest, surchargeResult, status) [
+    		case apiSuccess saveSurcharge
+    		default         actionFailure
+    	]
+	]
+
+ 	/*************************
+	 * 10. Save the surcharge amount.
+	 */
+	action saveSurcharge [
+    	sErrorStatus = "400"
+    	sErrorDesc   = "Internal error decoding convenience fee amount."
+    	sErrorCode   = "internal_error"
+
+		switch MakePayment.setSurcharge(surchargeResult.convenienceFeeAmt) [
+			case "success" isPaymentImmediate
+			default        actionFailure
+		]	
 	]
 
  	/*************************
 	 * 9. Determine what type of payment is being done.
 	 */
 	action isPaymentImmediate [
-		switch ApiPay.is_immediate_payment() [
+		switch MakePayment.is_immediate_payment() [
 			case "true" actionMakePayment
 			case "false" actionSchedulePayment
 		]	
@@ -196,14 +244,16 @@ useCase apiMakeOneTimePaymentForAgent
 	action actionMakePayment [
 		ApiPay.setTransactionOneTimeInProgress(sTransactionId)	
 
-		ApiPay.makePaymentJson(makeRequest.GROUPING_JSON)
 		makeRequest.ONLINE_TRANS_ID = sPayId
-		ApiPay.amount(makeRequest.AMOUNT)
 		makeRequest.CURRENCY = "USD"
-		ApiPay.companyId(makeRequest.COMPANY_ID) 
-		ApiPay.payDate(makeRequest.PMT_DATE)
-		ApiPay.userid(makeRequest.USER_ID)
-		ApiPay.walletToken(makeRequest.TOKEN)
+
+		MakePayment.accountJson(makeRequest.GROUPING_JSON)
+		MakePayment.totalAmount    (makeRequest.AMOUNT)
+		MakePayment.payDate        (makeRequest.PMT_DATE)
+
+		ApiPay.companyId           (makeRequest.COMPANY_ID) 
+		ApiPay.userid              (makeRequest.USER_ID)
+		ApiPay.walletToken         (makeRequest.TOKEN)
 		
 		switch apiCall Payment.MakePayment(makeRequest, makeResult, status) [
 			case apiSuccess actionMakeSuccess
@@ -223,12 +273,13 @@ useCase apiMakeOneTimePaymentForAgent
 		logRequest.PAY_CHANNEL     = "online"
 		logRequest.PAY_STATUS      = "posted"
 
-		ApiPay.payGroup       (logRequest.PMT_PROVIDER_ID)
-		ApiPay.makePaymentJson(logRequest.GROUPING_JSON)
-		ApiPay.walletFrom     (logRequest.PAY_FROM_ACCOUNT)
-		ApiPay.payDate        (logRequest.PAY_DATE)
-		ApiPay.amount         (logRequest.PAY_AMT)		
-		ApiPay.userid         (logRequest.USER_ID)
+		MakePayment.accountJson(logRequest.GROUPING_JSON)
+		MakePayment.payDate    (logRequest.PAY_DATE)
+		MakePayment.totalAmount(logRequest.PAY_AMT)
+
+		ApiPay.payGroup            (logRequest.PMT_PROVIDER_ID)
+		ApiPay.walletFrom          (logRequest.PAY_FROM_ACCOUNT)
+		ApiPay.userid              (logRequest.USER_ID)
 		
 		switch apiCall Payment.StartPaymentTransaction(logRequest, status) [
             case apiSuccess actionSuccessResponse
@@ -246,12 +297,13 @@ useCase apiMakeOneTimePaymentForAgent
 		schedRequest.PAY_TYPE        = "onetime"
 		schedRequest.PAY_STATUS      = "scheduled"		
 			
-		ApiPay.makePaymentJson(schedRequest.GROUPING_JSON)
-		ApiPay.walletToken    (schedRequest.SOURCE_ID)
-		ApiPay.amount         (schedRequest.PAY_AMT)
-		ApiPay.payDate        (schedRequest.PAY_DATE)
-		ApiPay.userid         (schedRequest.USER_ID)
-		ApiPay.walletFrom     (schedRequest.SOURCE_DETAILS)
+		MakePayment.accountJson(schedRequest.GROUPING_JSON)
+		MakePayment.totalAmount(schedRequest.PAY_AMT)
+		MakePayment.payDate    (schedRequest.PAY_DATE)
+
+		ApiPay.walletToken         (schedRequest.SOURCE_ID)
+		ApiPay.userid              (schedRequest.USER_ID)
+		ApiPay.walletFrom          (schedRequest.SOURCE_DETAILS)
 		
 		switch apiCall Payment.SetScheduledPayment(schedRequest, schedResult, status) [
             case apiSuccess schedulePaymentSuccess
@@ -290,16 +342,18 @@ useCase apiMakeOneTimePaymentForAgent
 	 * 10a. Record the failed transaction.
 	 */
 	action actionPayFailure [
-    	logRequest.TRANSACTION_ID   = sPayId
-		logRequest.ONLINE_TRANS_ID  = sPayId
-		ApiPay.payGroup               (logRequest.PMT_PROVIDER_ID)
-		ApiPay.makePaymentJson        (logRequest.GROUPING_JSON)
-		ApiPay.walletFrom             (logRequest.PAY_FROM_ACCOUNT)
-		logRequest.PAY_CHANNEL      = "online"
-		ApiPay.payDate                (logRequest.PAY_DATE)
-		ApiPay.amount                 (logRequest.PAY_AMT)		
-		logRequest.PAY_STATUS       = "failed"
-		ApiPay.userid                 (logRequest.USER_ID)
+    	logRequest.TRANSACTION_ID  = sPayId
+		logRequest.ONLINE_TRANS_ID = sPayId
+		logRequest.PAY_CHANNEL     = "online"
+		logRequest.PAY_STATUS      = "failed"
+
+		MakePayment.makePaymentJson(logRequest.GROUPING_JSON)
+		MakePayment.payDate   (logRequest.PAY_DATE)
+		MakePayment.amount    (logRequest.PAY_AMT)		
+
+		ApiPay.payGroup       (logRequest.PMT_PROVIDER_ID)
+		ApiPay.walletFrom     (logRequest.PAY_FROM_ACCOUNT)
+		ApiPay.userid         (logRequest.USER_ID)
 		
 		switch apiCall Payment.StartPaymentTransaction(logRequest, status) [
             case apiSuccess actionFailureResponse

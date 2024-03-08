@@ -323,9 +323,9 @@ useCase apiCreateAutomaticPaymentRuleForAgent
 		createRequest.OLD_SOURCE_ID = ""
 		createRequest.AUTOMATIC_ID  = ""
 
-		ApiPay.createAutomaticJson(createRequest.GROUPING_JSON)
-		ApiPay.walletToken        (createRequest.SOURCE_ID)
-		ApiPay.userid             (createRequest.USER_ID)
+		Automatic.accountJson(createRequest.GROUPING_JSON)
+		ApiPay.walletToken   (createRequest.SOURCE_ID)
+		ApiPay.userid        (createRequest.USER_ID)
 
 		ApiPay.setTransactionOneTimeInProgress(sTransactionId)	
 		switch apiCall Payment.SetAutomaticPayment(createRequest, createResponse, status) [

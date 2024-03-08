@@ -106,10 +106,24 @@ useCase apiStartPaymentForAgent
             password: securityToken
             namespace: sServiceNameSpace
             )
-        if success then actionProcess
+        if success then actionCreateSession
         if authenticationFailure then actionInvalidSecurityToken
         if failure then actionFailure
     ]
+
+ 	/*************************
+	 * 10. Create the session.
+	 */
+	action actionCreateSession [
+		sErrorStatus = "400"
+    	sErrorDesc   = "Invalid value for [paymentTransactionType]."
+    	sErrorCode   = "invalid_payment_transaction_type"
+
+		switch ApiPay.create(paymentTransactionType) [
+			case "success" actionProcess
+			default actionFailure
+		]		
+	]
 
  	/*************************
 	 * 7. Query the database for payment information about the account.
@@ -134,7 +148,7 @@ useCase apiStartPaymentForAgent
 	action actionCheckForUser [
 		
 		if srStart.userid != "" then
-			actionCreateSession
+			actionSendResponse
 		else
 			actionCreateUser
 	]
@@ -152,21 +166,6 @@ useCase apiStartPaymentForAgent
 			case "success" actionProcess
 			default actionFailure
 		]
-	]
-
-
- 	/*************************
-	 * 10. Create the session.
-	 */
-	action actionCreateSession [
-		sErrorStatus = "400"
-    	sErrorDesc   = "Invalid value for [paymentTransactionType]."
-    	sErrorCode   = "invalid_payment_transaction_type"
-
-		switch ApiPay.create(paymentTransactionType) [
-			case "success" actionSendResponse
-			default actionFailure
-		]		
 	]
 
  	/*************************
