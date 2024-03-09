@@ -143,8 +143,8 @@ useCase fffcReg05BillingInfo [
     
     persistent field fSelfReg1 [
         native string(label) sLabel = UcBillStream.getLabel(sorrisoLanguage, sorrisoCountry, sSelfReg1Attr)       
-        input(control) pInput ("^(0[1-9]|1[0-2])\/(0[1-9]|1\d|2\d|3[01])\/(19|20)\d{2}$" , fSelfReg1.sValidation)   
-		string(validation) sValidation = "{Birth date must be numeric and appear in a format mm/dd/yyyy.}" 
+        input(control) pInput ("^(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])-(19|20)\\d{2}$" , fSelfReg1.sValidation)   
+		string(validation) sValidation = "{Birth date must be numeric and appear in a format mm-dd-yyyy.}" 
         native string(help) sHelp = UcBillStream.getHelpText(sorrisoLanguage, sorrisoCountry, sSelfReg1Attr)       
     ]
     
