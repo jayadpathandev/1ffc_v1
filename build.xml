@@ -225,11 +225,10 @@
         </propertyfile>
         <ant dir="notification" inheritAll="false" inheritRefs="false"/>
 
-		<delete file="${output.dir}/apps/admin/linked-rooot/config/registration.zip"/>
-		<zip destfile="${output.dir}/apps/admin/linked-rooot/config/registration.zip">
+		<delete  file="${output.dir}/apps/admin/linked-root/config/registration.zip"/>
+		<zip destfile="${output.dir}/apps/admin/linked-root/config/registration.zip">
             <fileset dir="1ffc - admin/registration"/>
 		</zip>
-
     </target>
 
     <target name="-build.auth.uc" depends="-init">
