@@ -128,7 +128,7 @@
         <echo file="${output.dir}/apps/extdoc/drivers/billstreams/1FFCBILLS.properties">drivername=nls</echo>
     </target>
 
-    <target name="-build.admin.uc" depends="-init">
+    <target name="-build.admin.uc" depends="-init, package-libraries">
         <delete dir="${artifacts.dir}/build/admin"/>
         <mkdir  dir="${output.dir}/apps/admin"/>
 
@@ -141,6 +141,7 @@
                 <include name="**/*.app"/>
                 <include name="**/*.uc"/>
             </fileset>
+            <fileset dir="${artifacts.dir}/package/admin/usecases"/>
         </copy>
 
         <ant dir="${devkit.dir}/build" antfile="persona.xml" inheritAll="false" inheritRefs="false">
@@ -196,12 +197,16 @@
         <javac srcdir="1ffc - admin/src" destdir="${output.dir}/apps/admin/classes/" includeAntRuntime="false">
             <classpath>
                 <fileset dir="${devkit.dir}/app - admin/lib"/>
+                <fileset dir="${artifacts.dir}/package/admin/jars"/>
             </classpath>
         </javac>
 		<copy todir="${output.dir}/apps/admin/classes" overwrite="true">
             <fileset dir="1ffc - admin/src">
                 <include name="**/*.xml"/>
             </fileset>
+        </copy>
+        <copy todir="${output.dir}/apps/admin/lib" overwrite="true">
+            <fileset dir="${artifacts.dir}/package/admin/jars"/>
         </copy>
 
     	<propertyfile file="${output.dir}/apps/admin/internationalization/topics_en.properties">
@@ -219,6 +224,12 @@
             <entry key="login.url" value="${base.public.url}personaWeb/auth/b2c/b2c"/>
         </propertyfile>
         <ant dir="notification" inheritAll="false" inheritRefs="false"/>
+
+		<delete file="${output.dir}/apps/admin/linked-rooot/config/registration.zip"/>
+		<zip destfile="${output.dir}/apps/admin/linked-rooot/config/registration.zip">
+            <fileset dir="1ffc - admin/registration"/>
+		</zip>
+
     </target>
 
     <target name="-build.auth.uc" depends="-init">
@@ -250,22 +261,15 @@
 
         <!-- Copy the classpath from the base application -->
         <mkdir dir="${output.dir}/apps/auth/classes"/>
-        <copy todir="${output.dir}/apps/auth/classes" overwrite="true">
+        <copy todir="${output.dir}/apps/auth/classes">
             <fileset dir="${devkit.dir}/app - auth/resources">
             	<exclude name="linked-root/**"/>
             	<exclude name="layout-pages/**"/>
                 <exclude name="app-config.properties"/>
             </fileset>
-            <fileset dir="1ffc - auth/src">
-                <exclude name="**/*.java"/>
-                <exclude name="*.uc"/>
-                <exclude name="*.app"/>
-                <exclude name="logback.xml"/>
-            </fileset>
             <fileset dir="${devkit.dir}/app - admin/resources">
                 <include name="org-id/**.*"/>
             </fileset>
-            <fileset dir="${mod.package.dir}/auth/resources"/>
         </copy>
 
 		<!-- Usecases/I18N/services from the base application. -->
@@ -287,6 +291,15 @@
             <fileset dir="1ffc - common" includes="linked-root/**/*"/>
 			<fileset dir="1ffc - common" includes="layout-pages/**/*"/>
             <fileset dir="1ffc - common" includes="internationalization/*"/>
+        </copy>
+        <copy todir="${output.dir}/apps/auth/classes" overwrite="true">
+            <fileset dir="1ffc - auth/src">
+                <exclude name="**/*.java"/>
+                <exclude name="*.uc"/>
+                <exclude name="*.app"/>
+                <exclude name="logback.xml"/>
+            </fileset>
+            <fileset dir="${mod.package.dir}/auth/resources"/>
         </copy>
 
 		<copy todir="${output.dir}/apps/auth/linked-root/b2c" overwrite="true">
@@ -369,6 +382,7 @@
             <fileset dir="${devkit.dir}/app - admin/resources">
                 <include name="org-id/**.*"/>
             </fileset>
+            <fileset dir="${mod.package.dir}/user/classes"/>
         </copy>
 
 		<!-- Usecases/I18N/services from the base application. -->
@@ -502,20 +516,58 @@
         <echo file="${output.dir}/batch/update_company_accounts/build.xml"><![CDATA[<project name="update_company_accounts" default="run" basedir="."><target name="run"><echo>Disabled.</echo></target></project>]]></echo>
     </target>
 
+    <target name="package.app.qa" depends="-init">
+        <loadproperties srcFile="qa.properties"/>
+
+		<propertyfile file="${output.dir}/apps/user/classes/app-config.properties">
+
+            <entry key="nls.api.client.id" value="${nls.api.client.id}"/>
+            <entry key="nls.api.client.secret" value="${nls.api.client.secret}"/>
+			<entry key="nls.api.base.url" value="${nls.api.base.url}"/>
+			<entry key="nls.api.version" value="${nls.api.version}"/>
+
+            <entry key="kinective.esign.base.url" value="${kinective.esign.base.url}"/>
+            <entry key="kinective.esign.host.fiid" value="${kinective.esign.host.fiid}"/>
+            <entry key="kinective.esign.user.id=" value="${kinective.esign.user.id}"/>
+            <entry key="kinective.esign.business.app.user.id" value="${kinective.esign.business.app.user.id}"/>
+            <entry key="kinective.esign.partner.id" value="${kinective.esign.partner.id}"/>
+            <entry key="kinective.esign.api.key" value="${kinective.esign.api.key}"/>
+
+        </propertyfile>
+
+        <zip destfile="${output.dir}/1ffc_qa.zip" basedir="${output.dir}/apps"/>
+    </target>
+
+    <target name="package.app.uat" depends="-init">
+        <loadproperties srcFile="uat.properties"/>
+
+		<propertyfile file="${output.dir}/apps/user/classes/app-config.properties">
+
+            <entry key="nls.api.client.id" value="${nls.api.client.id}"/>
+            <entry key="nls.api.client.secret" value="${nls.api.client.secret}"/>
+			<entry key="nls.api.base.url" value="${nls.api.base.url}"/>
+			<entry key="nls.api.version" value="${nls.api.version}"/>
+
+            <entry key="kinective.esign.base.url" value="${kinective.esign.base.url}"/>
+            <entry key="kinective.esign.host.fiid" value="${kinective.esign.host.fiid}"/>
+            <entry key="kinective.esign.user.id=" value="${kinective.esign.user.id}"/>
+            <entry key="kinective.esign.business.app.user.id" value="${kinective.esign.business.app.user.id}"/>
+            <entry key="kinective.esign.partner.id" value="${kinective.esign.partner.id}"/>
+            <entry key="kinective.esign.api.key" value="${kinective.esign.api.key}"/>
+
+        </propertyfile>
+
+        <zip destfile="${output.dir}/1ffc_uat.zip" basedir="${output.dir}/apps"/>
+    </target>
+
     <target name="package" depends="-init, build.admin, build.auth, build.user, build.extdoc, package-libraries, package-communicate">
         <delete file="${output.dir}/package.zip"/>
 
         <ant dir="ui" target="qa"/>
         <ant dir="ui" target="package"/>
+        <antcall target="package.app.qa"/>
+        <antcall target="package.app.uat"/>
 
-		<propertyfile file="${output.dir}/apps/user/classes/app-config.properties">
-            <entry key="nls.api.client.id" value="${nls.api.client.id}"/>
-            <entry key="nls.api.client.secret" value="${nls.api.client.secret}"/>
-			<entry key="nls.api.base.url" value="${nls.api.base.url}"/>
-			<entry key="nls.api.version" value="${nls.api.version}"/>
-        </propertyfile>
-
-        <zip destfile="${output.dir}/1ffc.zip" basedir="${output.dir}/apps"/>
         <copy file="${devkit.dir}/app - user/deploy/license" tofile="${output.dir}/1ffc.license"/>
         <zip destfile="${output.dir}/1ffc_jobs.zip" basedir="${output.dir}/batch"/>
         <zip destfile="${output.dir}/1ffc_jenkins.zip" basedir="${output.dir}/jenkins"/>
