@@ -16,7 +16,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,6 +26,7 @@ import com.sorrisotech.fffc.documentesign.service.WalletInfo;
 import com.sorrisotech.svcs.documentesign.api.IApiDocumentEsign;
 import com.sorrisotech.svcs.serviceapi.api.IRequestInternal;
 import com.sorrisotech.svcs.serviceapi.api.ServiceAPIErrorCode;
+import com.sorrisotech.utils.Rest;
 
 public class GetDocumentEsignUrl extends GetDocumentEsignUrlBase{
 
@@ -194,7 +194,7 @@ public class GetDocumentEsignUrl extends GetDocumentEsignUrlBase{
 	}
 	
 	private String getBinFromToken(String sourceId) {
-		final var restTemplate = new RestTemplate();
+		final var restTemplate = Rest.template();
 
         final var headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
