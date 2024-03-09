@@ -32,9 +32,8 @@
     	        <pathelement location="src"/>
     		</src>
 			<classpath>
-				<fileset dir="${devkit.dir}/batch - common/lib">
-					<include name="*.jar"/>
-				</fileset>
+				<fileset dir="${devkit.dir}/batch - common/lib"/>
+				<fileset dir="${bat.package.dir}"/>
 			</classpath>
     	</javac>
     </target>

@@ -11,13 +11,17 @@
     	<property name="mod.artifacts.dir" value="${artifacts.dir}/build/${moduleName}"/>
     	<mkdir dir="${mod.artifacts.dir}"/>
 
-    	<property name="user.package.dir" value="${artifacts.dir}/package/user/"/>
-		<property name="auth.package.dir" value="${artifacts.dir}/package/auth/"/>
+    	<property name="user.package.dir"   value="${artifacts.dir}/package/user/"/>
+		<property name="auth.package.dir"   value="${artifacts.dir}/package/auth/"/>
+		<property name="admin.package.dir"  value="${artifacts.dir}/package/admin/"/>
 		<property name="extdoc.package.dir" value="${artifacts.dir}/package/extdoc/"/>
+		<property name="batch.package.dir" value="${artifacts.dir}/package/batch/"/>
 
     	<mkdir dir="${user.package.dir}/jars"/>
 		<mkdir dir="${auth.package.dir}/jars"/>
+		<mkdir dir="${admin.package.dir}/jars"/>
 		<mkdir dir="${extdoc.package.dir}"/>
+		<mkdir dir="${batch.package.dir}"/>
 
     	<ivy:settings/>
     	<ivy:resolve/>
@@ -50,6 +54,8 @@
 		    <fileset dir="${mod.artifacts.dir}/classes"/>
 		</jar>
 		<copy file="${user.package.dir}/jars/1ffc${moduleName}.jar" todir="${auth.package.dir}/jars/"/>
+		<copy file="${user.package.dir}/jars/1ffc${moduleName}.jar" todir="${admin.package.dir}/jars/"/>
 		<copy file="${user.package.dir}/jars/1ffc${moduleName}.jar" todir="${extdoc.package.dir}/"/>
+		<copy file="${user.package.dir}/jars/1ffc${moduleName}.jar" todir="${batch.package.dir}/"/>
 	</target>
 </project>

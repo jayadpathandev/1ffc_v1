@@ -1,5 +1,5 @@
 <project name="user" default="deploy" basedir=".">
-    
+
 	<target name="-init">
     	<available property="props" file="build.properties"/>
     	<fail unless="props">
@@ -8,17 +8,17 @@
     	<loadproperties srcfile="build.properties"/>
         <property name="app" value="admin"/>
 
-		<mkdir dir="deploy/${app}"/> 
+		<mkdir dir="deploy/${app}"/>
         <mkdir dir="deploy/${app}/classes"/>
     </target>
-	
+
 	<target name="-base" depends="-init">
     	<!-- Copy the classpath from the base application -->
         <copy todir="deploy/${app}/classes">
             <fileset dir="${install.dir}/app - ${app}/resources">
             	<exclude name="linked-root/**"/>
             	<exclude name="layout-pages/**"/>
-            </fileset>            
+            </fileset>
             <fileset dir="${install.dir}/app - ${app}/src-gen/classes"/>
         	<fileset dir="${install.dir}/app - ${app}/src-gen" includes="com/**/*.class"/>
         </copy>
@@ -44,7 +44,7 @@
         		<include name="jndi.xml"/>
         		<include name="license"/>
         	</fileset>
-        </copy>    	
+        </copy>
 
 	</target>
 
@@ -57,7 +57,7 @@
 			<fileset dir="../1ffc - common" includes="internationalization/*"/>
         </copy>
 		<ant dir="../1ffc - common/ui" target="debug-package" inheritAll="false" inheritRefs="false">
-			<property name="outDir" value="../../1ffc - admin/deploy/admin/linked-root/js"/> 
+			<property name="outDir" value="../../1ffc - admin/deploy/admin/linked-root/js"/>
 		</ant>
 
 	</target>
@@ -72,4 +72,4 @@
     		<fileset dir="src-gen" includes="internationalization/*.properties"/>
     	</copy>
     </target>
-</project> 
+</project>
