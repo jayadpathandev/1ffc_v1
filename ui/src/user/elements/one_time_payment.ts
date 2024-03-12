@@ -626,7 +626,13 @@ function payment_method() {
 
     $('#paymentOneTime_chooseExistingMethod').on('click', function($event) {
         $event.preventDefault();
-        $('div[id^="paymentOneTime_walletRow_"]').removeClass('visually-hidden');
+
+        if ($('#paymentOneTime_dWalletItems').find('option').length == 0) {
+            $('div[id^="paymentOneTime_walletRow_"]').addClass('visually-hidden');
+        } else {
+            $('div[id^="paymentOneTime_walletRow_"]').removeClass('visually-hidden');   
+        }
+
         $('div[id^="paymentOneTime_iframeDisplayRow_"]').addClass('visually-hidden');
         $('iframe[id="paymentOneTime_sCreateIframe"]').attr('src', '');
     });
@@ -646,12 +652,6 @@ function payment_method() {
             var iframe = $(".st-payment-iframe iframe");
             iframe.attr("src", response.sEditIframe);
         });
-    });
-    $('#paymentOneTime_chooseExistingMethod').on('click', function($event) {
-        $event.preventDefault();
-        $('div[id^="paymentOneTime_walletRow_"]').removeClass('visually-hidden');
-        $('div[id^="paymentOneTime_iframeDisplayRow_"]').addClass('visually-hidden');
-        $('iframe[id="paymentOneTime_sCreateIframe"]').attr('src', '');
     });
     $('#paymentOneTime_addNewBankAccount').on('click', function($event) {
         $event.preventDefault();
