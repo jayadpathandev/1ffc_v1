@@ -2205,12 +2205,39 @@ useCase paymentOneTime [
 		srMakePaymentParam.TOKEN = token
 		
 		switch apiCall Payment.MakePayment(srMakePaymentParam, srMakePaymentResult, ssStatus) [
-		    case apiSuccess updatePaymentHistorySuccess
+		    case apiSuccess checkMakePaymentSubmit
 		    default updatePaymentHistoryError
 		]
 	]
 	
-	/* 28. Insert a payment history record for success response. */
+	/* This action checks the batch payment submit success (Status-Code: "44")*/
+	action checkMakePaymentSubmit [
+		if  srMakePaymentResult.RESPONSE_CODE == "44" then
+			updatePaymentHistoryBatchSubmitSuccess
+		else
+			updatePaymentHistorySuccess
+	]
+	
+	/* 28A. Insert a payment history record for batch submit success response. */
+	action updatePaymentHistoryBatchSubmitSuccess [
+    	srStartPaymentTransactionParam.TRANSACTION_ID      = transactionId
+		srStartPaymentTransactionParam.ONLINE_TRANS_ID     = transactionId
+		srStartPaymentTransactionParam.PMT_PROVIDER_ID     = sPayGroup
+		srStartPaymentTransactionParam.GROUPING_JSON   	   = sPayData
+		srStartPaymentTransactionParam.PAY_FROM_ACCOUNT    = sPayDataSourceName + "|" + sPayDataSourceType + "|" + sPayDataSourceAccount
+		srStartPaymentTransactionParam.PAY_CHANNEL         = "online"
+		srStartPaymentTransactionParam.PAY_DATE            = sPaymentDate
+		srStartPaymentTransactionParam.PAY_AMT             = sTotalPayAmt		
+		srStartPaymentTransactionParam.PAY_STATUS          = "processing"
+		srStartPaymentTransactionParam.USER_ID             = sUserId
+		
+		switch apiCall Payment.StartPaymentTransaction(srStartPaymentTransactionParam, srStartPaymentTransactionResult, ssStatus) [
+            case apiSuccess submitPaymentSuccessResponse
+            default submitPaymentSuccessResponse
+        ]	
+    ]	
+	
+	/* 28B. Insert a payment history record for success response. */
 	action updatePaymentHistorySuccess [
     	srStartPaymentTransactionParam.TRANSACTION_ID      = transactionId
 		srStartPaymentTransactionParam.ONLINE_TRANS_ID     = transactionId
