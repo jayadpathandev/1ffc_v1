@@ -900,7 +900,7 @@ function payment_submit() {
                 errorMessageType = "paymentInsufficientFundsError";
             }
 
-            if (code == '40' || code == '1000') { // Success
+            if (code == '40' || code == '44' || code == '1000') { // Success
                 step(undefined);
                 $.ajax('unsetBillsForPayment');
 
