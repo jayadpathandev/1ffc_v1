@@ -149,6 +149,9 @@ useCase paymentOneTime [
     serviceStatus srBillOverviewStatus
     serviceParam(Documents.BillOverview) 	srBillOverviewParam
     serviceResult(Documents.BillOverview) 	srBillOverviewResult
+    
+    serviceParam (AccountStatus.GetDebitConvenienceFee) surchargeRequest
+    serviceResult (AccountStatus.GetDebitConvenienceFee) surchargeResult	
 
     // -- 1st Franklin Specific GetStatus returns the status for all major conditions and business
     //		drivers --
@@ -2181,14 +2184,25 @@ useCase paymentOneTime [
 	
 	action checkSourceType [
 		if sPayDataSourceType == "debit" then
-			addConvenienceFee
+			getconvenienceFee
 		else
 			submitPayment
 	]
+	
+	action getconvenienceFee [
+		surchargeRequest.user = sUserId
+		surchargeRequest.paymentGroup = sPayGroup
+		surchargeRequest.account = sPayAccountInternal
+		
+		switch apiCall AccountStatus.GetDebitConvenienceFee(surchargeRequest, surchargeResult, ssStatus) [
+			case apiSuccess addConvenienceFee
+			default         submitPayment
+		]
+	]
 
 	action addConvenienceFee [
-//		srMakePaymentParam.FLEX_VALUE = "convenienceFee=true"
-//		srMakePaymentParam.FLEX_DEFINITION = flexDefinition
+		srMakePaymentParam.FLEX_VALUE = "convenienceFee=true" + "|" + "convenienceFeeAmount=" + surchargeResult.convenienceFeeAmt
+		srMakePaymentParam.FLEX_DEFINITION = flexDefinition
 		
 		goto(submitPayment)
 	]
