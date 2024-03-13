@@ -128,10 +128,10 @@ useCase documentSearch [
     static validSubRefex = "^[\\p{L}\\d.\\-_, '&$#@!*]{0,29}[\\p{L}\\d.\\-_, '&$#@!]{3,}[\\p{L}\\d.\\-_, '&$#@!*]{0,29}$"
      
 	field fAccountNumber [                              // Input field for Account number
-	    string(label) sLabel = "{Account number:}" 
+	    string(label) sLabel = "{Loan number:}" 
         input (control) pInput ("(^\\d{3,9}\\*|\\d{10}$)", fAccountNumber.sValidation)
-		string(validation) sValidation = "{The Account number search criteria must be at least 3 digits plus a wildcard (*) or maximum of 10 digits. For example: 897*, 8979*, or 8979000382.}"
-		string(help) sHelp = "{Please enter a customers' Account Number. Search criteria must include at least 3 digits and a wild card (*) up to a full 10 digit account number.}"
+		string(validation) sValidation = "{The Loan number search criteria must be at least 3 digits plus a wildcard (*) or maximum of 10 digits. For example: 897*, 89790003*, or 8979000382.}"
+		string(help) sHelp = "{Please enter a customers' Loan Number. Search criteria must include at least 3 digits and a wild card (*) up to a full 10 digit loan number.}"
     ]
  
  	field fDocIdentifier [                              // Input field for Document Identifier
