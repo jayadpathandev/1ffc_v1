@@ -11,6 +11,7 @@ useCase apiGetAutomaticPaymentRuleForAgent
 	importJava Log(api.Log)
 	importJava JsonResponse(com.sorrisotech.app.common.JsonResponse)
 	importJava Config(com.sorrisotech.utils.AppConfig)
+	importJava Enroll(com.sorrisotech.fffc.agent.pay.Enroll)
 
 	native string sServiceUserName  = Config.get("service.api.username")
     native string sServiceNameSpace = Config.get("service.api.namespace")
@@ -85,13 +86,40 @@ useCase apiGetAutomaticPaymentRuleForAgent
             password: securityToken
             namespace: sServiceNameSpace
             )
-        if success then actionProcess
+        if success then actionCheckForUser
         if authenticationFailure then actionInvalidSecurityToken
         if failure then actionFailure
     ]
+    
+    /*************************
+	 * 5. Check if the user exists.
+	 */
+	action actionCheckForUser [
+		switch Enroll.isUserAlreadyRegistered(customerId)[
+			case "registered"       actionProcess
+			case "not_registered"   actionCreateUser
+			default 				actionFailure
+		]
+	]
 
  	/*************************
-	 * 5. Query the database for payment information about the account.
+	 * 6. Check if the user exists.
+	 */
+	action actionCreateUser [
+    	sErrorStatus = "402"
+    	sErrorDesc = "There was an internal error while creating the user."
+    	sErrorCode = "internal_error"
+		
+		switch Enroll.create_account(customerId, accountId) [
+			case "invalid" actionInvalidCustomerAccountPair
+			case "success" actionProcess
+			default actionFailure
+		]
+	]
+    
+
+ 	/*************************
+	 * 7. Query the database for payment information about the account.
 	 */
 	action actionProcess [
 		sErrorStatus = "400"
@@ -108,7 +136,7 @@ useCase apiGetAutomaticPaymentRuleForAgent
 	]
 
   	/*************************
-	 * 6. Everything is good, reply with the data the client needs.
+	 * 8. Everything is good, reply with the data the client needs.
 	 */
 	action actionSendResponse [
 		JsonResponse.reset()
@@ -159,6 +187,24 @@ useCase apiGetAutomaticPaymentRuleForAgent
 		Log.error("getAutomaticPaymentRuleForAgent", customerId, accountId, "Invalid security token.")
 
 		foreignHandler JsonResponse.errorWithData("401")
+    ]
+    
+    /********************************
+     * Invalid customer id/account id
+     */
+    action actionInvalidCustomerAccountPair [
+		JsonResponse.reset()
+		JsonResponse.setNumber("statuscode", "400")
+		JsonResponse.setBoolean("success", "false")
+		JsonResponse.setString("payload", "Account ID does not belong to Customer ID.")
+		JsonResponse.setString("error", "invalid_customer_account_pair")
+
+		auditLog(audit_agent_pay.start_payment_for_agent_failure) [
+			customerId accountId
+	   	]
+		Log.error("startPaymentForAgent", customerId, accountId, "Account ID does not belong to Customer ID.")
+
+		foreignHandler JsonResponse.errorWithData("400")
     ]
     
 ]
