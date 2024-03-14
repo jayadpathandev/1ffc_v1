@@ -11,7 +11,7 @@
 	<classpathentry kind="lib" path="/batch - common/lib/angus-activation-2.0.0.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/antlr-2.7.2.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/antlr4-runtime-4.13.1.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/aspectjweaver-1.9.21.1.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/aspectjweaver-1.9.21.2.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/authnet_cim_api.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/batchAccountBalance.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/batchAuditPurge.jar"/>
@@ -39,7 +39,7 @@
 	<classpathentry kind="lib" path="/batch - common/lib/commons-collections-3.2.2.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/commons-collections4-4.4.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/commons-compress-1.25.0.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/commons-dbcp2-2.11.0.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/commons-dbcp2-2.12.0.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/commons-digester-2.1.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/commons-httpclient-3.1.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/commons-io-2.15.1.jar"/>
@@ -65,15 +65,15 @@
 	<classpathentry kind="lib" path="/batch - common/lib/httpcore5-h2-5.2.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/istack-commons-runtime-4.1.1.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/j2objc-annotations-2.8.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/jackson-annotations-2.17.0-rc1.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/jackson-core-2.17.0-rc1.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/jackson-databind-2.17.0-rc1.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/jackson-dataformat-xml-2.17.0-rc1.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/jackson-annotations-2.17.0.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/jackson-core-2.17.0.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/jackson-databind-2.17.0.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/jackson-dataformat-xml-2.17.0.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/jackson-dataformat-yaml-2.16.1.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/jackson-datatype-joda-2.17.0-rc1.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/jackson-jaxrs-base-2.17.0-rc1.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/jackson-jaxrs-json-provider-2.17.0-rc1.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/jackson-module-jaxb-annotations-2.17.0-rc1.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/jackson-datatype-joda-2.17.0.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/jackson-jaxrs-base-2.17.0.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/jackson-jaxrs-json-provider-2.17.0.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/jackson-module-jaxb-annotations-2.17.0.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/jai-imageio-core-1.4.0.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/jakarta.activation-2.0.1.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/jakarta.activation-api-2.1.1.jar"/>
@@ -100,7 +100,7 @@
 	<classpathentry kind="lib" path="/batch - common/lib/jersey-server-2.41.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/jettison-1.5.4.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/joda-time-2.12.7.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/json-20240205.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/json-20240303.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/jsr305-3.0.2.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/jxls-core-1.0.6.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/jxls-reader-1.0.6.jar"/>
