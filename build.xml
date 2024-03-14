@@ -37,6 +37,7 @@
                includeAntRuntime="false" includeJavaRuntime="false"/>
         <java classname="com.sorrisotech.devkit.Run" fork="true">
             <arg value="${devkit.dir}"/>
+            <arg value="${base.public.url}"/>
             <classpath>
                 <pathelement path="${artifacts.dir}/update"/>
             </classpath>

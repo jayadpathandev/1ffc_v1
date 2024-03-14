@@ -11,7 +11,7 @@
 		<mkdir dir="deploy/${app}"/>
         <mkdir dir="deploy/${app}/classes"/>
     </target>
-
+	
 	<target name="-base" depends="-init">
     	<!-- Copy the classpath from the base application -->
         <copy todir="deploy/${app}/classes">
@@ -61,8 +61,23 @@
 		</ant>
 
 	</target>
+	
+	<target name="build-config" depends="-init">
+		<delete file="deploy/${app}/linked-root/config/notification.zip"/>
+		<ant dir="../notification" inheritAll="false" inheritRefs="false">
+			<property name="zip.output.dir" value="../1ffc - admin/deploy/${app}/linked-root/config/"/>
+			<property name="login.url"      value="${user.url}"/>
+		</ant>		
+		
+		<delete file="deploy/${app}/linked-root/config/registration.zip"/>
+		<zip destfile="deploy/${app}/linked-root/config/registration.zip">
+			<fileset dir="registration"/>
+		</zip>		
+	</target>	
 
     <target name="deploy" depends="-init, -base, -common">
+    	<antcall target="build-config"/>
+    	
 		<copy todir="deploy/${app}" overwrite="true">
 			<fileset dir="." includes="layout-pages/**/*"/>
         </copy>

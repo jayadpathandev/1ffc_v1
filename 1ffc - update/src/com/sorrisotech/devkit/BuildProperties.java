@@ -34,13 +34,16 @@ public class BuildProperties {
 	};
 
 	public static void generate(
-				final Path devkit
+				final Path   devkit,
+				final String url
 			) throws FileNotFoundException {
-		for(final String path : paths) {
-			final PrintWriter out = new PrintWriter(
-				new File(path, "build.properties")
-			);
+		for(final var path : paths) {
+			final var target = new File(path, "build.properties");
+			final var out    = new PrintWriter(target);
+
+			System.out.println("Creating file: " + target.toString());
 			out.println("install.dir = " + devkit.toAbsolutePath().toString().replace('\\', '/'));
+			out.println("user.url = " + url + "user/");
 			out.close();
 		}
 	}

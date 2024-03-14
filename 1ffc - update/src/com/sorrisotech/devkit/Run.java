@@ -28,13 +28,13 @@ import java.nio.file.Paths;
 import java.util.Scanner;
 
 public class Run {
-	
+
 	private static Path verifyPath(
 			final String path
 			) throws IOException {
 		final Path cwd    = FileSystems.getDefault().getPath("");
 		Path       retval = Paths.get(path);
-		
+
 		if (Files.exists(retval) == false) {
 			System.err.println();
 			System.err.println("Directory [" + retval + "] does not exist.");
@@ -49,46 +49,23 @@ public class Run {
 			System.err.println();
 			System.err.println("The devkit directory [" + retval + "] cannot also be the current directory.");
 			System.err.println();
-			retval = null;			
+			retval = null;
 		}
-		return retval;		
-	}
-	
-	private static Path devkitDir() throws IOException {
-		final Scanner in = new Scanner(System.in);
-		
-		Path retval = null;
-		
-		while (retval == null) {
-			System.out.println();
-			System.out.println("Where is the devkit installed?");
-			System.out.print("> ");
-			
-			final String input = in.nextLine();
-			
-			retval = verifyPath(input);
-		}
-		in.close();
-		
 		return retval;
 	}
-		
+
 	public static void main(String[] args) {
-		try {	
-			Path devkit = null;
-			
-			if (args.length > 0) {
-				devkit = verifyPath(args[0]);
-				if (devkit == null) {
-					System.exit(1);
-				}
-			} else {
-				devkit = devkitDir();
-			}			
-			
-			BuildProperties.generate(devkit);
+		if (args.length != 2) {
+			System.err.println("Please provide the path to the devkit along with the base URL.");
+			System.exit(1);
+		}
+		try {
+			final Path   devkit = verifyPath(args[0]);
+			final String url    = args[1];
+
+			BuildProperties.generate(devkit, url);
 			FixClasspath.parseAll(devkit);
-			
+
 		} catch(Throwable e) {
 			e.printStackTrace(System.err);
 		}
