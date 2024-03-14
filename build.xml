@@ -216,7 +216,7 @@
     		<entry key="topics_payment" value="Account Servicing"/>
     		<entry key="topics_collections" value="Collections"/>
     		<entry key="topics_system" value="System Alerts"/>
-            <entry key="topics_order" value="system|marketing|payment|collections|bills_documents"/>
+            <entry key="topics_order" value="system"/>
     	</propertyfile>
 
         <copy file="notification/build.properties.template" tofile="notification/build.properties"/>
@@ -468,7 +468,7 @@
     		<entry key="topics_payment" value="Account Servicing"/>
     		<entry key="topics_collections" value="Collections"/>
     		<entry key="topics_system" value="System Alerts"/>
-            <entry key="topics_order" value="system|marketing|payment|collections|bills_documents"/>
+            <entry key="topics_order" value="marketing|payment|bills_documents"/>
     	</propertyfile>
     	<propertyfile file="${output.dir}/apps/user/classes/app-config.properties">
     		<entry key="user.app.url" value="${base.public.url}personaWeb/user/"/>
