@@ -224,7 +224,6 @@
             <entry key="zip.output.dir" value="${output.dir}/apps/admin/linked-root/config/"/>
             <entry key="login.url" value="${base.public.url}personaWeb/auth/b2c/b2c"/>
         </propertyfile>
-        <ant dir="notification" inheritAll="false" inheritRefs="false"/>
 
 		<delete  file="${output.dir}/apps/admin/linked-root/config/registration.zip"/>
 		<zip destfile="${output.dir}/apps/admin/linked-root/config/registration.zip">
@@ -535,6 +534,11 @@
 
         </propertyfile>
 
+        <ant dir="notification" inheritAll="false" inheritRefs="false">
+			<property name="zip.output.dir" value="${output.dir}/apps/admin/linked-root/config/"/>
+			<property name="login.url"      value="${b2c.login}"/>
+        </ant>
+
         <zip destfile="${output.dir}/1ffc_qa.zip" basedir="${output.dir}/apps"/>
     </target>
 
@@ -556,6 +560,11 @@
             <entry key="kinective.esign.api.key" value="${kinective.esign.api.key}"/>
 
         </propertyfile>
+
+        <ant dir="notification" inheritAll="false" inheritRefs="false">
+			<property name="zip.output.dir" value="${output.dir}/apps/admin/linked-root/config/"/>
+			<property name="login.url"      value="${b2c.login}"/>
+        </ant>
 
         <zip destfile="${output.dir}/1ffc_uat.zip" basedir="${output.dir}/apps"/>
     </target>
