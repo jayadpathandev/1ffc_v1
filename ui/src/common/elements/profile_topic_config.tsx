@@ -36,33 +36,33 @@ function CheckBox(props : CheckboxProps) {
 	const [ visible, 		setVisible 		] = React.useState(false);
 	const [ configurable, 	setConfigurable ] = React.useState(false);
 	const [ enabled, 		setEnabled 		] = React.useState(props.selected);
-	
+
 	React.useEffect(()=> {
 		ChannelSettingsService.is_visible(
-			props.topic, 
-			props.channel, 
+			props.topic,
+			props.channel,
 			(value:boolean) => {
 				setVisible(value);
 		})
-		
+
 		ChannelSettingsService.is_configurable(
-			props.topic, 
-			props.channel, 
+			props.topic,
+			props.channel,
 			(value:boolean) => {
 				setConfigurable(value);
 		})
-		
+
 	}, [props.topic, props.channel]);
-	
+
 	if(visible === false) {
 		return null;
 	}
-	
+
     // Return the HTML to display a checkbox.
     return(
-	  	<div className="form-check form-switch st-toggle-item">  
+	  	<div className="form-check form-switch st-toggle-item">
 	  		<div className="st-field st-toggle">
-				<div className="col-md-8 st-toggle-field">      
+				<div className="col-md-8 st-toggle-field">
 					<input st-toggle-control="" value="true" type="checkbox" role="switch" className="form-check-input st-toggle-field" disabled={!configurable} checked={enabled} onChange={toggle}/>
 					<label className="form-check-label st-toggle-item-label">
 						<span className="st-toggle-text"></span>
@@ -71,11 +71,11 @@ function CheckBox(props : CheckboxProps) {
 			</div>
 	 	</div>
     )
-    
+
     function toggle() {
 		if(configurable  === true) {
 			setEnabled(!enabled);
-			
+
 			$.ajax({
 			    url: 'set_contact_setting',
 			    type: 'post',
@@ -92,16 +92,16 @@ function CheckBox(props : CheckboxProps) {
 function Topic(props : Topic) {
 	const [ topicTxt, 		setTopicTxt 	] = React.useState('');
 
-	
+
 	React.useEffect(()=> {
 		const i18nTopic = new I18nService('topics');
-		
+
 		i18nTopic.get(props.topic, (text:string) => {
 		    setTopicTxt(text);
 		})
-		
+
 	}, []);
-	
+
     // Create the checkboxes for each channel.
     const list = props.channels.map((setting : TopicSetting) => {
 	    return (
@@ -144,10 +144,10 @@ export function ProfileTopicConfig() {
     // Don't do anything until we have the contact settings.
     if (topics == null || sort == null) return null;
 
-	const sorted = [...topics].sort((a, b) => {
+	const sorted = topics.filter((v) => sort.indexOf(v.topic) !== -1).sort((a, b) => {
 		const ao = sort.indexOf(a.topic);
 		const bo = sort.indexOf(b.topic);
-		
+
 		if (ao < bo) return -1;
 		if (bo < ao) return 1;
 		return 0;
