@@ -40,6 +40,7 @@
 	
 	<bean id="documentEsignDao" class="com.sorrisotech.fffc.documentesign.service.Dao">
 		<property name="getWalletInfoSql" ref="getWalletInfoSql"/>
+		<property name="getLatestMonthlyPaymentAmountSql" ref="getLatestMonthlyPaymentAmountSql"/>
 		<property name="dataSource" ref="dataSource"/>
 	</bean>
 	
@@ -56,6 +57,24 @@
 						pmt_wallet
 					WHERE
 						source_id = ?
+				]]>
+			</value>
+		</constructor-arg >
+	</bean>
+	
+	<bean id="getLatestMonthlyPaymentAmountSql" class="java.lang.String">
+		<constructor-arg>
+			<value>
+				<![CDATA[
+					SELECT 
+						b.self_reg3 AS monthly_payment_amount 
+					FROM 
+						bill b 
+					WHERE 
+						b.account = ?
+					ORDER BY 
+						b.bill_date DESC 
+					LIMIT 1
 				]]>
 			</value>
 		</constructor-arg >

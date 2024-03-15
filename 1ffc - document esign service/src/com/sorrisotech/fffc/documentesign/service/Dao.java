@@ -12,6 +12,9 @@ public class Dao extends JdbcDaoSupport {
 	
 	private String getWalletInfoSql;
 	
+	
+	private String getLatestMonthlyPaymentAmountSql;
+	
 	private static Dao instance = null;
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(Dao.class);
@@ -40,9 +43,27 @@ public class Dao extends JdbcDaoSupport {
 		}
 	}
 	
+	public String getLatestMonthlyPaymentAmount(String szInternalAccountNumber) {
+		try {
+			return getJdbcTemplate().queryForObject(
+					getLatestMonthlyPaymentAmountSql, 
+					String.class, 
+					szInternalAccountNumber
+			);
+		} catch (Exception ex) {
+			LOGGER.error("Error occured while executing query : {} exception : {}", getWalletInfoSql, ex);
+			return null;
+		}
+	}
+	
 	// All setters goes here
 	
 	public void setGetWalletInfoSql(String getWalletInfoSql) {
 		this.getWalletInfoSql = getWalletInfoSql;
 	}
+
+	public void setGetLatestMonthlyPaymentAmountSql(String getLatestMonthlyPaymentAmountSql) {
+		this.getLatestMonthlyPaymentAmountSql = getLatestMonthlyPaymentAmountSql;
+	}
+
 }
