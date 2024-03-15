@@ -25,7 +25,7 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 				    pmtgrp.internal_account_number = :INT_ACCOUNT AND
 					pmtgrp.payment_group = :PMT_GROUP AND
 					pmtgrp.online_trans_id = pmthist.online_trans_id AND
-					pmthist.pay_status = 'posted' AND
+					(pmthist.pay_status = 'posted' OR pmthist.pay_status = 'processing') AND
 					pmthist.pay_date >= to_timestamp(:START_DATE,'YYYYMMDD')
 			</value>
         </constructor-arg>   
