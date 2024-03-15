@@ -204,6 +204,7 @@
 		<copy todir="${output.dir}/apps/admin/classes" overwrite="true">
             <fileset dir="1ffc - admin/src">
                 <include name="**/*.xml"/>
+                <include name="**/*.properties"/>
             </fileset>
         </copy>
         <copy todir="${output.dir}/apps/admin/lib" overwrite="true">
@@ -518,6 +519,13 @@
     <target name="package.app.qa" depends="-init">
         <loadproperties srcFile="qa.properties"/>
 
+		<propertyfile file="${output.dir}/apps/admin/classes/app-config.properties">
+            <entry key="nls.api.client.id" value="${nls.api.client.id}"/>
+            <entry key="nls.api.client.secret" value="${nls.api.client.secret}"/>
+			<entry key="nls.api.base.url" value="${nls.api.base.url}"/>
+			<entry key="nls.api.version" value="${nls.api.version}"/>
+        </propertyfile>
+
 		<propertyfile file="${output.dir}/apps/user/classes/app-config.properties">
 
             <entry key="nls.api.client.id" value="${nls.api.client.id}"/>
@@ -544,6 +552,13 @@
 
     <target name="package.app.uat" depends="-init">
         <loadproperties srcFile="uat.properties"/>
+
+		<propertyfile file="${output.dir}/apps/admin/classes/app-config.properties">
+            <entry key="nls.api.client.id" value="${nls.api.client.id}"/>
+            <entry key="nls.api.client.secret" value="${nls.api.client.secret}"/>
+			<entry key="nls.api.base.url" value="${nls.api.base.url}"/>
+			<entry key="nls.api.version" value="${nls.api.version}"/>
+        </propertyfile>
 
 		<propertyfile file="${output.dir}/apps/user/classes/app-config.properties">
 
