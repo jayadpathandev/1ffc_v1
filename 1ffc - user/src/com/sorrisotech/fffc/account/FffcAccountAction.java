@@ -137,6 +137,15 @@ public class FffcAccountAction implements IExternalReuse {
 					}
 					cRow.setDataValue("SOURCE_NAME", szText);
 				}
+
+
+				// i18n Payment Type
+				String szPayType = cRow.getDataValue("PAY_TYPE");
+				
+				if (szPayType != null && szPayType.equalsIgnoreCase("onetime")) {
+					cRow.setDataValue("PAY_TYPE",
+					        I18n.translate(locator, userData, "paymentHistory_pay_type"));
+				}
 				
 				boolean bFound = false;
 				
