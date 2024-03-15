@@ -89,6 +89,7 @@ useCase paymentHistory [
 	static type_debit   = "{DEBIT CARD}"
 	static type_sepa    = "{SEPA ACCOUNT}"
 	static type_unsaved = "{UNSAVED METHOD}"
+	static pay_type     = "{one-time}"
 	
 	static unsavedBankAcct 		= "{Unsaved bank account}"
 	static unsavedCreditCard 	= "{Unsaved credit card}"
