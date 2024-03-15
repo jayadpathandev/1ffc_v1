@@ -1,13 +1,16 @@
 package com.sorrisotech.svcs.documentesign.service;
 
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,8 +37,6 @@ public class GetDocumentEsignUrl extends GetDocumentEsignUrlBase{
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(GetDocumentEsignUrl.class);
 	
-	private static final String THE_CURRENT_AMOUNT_DUE = "the current amount due";
-	
 	private static final Properties config = new Properties();
 	
 	private static SimpleDateFormat dateFormatter = null;
@@ -59,7 +60,6 @@ public class GetDocumentEsignUrl extends GetDocumentEsignUrlBase{
 		final String internalAccount = request.getString(IApiDocumentEsign.GetDocumentEsignUrl.internalAccount);
 		final String customerId = request.getString(IApiDocumentEsign.GetDocumentEsignUrl.customerId);
 		final String extDocId = request.getString(IApiDocumentEsign.GetDocumentEsignUrl.extDocId);
-		final String countRule = request.getString(IApiDocumentEsign.GetDocumentEsignUrl.countRule);
     	final String dateRule = request.getString(IApiDocumentEsign.GetDocumentEsignUrl.dateRule);
     	final String sourceId = request.getString(IApiDocumentEsign.GetDocumentEsignUrl.sourceId);
     	final String fullName = request.getString(IApiDocumentEsign.GetDocumentEsignUrl.fullName);
@@ -80,50 +80,56 @@ public class GetDocumentEsignUrl extends GetDocumentEsignUrlBase{
 			return ServiceAPIErrorCode.Failure;
     	}
     	
+    	final Map<String, String> sourceMap = getSourceDetailsMap(sourceId);
+    	
+    	final String monthlyPaymentAmount = Dao.getInstance().getLatestMonthlyPaymentAmount(internalAccount);
+    	
+    	if (null == sourceMap || sourceMap.isEmpty() ) {
+    		LOGGER.warn("Unable to finds the source for sourceId : {}", sourceId);
+			request.setRequestStatus(ServiceAPIErrorCode.Failure);
+			return ServiceAPIErrorCode.Failure;
+    	}
+    	
+    	if (null == monthlyPaymentAmount) {
+    		LOGGER.warn("Unable to find the monthly payment for intenal account : {}", internalAccount);
+			request.setRequestStatus(ServiceAPIErrorCode.Failure);
+			return ServiceAPIErrorCode.Failure;
+    	}
+
     	final Map<String, String> pdfDetailsMap = new HashMap<>();
     	
-    	if (!walletInfo.getSourceType().equals("bank")) {
-    		pdfDetailsMap.put("DEBIT_CHECKBOX", "Yes");
-    		pdfDetailsMap.put("EFFECTIVE_DATE", dateFormatter.format(new Date()));
+    	if ( !"bank".equals( walletInfo.getSourceType()) ) {
+    		pdfDetailsMap.put("EFFECTIVE_DATE", dateRule);
+    		pdfDetailsMap.put("DATE_1", dateFormatter.format(new Date()));
+    		pdfDetailsMap.put("FIRST_PMT_AMT", monthlyPaymentAmount);
+    		pdfDetailsMap.put("MONTHLY_PMT_AMT", monthlyPaymentAmount);
     		pdfDetailsMap.put("EXTERNAL_ACCT", displayAccount);
-    		pdfDetailsMap.put("PAYMENT_DATE_RULE", dateRule);
-    		pdfDetailsMap.put("PAYMENT_AMOUNT_RULE", THE_CURRENT_AMOUNT_DUE);
-    		pdfDetailsMap.put("PAYMENT_COUNT_RULE", countRule);
-    		pdfDetailsMap.put("NAME_ON_PMT_ACCOUNT", walletInfo.getSourceName());
+    		pdfDetailsMap.put("NAME_ON_PMT_ACCOUNT", Optional.ofNullable(sourceMap.get("accountHolderName")).orElse(""));
     		
     		pdfDetailsMap.put("DEBIT_CARD_MASKED", walletInfo.getSourceNum());
     		pdfDetailsMap.put("DEBIT_CARD_EXPIRATION", walletInfo.getSourceExpiry());
 
-    		pdfDetailsMap.put("ACH_CHECKBOX", "Off");
+    		pdfDetailsMap.put("BANK_ACCOUNT_MASKED", "");
     		pdfDetailsMap.put("BANK_NAME", "");
     		pdfDetailsMap.put("BANK_ROUTING_NUMBER", "");
-    		pdfDetailsMap.put("BANK_ACCOUNT_MASKED", "");
+    		pdfDetailsMap.put("CHECKING_SAVINGS", "");
 
     	} else {
     		
-    		final var routingNumber = getBinFromToken(sourceId);
-    		
-    		if (routingNumber == null) {
-    			LOGGER.warn("Unable to finds the routing number for sourceId : {}", sourceId);
-    			request.setRequestStatus(ServiceAPIErrorCode.Failure);
-    			return ServiceAPIErrorCode.Failure;
-    		}
-    		
-    		pdfDetailsMap.put("EFFECTIVE_DATE", dateFormatter.format(new Date()));
-    		pdfDetailsMap.put("NAME_ON_PMT_ACCOUNT", walletInfo.getSourceName());
-    		pdfDetailsMap.put("PAYMENT_AMOUNT_RULE", THE_CURRENT_AMOUNT_DUE);
+    		pdfDetailsMap.put("EFFECTIVE_DATE", dateRule);
+    		pdfDetailsMap.put("DATE_1", dateFormatter.format(new Date()));
+    		pdfDetailsMap.put("FIRST_PMT_AMT", monthlyPaymentAmount);
+    		pdfDetailsMap.put("MONTHLY_PMT_AMT", monthlyPaymentAmount);
     		pdfDetailsMap.put("EXTERNAL_ACCT", displayAccount);
-    		pdfDetailsMap.put("PAYMENT_COUNT_RULE", countRule);
-    		pdfDetailsMap.put("PAYMENT_DATE_RULE", dateRule);
+    		pdfDetailsMap.put("NAME_ON_PMT_ACCOUNT", Optional.ofNullable(sourceMap.get("accountHolderName")).orElse(""));
     		
-    		pdfDetailsMap.put("DEBIT_CHECKBOX", "Off");
     		pdfDetailsMap.put("DEBIT_CARD_MASKED", "");
     		pdfDetailsMap.put("DEBIT_CARD_EXPIRATION", "");
-    		
-    		pdfDetailsMap.put("ACH_CHECKBOX", "Yes");
-    		pdfDetailsMap.put("BANK_NAME", walletInfo.getSourceName());
+
     		pdfDetailsMap.put("BANK_ACCOUNT_MASKED", walletInfo.getSourceNum());
-    		pdfDetailsMap.put("BANK_ROUTING_NUMBER", routingNumber);
+    		pdfDetailsMap.put("BANK_NAME", Optional.ofNullable(sourceMap.get("bankName")).orElse(""));
+    		pdfDetailsMap.put("BANK_ROUTING_NUMBER", Optional.ofNullable(sourceMap.get("routingNumber")).orElse(""));
+    		pdfDetailsMap.put("CHECKING_SAVINGS", Optional.ofNullable(sourceMap.get("accountType")).orElse(""));
     	}
     	
 		
@@ -193,7 +199,7 @@ public class GetDocumentEsignUrl extends GetDocumentEsignUrlBase{
 
 	}
 	
-	private String getBinFromToken(String sourceId) {
+	private Map<String, String> getSourceDetailsMap(String sourceId) {
 		final var restTemplate = Rest.template();
 
         final var headers = new HttpHeaders();
@@ -236,10 +242,13 @@ public class GetDocumentEsignUrl extends GetDocumentEsignUrlBase{
 	        }
 	        
         	final var data = objectMapper.readTree(responseEntity.getBody()).get("iin").asText();
-            
+        	
             if (data == null || data.isBlank()) return null;
             
-            return data;
+            return Arrays.asList(data.split("\\|")).stream()
+	            .map(val -> val.split("="))
+	            .filter(val -> val.length == 2)
+	            .collect(Collectors.toMap(val -> val[0], val -> val[1]));
 
         } catch (Exception ex) {
         	LOGGER.error("Error occurred while detokenizing source: {}, exception: {}", sourceId, ex);
