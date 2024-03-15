@@ -180,6 +180,12 @@ export class ElementState {
             }
         });
 
+        if (this.dirty === true && this.valid === true && this.field.val() === '') {
+            this.dirty = false;
+            this.field.removeClass('is-invalid');
+            this.field.removeClass('is-valid');
+        } 
+
         if (this.dirty) {
             //-----------------------------------------------------------------
             if (this.valid === undefined) {
