@@ -25,9 +25,11 @@
 
     	<ivy:settings/>
     	<ivy:resolve/>
-    	<ivy:retrieve type="jar" pattern="${user.package.dir}/jars/[artifact]-[revision].[ext]"/>
+		<ivy:retrieve type="jar" pattern="${admin.package.dir}/jars/[artifact]-[revision].[ext]"/>
 		<ivy:retrieve type="jar" pattern="${auth.package.dir}/jars/[artifact]-[revision].[ext]"/>
+		<ivy:retrieve type="jar" pattern="${batch.package.dir}/[artifact]-[revision].[ext]"/>
 		<ivy:retrieve type="jar" pattern="${extdoc.package.dir}/[artifact]-[revision].[ext]"/>
+    	<ivy:retrieve type="jar" pattern="${user.package.dir}/jars/[artifact]-[revision].[ext]"/>
     </target>
 
     <!-- ######################################################################
@@ -50,12 +52,12 @@
          # Package everything up.
          ################################################################## -->
 	<target name="package" depends="-init, compile">
-		<jar destfile="${user.package.dir}/jars/1ffc${moduleName}.jar">
+		<jar destfile="${admin.package.dir}/jars/1ffc${moduleName}.jar">
 		    <fileset dir="${mod.artifacts.dir}/classes"/>
 		</jar>
-		<copy file="${user.package.dir}/jars/1ffc${moduleName}.jar" todir="${auth.package.dir}/jars/"/>
-		<copy file="${user.package.dir}/jars/1ffc${moduleName}.jar" todir="${admin.package.dir}/jars/"/>
-		<copy file="${user.package.dir}/jars/1ffc${moduleName}.jar" todir="${extdoc.package.dir}/"/>
-		<copy file="${user.package.dir}/jars/1ffc${moduleName}.jar" todir="${batch.package.dir}/"/>
+		<copy file="${admin.package.dir}/jars/1ffc${moduleName}.jar" todir="${auth.package.dir}/jars/"/>
+		<copy file="${admin.package.dir}/jars/1ffc${moduleName}.jar" todir="${batch.package.dir}/"/>
+		<copy file="${admin.package.dir}/jars/1ffc${moduleName}.jar" todir="${extdoc.package.dir}/"/>
+		<copy file="${admin.package.dir}/jars/1ffc${moduleName}.jar" todir="${user.package.dir}/jars/"/>
 	</target>
 </project>
