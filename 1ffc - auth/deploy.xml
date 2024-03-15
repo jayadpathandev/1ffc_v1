@@ -78,6 +78,12 @@
 			<fileset dir="." includes="layout-pages/**/*"/>
 			<fileset dir="." includes="linked-root/**/*"/>
         </copy>
+    	<!-- pick up audit_config.xml and roles_config.xml  -->
+    	<delete file="${install.dir}/app - auth/resources/audit_config.xml"/>
+    	<delete file="${install.dir}/app - auth/resources/roles_config.xml"/>
+    	<copy todir="deploy/${app}/classes" overwrite="true">
+			<fileset dir="src-gen/classes" includes="*.xml" />
+		</copy>
     	<copy todir="deploy/${app}" overwrite="true">
     		<fileset dir="src-gen" includes="auth.xml"/>
     		<fileset dir="src-gen" includes="usecases/*.xml"/>

@@ -91,6 +91,8 @@
     		<fileset dir="../1ffc - agent pay/src-gen" includes="internationalization/*.properties"/>
     	</copy>
     	<!-- pick up audit_config.xml and roles_config.xml  -->
+    	<delete file="${install.dir}/app - user/resources/audit_config.xml"/>
+    	<delete file="${install.dir}/app - user/resources/roles_config.xml"/>
     	<copy todir="deploy/${app}/classes" overwrite="true">
 			<fileset dir="src-gen/classes" includes="*.xml" />
 		</copy>
