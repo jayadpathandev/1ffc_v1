@@ -11,7 +11,14 @@
 		<mkdir dir="deploy/${app}"/>
         <mkdir dir="deploy/${app}/classes"/>
     </target>
-	
+
+	<target name="-ui" depends="-init">
+		<ant dir="../ui" target="debug" inheritAll="false" inheritRefs="false">
+			<property name="fileName" value="csr"/>
+			<property name="outDir" value="${basedir}/deploy/${app}/linked-root/js"/>
+		</ant>
+	</target>
+
 	<target name="-base" depends="-init">
     	<!-- Copy the classpath from the base application -->
         <copy todir="deploy/${app}/classes">
@@ -75,7 +82,7 @@
 		</zip>		
 	</target>	
 
-    <target name="deploy" depends="-init, -base, -common">
+    <target name="deploy" depends="-ui, -init, -base, -common">
     	<antcall target="build-config"/>
     	
 		<copy todir="deploy/${app}" overwrite="true">
