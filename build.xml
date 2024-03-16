@@ -207,6 +207,7 @@
             <fileset dir="1ffc - admin/src">
                 <include name="**/*.xml"/>
                 <include name="**/*.properties"/>
+                <exclude name="logback.xml"/>
             </fileset>
         </copy>
         <copy todir="${output.dir}/apps/admin/lib" overwrite="true">
