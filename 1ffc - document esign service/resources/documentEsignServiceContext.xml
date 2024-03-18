@@ -17,6 +17,8 @@
 		<property name="longName" value="${pdf.long.name}"/>
 		<property name="description" value="${pdf.description}"/>
 		<property name="signatureField" ref="signatureField"/>
+		<property name="messageSubject" value="${pdf.sign.message.subject}"/>
+		<property name="messageDetails" value="${pdf.sign.message.details}"/>
 	</bean>
 	
 	<bean id="pdfDocument" class="com.sorrisotech.fffc.documentesign.service.PDFDocument" scope="prototype">

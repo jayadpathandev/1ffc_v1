@@ -167,6 +167,11 @@ public class RemoteSigningRequest {
 		@JsonProperty("Message")
 		public String message;
 
+		public MessageDetails(String subject, String message) {
+			this.subject = subject;
+			this.message = message;
+		}
+
 		@Override
 		public String toString() {
 			StringBuilder builder = new StringBuilder();

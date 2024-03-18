@@ -39,6 +39,7 @@ import com.sorrisotech.client.model.request.AddDocumentRequest.PartyMapping;
 import com.sorrisotech.client.model.request.CreateSessionRequest;
 import com.sorrisotech.client.model.request.CreateSessionRequest.Party;
 import com.sorrisotech.client.model.request.RemoteSigningRequest;
+import com.sorrisotech.client.model.request.RemoteSigningRequest.MessageDetails;
 import com.sorrisotech.client.model.request.RemoteSigningRequest.RemotePartyDetail;
 
 /******************************************************************************
@@ -73,6 +74,16 @@ public class PDFEsignService {
 	 * Maximum of 150 characters. This is the user friendly name of the document.
 	 */
 	private String description;
+	
+	/**********************************************************************************************
+	 * The message subject for user.
+	 */
+	private String messageSubject;
+	
+	/**********************************************************************************************
+	 * The message details about esign instructions.
+	 */
+	private String messageDetails;
 	
 	/**********************************************************************************************
 	 * The signature field details and location on the PDF.
@@ -239,6 +250,11 @@ public class PDFEsignService {
 				List.of(new RemotePartyDetail(fullName, email))
 		);
 		
+		request.messageDetails = new MessageDetails(
+				messageSubject.replace("{customerName}", fullName), 
+				messageDetails
+		);
+		
 		final var response = client.getRemoteSigningUrl(accessToken, sessionId, request);
 		
 		return response;
@@ -371,6 +387,24 @@ public class PDFEsignService {
 	 */
 	public void setSignatureField(Field signatureField) {
 		this.signatureField = signatureField;
+	}
+
+	/**
+	 * sets the hint message subject.
+	 * 
+	 * @param messageSubject
+	 */
+	public void setMessageSubject(String messageSubject) {
+		this.messageSubject = messageSubject;
+	}
+	
+	/**
+	 * sets the hint message.
+	 * 
+	 * @param messageDetails
+	 */
+	public void setMessageDetails(String messageDetails) {
+		this.messageDetails = messageDetails;
 	}
 
 }
