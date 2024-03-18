@@ -944,7 +944,9 @@ useCase paymentUpdateAutomaticPayment [
 			div esignPopInBody [
 	            class: "modal-body"     
 	            
-	            display sEsignIframe                
+	            display sEsignIframe [
+	            	attr_style: "height:500px"
+	            ]               
 	        ]
 	        
 	        div esignPopInButtons [
