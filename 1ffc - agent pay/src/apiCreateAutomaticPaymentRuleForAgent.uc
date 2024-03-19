@@ -36,6 +36,9 @@ useCase apiCreateAutomaticPaymentRuleForAgent
 
 	serviceParam(Payment.SetAutomaticPaymentHistory)  historyRequest
 	
+	serviceParam (Payment.GetWalletByToken) srGetWalletInfoParam
+	serviceResult (Payment.GetWalletByToken) srGetWalletInfoResult
+	
    /*************************
      * MAIN SUCCESS SCENARIO
      *************************/
@@ -164,9 +167,26 @@ useCase apiCreateAutomaticPaymentRuleForAgent
     	sErrorCode   = "no_payment_source"
 
     	if sHasPaySource == "true" then 
-    		decodeAmountOption
+    		fetchWalletData
     	else
     		actionFailure 
+    ]
+    
+    /*************************
+	 * 8b. Fetch wallet data to send wallet info in success response.
+	 */
+     action fetchWalletData [
+    	sErrorStatus = "400"
+    	sErrorDesc   = "Unable to fetch wallet details."
+    	sErrorCode   = "no_payment_source"
+    	
+    	ApiPay.walletToken         (srGetWalletInfoParam.SOURCE_ID)
+    	
+    	switch apiCall Payment.GetWalletByToken(srGetWalletInfoParam, srGetWalletInfoResult, status) [
+		    case apiSuccess decodeAmountOption
+		    default actionFailure
+		]
+    	
     ]
 
  	/*************************
@@ -354,6 +374,9 @@ useCase apiCreateAutomaticPaymentRuleForAgent
 	 action actionSuccessResponse [
 		JsonResponse.reset()
 		JsonResponse.setString("status", "created")
+		JsonResponse.setString("nickName", srGetWalletInfoResult.SOURCE_NAME)
+		JsonResponse.setString("paymentAccount", srGetWalletInfoResult.SOURCE_NUM)
+		JsonResponse.setString("paymentAcctType", srGetWalletInfoResult.SOURCE_TYPE)
 		ApiPay.setAutomaticPayment("true")
 
 	    auditLog(audit_agent_pay.create_auto_payment_for_agent_success) [
@@ -395,7 +418,7 @@ useCase apiCreateAutomaticPaymentRuleForAgent
 		JsonResponse.setString("payload", sErrorDesc)
 		JsonResponse.setString("error", sErrorCode)
 
-		Log.error("makeOneTimePaymentForAgent", sTransactionId, sDateRule, sAmountRule, sCountRule, sErrorDesc)
+		Log.error("createAutomaticPaymentRuleForAgent", sTransactionId, sDateRule, sAmountRule, sCountRule, sErrorDesc)
 
 		foreignHandler JsonResponse.errorWithData(sErrorStatus)
     ]
@@ -411,7 +434,7 @@ useCase apiCreateAutomaticPaymentRuleForAgent
 		JsonResponse.setString("payload",    "Invalid security token.")
 		JsonResponse.setString("error",      "invalid_security_token")
 
-		Log.error("makeOneTimePaymentForAgent", sTransactionId, sDateRule, sAmountRule, sCountRule, "Invalid security token.")
+		Log.error("createAutomaticPaymentRuleForAgent", sTransactionId, sDateRule, sAmountRule, sCountRule, "Invalid security token.")
 		
 		foreignHandler JsonResponse.errorWithData("401")
     ]
@@ -427,7 +450,7 @@ useCase apiCreateAutomaticPaymentRuleForAgent
 		JsonResponse.setString("payload", sDecodeText)
 		JsonResponse.setString("error", sDecodeCode)
 
-		Log.error("makeOneTimePaymentForAgent", sTransactionId, sDateRule, sAmountRule, sCountRule, sErrorDesc)
+		Log.error("createAutomaticPaymentRuleForAgent", sTransactionId, sDateRule, sAmountRule, sCountRule, sErrorDesc)
 
 		foreignHandler JsonResponse.errorWithData(sErrorStatus)
     ]    

@@ -35,6 +35,7 @@ define service AgentPay(com.sorrisotech.app.serviceapi.uc.UcRequestClient) [
 		string automaticAmount
 		string automaticCount
 		string automaticPaymentId
+		string automaticSourceId
 	]
 	
 	/**

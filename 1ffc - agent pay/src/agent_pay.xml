@@ -126,7 +126,8 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 					pay_count,
 					pay_amt_rule,
 					pay_upto,
-					pmt_automatic.automatic_id
+					pmt_automatic.automatic_id,
+					source_id
 				from 
 					pmt_automatic,
 					pmt_automatic_grouping
