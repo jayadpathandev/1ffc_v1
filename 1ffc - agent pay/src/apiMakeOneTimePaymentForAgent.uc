@@ -46,7 +46,10 @@ useCase apiMakeOneTimePaymentForAgent
 	serviceParam(Payment.StartPaymentTransaction) logRequest
 	
     serviceParam (AccountStatus.GetDebitConvenienceFee) surchargeRequest
-    serviceResult (AccountStatus.GetDebitConvenienceFee) surchargeResult	
+    serviceResult (AccountStatus.GetDebitConvenienceFee) surchargeResult
+    
+    serviceParam (Payment.GetWalletByToken) srGetWalletInfoParam
+	serviceResult (Payment.GetWalletByToken) srGetWalletInfoResult	
 	
    /*************************
      * MAIN SUCCESS SCENARIO
@@ -164,11 +167,28 @@ useCase apiMakeOneTimePaymentForAgent
     	sErrorCode   = "no_payment_source"
 
     	if sHasPaySource == "true" then 
-    		actionVerifyData
+    		fetchWalletData
     	else
     		actionFailure 
     ]
-
+    
+    /*************************
+	 * 7b. Fetch wallet data to send wallet info in success response.
+	 */
+     action fetchWalletData [
+    	sErrorStatus = "400"
+    	sErrorDesc   = "Unable to fetch wallet details."
+    	sErrorCode   = "no_payment_source"
+    	
+    	ApiPay.walletToken         (srGetWalletInfoParam.SOURCE_ID)
+    	
+    	switch apiCall Payment.GetWalletByToken(srGetWalletInfoParam, srGetWalletInfoResult, status) [
+		    case apiSuccess actionVerifyData
+		    default actionFailure
+		]
+    	
+    ]
+    
  	/*************************
 	 * 8. Query the database for payment information about the account.
 	 */
@@ -327,12 +347,15 @@ useCase apiMakeOneTimePaymentForAgent
 	 action actionSuccessResponse [
 		JsonResponse.reset()
 		JsonResponse.setString("status", sStatus)
+		JsonResponse.setString("nickName", srGetWalletInfoResult.SOURCE_NAME)
+		JsonResponse.setString("paymentAccount", srGetWalletInfoResult.SOURCE_NUM)
+		JsonResponse.setString("paymentAcctType", srGetWalletInfoResult.SOURCE_TYPE)
 		JsonResponse.setString("paymentId", sTransId)
 
 	    auditLog(audit_agent_pay.make_one_time_payment_for_agent_success) [
 	   		sCustomerId sAccountId sPaymentDate sPayAmount
 	    ]
-		Log.^success("startPaymentForAgent", sCustomerId, sAccountId, sPaymentDate, sPayAmount)
+		Log.^success("makeOneTimePaymentForAgent", sCustomerId, sAccountId, sPaymentDate, sPayAmount)
 
 		ApiPay.setTransactionComplete(sTransactionId)
 		foreignHandler JsonResponse.send()	 	

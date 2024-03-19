@@ -54,6 +54,11 @@ public class AutoPayMapper implements RowMapper<AutoPayBean> {
 		if (id != null) {
 			retval.id = id.toPlainString();
 		}
+		
+		final var sourceId = result.getString(9);
+		if (sourceId != null) {
+			retval.sourceId = sourceId;
+		}
 
 		return retval; 
 	}

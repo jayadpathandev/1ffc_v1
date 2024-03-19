@@ -23,9 +23,12 @@ useCase apiGetAutomaticPaymentRuleForAgent
 	native string sErrorDesc
 	native string sErrorCode
 	
-	serviceStatus                 	   ssGetAutoPay
+	serviceStatus                 	   ssStatus
     serviceParam (AgentPay.GetAutoPay) spGetAutoPay
     serviceResult(AgentPay.GetAutoPay) srGetAutoPay
+    
+    serviceParam (Payment.GetWalletByToken) srGetWalletInfoParam
+	serviceResult (Payment.GetWalletByToken) srGetWalletInfoResult
 
    /*************************
      * MAIN SUCCESS SCENARIO
@@ -129,11 +132,46 @@ useCase apiGetAutomaticPaymentRuleForAgent
 		spGetAutoPay.customerId = customerId
 		spGetAutoPay.accountId  = accountId
 		
-		switch apiCall AgentPay.GetAutoPay(spGetAutoPay, srGetAutoPay, ssGetAutoPay) [
-		   case apiSuccess actionSendResponse
+		switch apiCall AgentPay.GetAutoPay(spGetAutoPay, srGetAutoPay, ssStatus) [
+		   case apiSuccess checkSourceId
            default         actionFailure    
 		]
 	]
+	
+	/*************************
+	 * 7a. Check source id available or not.
+	 */
+	action checkSourceId [
+		JsonResponse.reset()
+	 	if srGetAutoPay.automaticSourceId == "" then
+	 		actionSendResponse
+	 	else
+	 		fetchWalletData 
+	]
+	
+	/*************************
+	 * 7b. Fetch wallet data to send wallet info in success response.
+	 */
+     action fetchWalletData [
+    	sErrorStatus = "400"
+    	sErrorDesc   = "Unable to fetch wallet details."
+    	sErrorCode   = "no_payment_source"
+    	
+    	srGetWalletInfoParam.SOURCE_ID = srGetAutoPay.automaticSourceId
+    	
+    	switch apiCall Payment.GetWalletByToken(srGetWalletInfoParam, srGetWalletInfoResult, ssStatus) [
+		    case apiSuccess setWalletData
+		    default actionFailure
+		]
+    	
+    ]
+    
+    action setWalletData [
+    	JsonResponse.setString("nickName", srGetWalletInfoResult.SOURCE_NAME)
+		JsonResponse.setString("paymentAccount", srGetWalletInfoResult.SOURCE_NUM)
+		JsonResponse.setString("paymentAcctType", srGetWalletInfoResult.SOURCE_TYPE)
+    	goto(actionSendResponse)
+    ]
 
   	/*************************
 	 * 8. Everything is good, reply with the data the client needs.
@@ -202,7 +240,7 @@ useCase apiGetAutomaticPaymentRuleForAgent
 		auditLog(audit_agent_pay.start_payment_for_agent_failure) [
 			customerId accountId
 	   	]
-		Log.error("startPaymentForAgent", customerId, accountId, "Account ID does not belong to Customer ID.")
+		Log.error("getAutomaticPaymentRuleForAgent", customerId, accountId, "Account ID does not belong to Customer ID.")
 
 		foreignHandler JsonResponse.errorWithData("400")
     ]
