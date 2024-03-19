@@ -10,11 +10,12 @@ useCase accountSummaryChild [
 	* 1. No recent bill is available
 	*
 	* Major Versions:
-	* 1.0 10-Feb-2016 First Version Coded [Maybelle Johnsy Kanjirapallil]
-	* 2.0 2023-Dec-11 jak 	Modified from the interim version that Yvette updated
-	* 						so it meets 1st Franklin data variability and status 
-	* 						requirements.
-	* 2.1 2023-Dec-28 jak	Modified to set payment rules for payment use cases
+	* 1.0 	10-Feb-2016 First Version Coded [Maybelle Johnsy Kanjirapallil]
+	* 2.0 	2023-Dec-11 jak 	Modified from the interim version that Yvette updated
+	* 							so it meets 1st Franklin data variability and status 
+	* 							requirements.
+	* 2.1 	2023-Dec-28 jak		Modified to set payment rules for payment use cases
+	* 2.11	2024-Mar-15	jak		Fixed defect in setting number of days out for future payment.
 	*/
 
     documentation [
@@ -76,7 +77,6 @@ useCase accountSummaryChild [
 	import billCommon.nMinimumPayment
 	import billCommon.nMaximumPayment
 	import billCommon.bMaximumPaymentEnabled
-	import billCommon.nMaximumFuturePaymentDays
 	
 	
 	import billCommon.sPayAccountInternal
@@ -85,7 +85,7 @@ useCase accountSummaryChild [
 	import billCommon.sPayIsBill
 	import billCommon.sPaySelectedDate
 
-
+	
     // -- GetStatus returns the status for all major conditions and business
     //		drivers --
     serviceStatus srAccountStatusCode
@@ -100,8 +100,14 @@ useCase accountSummaryChild [
 	native string sLocalCreatePaymentStatus = "disabled"
 	native string sAchEnabledStatus = "true"
 	native string sMaxPaymentEnabled = "true"	// -- this is true for 1FFC
-	native string sMaxFuturePaymentDays = "45"	// -- configuration for 1FFC 
 	native string bAutomaticPaymentEnabled = "true"
+	
+	// -- Information used for maaximum future payment days --
+	// -- retrieve app-config file setting --
+	native string sMaxFuturePaymentDays = AppConfig.get("payment.scheduled.date.window", "45")
+	// -- target variable paymentOneTime.uc uses to set the calendar --
+	import paymentCommon.sScheduledDateWindow 
+
 
     
     
@@ -290,35 +296,33 @@ useCase accountSummaryChild [
  	 ]
  	 
  	 /**
- 	  * 6a. System marks account delinquent. This will be checked
- 	  * 		again when the system processes min/max in paymentOneTime.uc 
- 	  * 		and when processing autopay on/off below.
+ 	  * 6a. System marks account delinquent and turns off scheduled payments
+ 	  * 		sScheduledDateWindow =0. This will be checked again when the 
+ 	  * 		system checks to see if the user has brought the account current
  	  */
  	action setDelinquentTrue [
 		bAccountDelinquent = "true"
-		goto(setMaxPaymentAndMaxDaysFuture)
+		sScheduledDateWindow = "0" 
+		goto(setMinMaxPayment)
 	]
 	
 	/**
-	 * 6b. System marks account not delinquent (i.e. current). This will
-	 * 			be checked again when the system processes min/max in paymentOneTime.uc
-	 * 			and again when processing autopay on/off below.
+	 * 6b. System marks account not delinquent (i.e. current) and allows future
+	 * 			payments. This will be checked again later.
 	 */
 	action setDelinquentFalse [
 		bAccountDelinquent = "false"
-		
-		goto(setMaxPaymentAndMaxDaysFuture)
+		sScheduledDateWindow = sMaxFuturePaymentDays 
+		goto(setMinMaxPayment)
 	]
 
-	/** 6c. set max payments and days out from where we are
-	 * 			we get the minimum value a bit later after
-	 * 			we check how much we owe... somewhere just
-	 * 			before putting up the screen
+	/** 6c. set max payment amount. We get the minimum value a 
+	 * 			bit later after we check how much we owe... 
+	 *			somewhere just before putting up the screen
 	 **/
-	action setMaxPaymentAndMaxDaysFuture [
+	action setMinMaxPayment [
 		nMaximumPayment = srGetStatusResult.maximumPaymentAmount
 		bMaximumPaymentEnabled = sMaxPaymentEnabled
-		nMaximumFuturePaymentDays = sMaxFuturePaymentDays
 		goto (isAchEnabled)
 	]
 
@@ -508,20 +512,20 @@ useCase accountSummaryChild [
 	
 	/* 4. Load the latest bill data into screen elements. */
     action loadLatestBill [    
-        sBillAccountInternal         			= srBillOverviewParam.account   		// internalAccount
-        sBillAccountExternal 				= sAccountDisplay               						// externalAccount
-        sBillGroup         			 					= srBillOverviewParam.payGroup		// payment group for this account
-        sBillingPeriod              			 		= sBillDate					 									// ubf:billdate -- date the bill was published, formatted
-		sLocalAccountBillDate		 		= srBillOverviewResult.docDate			// used when calculating current balance
+        sBillAccountInternal     	= srBillOverviewParam.account   	// internalAccount
+        sBillAccountExternal 		= sAccountDisplay               	// externalAccount
+        sBillGroup         			= srBillOverviewParam.payGroup		// payment group for this account
+        sBillingPeriod          	= sBillDate					 		// ubf:billdate -- date the bill was published, formatted
+		sLocalAccountBillDate		= srBillOverviewResult.docDate		// used when calculating current balance
 		sLocalAccountBillAmount		= srBillOverviewResult.totalDue		// used when calculating current balance
-        sBillStream 				 					= srBillOverviewResult.docStream	// bill stream name for this account
-        sBillVersion 				 					= srBillOverviewResult.docVersion 	// document version for this account
-        sIsBill						 						= srBillOverviewParam.isBill					// true if this is a bill, otherwise we are look at a doc.
+        sBillStream 				= srBillOverviewResult.docStream	// bill stream name for this account
+        sBillVersion 				= srBillOverviewResult.docVersion 	// document version for this account
+        sIsBill						= srBillOverviewParam.isBill		// true if this is a bill, otherwise we are look at a doc.
         
-        sPayAccountInternal         		 = srBillOverviewParam.account 		// used when making payment?  
-        sPayAccountExternal 		 		= sAccountDisplay                						// used when showing in payment?
-        sPayGroup         		     					= srBillOverviewParam.payGroup		// used when making payment?
-        sPaySelectedDate			 			= srBillOverviewResult.docDate			// used when making payment (unformatted)
+        sPayAccountInternal         = srBillOverviewParam.account 		// used when making payment?  
+        sPayAccountExternal 		= sAccountDisplay                	// used when showing in payment?
+        sPayGroup         		    = srBillOverviewParam.payGroup		// used when making payment?
+        sPaySelectedDate			= srBillOverviewResult.docDate		// used when making payment (unformatted)
         			
 		goto(areAutomaticPaymentsEnabled) /** WE SKIP RIGHT OVER THE CURRENT BALANCE CHECK AND GO TO SCREEN */
 	]
@@ -559,7 +563,7 @@ useCase accountSummaryChild [
 	action isAccountCurrent [
 		bAutomaticPaymentEnabled = bIsAccountCurrent
 		evalActors()
-		goto (screenShowInfo)
+		goto (checkIfFuturePaymentNeedsUpdate)
 	]
 	
 	/**
@@ -577,9 +581,28 @@ useCase accountSummaryChild [
 	action setAutomaticPaymentEnabled [
 		bAutomaticPaymentEnabled = "true"
 		evalActors()
+		goto (checkIfFuturePaymentNeedsUpdate)
+	]
+	
+	/**
+	 * 4e. If the account is current, the system makes certain that
+	 *		scheduled payments are turned on. 
+	 */
+	action checkIfFuturePaymentNeedsUpdate [
+		if "true" == bIsAccountCurrent then
+			setMaxDaysFuturePayment
+		else
+			screenShowInfo
+	]
+	
+	/**
+	 * 4f. System turns scheduled payments back on
+	 */
+	action setMaxDaysFuturePayment [
+		sScheduledDateWindow = sMaxFuturePaymentDays
 		goto (screenShowInfo)
 	]
-
+	
 	/**************************************************************************************
 	 * END 1ST FRANKLIN SPECIFIC -- ARE AUTOMATIC PAYMENTS ENABLED OR NOT
 	 ************************************************************************************** */
@@ -603,7 +626,7 @@ useCase accountSummaryChild [
 
 	            div accountCol [
 	            	class: "col-12 col-lg-3 st-summary-account"	            	
- 
+ 					
  	            	display sAccNumLabel [
 	                	class: "st-dashboard-summary-label"
 	            		append_space: "true"
