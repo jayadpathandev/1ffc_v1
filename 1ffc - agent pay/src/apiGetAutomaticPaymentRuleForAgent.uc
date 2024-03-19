@@ -177,7 +177,7 @@ useCase apiGetAutomaticPaymentRuleForAgent
 	 * 8. Everything is good, reply with the data the client needs.
 	 */
 	action actionSendResponse [
-		JsonResponse.reset()
+//		JsonResponse.reset()
 		JsonResponse.setBoolean("hasRule", srGetAutoPay.automaticEnabled)
 		JsonResponse.setString("paymentDateRule", srGetAutoPay.automaticDate)
 		JsonResponse.setString("paymentAmountRule", srGetAutoPay.automaticAmount)
