@@ -365,9 +365,11 @@ class AmountIsInLimit extends ValidatorBase {
             this.continueBtn?.addClass('disabled');
         } else if (amount < this.minDue) {
             this.belowMinPrompt?.removeClass('visually-hidden');
+            this.overMaxPrompt?.addClass('visually-hidden');
             this.continueBtn?.addClass('disabled');
         } else if (amount > this.maxDue) {
             this.overMaxPrompt?.removeClass('visually-hidden');
+            this.belowMinPrompt?.addClass('visually-hidden');
             this.continueBtn?.addClass('disabled');
         } else {
             this.belowMinPrompt?.addClass('visually-hidden');
