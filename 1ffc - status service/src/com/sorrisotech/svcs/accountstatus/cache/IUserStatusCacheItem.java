@@ -4,7 +4,6 @@
 package com.sorrisotech.svcs.accountstatus.cache;
 
 import java.math.BigDecimal;
-import java.util.Calendar;
 
 import com.sorrisotech.svcs.accountstatus.cache.EnumConst.AutoPmtStatus;
 import com.sorrisotech.svcs.accountstatus.cache.EnumConst.ContPrefsStats;
@@ -26,6 +25,7 @@ import com.sorrisotech.svcs.accountstatus.cache.EnumConst.ContPrefsStats;
  * @since 25-Sep-2023
  * @version 22-Jan-2024 jak Added new fields current amount due and convenience fee
  * @version 01-Feb-2024 jak	Added account balance
+ * @version 17-Mar-2024 jak Added getMonthlyPayment
  */
 public interface IUserStatusCacheItem {
 	
@@ -233,4 +233,15 @@ public interface IUserStatusCacheItem {
 	 * @throws AccountStatusException
 	 */
 	abstract public BigDecimal getAccountBalance (String cszPaymentGroup, String cszAccountIdentifier) throws AccountStatusException;
+	
+	/**
+	 * Returns the contractual monthly payment amount.
+	 * 
+	 * @param cszPaymentGroup
+	 * @param cszAccountIdentifier
+	 * @return
+	 * @throws AccountStatusException
+	 */
+	abstract public BigDecimal getMonthlyPayment (String cszPaymentGroup, String cszAccountIdentifier) throws AccountStatusException;
+	
 }

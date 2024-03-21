@@ -101,7 +101,14 @@ useCase accountSummaryChild [
 	native string sAchEnabledStatus = "true"
 	native string sMaxPaymentEnabled = "true"	// -- this is true for 1FFC
 	native string bAutomaticPaymentEnabled = "true"
+
+	// -- for testing contracted monthly payment --
+	number nContractedPayment
+	serviceStatus srGetContractedPaymentStatus
+	serviceParam (AccountStatus.GetContractualMonthlyPaymentAmount) spGetContractedPaymentParams
+	serviceResult (AccountStatus.GetContractualMonthlyPaymentAmount) srGetContractedPaymentResult
 	
+		
 	// -- Information used for maaximum future payment days --
 	// -- retrieve app-config file setting --
 	native string sMaxFuturePaymentDays = AppConfig.get("payment.scheduled.date.window", "45")
@@ -625,8 +632,8 @@ useCase accountSummaryChild [
             	class: "col-8 col-sm-9 col-lg-10 row"
 
 	            div accountCol [
-	            	class: "col-12 col-lg-3 st-summary-account"	            	
- 					
+	            	class: "col-12 col-lg-3 st-summary-account"	   
+	            	
  	            	display sAccNumLabel [
 	                	class: "st-dashboard-summary-label"
 	            		append_space: "true"

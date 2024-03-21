@@ -2,7 +2,6 @@ package com.sorrisotech.svcs.accountstatus.cache;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
@@ -38,7 +37,8 @@ import com.sorrisotech.svcs.accountstatus.dao.AccountStatusElement;
  *  @author John A. Kowalonek
  *  @since 	2023-Oct-10
  *  @version 2024-Jan-22	jak added new fields (current amount due and convenience fee)
- * 	@version 2024-Feb-01	jak added currentbalance	
+ * 	@version 2024-Feb-01	jak added currentbalance
+ *  @version 2024-Mar-17 	jak added getMonthlyPayment	
  */
 public class UserStatusCacheItem implements IUserStatusCacheItem, IUserStatusItemUpdate {
 
@@ -333,5 +333,13 @@ public class UserStatusCacheItem implements IUserStatusCacheItem, IUserStatusIte
 		AccountStatusElement lStatusElement = getStatusElement(cszPaymentGroup, cszAccountIdentifier);
 		BigDecimal ldAccountBalance = lStatusElement.getAccountBalance();
 		return ldAccountBalance;
+	}
+
+	@Override
+	public BigDecimal getMonthlyPayment(String cszPaymentGroup, String cszAccountIdentifier)
+			throws AccountStatusException {
+		AccountStatusElement lStatusElement = getStatusElement(cszPaymentGroup, cszAccountIdentifier);
+		BigDecimal ldMonthlyPaymentAmount = lStatusElement.getMonthlyPayment();
+		return ldMonthlyPaymentAmount;
 	}
 }

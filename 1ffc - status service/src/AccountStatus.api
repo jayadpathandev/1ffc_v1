@@ -29,7 +29,10 @@
   * 	   1.1 01-Jan-2024	JAK	Updated for addditonal status fields
   * 	   1.2 22-Jan-2024	JAK Added convenience fee api and as additional status field
   * 	   	   01-Feb-2024  JAK Added account balance to getStatus
-*/
+  * 	   1.3 17-Mar-2024	JAK Added GetMonthlyPayment (for use in setting up automatic payments) and
+  * 							 AccountOverview so I could use this list of accounts to merge accounts with
+  * 							 no bills into the list of accounts for a user in dashboard.uc
+  */
 
 
 define service AccountStatus(com.sorrisotech.app.serviceapi.uc.UcRequestClient) [
@@ -307,5 +310,21 @@ define service AccountStatus(com.sorrisotech.app.serviceapi.uc.UcRequestClient) 
  	] returns [
 		number convenienceFeeAmt
  	]
+ 	
+	// --------------------------------------------------------------------
+	// -- use GetContractualMonthlyPaymentAmount to retrieve the amount of the current
+	//		monthly payment. This is NOT to be confused with the current
+	//		balance which is a separate call. The monthly payment amount is 
+	//		the amount the customer the convenience fee associated
+	//		with an account if it is going to be paid by debit card. If return
+	//		value is 0 then a convenience fee should not be applied. 	
+ 	define method GetContractualMonthlyPaymentAmount [
+ 		string user
+ 		string paymentGroup
+ 		string account
+ 	] returns [
+ 		number monthlyPaymentAmount
+ 	]
+ 	
  ]
  
