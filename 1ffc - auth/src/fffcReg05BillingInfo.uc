@@ -386,6 +386,7 @@ useCase fffcReg05BillingInfo [
     		                		if sFlagShowSelfReg0 == "false" then "remove"
     		                	]
     		                	control_attr_tabindex: "7"
+    		                	control_attr_autofocus: ""
     						]
     						nSelfReg1Order => display fSelfReg1 [
 			                    class: "col-7"

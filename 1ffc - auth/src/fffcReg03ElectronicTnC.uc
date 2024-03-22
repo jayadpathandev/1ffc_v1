@@ -58,7 +58,7 @@ useCase fffcReg03ElectronicTnC [
 					
 				
             		display fCheckBoxes [
-            			control_attr_tabindex: "2"
+            			control_attr_tabindex: "1"
 						control_attr_autofocus: ""
             		]
 				]
@@ -79,16 +79,16 @@ useCase fffcReg03ElectronicTnC [
 		                	require: [
 		                		fCheckBoxes
 		                	]
-		                	attr_tabindex: "3"                			                    
+		                	attr_tabindex: "2"                			                    
 		                ]        			
 						
 		                navigation termsConditionsCancel(gotoLogin, "{Cancel}") [			                
 							class: "btn btn-secondary"
-							attr_tabindex: "4"
+							attr_tabindex: "3"
 						] 							
 						
 						navigation termsConditionsBack(gotoEmailConsent, "{Back}") [
-							attr_tabindex: "5"
+							attr_tabindex: "4"
 						]
 					]
 				]					
