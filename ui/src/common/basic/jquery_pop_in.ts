@@ -88,6 +88,14 @@ export function jquery_pop_in(
         	instance.dispose();
             parent.remove();
         });
+        parent.addEventListener('shown.bs.modal', function() {
+            const elements = $(parent).find('[autofocus]:visible');
+            elements.each((i,elem)=>{
+                if ($(elem).parents('.visually-hidden').length === 0) {
+                    $(elem).trigger('focus');
+                }
+            });
+        });
         window.sorriso_refresh(parent);
         instance.show();
     }
