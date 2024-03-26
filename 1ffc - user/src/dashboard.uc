@@ -40,6 +40,7 @@ useCase dashboard [
     importJava Session(com.sorrisotech.app.utils.Session)
     importJava UserProfile (com.sorrisotech.app.utils.UserProfile)
     importJava Initialize(com.sorrisotech.fffc.user.Initialize)
+	importJava Config(com.sorrisotech.utils.AppConfig)
     
     import billCommon.sBillAccountInternal
     import billCommon.sBillAccountExternal 
@@ -61,7 +62,15 @@ useCase dashboard [
  	serviceStatus srStatus	    
     serviceParam(Documents.HasBillsLoaded) srLatestReq
     serviceResult(Documents.HasBillsLoaded) srLatestResult     
-			
+    
+    serviceStatus srGetOnlineAcctsStatus
+    serviceParam(AccountStatus.GetEligibleAssignedAccounts) srGetOnlineAcctsReq
+    serviceResult(AccountStatus.GetEligibleAssignedAccounts) srGetOnlineAcctsResult
+    native string sStatusPaymentGroup = Config.get("1ffc.ignore.group")
+    native string sBillPaymentGroup = Config.get("1ffc.bill.group")
+
+    
+ 			
     /**********************************************************************************************
      * Data Items Section
      *********************************************************************************************/ 
@@ -153,9 +162,29 @@ useCase dashboard [
      *===========================================================================================*/
     action actionEnablePayments [
         Session.enablePayments()
-        goto(getAccounts)
+        goto(getOnlineEligibleAccounts)
     ]    
+    
+    /**
+     *  7a. Get the list of eligible accounts
+     */
+    action getOnlineEligibleAccounts [
+    	srGetOnlineAcctsReq.user = sUserId
+    	srGetOnlineAcctsReq.statusPaymentGroup = sStatusPaymentGroup
+    	srGetOnlineAcctsReq.billPaymentGroup = sBillPaymentGroup
+    	switch apiCall AccountStatus.GetEligibleAssignedAccounts(srGetOnlineAcctsReq, srGetOnlineAcctsResult, srGetOnlineAcctsStatus) [
+           case apiSuccess setAccountList
+           default getAccounts    // -- if this fails, do without the list --
+       ]
+    ]
 
+	/**
+	 *  7b. Add the list returned to the parameters for Documents.Overview
+	 */
+	action setAccountList [
+		srAcctsParam.jsonAccountList  = srGetOnlineAcctsResult.accountsAsJsonArray
+		goto (getAccounts)
+	] 
     /*=============================================================================================
      * 8. Get accounts.
      *===========================================================================================*/    
