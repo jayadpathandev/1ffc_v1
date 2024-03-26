@@ -8,48 +8,38 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcDaoSupport;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
+public class AccountsForRegistrationDaoImpl implements IAccountsForRegistrationDao {
 
-/**
- * 	Retrieves the status of accounts associated with a user
- * 
- * @author John A. Kowalonek
- * @since 09-Oct-2023
- * @version 30-Oct-2023
- */
-public class AccountStatusDaoImpl implements IAccountStatusDao {
-	
 	/***************************************************************************
 	 * Logger for this class.
 	 */
-	private static final Logger LOG = LoggerFactory.getLogger(AccountStatusDaoImpl.class);	  
-
+	private static final Logger LOG = LoggerFactory.getLogger(AccountsForRegistrationDaoImpl.class);	  
 
 	/**************************************************************************
 	 * Context for 1ffcStatus.xml.
 	 */
-	private static AccountStatusDaoImpl mDao = null;
+	private static AccountsForRegistrationDaoImpl mDao = null;
 	static {	
 		try {
 			final ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("1ffcStatus.xml");
-			mDao = context.getBean("userAccountsStatusDao", AccountStatusDaoImpl.class);
+			mDao = context.getBean("accountsForRegistrationDao", AccountsForRegistrationDaoImpl.class);
 			context.close();			
 		}
 		catch (Throwable e) {
-			LOG.error("Could not load 1ffcStatus.xml", e); 
+			LOG.error("AccountsForRegistrationDaoImpl -- Could not load 1ffcStatus.xml", e); 
 		}
 		
-	    if (mDao == null) throw new RuntimeException("Could not load 1ffcStatus.xml.");
+	    if (mDao == null) throw new RuntimeException("AccountsForRegistrationDaoImpl - Could not load 1ffcStatus.xml.");
 	}
 	
 	/**********************************************************************************************
      * Query is the query to get the list of transaction history.
      */	
 	@Autowired
-	@Qualifier("getUserAccountsStatusSql")  
-	private String m_getUserAccountsStatusQuery;
+	@Qualifier("getAccountsForRegistrationSql")  
+	private String m_GetAccountsForRegistrationQuery;
 	
 	/***************************************************************************
 	 * Spring object to make the JDBC calls.
@@ -58,28 +48,31 @@ public class AccountStatusDaoImpl implements IAccountStatusDao {
 	@Qualifier("namedParameterJdbcTemplate")	
 	private NamedParameterJdbcTemplate mJdbc = null;
 
-	private List<AccountStatusElement> getAccountElementsInternal (final String cszUserId) {
-		List<AccountStatusElement> lResultList = null;
+	private List<AccountForRegistrationElement> getAccountsForRegistrationInternal (final String cszPmtGroup, final String cszBaseAcct) {
+		List<AccountForRegistrationElement> lResultList = null;
 		try {
-			
+			String pmtGroup = cszPmtGroup;
 			// -- set parameter --
 			final HashMap<String, Object> cParams = new HashMap<String, Object>();
-			cParams.put("user_id", cszUserId);
+			cParams.put("pmtGroup", pmtGroup );
+			cParams.put("pmtGroup1", pmtGroup );
+			cParams.put("internalAccountNumber", cszBaseAcct);
 			
 			// -- make query --
-			lResultList = mJdbc.query(m_getUserAccountsStatusQuery, cParams, new AccountStatusElementMapper());
+			lResultList = mJdbc.query(m_GetAccountsForRegistrationQuery, cParams, new AccountForRegistrationMapper());
 		}
 		catch (Exception e) {
-			LOG.error("getAccountElementsForUser -- Exception thrown for query", e);
+			LOG.error("getEligibleAccountsInternal -- Exception thrown for query", e);
 		}
 			
 		return lResultList;
 	
 	}
-
-	@Override
-	public List<AccountStatusElement> getAccountElementsForUser (final String cszUserId) {
 	
-		return mDao.getAccountElementsInternal(cszUserId);
+	@Override
+	public List<AccountForRegistrationElement> getAccountsForRegistration(final String cszPmtGroup, final String cszBaseAcct) {
+
+		return mDao.getAccountsForRegistrationInternal(cszPmtGroup, cszBaseAcct);
 	}
+
 }

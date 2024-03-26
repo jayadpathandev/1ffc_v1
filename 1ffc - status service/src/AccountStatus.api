@@ -326,5 +326,40 @@ define service AccountStatus(com.sorrisotech.app.serviceapi.uc.UcRequestClient) 
  		number monthlyPaymentAmount
  	]
  	
+ 	// -----------------------------------------------------------------------
+ 	// -- use GetAccountsForRegistration during registration to retrieve a list of 
+ 	//		accounts with the same orgId as the one associated with the account
+ 	//		specified.  These accounts will eventually be registered to a single
+ 	//		user. NOTE: This includes all accounts, even those that aren't eligible
+ 	//		and will create a tm account record if none exists for this account
+ 	//		in the billPaymentGroup
+ 	//
+ 	define method GetAccountsForRegistration [
+ 		string statusPaymentGroup
+ 		string billPaymentGroup
+ 		string account
+ 	] returns [
+ 		string orgId
+ 		table  accounts	[
+ 			string internalAccountId
+ 		]
+ 	]
+ 	
+  	// -----------------------------------------------------------------------
+ 	// -- use GetEligibleAssignedAccounts during login to retrieve the list of
+ 	//		accounts that a user can access online.  These accounts will be
+ 	//		use to organize the account list stored in the session object so 
+ 	//		that it only includes accounts that are eligible for online use
+ 	//
+ 	//		Note: the list returned here does not include assigned accounts
+ 	//		that are not eligible for online access.
+ 	//
+ 	define method GetEligibleAssignedAccounts [
+ 		string user
+ 		string statusPaymentGroup
+ 		string billPaymentGroup
+ 	] returns [
+ 		string accountsAsJsonArray
+ 	]
  ]
  

@@ -42,6 +42,7 @@ useCase fffcReg99B2C [
 	importJava UserProfile(com.sorrisotech.app.utils.UserProfile) 
 	importJava FffcRegistration(com.sorrisotech.fffc.auth.FffcRegistration)
 	importJava Initialize(com.sorrisotech.fffc.auth.Initialize)
+	importJava Config(com.sorrisotech.utils.AppConfig)
 	 
 	import regCompleteEnrollment.sAppType
 	   
@@ -109,6 +110,15 @@ useCase fffcReg99B2C [
 	serviceParam(FffcNotify.SetUserAddressNls) setDataFffc
 	serviceParam(FffcNotify.RegisterUserNls) setDefaultDataFffc
 	
+	// -- using status call to retrieve accounts for registration from
+	//		the status feed and make certain they are ALL in tm_accounts --
+   serviceStatus srGetRegistrationAcctsCode
+   serviceParam (AccountStatus.GetAccountsForRegistration) srGetRegistrationAcctsParams
+   serviceResult (AccountStatus.GetAccountsForRegistration) srGetRegistrationAcctsResult
+   native string sRegistrationAccountNumber = UcBillRegistration.getUserAccountNumber()
+   native string sStatusPaymentGroup = Config.get("1ffc.ignore.group")
+   native string sBillPaymentGroup = Config.get("1ffc.bill.group")
+ 	
     // -- message strings for display when use case completes. 			
     structure(message) msgDuplicateAccount [    
         string(title) sTitle = "{Failure}"
@@ -196,7 +206,7 @@ useCase fffcReg99B2C [
     	FffcRegistration.hijack_user(sUserAccountId, sUserId)
     	
     	if sUserId == "" then
-    		performEnrollment
+    		getAccountsForUserRegistration 
     	else
     		performHijack
     ]
@@ -214,6 +224,21 @@ useCase fffcReg99B2C [
         if duplicateUsername then resetLoginInfoFields
         if failure then deleteUserProfile
     ]
+	
+   /**************************************************************************
+     * 5b. pull in list of eligible accounts for this organization
+     */
+	action getAccountsForUserRegistration[
+		srGetRegistrationAcctsParams.statusPaymentGroup = sStatusPaymentGroup
+		srGetRegistrationAcctsParams.billPaymentGroup = sBillPaymentGroup
+		srGetRegistrationAcctsParams.account = sRegistrationAccountNumber
+		switch apiCall AccountStatus.GetAccountsForRegistration(srGetRegistrationAcctsParams, 
+														 srGetRegistrationAcctsResult,
+														 srGetRegistrationAcctsCode ) [
+			case apiSuccess performEnrollment
+			default deleteUserProfile
+		]
+	] 	
 	    
     /**************************************************************************
      * 5. Everything looks good, perform the enrollment.

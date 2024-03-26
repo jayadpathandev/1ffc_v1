@@ -97,7 +97,139 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
    
 			</value>
         </constructor-arg>   
-    </bean>    
+    </bean>  
+    	<bean id="getAccountsForRegistrationSql" class="java.lang.String">
+        <constructor-arg>
+            <value>
+				WITH org AS 
+				( 
+				  SELECT
+					org.org_id as idValue
+				  FROM
+					tm_account as org
+				  WHERE
+					org.account_number = :internalAccountNumber AND
+					org.bill_group = :pmtGroup
+				  FETCH FIRST 1 ROW ONLY
+				)
+				SELECT
+				  -- get the list of eligible accounts under the same org id,
+				  -- much of what is here will be used to create tm account entry
+				  -- for accounts that appear in status but don't yet have a bill
+					tm.account_number as internalAccountId,
+					tm.account_number_display as displayAccountId,
+					tm.account_name as accountName,
+					tm.biller_id as billerId,
+					tm.org_id as orgId,
+					tm.start_date as startDate
+				FROM
+					tm_account as tm,
+					bill as status_info,
+					bill_file_meta_data bfmd,
+					org
+				WHERE
+					bfmd.status in ('PUBLISHED','MERGED')             -- look only at properly published files
+					AND bfmd.payment_group = :pmtGroup1	       -- make sure we get the correct pmt group
+					AND status_info.bill_file_id = bfmd.bill_file_id    -- look only at bills in those published files
+					AND tm.bill_group = bfmd.payment_group       -- make sure we've got a pmt group match in tm
+					AND org.idValue = tm.org_id 					          -- match on org id
+					AND status_info.account = tm.account_number  -- match on account number
+
+			</value>
+        </constructor-arg>   
+      </bean>
+      <bean id="getEligibleRegisteredAccountsForUserSql" class="java.lang.String">
+        <constructor-arg>
+        	<value>
+ 	       	SELECT
+					tm.account_number as internalAccountId,
+					tm.account_number_display as displayAccountId
+				FROM
+					tm_account as tm,
+					prof_company_user as cmpny,
+					bill_file_meta_data as bfmd,
+					bill
+				WHERE
+					cmpny.userid = CAST(:userId as DECIMAL)
+					AND cmpny.companyid = tm.company_id
+					AND bfmd.status in ('PUBLISHED','MERGED')   
+					AND bfmd.payment_group = :statusGroup
+  					AND bill.bill_file_id = bfmd.bill_file_id
+					AND tm.account_number = bill.account
+					AND tm.end_date IS NULL  
+					-- should include start date but can't cast date to numeric
+					AND bill.flex14 = 'true'
+          </value>
+        </constructor-arg>
+      </bean>    
+    	<bean id="accountNumbersFromOrgId" class="java.lang.String">
+        <constructor-arg>
+            <value>select account_number from tm_account where org_id = :org_id and end_date is null and bill_group != :ignore_group</value>
+        </constructor-arg>   
+    </bean> 
+    <bean id="tmInsertAccountDetailsSQL" class = "java.lang.String">   
+		<constructor-arg>
+       	<value>
+            	INSERT INTO tm_account 
+	            ( 
+	                        id, 
+	                        account_number, 
+	                        account_number_display, 
+	                        start_date, 
+	                        account_name,
+	                        bill_group, 
+	                        biller_id, 
+	                        org_id 
+	            ) 
+	            VALUES 
+	            ( 
+	                        :idVal, 
+	                        :accountNumVal, 
+	                        :accountDisplayVal, 
+	                        :startDateVal, 
+	                        :accountNameVal, 
+	                        :payGroupVal, 
+	                        :billerIdVal, 
+	                        :orgIdVal 
+	            )
+            </value>
+          </constructor-arg>
+    </bean>	
+    <bean id="accountSequenceSql.mysql" class="java.lang.String">
+        <constructor-arg>
+            <value>
+                SELECT SWF_nextval('tm_account_seq') FROM dual
+            </value>
+        </constructor-arg>        
+    </bean> 
+    <bean id="accountSequenceSql.oracle" class="java.lang.String">
+        <constructor-arg>
+            <value>
+                SELECT tm_account_seq.nextval FROM dual
+            </value>
+        </constructor-arg>        
+    </bean>           
+    <bean id="accountSequenceSql.postgres" class="java.lang.String">
+        <constructor-arg>
+            <value>
+                SELECT nextval('tm_account_seq') FROM dual
+            </value>
+        </constructor-arg>        
+    </bean>      
     <bean id="userAccountsStatusDao" class="com.sorrisotech.svcs.accountstatus.dao.AccountStatusDaoImpl">
     </bean>
+    <bean id="accountsForRegistrationDao" class = "com.sorrisotech.svcs.accountstatus.dao.AccountsForRegistrationDaoImpl">
+    </bean>
+    <bean id="accountsFromOrgIdDao" class = "com.sorrisotech.svcs.accountstatus.dao.TmAccountsFromOrgIdDaoImpl">
+    </bean>
+    <bean id = "insertTmAccountRecord" class = "com.sorrisotech.svcs.accountstatus.dao.InsertTmAccountRecordDaoImpl">
+    </bean>
+    <bean id = "getEligibleRegisteredAcctsDao" class = "com.sorrisotech.svcs.accountstatus.dao.EligibleRegisteredAcctsDaoImpl">
+    </bean>
+    <!--  accountSequienceSql is a generic bean that refers to the correct sequencing query for the db type we
+    		  are running on -->
+    <bean name="accountSequenceSql" class = "java.lang.String">
+    	<constructor-arg ref="accountSequenceSql.${database}"/>
+    </bean>
+ 
 </beans>
