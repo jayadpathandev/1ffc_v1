@@ -124,12 +124,12 @@ useCase documentSearch [
         string(error) sRequired = "Both from and to dates must be provided."       
     ]
     
-    static validRegex = "^[\\p{L}\\d.\\-_, '&$#@!]{3,}[\\p{L}\\d.\\-_, '&$#@!*]{0,7}$"
+    static validRegex = "^[\\p{L}\\d.\\-_, '&$#@!]{3,}[\\p{L}\\d.\\-_, '&$#@!*]{0,28}$"
     static validSubRefex = "^[\\p{L}\\d.\\-_, '&$#@!*]{0,29}[\\p{L}\\d.\\-_, '&$#@!]{3,}[\\p{L}\\d.\\-_, '&$#@!*]{0,29}$"
      
 	field fAccountNumber [                              // Input field for Account number
 	    string(label) sLabel = "{Loan number:}" 
-        input (control) pInput ("(^\\d{3,9}\\*|\\d{10}$)", fAccountNumber.sValidation)
+        input (control) pInput ("(^\\d{3,9}\\*|^\\d{10}$)$", fAccountNumber.sValidation)
 		string(validation) sValidation = "{The Loan number search criteria must be at least 3 digits plus a wildcard (*) or maximum of 10 digits. For example: 897*, 89790003*, or 8979000382.}"
 		string(help) sHelp = "{Please enter a customers' Loan Number. Search criteria must include at least 3 digits and a wild card (*) up to a full 10 digit loan number.}"
     ]
@@ -142,7 +142,7 @@ useCase documentSearch [
 
 	field fCustomerId [                              // Input field for Account number
 	    string(label) sLabel = "{Customer id:}" 
-        input (control) pInput ("(^\\d{3,6}\\*|\\d{7}$)", fCustomerId.sValidation)
+        input (control) pInput ("(^\\d{3,6}\\*|^\\d{7}$)$", fCustomerId.sValidation)
         string(validation) sValidation = "{Customer identification number search criteria must be at least 3 digits plus a wildcard (*) or maximum of 7 digits. For example: 207*, 2071*, or 2071978.}"
         string(help) sHelp = "{Please enter a customers' Customer Identification Number. Search criteria must include at least 3 digits and a wild card (*) up to a full 7 digit customer id.}"       
     ]
