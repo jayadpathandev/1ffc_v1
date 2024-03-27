@@ -136,7 +136,7 @@ useCase customerSearch [
     
     field fCustomerId [
         string(label) sLabel = "{Customer Identification Number}"
-        input (control) pInput ("(^\\d{3,6}\\*|\\d{7}$)", fCustomerId.sValidation)
+        input (control) pInput ("(^\\d{3,6}\\*|^\\d{7}$)$", fCustomerId.sValidation)
         string(validation) sValidation = "{Customer identification number search criteria must be at least 3 digits plus a wildcard (*) or maximum of 7 digits. For example: 207*, 2071*, or 2071978.}"
         string(help) sHelp = "{Please enter a customers' Customer Identification Number. Search criteria must include at least 3 digits and a wild card (*) up to a full 7 digit customer id.}"       
     ]
