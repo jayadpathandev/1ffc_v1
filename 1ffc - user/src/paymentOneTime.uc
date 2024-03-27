@@ -442,8 +442,8 @@ useCase paymentOneTime [
                         "that processing times may not allow for revocation of this " +
                         "authorization.}"
                         
-	static sSurchargeNotice = "{If you decide to pay through Direct Debit, 1st Franklin Financial will charge you a non-refundable Convenience Fee. " + 
-							  "This fee is payable in advance along with the Payment Amount and will be charged separately as a line item transaction.}"                        
+	static sSurchargeNotice = "{Payment by debit card will result in a one-time non-refundable convenience fee in the amount of $1.50. If you do not wish to pay this fee, you may cancel your payment and remit payment to 1FFC via ACH, Cash, Check, or Money Order.}"                        
+    static sSurchargeNoticeExcludeText = "{Excludes FL, KY, SC, and VA}"
     
     field fAutoScheduledConfirm [        
     	checkBoxes(control) sField = Agree [
@@ -1729,7 +1729,9 @@ useCase paymentOneTime [
 							
 							display sEftNotice
 							display sSurchargeNotice
-
+							display sSurchargeNoticeExcludeText [
+								class: "fw-bold px-1"
+							]
 						]
 						
 						div checboxesCol [
