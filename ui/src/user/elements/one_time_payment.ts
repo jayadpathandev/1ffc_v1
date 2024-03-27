@@ -163,7 +163,7 @@ function state_update_display(
     state.source_type((type) => {
         $('div[id^="paymentOneTime_messagesCol_"]').addClass('visually-hidden');
         $('#paymentOneTime_sEftNotice').addClass('visually-hidden');
-        $('#paymentOneTime_sSurchargeNotice').addClass('visually-hidden');
+        $('[id^="paymentOneTime_sSurchargeNotice"]').addClass('visually-hidden');
 
         if (type === 'bank') {
             $('#paymentOneTime_sEftNotice').removeClass('visually-hidden');
@@ -172,7 +172,7 @@ function state_update_display(
         else if (type === 'debit') {
             if ($('.st-surcharge').text() === 'true') {
                 $('div[id^="paymentOneTime_messagesCol_"]').removeClass('visually-hidden');
-                $('#paymentOneTime_sSurchargeNotice').removeClass('visually-hidden');
+                $('[id^="paymentOneTime_sSurchargeNotice"]').removeClass('visually-hidden');
              }
        }
 
