@@ -63,7 +63,6 @@ public class GetEligibleAssignedAccounts extends GetEligibleAssignedAccountsBase
 				lRegisteredAccts.size(), sStatusPaymentGroup, sUserId);
 		
 		String szRtnString = getAccountsAsJsonArray( lRegisteredAccts, sBillPayGroup );
-		List<AssignedAccountBean> bean = mapBack (szRtnString);
 		request.set(IApiAccountStatus.GetEligibleAssignedAccounts.accountsAsJsonArray, szRtnString);	
 		eReturnCode = ServiceAPIErrorCode.Success;
 		request.setStatus(eReturnCode);
@@ -107,19 +106,5 @@ public class GetEligibleAssignedAccounts extends GetEligibleAssignedAccountsBase
 		return szRetValue;
 	}
 
-	private List<AssignedAccountBean> mapBack(String jsString) {
-		
 
-		
-		ObjectMapper mapper = new ObjectMapper();
-		try {
-			
-			LinkedList<AssignedAccountBean>  myObjects = mapper.readValue(jsString, new TypeReference<LinkedList<AssignedAccountBean>>() {} );
-			return myObjects;
-		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
-		}
-	}
 }
