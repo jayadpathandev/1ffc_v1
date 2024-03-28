@@ -132,7 +132,7 @@
     <bean id="paymentDisabledScheduledRemover" class="com.sorrisotech.fffc.batch.status.processor.Processor">
    		<property name="dataSource" ref="dataSource"/>
 	    <property name="deleteScheduled" value="DELETE FROM pmt_schedule WHERE online_trans_id IN (:ids)"/>
-	    <property name="deleteRecurring" value="DELETE FROM pmt_automatic WHERE automatic_id IN (:ids)"/>
+	    <property name="configChange" value="Recurring payment deleted."/>
 	    <property name="scheduledPaymentMapper" ref="scheduledPaymentMapper"/>
 	    <property name="recurringPaymentMapper" ref="recurringPaymentMapper"/>
 	    <property name="getScheduledInfoByUserId">

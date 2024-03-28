@@ -97,7 +97,7 @@ useCase paymentAutomatic [
     native string sSourceId   = ""        
     native string sWalletCount  = UcPaymentAction.getWalletCount(sUserId)
 //  native string sAutoPayCount = UcPaymentAction.getAutoPayCount(sUserId)
-    native string sAutoPayCount = UcPaymentAction.getAutoPayCount(sUserId, sPayAccountInternal, sPayGroup, sIsB2b)
+    native string sAutoPayCount = UcPaymentAction.getAutoPayCount(sUserId, sPayAccountInternal, sPayGroup, sIsB2b, sDeleteAutomaticHistoryText)
     native string sNtfParams = ""
     native string sShowCreateFlag  = "false"
     native string scheduleFoundWithAccount = "false"
@@ -123,6 +123,7 @@ useCase paymentAutomatic [
     native string sOperation         = "The user has successfully set up an automatic (recurring) payment"
     native string sPortalChannel 	 = "portal"
     native string sOrgId
+    native string sDeleteAutomaticHistoryText = "Recurring payment deleted."
     
     persistent input sGeolocation
     
@@ -359,6 +360,7 @@ useCase paymentAutomatic [
 		srGetAutomaticForAcctParam.FORMAT_JSON = sFormat
 		srGetAutomaticForAcctParam.INTERNAL_ACCOUNT_ID = sPayAccountInternal	 
 		srGetAutomaticForAcctParam.PMT_GROUP_ID = sPayGroup
+		srGetAutomaticForAcctParam.CONFIG_CHANGE = sDeleteAutomaticHistoryText
 		
 		stopUc(childId: paymentUpdateAutomaticPayment)	
 		
@@ -500,6 +502,7 @@ useCase paymentAutomatic [
     	srGetAutomaticHistoryParam.USER_ID     = sUserId
     	srGetAutomaticHistoryParam.AUTOMATIC_ID = sSelectedAutomaticId
 		srGetAutomaticHistoryParam.DATE_FORMAT = sDateFormat
+		srGetAutomaticHistoryParam.CONFIG_CHANGE = sDeleteAutomaticHistoryText
 		
     	switch apiCall Payment.GetAutomaticPaymentHistory(srGetAutomaticHistoryParam, srGetAutomaticHistoryResult, ssStatus) [
 		    case apiSuccess getAutomaticResults
@@ -970,6 +973,7 @@ useCase paymentAutomatic [
     /* 12. Delete automatic payment history. */	
 	action deleteAutomaticPaymentHistory [
 		srDeleteAutomaticHistoryParam.AUTOMATIC_ID = sSelectedAutomaticId
+		srDeleteAutomaticHistoryParam.CONFIG_CHANGE = sDeleteAutomaticHistoryText
 		switch apiCall Payment.DeleteAutomaticPaymentHistory(srDeleteAutomaticHistoryParam, srDeleteAutomaticHistoryResult, ssStatus) [
             case apiSuccess checkDeleteResult
             default deleteErrorMsg

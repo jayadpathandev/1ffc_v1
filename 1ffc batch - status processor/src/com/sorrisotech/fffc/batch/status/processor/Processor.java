@@ -31,13 +31,16 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.context.ApplicationContext;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcDaoSupport;
 
+import com.sorrisotech.fffc.batch.status.processor.bean.Record;
 import com.sorrisotech.fffc.batch.status.processor.bean.RecurringPayment;
 import com.sorrisotech.fffc.batch.status.processor.bean.ScheduledPayment;
-import com.sorrisotech.fffc.batch.status.processor.bean.Record;
+import com.sorrisotech.svcs.payment.dao.PaymentAutomaticDao;
+import com.sorrisotech.utils.Spring;
 
 /**************************************************************************************************
  * Implementation class for ItemProcessor.
@@ -58,9 +61,9 @@ public class Processor extends NamedParameterJdbcDaoSupport implements ItemProce
 	private String m_szDeleteScheduled = null;
 	
 	/**************************************************************************
-     * Query for deleting the upcoming recurring payment records.
+     * Config change value of pmt_history table for soft deleted records.
      */
-	private String m_szDeleteRecurring = null;
+	private String m_szConfigChange = null;
 	
 	/**************************************************************************
      * Query for getting the scheduled payment records by userId.
@@ -81,6 +84,23 @@ public class Processor extends NamedParameterJdbcDaoSupport implements ItemProce
      * RowMapper implementation for RecurringPayment.
      */
 	private RowMapper<RecurringPayment> m_cRecurringPaymentMapper = null;
+	
+	/**************************************************************************
+	 * Used by this class to make SQL calls.
+	 */
+	private static PaymentAutomaticDao m_cPaymentAutomaticDao = null;
+	
+	/**************************************************************************	 
+     * Creates the spring object and gets the pmtAutomatic bean.    
+     */
+	public Processor() {	    		
+		try {		    		
+		    final ApplicationContext cContext = Spring.getPaymentQuery();
+		    m_cPaymentAutomaticDao = cContext.getBean("pmtAutomatic", PaymentAutomaticDao.class);
+		} catch (Exception e) {
+			LOG.error("DeleteAutomaticPayment().....An exception was thrown", e);
+		}
+	}
 
 	@Override
 	public Record process(Record cUser) throws Exception {
@@ -168,11 +188,11 @@ public class Processor extends NamedParameterJdbcDaoSupport implements ItemProce
 	}
 
 	/**************************************************************************
-	 * Sets the value of m_szDeleteRecurring.
-	 * @param szDeleteRecurring
+	 * Sets the value of m_szConfigChange.
+	 * @param szConfigChange
 	 */
-	public void setDeleteRecurring(String szDeleteRecurring) {
-		this.m_szDeleteRecurring = szDeleteRecurring;
+	public void setConfigChange(String szConfigChange) {
+		this.m_szConfigChange = szConfigChange;
 	}
 
 	/**************************************************************************
@@ -250,9 +270,26 @@ public class Processor extends NamedParameterJdbcDaoSupport implements ItemProce
 	 */
 	private int deleteRecurringPaymentsForUser(List<BigDecimal> ids) {
 		// Handling the SQL exception is the list is empty
-		if (ids.isEmpty()) ids.add(BigDecimal.ZERO);
-		MapSqlParameterSource param = new MapSqlParameterSource().addValue("ids", ids);
-		return getNamedParameterJdbcTemplate().update(m_szDeleteRecurring, param);
+		int count = 0;
+		
+		for (BigDecimal cAutomaticId : ids) {
+			String szSoftDeletePmtAutomaticStatus = m_cPaymentAutomaticDao
+			        .softDeletePmtAutomatic(cAutomaticId);
+			
+			if (szSoftDeletePmtAutomaticStatus.equals("success")) {
+				String szSoftDeletePmtAutomaticHistory = m_cPaymentAutomaticDao
+				        .softDeletePmtAutomaticHistory(cAutomaticId, m_szConfigChange);
+				
+				if (szSoftDeletePmtAutomaticHistory.equals("success")) {
+					count++;
+				} else {
+					LOG.error("Failed to delete automatic payament history for ID: {}", cAutomaticId);
+				}
+			} else {
+				LOG.error("Failed to delete automatic payament for ID: {}", cAutomaticId);
+			}
+		}
+		return count;
 	}
 
 }

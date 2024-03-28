@@ -68,6 +68,7 @@ useCase paymentRestBusiness [
 	native string sSelectedAccountsDataString
 	native string sFormat = LocalizedFormat.toJsonString()
 	native string sDateFormat = DateFormat.toJsonString()
+	native string sDeleteAutomaticHistoryText = "Recurring payment deleted."
 	
 	serviceStatus ssStatus
 	
@@ -279,6 +280,7 @@ useCase paymentRestBusiness [
 		srGetAutomaticParam.USER_ID = sUserId
 		srGetAutomaticParam.AUTOMATIC_ID = sAutomaticId
 		srGetAutomaticParam.FORMAT_JSON  = sFormat
+		srGetAutomaticParam.CONFIG_CHANGE  = sDeleteAutomaticHistoryText
 		switch apiCall Payment.GetAutomaticPayment(srGetAutomaticParam, srGetAutomaticResult, ssStatus) [
 		    case apiSuccess getAutomaticPaymentJSON
 		    default getAutomaticPaymentJSON
@@ -323,6 +325,7 @@ useCase paymentRestBusiness [
 		srGetAutomaticByAccountParam.SOURCE_ID = sPaymentSourceId
 		srGetAutomaticByAccountParam.USER_ID = sUserId
 		srGetAutomaticByAccountParam.FORMAT_JSON = sFormat
+		srGetAutomaticByAccountParam.CONFIG_CHANGE = sDeleteAutomaticHistoryText
 
 		switch apiCall Payment.GetAutomaticPaymentByAccount(srGetAutomaticByAccountParam, srGetAutomaticByAccountResult, ssStatus) [
 		    case apiSuccess getAutomaticPaymentByAccountJSON
@@ -352,6 +355,7 @@ useCase paymentRestBusiness [
 		srGetAutomaticHistoryParam.AUTOMATIC_ID = sAutomaticId
     	srGetAutomaticHistoryParam.USER_ID = sUserId
 		srGetAutomaticHistoryParam.DATE_FORMAT = sDateFormat
+		srGetAutomaticHistoryParam.CONFIG_CHANGE = sDeleteAutomaticHistoryText
     	switch apiCall Payment.GetAutomaticPaymentHistory(srGetAutomaticHistoryParam, srGetAutomaticHistoryResult, ssStatus) [
 		    case apiSuccess getAutomaticPaymentHistoryJSON
 		    default getAutomaticPaymentHistoryJSON
