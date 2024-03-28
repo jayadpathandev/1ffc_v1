@@ -82,6 +82,7 @@ useCase paymentUpdateAutomaticPayment [
     
     native string sFuturePaymentsFound = "false"
 	native string sHistoryText          = "Recurring payment created." 
+	native string sDeleteAutomaticHistoryText = "Recurring payment deleted."
 	native string sDays                 = ""
     native string sConfigChange         = ""
     native string sPayInvoicesOptionOld = ""
@@ -367,6 +368,7 @@ useCase paymentUpdateAutomaticPayment [
     	srGetAutomaticParam.AUTOMATIC_ID = sSelectedAutomaticId
 		srGetAutomaticParam.USER_ID = sUserId
 		srGetAutomaticParam.FORMAT_JSON = sFormat
+		srGetAutomaticParam.CONFIG_CHANGE = sDeleteAutomaticHistoryText
 			
 		switch apiCall Payment.GetAutomaticPayment(srGetAutomaticParam, srGetAutomaticResult, ssStatus) [
 		    case apiSuccess checkMinimumAmtFlag		   
