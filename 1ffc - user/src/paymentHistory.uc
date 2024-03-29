@@ -42,7 +42,9 @@ useCase paymentHistory [
     importJava FffcAccountAction(com.sorrisotech.fffc.account.FffcAccountAction)	
     
     import billCommon.sPayAccountInternal
-    import billCommon.sPayGroup       
+    import billCommon.sPayGroup     
+    
+    import validation.dateValidation  
         
     import paymentCommon.sPmtGroupConfigResult    
     import apiPayment.pmtRequest
@@ -54,28 +56,35 @@ useCase paymentHistory [
     string sLabelPaymentFailed    		= "{Payment failed}"
     string sCancelFuturePopinTitle    	= "{CONFIRM CANCEL PAYMENT}"  
     string sCancelFutureText3         	= "{This action cannot be undone.}"      
-    string sViewDetailPayment           = "{View details}"    
+    string sViewDetailPayment           = "{View details}"
+    string sEditPaymentLabel        	= "{Edit payment}"    
     string sLabelPaymentCancel        	= "{Cancel payment}"   
     
     string sFuturePaymentHeader       	= "{Upcoming payments}"   
     string sPastPaymentHeader		  	= "{View past payments}"
-  	string sPaymentDetailsPopinTitle  	= "{Payment Details}"        	
+  	string sPaymentDetailsPopinTitle  	= "{Payment Details}"
+  	string sPaymentEditPopinTitle  		= "{Edit Payment}"        	
     string sSourceErrorMsg              = "{An error occurred while trying to fulfill your request. Please try again later}"
     string sPaymentSummaryHeader        = "{Payment summary}"
     string sPaymentMethodHeader         = "{Payment method}"
     string sPaymentMethodInfo           = "{Not having the total amount on your credit card on the processing date will result in additional costs.}"
     string sPaymentConfirmHeader        = "{Payment confirmed}"
+    string sPaymentConfirmEditHeader    = "{Payment date}"
     string sPaymentRequestReceivedLabel = "{PAYMENT REQUEST RECEIVED}"
     string sProcessingDateLabel         = "{ESTIMATED PROCESSING DATE}"
     string sTransactionIdLabel          = "{Transaction ID}"
     string sPaymentDateLabel		    = "{Payment Date}"
     
     static sAccountIdLabel     			= "{Account #}"
+    static sAccountIdEditLabel     		= "{PAYMENT FOR}"
     static sAccountNumLabel     		= "{Account #}"
     static sBillNumberLabel				= "{Bill #}"
     static sPayAmountLabel	            = "{Pay amount}"
+    static sPayAmountEditLabel	        = "{PAY AMOUNT}"
 	static sPaySurchargeLabel           = "{Surcharge}"
+	static sConvienceFeeLabel           = "{CONVENIENCE FEE}"
     static sPayTotalAmountLabel         = "{Total amount}"
+    static sPayTotalAmountEditLabel     = "{TOTAL AMOUNT}"
     static sPaymentSummerHdrSelected    = "{Payment summary - selected accounts}"
     static sAccountNum					= "{accounts}"
     static sBillNum                     = "{bills}"
@@ -114,6 +123,8 @@ useCase paymentHistory [
 	native string sBillId			     = ""
 	native string sPaymentAmount         = ""
 	native string sPaymentSurcharge      = ""
+	native string sConvenienceFee	     = ""
+	native string sTotalAmount			 = ""
     native string sPaymentRequestReceived  = ""
     native string sEstimatedProcessingDate = ""
 
@@ -124,6 +135,7 @@ useCase paymentHistory [
     native string nAmount
     native string sDisplayAmt = UcPaymentAction.formatAmtText(nAmount, sPayGroup, "history")
     native string sSurchargeFlag = UcPaymentAction.getSurchargeStatus()
+	native string sTodaysDate = FffcAccountAction.getCalendarConversion(sEstimatedProcessingDate)
 	native string sFormat = LocalizedFormat.toJsonString()
 	native string foo = ""
     
@@ -156,6 +168,18 @@ useCase paymentHistory [
 		string(title) sTitle = "{Not supported}"
 		string(body) sBody = "{There are more than one payment group configured to your account. We currently do not support multiple payment groups. Please contact your System Administrator.}"
 	]
+	
+    field fPayAmount [
+        input(control) pInput("^[+]?[0-9]{1,3}(?:[0-9]*(?:[.,][0-9]{2})?|(?:,[0-9]{3})*(?:\\.[0-9]{2})?|(?:\\.[0-9]{3})*(?:,[0-9]{2})?)$", fPayAmount.sValidation)            
+        string(validation) sValidation = "{Entry must be in standard US or European currency format.}"       
+        string(error) sErrorEmpty = "{You must enter an amount}"
+        string(error) sErrorOver = "{Warning, entry exceeds current balance.}"    
+        string(error) sErrorZero = "{Warning, amount should not be zero.}"    
+    ]    
+ 	
+    field fPayDate [
+        date(control) aDate("yyyy-MM-dd", dateValidation)         
+    ]
 		
 	/* Table for upcoming payments.*/	
 	table tScheduledPaymentsTable [
@@ -192,9 +216,23 @@ useCase paymentHistory [
            sPaymentMethodType: sSourceType
            sPaymentMethodAccount: sSourceNum
            sPaymentRequestReceived: sPayReqDate
-           sEstimatedProcessingDate: sPayDate
+           sEstimatedProcessingDate: sPayDate           
         ]
-        
+
+        link "" futurePaymentEdit(assignPaymentValues) [            
+           sOnlineTransId: sOnlineTransId             
+           sPaymentMethodNickName: sSourceName
+           sPaymentDetailsName: sDetailsName
+           sPaymentMethodType: sSourceType
+           sPaymentMethodAccount: sSourceNum
+           sPaymentRequestReceived: sPayReqDate
+           sEstimatedProcessingDate: sPayDate
+ 		   fPayAmount.pInput: nPayAmount
+           sBillId: sAccId
+           sConvenienceFee: sPaySurcharge
+           sTotalAmount: sPayTotalAmount
+        ] 
+                
         link "" futurePaymentDelete(assignText) [            
            sOnlineTransId: sOnlineTransId  
            sAccountNumber: sAccId
@@ -249,7 +287,13 @@ useCase paymentHistory [
            			attr_class: "payment-history-eyeopen-img st-left-space"  
            			popin_size: "lg"   	          				
            		],
-            	            	
+
+           		futurePaymentEdit: [
+           			^type: "popin"      	
+           			attr_class: "payment-edit-img st-left-space"     	 
+ 					popin_size: "xl"         				
+           		],
+           		            	            	
             	futurePaymentDelete: [
            			^type: "popin"    
            			attr_class: "payment-cancel-img st-left-space"       			
@@ -784,21 +828,25 @@ useCase paymentHistory [
 						class: "row st-payment-help-icons"
 						
 						div futurepmteditIconCol [
-							class: "col-6 col-sm-5 text-end"
+							class: "col-md-4 text-end"
 							
 							div viewDetailIcon [
 								class: "st-payment-view-details-eye"								
 								display sViewDetailPayment
 							]
 						]
-						
-						div futurepmtMiddleCol [
-							class: "col-sm-2 d-none d-md-table-cell"	
-							display sDummy
+
+						div editIconCol [
+							class: "col-md-4 text-center"
+							
+							div editIcon [
+								class: "st-payment-edit-details"
+								display sEditPaymentLabel 
+							]
 						]
 						
 						div futurepmtcancelIconCol [
-							class: "col-6 col-sm-5 text-start"
+							class: "col-md-4 text-start"
 							
 							div cancelIcon [
 								class: "st-payment-cancel-details"								
@@ -1057,12 +1105,272 @@ useCase paymentHistory [
 	                navigation closePaymentDetailsButton (paymentStatusScreen, "{CLOSE}") [  
 	                    class: "btn btn-primary"		                   
 	                    type: "cancel"
-	                    attr_tabindex: "10"
+	                    attr_tabindex: "1"
 	                ]		                
 				]
 			]            
         ]
 	]
+	
+    xsltFragment futurePaymentEditPopin [
+        
+        form content [
+        	class: "modal-content"
+        
+	        div paymentEditHeading [
+	            class: "modal-header st-border-bottom"
+	            
+	            div paymentEditHeadingRow [
+	            	class: "row text-center"
+	            	
+	            	h4 paymentEditHeadingCol [
+						class: "col-md-12"
+						display sPaymentEditPopinTitle 
+					]
+				]
+	        ]
+	        
+	        div body [
+	          class: "modal-body"
+		      div paymentSummary [
+			      class: "st-border-bottom"
+			    			    		
+ /* 			  div paymentSummaryContent [
+						class: "row"
+		
+						display tableContent [
+							attr_sorriso: "element-payment-status-table" 
+							attr_onlineTransId: sOnlineTransId		    								
+						]		
+		           ]
+*/		
+		        // Summary Header
+		        div paymentSummaryHeader [
+				 	class: "row"
+
+					div col1 [
+						class: "col-md-3"
+						
+						div accountSurLabel [
+							class: "col-md-12"
+							display sAccountIdEditLabel
+						]						
+					]						
+
+					div col2 [
+						class: "col-md-3 text-end"
+						
+						div amountSurLabel [
+							class: "col-md-12"
+							display sPayAmountEditLabel
+						]							
+					]	
+
+					div col3 [
+						class: "col-md-3 text-end"
+					 	logic: [
+					 		if sPaymentMethodType == "BANK ACCOUNT" then "hide"
+					 	]									
+						div convFeeLabel [
+							class: "col-md-12"
+							display sConvienceFeeLabel
+						]							
+					]	
+					
+					div col4 [
+						class: "col-md-3 text-end"
+					 	logic: [
+					 		if sPaymentMethodType == "BANK ACCOUNT" then "hide"
+					 	]									
+						
+						div totalAmtSurLabel [
+							class: "col-md-12"
+							display sPayTotalAmountEditLabel
+						]							
+					]													
+		          ]   // -- end of summary header with convenience fee
+
+		         
+				 // Summary content 	         
+		         div pmtSummaryEditContent [
+		           	class: "row"
+
+	           		div paymentCol1 [
+	           			class: "col-md-3"  
+	           			display sBillId
+	           		]
+							           		
+	           		div paymentCol2 [
+	           			class: "col-md-3"
+	           			display fPayAmount [
+	           				control_attr_class: "form-control st-input-control text-end"
+	           			]
+	           		]
+	           		
+	           		div paymentCol3 [
+	           			class: "col-md-3 text-end"
+					 	logic: [
+					 		if sPaymentMethodType == "BANK ACCOUNT" then "hide"
+					 	]										           			
+	           			display sConvenienceFee 
+	           		]
+	           		
+	           		div paymentCol4 [
+	           			class: "col-md-3 text-end"
+					 	logic: [
+					 		if sPaymentMethodType == "BANK ACCOUNT" then "hide"
+					 	]										           			
+	           			display sTotalAmount 
+	           		]		           		
+		         ]     // end of content 	         
+		         		         
+		         
+		        ]
+		        
+		        div paymentMethod [
+		    		class: "st-border-bottom"
+		    		
+			    	div paymentMethodHeaderRow [
+			    		class: "row"
+			    		
+						h4 paymentMethodHeaderCol [
+							class: "col-md-12"
+							display sPaymentMethodHeader 
+						]
+					]
+		    						
+					div paymentMethodSelection [
+						class: "row"
+						
+						h5 paymentMethodNickName [
+							class: "col-md-4"
+							
+							display sPaymentDetailsName [
+								class: "st-payment-method-nickname"
+							]
+						]
+											
+						div paymentMethodDetails [
+							class: "col-md-8"
+							
+							div paymentMethodTypeRow [
+								class: "row"
+							
+								div paymentMethodTypeCol [
+									class: "col-md-12"
+									
+									display sPaymentMethodType [
+										class: "st-payment-method-type"
+									]
+									
+									div paymentMethodTypeCredit [
+										class: "st-payment-credit-card"
+					            		logic: [
+											if sPaymentMethodType != "CREDIT CARD" then "remove"						
+										]
+										display sDummy
+					        		]
+					        		
+					        		div paymentMethodTypeDebit [
+					        			class: "st-payment-debit-card"
+					            		logic: [
+											if sPaymentMethodType != "DEBIT CARD" then "remove"						
+										]
+										display sDummy
+					        		]
+					        		
+					        		div paymentMethodTypeBank [
+					        			class: "st-payment-bank-account"
+					            		logic: [
+											if sPaymentMethodType != "BANK ACCOUNT" then "remove"						
+										]
+										display sDummy
+					        		]
+					        		div paymentMethodTypeSepa [
+					        			class: "st-payment-sepa-account"
+					            		logic: [
+											if sPaymentMethodType != "SEPA ACCOUNT" then "remove"						
+										]
+										display sDummy
+					        		]					        		
+								]
+							]
+							
+							div paymentMethodAccountRow [
+								class: "row"
+							
+								div paymentMethodAccountCol [
+									class: "col-md-12"
+									
+									display sPaymentMethodAccount [
+										class: "st-payment-method-account"
+									]
+								]
+							]
+						]					
+					]
+				]
+				
+		        div paymentConfirm [
+			    	class: "st-border-bottom"
+			    		
+			    	div paymentConfirmHeaderRow [
+			    		class: "row"
+			    		
+						h4 paymentConfirmHeaderCol [
+							class: "col-md-12"
+							display sPaymentConfirmEditHeader 
+						]
+					]		    		
+			    	
+			    	div paymentConfirmDatesContent [
+			    		class: "row"
+			    					    	
+			    		div paymentConfirmDatesContentCol2 [
+			    			class: "col-md-12"
+			    			
+							div processingDateLabelRow [
+								class: "row"
+								
+								div processingDateLabel [
+									class: "col-md-4 st-padding-top"
+									display sProcessingDateLabel
+								]
+							]
+							
+							div estimatedDateRow [
+								class: "row"
+								
+								h4 estimatedDate [
+									class: "col-md-4"
+									display fPayDate
+								]
+							]
+		    			]
+			    	]			
+		        ]
+			]
+				            
+            div paymentEditButtonsRow [
+            	class: "modal-footer"
+ 
+                navigation SavePaymentEditButton (paymentStatusScreen, "{SAVE}") [  
+                    class: "btn btn-primary"
+                    	data: [
+		                    	fPayAmount,
+								fPayDate
+		                      ]	                   
+                    attr_tabindex: "2"
+                ]		                
+				           
+                navigation closePaymentEditButton (paymentStatusScreen, "{CANCEL}") [  		                   
+                    type: "cancel"
+                    attr_tabindex: "3"
+                ]		                 
+			]
+			
+        ]
+	]	
     
     xsltFragment pastPaymentDetailsPopin [
         
@@ -1254,13 +1562,18 @@ useCase paymentHistory [
 	                navigation closePastPaymentDetailsButton (paymentStatusScreen, "{CLOSE}") [  
 	                    class: "btn btn-primary"		                   
 	                    type: "cancel"
-	                    attr_tabindex: "10"
+	                    attr_tabindex: "4"
 	                ]		                
 				]
 			]          
         ]
     ]   	    
 
+	action assignPaymentValues [
+		UcPaymentAction.formatPayDate(sTodaysDate, fPayDate.aDate)
+		goto(futurePaymentEditPopin)
+	]
+	
 	/* 8. Delete scheduled payment. */	
 	action assignText [
 		sCancelTextFinal = sCancelNewText1 + sDisplayAmt + sCancelNewText2	    
