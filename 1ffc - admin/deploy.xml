@@ -10,6 +10,7 @@
 
 		<mkdir dir="deploy/${app}"/>
         <mkdir dir="deploy/${app}/classes"/>
+        <mkdir dir="deploy/${app}/linked-root/js"/>
     </target>
 
 	<target name="-ui" depends="-init">
@@ -30,6 +31,7 @@
         	<fileset dir="${install.dir}/app - ${app}/src-gen" includes="com/**/*.class"/>
         </copy>
 
+ 
 		<!-- Usecases/I18N/services from the base application. -->
         <copy todir="deploy/${app}/">
         	<fileset dir="${install.dir}/app - ${app}/resources" includes="config.properties"/>
@@ -38,7 +40,7 @@
         	<fileset dir="${install.dir}/app - ${app}/src-gen" includes="${app}.xml"/>
         	<fileset dir="${install.dir}/app - ${app}/src-gen" includes = "usecases/*.xml"/>
         </copy>
-
+  
     	<!-- Copy the linked-root and layout-pages from the base application. -->
         <copy todir="deploy/${app}">
             <fileset dir="${install.dir}/app - ${app}/resources" includes="linked-root/**/*.*"/>
