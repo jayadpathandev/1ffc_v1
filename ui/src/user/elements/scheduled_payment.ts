@@ -133,10 +133,29 @@ function pay_amount() {
             payUpTo2.removeClass('is-valid is-invalid');
         }
     }).trigger('change');
-
+    
     $('#paymentUpdateAutomaticPayment_fPayAmount2\\.pInput').on('focus', function() {
         $('#paymentUpdateAutomaticPayment_fPayAmount2\\.rInput_option3').prop('checked', true).trigger('change');
     });
+    
+    // New features for recurring payment  goes here
+    // -----------------------------------------------------
+    $('#paymentUpdateAutomaticPayment_fPayAmount2\\.monthlyPaymentAmountInput').attr('readonly', 'readonly');
+
+    $('#paymentUpdateAutomaticPayment_fPayInvoices\\.aDate_display').on('change', function() {
+        const val = String($(this)?.val());
+
+        if (!Date.parse(val)) {
+            $('#paymentUpdateAutomaticPayment_signDocument').addClass('disabled');
+        } else {
+            $('#paymentUpdateAutomaticPayment_signDocument').removeClass('disabled');
+        }
+
+    }).trigger('change');
+
+    $('#paymentUpdateAutomaticPayment_fPayInvoices\\.aDate_display').datepicker(
+        'option', 'minDate', new Date()
+    );
 }
 
 //*****************************************************************************

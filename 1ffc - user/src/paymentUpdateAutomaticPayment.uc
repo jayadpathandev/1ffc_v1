@@ -70,16 +70,17 @@ useCase paymentUpdateAutomaticPayment [
     string sCreateAutomaticHeader	  = "{Create recurring payment}"
     string sScheduleTriggerHeader     = "{Schedule Trigger}"
     string sScheduleTriggerHeaderHelp = "{Select the criteria that will trigger the recurring payment. Please allow up to 3 days for payment to be posted.}"    
-    string sScheduleExpiryHeader      = "{Schedule Expiry}"
-    string sScheduleExpiryHeaderHelp  = "{Select when you would like the recurring payment to stop.}"
-    string sPayAmountHeader           = "{Payment amount}"
-    string sPayAmountHeaderHelp       = "{Select how much you want to pay.}"
+//    string sScheduleExpiryHeader      = "{Schedule Expiry}"
+//    string sScheduleExpiryHeaderHelp  = "{Select when you would like the recurring payment to stop.}"
+//    string sPayAmountHeader           = "{Payment amount}"
+//    string sPayAmountHeaderHelp       = "{Select how much you want to pay.}"
     string sPaymentMethodHeader       = "{Payment method}"
     string sPaymentMethodHeaderHelp   = "{Choose the payment method for this recurring payment}"
     string sSelectedAutomaticId	      = ""
     string sGroupJson				  = ""	
     volatile string sSafeGroupJson	  =  FffcAccountAction.escapeGroupingJson(sGroupJson, sUserId)
     
+    static sContractedAmountLabel = "{Monthly amount due}"
     native string sFuturePaymentsFound = "false"
 	native string sHistoryText          = "Recurring payment created." 
 	native string sDeleteAutomaticHistoryText = "Recurring payment deleted."
@@ -113,8 +114,8 @@ useCase paymentUpdateAutomaticPayment [
     native string sPayUpto = UcPaymentAction.getAutoPayUpto()
     native string sThousand = "1000"
     native string sDisplayAmt = UcPaymentAction.formatAmtText(sThousand, sPayGroup, "auto")
-    native string sMinimumDueFlag = UcPaymentAction.getMinimumDueFlag()
-    native string sBillingType = UcPaymentAction.getBillingBalanceType()
+//    native string sMinimumDueFlag = UcPaymentAction.getMinimumDueFlag()
+//    native string sBillingType = UcPaymentAction.getBillingBalanceType()
     native string surchargeFlag = UcPaymentAction.getSurchargeStatus()
     
     // from paymentCreateAutomaticPayment
@@ -130,15 +131,14 @@ useCase paymentUpdateAutomaticPayment [
 	volatile string sPayCountStatement   = EsignHelper.getPayCountStatement(fPayEffective.pInput)
 	volatile string sExpiryDateStatement   = EsignHelper.getExpiryDateStatement(fPayEffective.aDate)
 	volatile string sPriorDaysStatement   = EsignHelper.getPriorDaysStatement(fPayInvoices.dPayPriorDays)
-	volatile string sDueDateStatement   = EsignHelper.getDueDateStatement(fPayInvoices.dPayDate)
                                                    
     field fPayInvoices [
         string(label) sLabel = "{Pay bills *}"        
-        radioSet(control) rInput = option2 [        
-            option1: "{of every month}"
-            option2: "{prior to 'Due Date'}"              
-        ]
-        
+//        radioSet(control) rInput = option1 [        
+//            option1: "{of every month}"
+////            option2: "{prior to 'Due Date'}"              
+//        ]
+        date(control) aDate("yyyy-MM-dd", dateValidation)
         string(help) sHelp = "{If 31, 30 or 29 is selected and if it doesn't exist in the month, then the last day of the month will trigger the payment.}"
         auto dropDown(option1_prefix) dPayDate                       
         auto dropDown(option2_prefix) dPayPriorDays 
@@ -148,8 +148,8 @@ useCase paymentUpdateAutomaticPayment [
         string(label) sLabel = "{Effective until *}"        
         radioSet(control) rInput = option1 [        
             option1: "{I cancel}"
-            option2: ""    
-            option3: "{payments made}"            
+//            option2: ""    
+//            option3: "{payments made}"            
         ]
         
         date(option2_prefix) aDate("yyyy-MM-dd", dateValidation)         
@@ -177,12 +177,12 @@ useCase paymentUpdateAutomaticPayment [
     ]
     
     field fPayAmount2 [
-        string(label) sLabel = "{Pay *}"        
-        radioSet(control) rInput = option1 [        
-            option1: "{Bill amount}"
-        ]
-        input (option3_suffix) pInput("^(\\d{1,5}|\\d{0,5}\\.\\d{1,2})$", fPayAmount2.sValidation) = "1"   
-        
+        string(label) sLabel = "{Monthly amount due *}"        
+//        radioSet(control) rInput = option1 [        
+//            option1: "{Monthly amount due}"
+//        ]
+//        input (option3_suffix) pInput("^(\\d{1,5}|\\d{0,5}\\.\\d{1,2})$", fPayAmount2.sValidation) = "1"   
+        input (control) monthlyPaymentAmountInput("", fPayAmount2.sValidation)
         string(help) sHelp = "{The outstanding balance from the last bill or statement less any payments made since.}"
         string sPayUptoValidationText = "{Enter a number between 1 and <1> (up to 2 decimal values allowed)}"
         volatile string(pInput_validation) sValidation = I18n.translate ("paymentUpdateAutomaticPayment_fPayAmount2.sPayUptoValidationText", sPayUpto)  
@@ -204,6 +204,8 @@ useCase paymentUpdateAutomaticPayment [
                        "please do so by contacting us directly. Please note " +
                        "that processing times may not allow for revocation of this " +
                        "authorization.}"
+                       
+   static sEftRecurringAlertMessage = "{For the final installment payment by EFT, you must make the payment directly at the 1FFC branch office no later than the Final Payment Due Date, as stated on your Loan Agreement. Recurring payments will not include the final payment.}"
                        
    static sSurchargeNotice = "{If you decide to pay through Direct Debit, 1st Franklin Financial will charge you a non-refundable Convenience Fee. " + 
 							 "This fee is payable in advance along with the Payment Amount and will be charged separately as a line item transaction.}"                       
@@ -234,8 +236,12 @@ useCase paymentUpdateAutomaticPayment [
 	serviceParam(Notifications.GetUserAddresses) sUserDetailsParams
 	serviceResult(Notifications.GetUserAddresses) sUserDetailsResult
 	
+	serviceStatus srGetContractedPaymentStatus
+	serviceParam (AccountStatus.GetContractualMonthlyPaymentAmount) spGetContractedPaymentParams
+	serviceResult (AccountStatus.GetContractualMonthlyPaymentAmount) srGetContractedPaymentResult
+	
 	// move over from B2B
-    string scheduleFoundWithAccount = "false"   
+    string scheduleFoundWithAccount = "false"
        
     string sMsgNumber2 = "{[span] 2 [/span]}" 
     string sMsgNumber3 = "{[span] 3 [/span]}"  
@@ -347,10 +353,31 @@ useCase paymentUpdateAutomaticPayment [
 		UcPaymentAction.getWalletItems(sUserId, sSourceId, dWalletItems)
 
         switch apiCall SystemConfig.GetCurrentBalanceConfig (srGetComm, ssStatus) [
-            case apiSuccess updateAutomaticPaymentScreen
-            default updateAutomaticPaymentScreen
+            case apiSuccess setContractedPaymentParameters
+            default setContractedPaymentParameters
         ]		
 	] 
+	
+	action setContractedPaymentParameters [
+		spGetContractedPaymentParams.account = sPayAccountInternal
+		spGetContractedPaymentParams.paymentGroup = sPayGroup
+		spGetContractedPaymentParams.user = sUserId
+		
+		switch apiCall AccountStatus.GetContractualMonthlyPaymentAmount(spGetContractedPaymentParams, srGetContractedPaymentResult, srGetContractedPaymentStatus) [
+			case apiSuccess setMonthlyPaymentAmountinField
+			default redirectToUpdateAutomaticPaymentScreen
+		]
+	]
+	
+	action setMonthlyPaymentAmountinField [
+		fPayAmount2.monthlyPaymentAmountInput = srGetContractedPaymentResult.monthlyPaymentAmount
+		goto(updateAutomaticPaymentScreen)
+	]
+	
+	
+	action redirectToUpdateAutomaticPaymentScreen [
+		goto(updateAutomaticPaymentScreen)
+	]
 
 	/* 2.1 Initialize update automatic payment */		
 	action initUpdate [
@@ -393,16 +420,16 @@ useCase paymentUpdateAutomaticPayment [
     
     /* 5.1. Get payment amount 2.*/
     action getPayAmount2 [
-    	fPayAmount2.rInput = srGetAutomaticResult.PAY_AMOUNT_OPTION
-		fPayAmount2.pInput = srGetAutomaticResult.PAY_UPTO
-		UcPaymentAction.strip(fPayAmount2.pInput)
+//    	fPayAmount2.rInput = srGetAutomaticResult.PAY_AMOUNT_OPTION
+//		fPayAmount2.pInput = srGetAutomaticResult.PAY_UPTO
+//		UcPaymentAction.strip(fPayAmount2.pInput)
 		
     	goto(getResults)
     ]
     
 	/* 6. Get automatic payment details from the results .*/
 	action getResults [
-		 fPayInvoices.rInput = srGetAutomaticResult.PAY_INVOICES_OPTION
+		 fPayInvoices.aDate = srGetAutomaticResult.PAY_INVOICES_OPTION
 		 sPayDate = srGetAutomaticResult.PAY_DATE
 		 sDays = srGetAutomaticResult.PAY_PRIOR_DAYS
 		 fPayEffective.rInput = srGetAutomaticResult.EFFECTIVE_UNTIL_OPTION
@@ -625,6 +652,14 @@ useCase paymentUpdateAutomaticPayment [
 								]	
 						 ]
 						 
+						 div eftRecurringAlertMessage [
+							class: "col-md-10 st-margin-left45"
+							div recurringAlertMessage [
+								class: "col-md-12 alert alert-warning st-padding-bottom"
+								display sEftRecurringAlertMessage
+							]
+						]
+						 
 						 div step3_content [
 						 	 class: "row st-margin-left45"		
 										    
@@ -650,68 +685,6 @@ useCase paymentUpdateAutomaticPayment [
 											control_attr_tabindex: "10"
 											control_attr_autofocus: ""
 										]
-									 ]	
-								 ]					
-							 ]	
-									
-							 div formCol2 [
-								 class: "col-lg-4 st-padding-top"
-								
-								 div scheduleExpiry [
-									 class: "col-md-12"
-									
-									 h4 scheduleExpiryHeader [
-										class: "col-md-12"
-										display sScheduleExpiryHeader
-									 ]
-									
-									 div scheduleExpiryHeaderHelp [
-										 class: "col-md-12 st-light-label st-padding-bottom"
-							 			 display sScheduleExpiryHeaderHelp
-									 ]
-									
-									 div payEffective [
-										 class: "col-md-12"
-										 display fPayEffective [
-											control_attr_tabindex: "12"
-										]
-									 ]	
-								 ]										
-							 ]	
-							
-							 div formCol3 [
-								 class: "col-lg-4 st-padding-top"
-								
-								 div payAmount [
-									 class: "col-md-12"
-									
-									 h4 payAmountHeader [
-										class: "col-md-12"
-										display sPayAmountHeader
-									 ]
-									
-									 div payAmountHeaderHelp [
-										 class: "col-md-12 st-light-label st-padding-bottom"
-										 display sPayAmountHeaderHelp
-									 ]
-									
-									 div payAmount1 [
-										 class: "col-md-12"
-										 logic: [
-											if srGetComm.RSP_CURBALTYPE != "F" then "remove"													
-										 ]
-										 
-										 display fPayAmount1 [								
-											logic: [										
-												if sMinimumDueFlag != "true" then "remove_option2"
-												if sBillingType == "invoice" then "remove_option2"
-												if sBillingType == "invoice" then "remove_option3"												
-											]
-											control_attr_tabindex: "12"								
-											sWarning_class_override: "st-error alert alert-warning visually-hidden"
-											sError_class_override: "st-error alert alert-danger visually-hidden"
-											embedded_class: "ms-2"
-										]
 									 ]
 									
 									 div payAmount2 [
@@ -720,20 +693,96 @@ useCase paymentUpdateAutomaticPayment [
 											if srGetComm.RSP_CURBALTYPE == "F" then "remove"												
 										 ]
 										 
-										 display fPayAmount2[								
-											logic: [										
-												if sMinimumDueFlag != "true" then "remove_option2"		
-												if sBillingType == "invoice" then "remove_option2"	
-												if sBillingType == "invoice" then "remove_option3"									
-											]											
+										 display fPayAmount2[														
 											control_attr_tabindex: "12"
 											sWarning_class_override: "st-error alert alert-warning visually-hidden"
 											sError_class_override: "st-error alert alert-danger visually-hidden"
 											embedded_class: "ms-2"
 										]
-									 ]	
-								 ]										
+									 ]
+								 ]					
 							 ]	
+									
+//							 div formCol2 [
+//								 class: "col-lg-4 st-padding-top"
+//								
+//								 div scheduleExpiry [
+//									 class: "col-md-12"
+//									
+//									 h4 scheduleExpiryHeader [
+//										class: "col-md-12"
+//										display sScheduleExpiryHeader
+//									 ]
+//									
+//									 div scheduleExpiryHeaderHelp [
+//										 class: "col-md-12 st-light-label st-padding-bottom"
+//							 			 display sScheduleExpiryHeaderHelp
+//									 ]
+//									
+//									 div payEffective [
+//										 class: "col-md-12"
+//										 display fPayEffective [
+//											control_attr_tabindex: "12"
+//										]
+//									 ]	
+//								 ]										
+//							 ]	
+							
+//							 div formCol3 [
+//								 class: "col-lg-4 st-padding-top"
+//								
+//								 div payAmount [
+//									 class: "col-md-12"
+//									
+//									 h4 payAmountHeader [
+//										class: "col-md-12"
+//										display sPayAmountHeader
+//									 ]
+//									
+//									 div payAmountHeaderHelp [
+//										 class: "col-md-12 st-light-label st-padding-bottom"
+//										 display sPayAmountHeaderHelp
+//									 ]
+//									
+//									 div payAmount1 [
+//										 class: "col-md-12"
+//										 logic: [
+//											if srGetComm.RSP_CURBALTYPE != "F" then "remove"													
+//										 ]
+//										 
+//										 display fPayAmount1 [								
+//											logic: [										
+//												if sMinimumDueFlag != "true" then "remove_option2"
+//												if sBillingType == "invoice" then "remove_option2"
+//												if sBillingType == "invoice" then "remove_option3"												
+//											]
+//											control_attr_tabindex: "12"								
+//											sWarning_class_override: "st-error alert alert-warning visually-hidden"
+//											sError_class_override: "st-error alert alert-danger visually-hidden"
+//											embedded_class: "ms-2"
+//										]
+//									 ]
+//									
+//									 div payAmount2 [
+//										 class: "col-md-12"
+//										 logic: [
+//											if srGetComm.RSP_CURBALTYPE == "F" then "remove"												
+//										 ]
+//										 
+//										 display fPayAmount2[								
+//											logic: [										
+//												if sMinimumDueFlag != "true" then "remove_option2"		
+//												if sBillingType == "invoice" then "remove_option2"	
+//												if sBillingType == "invoice" then "remove_option3"									
+//											]											
+//											control_attr_tabindex: "12"
+//											sWarning_class_override: "st-error alert alert-warning visually-hidden"
+//											sError_class_override: "st-error alert alert-danger visually-hidden"
+//											embedded_class: "ms-2"
+//										]
+//									 ]	
+//								 ]										
+//							 ]	
 					     ]
 				        
 				   ]	
@@ -840,7 +889,7 @@ useCase paymentUpdateAutomaticPayment [
     	srEsignUrlParams.email = ""
     	srEsignUrlParams.phone = ""
     	displayMessage(type: "danger" msg: oMsgRetrieveContactDetailsError)
-    	goto(setDateRule)
+    	goto(setDateRuleToPayDate)
     ]
     
     /* Loads current email from database via the notifications service. */
@@ -860,25 +909,25 @@ useCase paymentUpdateAutomaticPayment [
             "sms",
             srEsignUrlParams.phone             
         ) 
-        goto(setDateRule)
+        goto(setDateRuleToPayDate)
     ]
     
-    action setDateRule [
-		switch fPayInvoices.rInput [
-			case "option1"	setDateRuleToPayDate
-			default setDateRuleToPriorDays
-		]
-	]
+//    action setDateRule [
+//		switch fPayInvoices.rInput [
+//			case "option1"	setDateRuleToPayDate
+//			default setDateRuleToPriorDays
+//		]
+//	]
 	
 	action setDateRuleToPayDate [
-		srEsignUrlParams.dateRule = sDueDateStatement
+		srEsignUrlParams.dateRule = fPayInvoices.aDate
 		goto(setCountRule)
 	]
 	
-	action setDateRuleToPriorDays [
-		srEsignUrlParams.dateRule = sPriorDaysStatement
-		goto(setCountRule)
-	]
+//	action setDateRuleToPriorDays [
+//		srEsignUrlParams.dateRule = sPriorDaysStatement
+//		goto(setCountRule)
+//	]
 	
 	action setCountRule [
 		switch fPayEffective.rInput [
@@ -1060,17 +1109,17 @@ useCase paymentUpdateAutomaticPayment [
 
     /* 12. Set payment amount 2. */
     action setCreatePayAmount2 [
-    	srSetAutomaticParam.PAY_AMOUNT_OPTION      = fPayAmount2.rInput
-		srSetAutomaticParam.PAY_UPTO               = fPayAmount2.pInput		
+//    	srSetAutomaticParam.PAY_AMOUNT_OPTION      = fPayAmount2.rInput
+//		srSetAutomaticParam.PAY_UPTO               = fPayAmount2.pInput		
     	goto(setCreateAutomaticPayment)
     ]
 
    /* 12.1 Set payment amount 2. */        
     action setUpdatePayAmount2 [
-    	sPayAmountOptionNew	   =  fPayAmount2.rInput
-    	sPayUptoNew            =  fPayAmount2.pInput		
-    	srSetAutomaticParam.PAY_AMOUNT_OPTION      = fPayAmount2.rInput
-		srSetAutomaticParam.PAY_UPTO               = fPayAmount2.pInput
+//    	sPayAmountOptionNew	   =  fPayAmount2.rInput
+//    	sPayUptoNew            =  fPayAmount2.pInput		
+//    	srSetAutomaticParam.PAY_AMOUNT_OPTION      = fPayAmount2.rInput
+//		srSetAutomaticParam.PAY_UPTO               = fPayAmount2.pInput
     	goto(saveNewValues)
     ]
 
@@ -1078,7 +1127,7 @@ useCase paymentUpdateAutomaticPayment [
 	action setCreateAutomaticPayment [	    			
 		srSetAutomaticParam.GROUPING_JSON          = sGroupJson
 		srSetAutomaticParam.SOURCE_ID              = dWalletItems
-		srSetAutomaticParam.PAY_INVOICES_OPTION    = fPayInvoices.rInput
+		srSetAutomaticParam.PAY_INVOICES_OPTION    = fPayInvoices.aDate
 		srSetAutomaticParam.PAY_DATE               = fPayInvoices.dPayDate
 		srSetAutomaticParam.PAY_PRIOR_DAYS         = fPayInvoices.dPayPriorDays
 		srSetAutomaticParam.EFFECTIVE_UNTIL_OPTION = fPayEffective.rInput					
@@ -1094,7 +1143,7 @@ useCase paymentUpdateAutomaticPayment [
         
     /* 13.1 Saves automatic payment new field values. */
     action saveNewValues [    	
-    	sPayInvoicesOptionNew  =  fPayInvoices.rInput
+    	sPayInvoicesOptionNew  =  fPayInvoices.aDate
 		sEffUntilOptionNew     =  fPayEffective.rInput		
 		sPayDateNew            =  fPayInvoices.dPayDate
 		sPriorDaysNew          =  fPayInvoices.dPayPriorDays
@@ -1138,7 +1187,7 @@ useCase paymentUpdateAutomaticPayment [
 		srSetAutomaticParam.GROUPING_JSON          = "{\"grouping\": [{\"internalAccountNumber\":\"" + sPayAccountInternal + "\", \"displayAccountNumber\":\"" + sPayAccountExternal + "\", \"paymentGroup\":\"" + sPayGroup + "\"}]}"
 		srSetAutomaticParam.OLD_SOURCE_ID          = sPmtSourceId
 		srSetAutomaticParam.SOURCE_ID              = dWalletItems
-		srSetAutomaticParam.PAY_INVOICES_OPTION    = fPayInvoices.rInput
+		srSetAutomaticParam.PAY_INVOICES_OPTION    = fPayInvoices.aDate
 		srSetAutomaticParam.PAY_DATE               = fPayInvoices.dPayDate
 		srSetAutomaticParam.PAY_PRIOR_DAYS         = fPayInvoices.dPayPriorDays
 		srSetAutomaticParam.EFFECTIVE_UNTIL_OPTION = fPayEffective.rInput					
