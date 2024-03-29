@@ -20,6 +20,9 @@
     		<fileset dir="${devkit.dir}/batch - common/lib">
     			 <include name="*.jar"/>
     		</fileset>
+			<fileset dir="${devkit.dir}/app - user/lib">
+    			 <include name="servicePayment.jar"/>
+    		</fileset>
     	</path>
     </target>
 
