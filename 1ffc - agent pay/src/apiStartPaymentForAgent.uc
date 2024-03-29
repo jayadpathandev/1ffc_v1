@@ -30,6 +30,15 @@ useCase apiStartPaymentForAgent
 	serviceStatus                 ssStart
     serviceParam (AgentPay.Start) spStart
     serviceResult(AgentPay.Start) srStart
+    
+    // -- using status call to retrieve accounts for registration from
+	//		the status feed and make certain they are ALL in tm_accounts --
+    serviceStatus ssAcctsReg
+    serviceParam (AccountStatus.GetAccountsForRegistration) spAcctsReg
+    serviceResult (AccountStatus.GetAccountsForRegistration) srAcctsReg
+    native string sStatusPayGroup = Config.get("1ffc.ignore.group")
+    native string sBillPayGroup = Config.get("1ffc.bill.group")
+    
 
 	native volatile string id        = ApiPay.id()
 	native volatile string sourceUrl = ApiPay.sourceUrl(sBaseUrl, "startChooseSource")
@@ -150,11 +159,25 @@ useCase apiStartPaymentForAgent
 		if srStart.userid != "" then
 			actionSendResponse
 		else
-			actionCreateUser
+			actionValidateAccounts
 	]
 
+	/**************************
+	 * 9a. Make certain all accounts are
+	 * 		properly created for registration
+	 */
+	 action actionValidateAccounts [
+		spAcctsReg.statusPaymentGroup = sStatusPayGroup
+		spAcctsReg.billPaymentGroup = sBillPayGroup
+		spAcctsReg.account = accountId
+		switch apiCall AccountStatus.GetAccountsForRegistration(spAcctsReg, srAcctsReg, ssAcctsReg ) [
+			case apiSuccess actionCreateUser
+			default actionFailure
+		]
+	 ]
+	 
  	/*************************
-	 * 9a. Check if the user exists.
+	 * 9b. Check if the user exists.
 	 */
 	action actionCreateUser [
     	sErrorStatus = "402"

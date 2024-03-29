@@ -26,6 +26,14 @@ useCase apiGetAutomaticPaymentRuleForAgent
 	serviceStatus                 	   ssStatus
     serviceParam (AgentPay.GetAutoPay) spGetAutoPay
     serviceResult(AgentPay.GetAutoPay) srGetAutoPay
+
+    // -- using status call to retrieve accounts for registration from
+	//		the status feed and make certain they are ALL in tm_accounts --
+    serviceStatus ssAcctsReg
+    serviceParam (AccountStatus.GetAccountsForRegistration) spAcctsReg
+    serviceResult (AccountStatus.GetAccountsForRegistration) srAcctsReg
+    native string sStatusPayGroup = Config.get("1ffc.ignore.group")
+    native string sBillPayGroup = Config.get("1ffc.bill.group")
     
     serviceParam (Payment.GetWalletByToken) srGetWalletInfoParam
 	serviceResult (Payment.GetWalletByToken) srGetWalletInfoResult
@@ -100,13 +108,27 @@ useCase apiGetAutomaticPaymentRuleForAgent
 	action actionCheckForUser [
 		switch Enroll.isUserAlreadyRegistered(customerId)[
 			case "registered"       actionProcess
-			case "not_registered"   actionCreateUser
+			case "not_registered"   actionValidateAccounts
 			default 				actionFailure
 		]
 	]
+	
+	/**************************
+	 * 6. Make certain all accounts are
+	 * 		properly created for registration
+	 */
+	 action actionValidateAccounts [
+		spAcctsReg.statusPaymentGroup = sStatusPayGroup
+		spAcctsReg.billPaymentGroup = sBillPayGroup
+		spAcctsReg.account = accountId
+		switch apiCall AccountStatus.GetAccountsForRegistration(spAcctsReg, srAcctsReg, ssAcctsReg ) [
+			case apiSuccess actionCreateUser
+			default actionFailure
+		]
+	 ]
 
  	/*************************
-	 * 6. Check if the user exists.
+	 * 6s. Check if the user exists.
 	 */
 	action actionCreateUser [
     	sErrorStatus = "402"
