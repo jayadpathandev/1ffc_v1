@@ -22,8 +22,12 @@ package com.sorrisotech.fffc.account;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -42,6 +46,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sorrisotech.app.common.utils.I18n;
+import com.sorrisotech.common.DateFormat;
 import com.sorrisotech.common.app.RestResponseUtil;
 import com.sorrisotech.common.rest.Result;
 import com.sorrisotech.svcs.external.IExternalReuse;
@@ -561,4 +566,26 @@ public class FffcAccountAction implements IExternalReuse {
 		
 		return szDocPayments;
 	}
+
+	/**
+	 * This method will convert a date format from MM/DD/YYYY to YYYY-MM-DD so it can be displayed in
+	 * the calendar
+	 * 
+	 * @param szPayDate
+	 * @return String
+	 * @throws ParseException
+	 */
+	public static String getCalendarConversion(String szPayDate) throws ParseException {
+	        SimpleDateFormat format1 = new SimpleDateFormat("MM/dd/yyyy");
+	        SimpleDateFormat format2 = new SimpleDateFormat("yyyy-MM-dd");
+
+	        // Parse the input date
+	        Date date = format1.parse(szPayDate);
+
+	        // Format the date in the desired output format
+	        String outputDate = format2.format(date);
+
+	        return outputDate;
+	    }
+	
 }
