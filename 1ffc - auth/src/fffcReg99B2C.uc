@@ -115,9 +115,9 @@ useCase fffcReg99B2C [
    serviceStatus srGetRegistrationAcctsCode
    serviceParam (AccountStatus.GetAccountsForRegistration) srGetRegistrationAcctsParams
    serviceResult (AccountStatus.GetAccountsForRegistration) srGetRegistrationAcctsResult
-   native string sRegistrationAccountNumber = UcBillRegistration.getUserAccountNumber()
    native string sStatusPaymentGroup = Config.get("1ffc.ignore.group")
    native string sBillPaymentGroup = Config.get("1ffc.bill.group")
+   native string sAcctForReg = UcBillRegistration.getAccountNum()
  	
     // -- message strings for display when use case completes. 			
     structure(message) msgDuplicateAccount [    
@@ -231,7 +231,7 @@ useCase fffcReg99B2C [
 	action getAccountsForUserRegistration[
 		srGetRegistrationAcctsParams.statusPaymentGroup = sStatusPaymentGroup
 		srGetRegistrationAcctsParams.billPaymentGroup = sBillPaymentGroup
-		srGetRegistrationAcctsParams.account = sRegistrationAccountNumber
+		srGetRegistrationAcctsParams.account = sAcctForReg
 		switch apiCall AccountStatus.GetAccountsForRegistration(srGetRegistrationAcctsParams, 
 														 srGetRegistrationAcctsResult,
 														 srGetRegistrationAcctsCode ) [
