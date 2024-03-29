@@ -25,6 +25,10 @@ useCase apiRequestPaymentStatusForAgent [
 	native string sErrorDesc
 	native string sErrorCode
 	
+	serviceStatus status
+	serviceParam (Payment.GetWalletByToken) srGetWalletInfoParam
+	serviceResult (Payment.GetWalletByToken) srGetWalletInfoResult
+	
 	/*************************
      * MAIN SUCCESS SCENARIO
      *************************/
@@ -83,10 +87,27 @@ useCase apiRequestPaymentStatusForAgent [
     	sErrorCode   = "invalid_transaction_id"
 		
 		switch ApiPay.load(transactionId) [
-			case "true" actionSendResponse
+			case "true" fetchWalletData
 			default actionFailure
 		] 
 	]
+	
+	/*************************
+	 * 7a. Fetch wallet data to send wallet info in success response.
+	 */
+     action fetchWalletData [
+    	sErrorStatus = "400"
+    	sErrorDesc   = "Unable to fetch wallet details."
+    	sErrorCode   = "no_payment_source"
+    	
+    	ApiPay.walletToken         (srGetWalletInfoParam.SOURCE_ID)
+    	
+    	switch apiCall Payment.GetWalletByToken(srGetWalletInfoParam, srGetWalletInfoResult, status) [
+		    case apiSuccess actionSendResponse
+		    default actionFailure
+		]
+    	
+    ]
 
  	/*************************
 	 * Everything is good, reply with the data the client needs.
@@ -94,6 +115,9 @@ useCase apiRequestPaymentStatusForAgent [
 	action actionSendResponse [
 		JsonResponse.reset()
 		JsonResponse.setString("status", transactionStatus)
+		JsonResponse.setString("nickName", srGetWalletInfoResult.SOURCE_NAME)
+		JsonResponse.setString("paymentAccount", srGetWalletInfoResult.SOURCE_NUM)
+		JsonResponse.setString("paymentAcctType", srGetWalletInfoResult.SOURCE_TYPE)
 		
 	    auditLog(audit_agent_pay.cancel_payment_for_agent_success) [
 	   		customerId accountId
