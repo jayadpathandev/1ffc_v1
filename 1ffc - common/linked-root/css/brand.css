@@ -1509,11 +1509,3 @@ div.impersonation.right {
 	background-color: #f5f5f5;
     border: 1px solid #e3e3e3;
 }
-
-/**************************************************************************************************
- * Date picker
- *************************************************************************************************/
-.ui-datepicker {
-	/* Set to 4 so it appears above page navigation. */
-	z-index: 4 !important;
-}
