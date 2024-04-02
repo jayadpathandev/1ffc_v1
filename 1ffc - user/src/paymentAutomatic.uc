@@ -70,7 +70,7 @@ useCase paymentAutomatic [
 
 	static msgPmtScheduled1_body = "{There are one or more payments scheduled for this account. Creating an recurring payment schedule will NOT override the upcoming payment(s). If you want to view or cancel the upcoming payments, click [a href='<1>']here[/a]}"
 	static msgPmtScheduled2_body = "{There are one or more payments scheduled for this account. Editing this recurring payment schedule will NOT override the upcoming payment(s). If you want to view or cancel the upcoming payments, click [a href='<1>']here[/a]}"
-	static msgPmtScheduled3_body = "{There is at least one existing payment scheduled for account(s) covered by this recurring payment schedule. These payment(s) will not be affected by this new schedule.}"
+	static msgPmtScheduled3_body = "{At least one payment is already scheduled for the account covered by this recurring payment schedule, which will not be affected by the new schedule.}"
 
     static sMultipleAccounts = "Multiple accounts"  
         
