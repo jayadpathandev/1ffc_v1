@@ -17,4 +17,5 @@ public class AccountForRegistrationElement {
 		public String m_szAccountName;
 		public int m_iBillerId;
 		public BigDecimal m_dStartDate;
+		public Boolean m_bIsEligibleForPortal;
 }

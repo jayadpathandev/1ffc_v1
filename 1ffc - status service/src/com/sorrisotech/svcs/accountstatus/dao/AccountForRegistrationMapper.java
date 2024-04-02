@@ -10,7 +10,9 @@ import org.springframework.jdbc.core.RowMapper;
  * 
  * @author john kowalonek
  * @since  2024-Mar-22
- * @verions 2024-Mar-22 jak First version
+ * @version 2024-Mar-22 jak First version
+ * @version 2024-Apr-01 jak added eligibility to results
+ * 
  */
 public class AccountForRegistrationMapper implements RowMapper<AccountForRegistrationElement> {
 
@@ -24,6 +26,7 @@ public class AccountForRegistrationMapper implements RowMapper<AccountForRegistr
 		lRetVal.m_szAccountName = arg0.getString("accountName");
 		lRetVal.m_iBillerId = arg0.getInt("billerId");
 		lRetVal.m_dStartDate = arg0.getBigDecimal("startDate");
+		lRetVal.m_bIsEligibleForPortal = Boolean.valueOf(arg0.getString("eligible"));
 
 		return lRetVal;
 	}

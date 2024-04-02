@@ -36,6 +36,7 @@ useCase fffcReg05BillingInfo [
     importJava UcBillRegistration(com.sorrisotech.uc.billstream.UcBillRegistration)    
 	importJava UcBillStream(com.sorrisotech.uc.billstream.UcBillStream)
 	importJava UcBillStreams(com.sorrisotech.uc.billstream.UcBillStreams)
+	importJava Config(com.sorrisotech.utils.AppConfig)
 		
     import validation.dateValidation
     
@@ -46,6 +47,19 @@ useCase fffcReg05BillingInfo [
 	
 	//flag to set so that the json_is_username_available can be whitelisted
 	import utilIsUserNameAvailable.sReqWorkflow
+	
+	// -- using status call to determine if the customer associated with the
+	//			account number provided for self-reg 	is eligible for online access
+	//
+	//			Note: the account itself may not be eligible but the customer may
+	//			have other accounts that are eligible --
+   serviceStatus ssIsCustomerEligible
+   serviceParam (AccountStatus.IsCustomerEligibleForPortal) spIsCustomerEligible
+   serviceResult (AccountStatus.IsCustomerEligibleForPortal) srIsCustomerEligible
+   native string sStatusPaymentGroup = Config.get("1ffc.ignore.group")
+   native string sAcctForReg = UcBillRegistration.getAccountNum()
+   native string sIsEligible
+	
 	
     string sTitle = "{Registration - Let's Find Your Account (step 5 of 8)}"    
     string sTitleBill = "{Registration - Let's Find Your Account (step 5 of 8)}"
@@ -185,19 +199,22 @@ useCase fffcReg05BillingInfo [
     
     structure(message) msgInvalidBillDetailsB2CError [    
         string(title) sTitle = "{We can not locate your account based on the information you provided.}"
-        string(body) sBody = "{We are unable to locate your account with the information provided. Please double-check your entries and try again. If you continue to experience issues, please contact 1st Franklin Support or visit your local branch.}"
+        string(body) sBody = "{We are unable to locate your account with the information provided. Please double-check your entries and try again. If you continue to experience issues, please contact your local branch.}"
     ]
     
     structure(message) msgInvalidBillDetailsB2BError [    
         string(title) sTitle = "{Error}"
-        string(body) sBody = "{The details you provided did not match any existing bills. For further assistance, contact customer service.}"
+        string(body) sBody = "{The details you provided did not match any existing bills. For further assistance, please contact your local branch.}"
     ]
     
     structure(message) msgCompanyIdNullB2BError [    
         string(title) sTitle = "{Error}"
-        string(body) sBody = "{A company is not yet created for this account. For further assistance, contact customer service.}"
+        string(body) sBody = "{A company is not yet created for this account. For further assistance, please contact your local branch.}"
     ]
-        
+	structure(message) msgCustomerNotEligibleB2CError[
+		string(title) sTitle ='{Account(s) not eligible for portal}'
+		string(body) sBody = "{The account(s) associated with the information provided are not eligible for portal access. For further assistance, please contact your local branch.}"
+	]        
     structure(message) msgGenericError [
 		string(title) sTitle = "{Something wrong happened}"
 		string(body) sBody = "{An error occurred while trying to fulfill your request. Please try again later.}"
@@ -695,13 +712,37 @@ useCase fffcReg05BillingInfo [
 		 	                     fSelfReg2.pInput, fSelfReg3.pInput, fSelfReg4.pInput)
 		
 		 switch UcBillRegistration.isAccountAvailable() [		 
-		 	case "success" determineNextUseCaseB2C
+		 	case "success" IsThisAccountEligible
 		 	case "registered" duplicateAccountMsg
 		 	case "duplicate_account" clearFields					
 			default invalidBillDetailsB2CMsg
 		]
 	]     
-    
+
+	/**************************************************************************
+	 * 12. System queries for portal eligibility of any accounts associated 
+	 * 		with this organization id
+	 */
+	action IsThisAccountEligible [
+		spIsCustomerEligible.account = sAcctForReg
+		spIsCustomerEligible.statusPaymentGroup = sStatusPaymentGroup
+		switch apiCall AccountStatus.IsCustomerEligibleForPortal(spIsCustomerEligible, srIsCustomerEligible, ssIsCustomerEligible) [
+			case apiSuccess  CheckEligibility
+			default accountNotEligibleErrorB2CMsg
+		]
+	]
+	
+	/**************************************************************************
+	 * 12a. System checks checks results
+	 */
+	action CheckEligibility [
+		sIsEligible = srIsCustomerEligible.isEligible
+		if sIsEligible == "true" then
+			determineNextUseCaseB2C
+		else
+			accountNotEligibleErrorB2CMsg
+	] 
+
     /**************************************************************************
      * 12. Checks the flag and determines where to go.
      */
@@ -712,6 +753,7 @@ useCase fffcReg05BillingInfo [
 		else
 			gotoRegLoginInfo	
 	]
+
 	
 	/**************************************************************************
      * 13. Go to the registration usecase. 
@@ -828,6 +870,10 @@ useCase fffcReg05BillingInfo [
         goto(gotoScreen)  
     ]  
     
+    action accountNotEligibleErrorB2CMsg [
+    	displayMessage(type:'danger' msg: msgCustomerNotEligibleB2CError)
+    	goto (gotoScreen)
+    ]
     /**************************************************************************
      * 3.1 Bill stream initializing error.
      * 3.2 Bill stream initializing default error.
