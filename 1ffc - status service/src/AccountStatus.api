@@ -361,5 +361,21 @@ define service AccountStatus(com.sorrisotech.app.serviceapi.uc.UcRequestClient) 
  	] returns [
  		string accountsAsJsonArray
  	]
+ 	
+ 	//-------------------------------------------------------------------------
+ 	//		used during registration to determine if the account match
+ 	//		found during registration belongs to a customerId that has
+ 	//		any accounts that are eligible for portal registration.
+ 	//
+ 	//		this wording is carefull because the account that matched
+ 	//		may not be eligible, but other accounts liked to that user
+ 	//		could be.
+ 	// 
+ 	define method IsCustomerEligibleForPortal [
+ 		string statusPaymentGroup
+ 		string account
+ 	 ] returns [
+ 	 	boolean isEligible
+ 	 ]
  ]
  

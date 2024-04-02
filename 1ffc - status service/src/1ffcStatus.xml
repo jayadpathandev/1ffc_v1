@@ -121,7 +121,8 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 					tm.account_name as accountName,
 					tm.biller_id as billerId,
 					tm.org_id as orgId,
-					tm.start_date as startDate
+					tm.start_date as startDate,
+					status_info.flex14 as eligible
 				FROM
 					tm_account as tm,
 					bill as status_info,
@@ -129,7 +130,7 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 					org
 				WHERE
 					bfmd.status in ('PUBLISHED','MERGED')             -- look only at properly published files
-					AND bfmd.payment_group = :pmtGroup1	       -- make sure we get the correct pmt group
+					AND bfmd.payment_group = :pmtGroup	        -- make sure we get the correct pmt group
 					AND status_info.bill_file_id = bfmd.bill_file_id    -- look only at bills in those published files
 					AND tm.bill_group = bfmd.payment_group       -- make sure we've got a pmt group match in tm
 					AND org.idValue = tm.org_id 					          -- match on org id
