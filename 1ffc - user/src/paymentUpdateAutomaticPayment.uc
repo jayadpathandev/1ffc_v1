@@ -300,7 +300,7 @@ useCase paymentUpdateAutomaticPayment [
     
     structure msgScheduledPaymentWarning [
 		string sTitle = "{Payment warning}"  
-		static sBody = "{There is at least one existing payment scheduled for account(s) covered by this recurring payment schedule. These payment(s) will not be affected by this new schedule.}"
+		static sBody = "{At least one payment is already scheduled for the account covered by this recurring payment schedule, which will not be affected by the new schedule.}"
 	] 
 
 	// -- handling impersonation --
