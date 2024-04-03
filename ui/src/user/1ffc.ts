@@ -59,6 +59,23 @@ function esign_spinner(parent : HTMLElement) {
     }
 }
 
+function edit_payment_date(parent : HTMLElement) {
+    const elements = $(parent).find('#paymentHistory_fPayDate\\.aDate_display');
+
+    if (elements.length > 0) {
+        const dateWindow = parseInt($('.st-date-window').text() as string);
+        const dateNow    = new Date();
+        const dateMin    = new Date(dateNow.getTime() + 24 * 60 * 60 * 1000);
+        const dateMax    = new Date(dateNow.getTime() + dateWindow * 24 * 60 * 60 * 1000);
+
+        elements.datepicker(
+            'option', 'minDate', dateMin
+        ).datepicker(
+            'option', 'maxDate', dateMax
+        );
+    }
+}
+
 function edit_payment_total(parent : HTMLElement) {
     const INPUT = '#paymentHistory_fPayAmount\\.pInput';
     const FEE   = '#paymentHistory_sConvenienceFee';
@@ -137,5 +154,6 @@ function edit_payment_total(parent : HTMLElement) {
 
 export function fffc(parent: HTMLElement) {
     esign_spinner(parent);
+    edit_payment_date(parent);
     edit_payment_total(parent);
 }

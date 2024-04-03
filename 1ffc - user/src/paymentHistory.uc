@@ -47,6 +47,7 @@ useCase paymentHistory [
     import validation.dateValidation  
         
     import paymentCommon.sPmtGroupConfigResult    
+     import paymentCommon.sScheduledDateWindow
     import apiPayment.pmtRequest
     import apiPayment.getScheduledPayment
     import apiPayment.deleteScheduledPayment			    	
@@ -1134,7 +1135,7 @@ useCase paymentHistory [
 	          class: "modal-body"
 		      div paymentSummary [
 			      class: "st-border-bottom"
-			    			    		
+			    			    					    			    		
  /* 			  div paymentSummaryContent [
 						class: "row"
 		
@@ -1147,6 +1148,10 @@ useCase paymentHistory [
 		        // Summary Header
 		        div paymentSummaryHeader [
 				 	class: "row"
+
+					display sScheduledDateWindow [
+						class: "visually-hidden st-date-window"
+					]
 
 					div col1 [
 						class: "col-md-3"
@@ -1169,7 +1174,7 @@ useCase paymentHistory [
 					div col3 [
 						class: "col-md-3 text-end"
 					 	logic: [
-					 		if sPaymentMethodType == "BANK ACCOUNT" then "hide"
+					 		if sPaymentMethodType == "BANK ACCOUNT" then "remove"
 					 	]									
 						div convFeeLabel [
 							class: "col-md-12"
