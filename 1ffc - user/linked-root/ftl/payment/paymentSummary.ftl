@@ -310,7 +310,7 @@
 								<span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nScheduledPaymentAmount?number)}</span>
 								for this account on <span class="fw-bold text-decoration-underline">${dScheduledPaymentDate?date}</span>.
 								<#if bScheduledPaymentsLate> <#--  if true, this payment and automatic aren't enough -->
-									This payment and any Recurring Payment currently scheduled will not meet your obligation to pay
+									This payment and any recurring payment currently scheduled will not meet your obligation to pay
 									<span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nAmountDue?number)}</span> by
 									<span class="fw-bold text-decoration-underline">${dDueDate?date}</span>.
 								</#if>
@@ -327,7 +327,7 @@
 								<span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nScheduledPaymentAmount?number)}</span>
 								for this account with last payment on <span class="fw-bold text-decoration-underline">${dScheduledPaymentDate?date}</span>.
 								<#if bScheduledPaymentsLate> <#--  if true these payments and scheduled aren't enough -->
-									These payments and any Recurring Payment currently scheduled will not meet your obligation to pay
+									These payments and any recurring payment currently scheduled will not meet your obligation to pay
 									<span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nAmountDue?number)}</span> by
 									<span class="fw-bold text-decoration-underline">${dDueDate?date}</span>.
 								</#if>
@@ -338,7 +338,7 @@
 					<#--  HANDLE RECURRING PAYMENT SCHEDULES -->
 					<#if 0 < scheduledPayment.automaticPmtCount> <#--  The customer has a recurring payment that's scheduled -->
 						<div class="text-center mt-3 border border-2 rounded-pill <#if bScheduledPaymentsLate>border-danger<#else>border-info</#if> p-3">
-							You have a Recurring Payment of
+							You have a recurring payment of
 							<span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nAutomaticPaymentAmount)}</span>
 							scheduled for this account on <span class="fw-bold text-decoration-underline">${dAutomaticPaymentDate?date}</span>.
 							<#if bScheduledPaymentsLate>
