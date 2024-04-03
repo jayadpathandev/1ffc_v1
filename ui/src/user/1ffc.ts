@@ -59,6 +59,83 @@ function esign_spinner(parent : HTMLElement) {
     }
 }
 
+function edit_payment_total(parent : HTMLElement) {
+    const INPUT = '#paymentHistory_fPayAmount\\.pInput';
+    const FEE   = '#paymentHistory_sConvenienceFee';
+    const TOTAL = '#paymentHistory_sTotalAmount';
+
+    function fixed_decimal(
+                val : string|string[]|number|undefined
+            ) {
+        if (typeof val !== 'string') return 0;
+
+        const input = val.trim();
+        if (input == '') return 0;
+
+        let retval    = 0;
+        let decimal   = false;
+        let precision = 0;
+
+        const start = (input.startsWith('$') ? 1 : 0);
+        for(let i = start; i < input.length; ++i) {
+            if (decimal) precision += 1;
+            switch(input.charAt(i)) {
+                case '0': retval = retval * 10 + 0; break;
+                case '1': retval = retval * 10 + 1; break;
+                case '2': retval = retval * 10 + 2; break;
+                case '3': retval = retval * 10 + 3; break;
+                case '4': retval = retval * 10 + 4; break;
+                case '5': retval = retval * 10 + 5; break;
+                case '6': retval = retval * 10 + 6; break;
+                case '7': retval = retval * 10 + 7; break;
+                case '8': retval = retval * 10 + 8; break;
+                case '9': retval = retval * 10 + 9; break;
+                case '.':
+                    if (decimal === true) return 0;
+                    decimal = true;
+                    break;
+                default:
+                    return 0;
+            }
+        }
+        if (precision < 2) {
+            retval = retval * Math.pow(10, 2 - precision);
+        } else if (precision > 2) {
+            if (retval % Math.pow(10, precision - 2) == 0) {
+                retval = retval / Math.pow(10, precision - 2);
+            } else {
+                return 0;
+            }
+        }
+        return retval;
+    }
+    function format_amount(
+                input : number
+            ) {
+        let retval = '$';
+
+        retval += Math.floor(input/100).toString();
+        retval += '.';
+        if (input % 100 > 10) retval += (input % 100);
+        if (input % 100 < 10) retval += '0' + (input % 100);
+
+        return retval;
+    }
+
+
+    $(parent).find(INPUT).on('keyup', function() {
+        const base  = fixed_decimal($(INPUT).val());
+        const fee   = fixed_decimal($(FEE).text());
+
+        if (base > 0 && fee > 0) {
+            $(TOTAL).text(format_amount(base + fee));
+        } else  if (base > 0 && fee == 0) {
+            $(TOTAL).text(format_amount(base));
+        }
+    });
+}
+
 export function fffc(parent: HTMLElement) {
     esign_spinner(parent);
+    edit_payment_total(parent);
 }
