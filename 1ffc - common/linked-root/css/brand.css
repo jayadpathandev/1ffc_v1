@@ -1509,3 +1509,11 @@ div.impersonation.right {
 	background-color: #f5f5f5;
     border: 1px solid #e3e3e3;
 }
+
+/**************************************************************************************************
+ * Date picker
+ *************************************************************************************************/
+.ui-datepicker {
+	/* Set to 1057 so it displays correctly on top of modals. */
+	z-index: 1057 !important;
+}
