@@ -355,7 +355,7 @@ useCase paymentOneTime [
     string sConfirmPaymentHeader = "{Confirm payment}"
     string sPaymentSuccessHeader = "{Payment confirmed}"
     string sPaymentSuccessText = "{Thank you for your payment!}"
-    string sAdditionalChargeInfo = "{Additional charges may apply if you do not pay the current amount due by the due date.}"
+    string sAdditionalChargeInfo = "{Failure to pay the current amount due by the due date may result in additional charges. If you want to set up recurring payments, you must pay the full amount listed under the current amount due.}"
 	string sMaxPaymentMethodsReached = "{The maximum number of payment methods have already been added to your wallet. Please remove some to add more.}"
 	string sAutomaticPaymentsHeader = "{Activate recurring payments for this account}"
 	string sAutomaticPaymentsBody = "{Save time and energy by scheduling repeating payments to occur automatically on a specific date, every month.}"
