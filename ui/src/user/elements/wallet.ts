@@ -160,6 +160,10 @@ function wallet_callback() {
             display_msg(true, response.sResponseMessage);
         });
     }
+
+    window.payment_size = (height:number) => {
+        $('iframe').height(height);
+    }
 }
 
 //*****************************************************************************

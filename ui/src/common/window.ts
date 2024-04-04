@@ -41,6 +41,7 @@ declare global {
         handleEditSourceSuccessResponseCallback:(data:PaymentWallet) => void;
         handleEditSourceErrorResponseCallback:  (data:PaymentWallet) => void;
         handleErrorResponseCallback:            (data:PaymentWallet) => void;
+        payment_size:                           (height:number) => void;
     }
 }
 
