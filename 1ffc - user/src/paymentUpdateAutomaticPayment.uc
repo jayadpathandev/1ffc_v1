@@ -120,7 +120,7 @@ useCase paymentUpdateAutomaticPayment [
     
     // from paymentCreateAutomaticPayment
     native string sPayDate      = "1"
-    native string sDay          = "2"
+//    native string sDay          = "2"
     native string sSourceId     = ""
     native string sUserId       = Session.getUserId()
     native string sIsB2b        = Session.isB2bAsString()
@@ -130,7 +130,8 @@ useCase paymentUpdateAutomaticPayment [
 	volatile string sFullName	= EsignHelper.getFullName(sFirstName, sLastName)
 	volatile string sPayCountStatement   = EsignHelper.getPayCountStatement(fPayEffective.pInput)
 	volatile string sExpiryDateStatement   = EsignHelper.getExpiryDateStatement(fPayEffective.aDate)
-	volatile string sPriorDaysStatement   = EsignHelper.getPriorDaysStatement(fPayInvoices.dPayPriorDays)
+	volatile string sFormattedDate = EsignHelper.formatEftDate(fPayInvoices.aDate)
+	volatile string sPayDay = EsignHelper.getDayFromDate(fPayInvoices.aDate)
                                                    
     field fPayInvoices [
         string(label) sLabel = "{Pay bills *}"        
@@ -140,8 +141,8 @@ useCase paymentUpdateAutomaticPayment [
 //        ]
         date(control) aDate("yyyy-MM-dd", dateValidation)
         string(help) sHelp = "{If 31, 30 or 29 is selected and if it doesn't exist in the month, then the last day of the month will trigger the payment.}"
-        auto dropDown(option1_prefix) dPayDate                       
-        auto dropDown(option2_prefix) dPayPriorDays 
+//        auto dropDown(option1_prefix) dPayDate                       
+//        auto dropDown(option2_prefix) dPayPriorDays 
     ]
     
     field fPayEffective [
@@ -348,8 +349,8 @@ useCase paymentUpdateAutomaticPayment [
 	
 	/* 2. Initialize create automatic payment */	
 	action initCreate [
-		UcPaymentAction.getPayDate(sPayDate, fPayInvoices.dPayDate)		
-		UcPaymentAction.getDays(sDay, fPayInvoices.dPayPriorDays)
+		UcPaymentAction.getPayDate(sPayDate, fPayInvoices.aDate)		
+//		UcPaymentAction.getDays(sDay, fPayInvoices.dPayPriorDays)
 		UcPaymentAction.getWalletItems(sUserId, sSourceId, dWalletItems)
 
         switch apiCall SystemConfig.GetCurrentBalanceConfig (srGetComm, ssStatus) [
@@ -429,15 +430,15 @@ useCase paymentUpdateAutomaticPayment [
     
 	/* 6. Get automatic payment details from the results .*/
 	action getResults [
-		 fPayInvoices.aDate = srGetAutomaticResult.PAY_INVOICES_OPTION
+		 fPayInvoices.aDate = srGetAutomaticResult.PAY_DATE
 		 sPayDate = srGetAutomaticResult.PAY_DATE
 		 sDays = srGetAutomaticResult.PAY_PRIOR_DAYS
 		 fPayEffective.rInput = srGetAutomaticResult.EFFECTIVE_UNTIL_OPTION
 		 fPayEffective.aDate = srGetAutomaticResult.EXPIRY_DATE
 		 fPayEffective.pInput = srGetAutomaticResult.PAY_COUNT
 		 		 
-		 UcPaymentAction.getPayDate(sPayDate, fPayInvoices.dPayDate)		
-		 UcPaymentAction.getDays(sDays, fPayInvoices.dPayPriorDays)
+		 UcPaymentAction.getPayDate(sPayDate, fPayInvoices.aDate)		
+//		 UcPaymentAction.getDays(sDays, fPayInvoices.dPayPriorDays)
 		 UcPaymentAction.getWalletItems(sUserId, sPmtSourceId, dWalletItems)
 		 
 		 goto (saveCurrentValues)
@@ -920,7 +921,7 @@ useCase paymentUpdateAutomaticPayment [
 //	]
 	
 	action setDateRuleToPayDate [
-		srEsignUrlParams.dateRule = fPayInvoices.aDate
+		srEsignUrlParams.dateRule = sFormattedDate
 		goto(setCountRule)
 	]
 	
@@ -1127,9 +1128,10 @@ useCase paymentUpdateAutomaticPayment [
 	action setCreateAutomaticPayment [	    			
 		srSetAutomaticParam.GROUPING_JSON          = sGroupJson
 		srSetAutomaticParam.SOURCE_ID              = dWalletItems
-		srSetAutomaticParam.PAY_INVOICES_OPTION    = fPayInvoices.aDate
-		srSetAutomaticParam.PAY_DATE               = fPayInvoices.dPayDate
-		srSetAutomaticParam.PAY_PRIOR_DAYS         = fPayInvoices.dPayPriorDays
+		srSetAutomaticParam.PAY_INVOICES_OPTION    = "option1"
+		srSetAutomaticParam.PAY_AMOUNT_OPTION      = "option1"
+		srSetAutomaticParam.PAY_DATE               = sPayDay
+//		srSetAutomaticParam.PAY_PRIOR_DAYS         = fPayInvoices.dPayPriorDays
 		srSetAutomaticParam.EFFECTIVE_UNTIL_OPTION = fPayEffective.rInput					
 		srSetAutomaticParam.EXPIRY_DATE            = fPayEffective.aDate
 		srSetAutomaticParam.PAY_COUNT              = fPayEffective.pInput		
@@ -1145,8 +1147,8 @@ useCase paymentUpdateAutomaticPayment [
     action saveNewValues [    	
     	sPayInvoicesOptionNew  =  fPayInvoices.aDate
 		sEffUntilOptionNew     =  fPayEffective.rInput		
-		sPayDateNew            =  fPayInvoices.dPayDate
-		sPriorDaysNew          =  fPayInvoices.dPayPriorDays
+		sPayDateNew            =  fPayInvoices.aDate
+//		sPriorDaysNew          =  fPayInvoices.dPayPriorDays
 		sExpiryDateNew         =  fPayEffective.aDate
 		sPayCountNew           =  fPayEffective.pInput		
 		sSourceIdNew           =  dWalletItems
@@ -1187,9 +1189,10 @@ useCase paymentUpdateAutomaticPayment [
 		srSetAutomaticParam.GROUPING_JSON          = "{\"grouping\": [{\"internalAccountNumber\":\"" + sPayAccountInternal + "\", \"displayAccountNumber\":\"" + sPayAccountExternal + "\", \"paymentGroup\":\"" + sPayGroup + "\"}]}"
 		srSetAutomaticParam.OLD_SOURCE_ID          = sPmtSourceId
 		srSetAutomaticParam.SOURCE_ID              = dWalletItems
-		srSetAutomaticParam.PAY_INVOICES_OPTION    = fPayInvoices.aDate
-		srSetAutomaticParam.PAY_DATE               = fPayInvoices.dPayDate
-		srSetAutomaticParam.PAY_PRIOR_DAYS         = fPayInvoices.dPayPriorDays
+		srSetAutomaticParam.PAY_INVOICES_OPTION    = "option1"
+		srSetAutomaticParam.PAY_AMOUNT_OPTION      = "option1"
+		srSetAutomaticParam.PAY_DATE               = sPayDay
+//		srSetAutomaticParam.PAY_PRIOR_DAYS         = fPayInvoices.dPayPriorDays
 		srSetAutomaticParam.EFFECTIVE_UNTIL_OPTION = fPayEffective.rInput					
 		srSetAutomaticParam.EXPIRY_DATE            = fPayEffective.aDate
 		srSetAutomaticParam.PAY_COUNT              = fPayEffective.pInput		

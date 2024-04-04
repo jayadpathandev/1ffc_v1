@@ -20,6 +20,11 @@
  */
 package com.sorrisotech.fffc.user;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 public class EsignHelper {
 	
 	public static String getDueDateStatement(String value) {
@@ -56,5 +61,29 @@ public class EsignHelper {
 	
 	public static String getFullName(String firstName, String lastName) {
 		return firstName + " " + lastName;
+	}
+	
+	public static String formatEftDate(String inputDateString) {
+		try {
+            SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
+            Date date = inputFormat.parse(inputDateString);
+
+            SimpleDateFormat outputFormat = new SimpleDateFormat("MMMM dd, yyyy", Locale.ENGLISH);
+            return outputFormat.format(date);
+        } catch (ParseException e) {
+            return null; 
+        }
+	}
+	
+	public static String getDayFromDate(String inputDateString) {
+		try {
+			SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
+            Date date = inputFormat.parse(inputDateString);
+
+            SimpleDateFormat outputFormat = new SimpleDateFormat("dd", Locale.ENGLISH);
+            return outputFormat.format(date);
+		} catch( Exception ex) {
+			return null;
+		}
 	}
 }
