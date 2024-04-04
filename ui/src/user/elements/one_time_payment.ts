@@ -301,7 +301,7 @@ class OverBalance extends ValidatorBase {
         } else {
             this.custom?.addClass('visually-hidden');
         }
-        
+
         return true;
     }
 }
@@ -632,7 +632,7 @@ function payment_method() {
         if ($('#paymentOneTime_dWalletItems').find('option').length == 0) {
             $('div[id^="paymentOneTime_walletRow_"]').addClass('visually-hidden');
         } else {
-            $('div[id^="paymentOneTime_walletRow_"]').removeClass('visually-hidden');   
+            $('div[id^="paymentOneTime_walletRow_"]').removeClass('visually-hidden');
         }
 
         $('div[id^="paymentOneTime_iframeDisplayRow_"]').addClass('visually-hidden');
@@ -852,6 +852,10 @@ function payment_source_edit() {
         $('div[id^="paymentOneTime_messageError_"]').removeClass('visually-hidden');
         step(1);
     };
+
+    window.payment_size = (height:number) => {
+        $('iframe').height(height);
+    }
 }
 
 //*****************************************************************************

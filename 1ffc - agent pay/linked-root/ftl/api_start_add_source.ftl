@@ -69,6 +69,10 @@
 		</div>
 		<script>
 			$(function() {
+				window.payment_size = function(size) {
+					$('iframe').height(size);
+				}
+			
 				$('#apipay_wallet').on('change', function() {
 					var item = $(this).val();
 					document.location.href = 'startUseSource?walletToken=' + encodeURIComponent(item);

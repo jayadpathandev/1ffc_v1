@@ -1475,7 +1475,7 @@ tbody .payment-history-channel span {
 .payment-history-channel .st-payment-channel-icon.pay-chan-online.online:before {
 	/* background-position: -624px -49px; */
 	background-position: -650px -49px;
-	/* background-position: -676px -49px; */.
+	/* background-position: -676px -49px; */
 	margin-left: 0;
 }
 
@@ -1678,7 +1678,7 @@ tbody .payment-history-status span {
 iframe {
 	border: 0;
 	width: 100%;
-	height: 2000px;
+	height: 100%;
 }
 
 .st-width100 {
