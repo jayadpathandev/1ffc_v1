@@ -160,6 +160,12 @@ useCase paymentHistory [
     		
     serviceResult(DisplayConfig.GetPastPaymentsConfig) srGetResponse
     
+    serviceStatus ssUpdateSchedPayment
+    serviceParam(Payment.UpdateScheduledPaymentB2C) spUpdateSchedPayment
+    serviceResult(Payment.UpdateScheduledPaymentB2C) srUpdateSchedPayment
+    native string sPaymentDate // -- parameter used in update --
+    
+    
 	structure(message) msgNoPmtGroupError [
 		string(title) sTitle = "{Configuration problem}"
 		string(body) sBody = "{There is no payment group configured to your account. Please contact your System Administrator.}"
@@ -1359,7 +1365,7 @@ useCase paymentHistory [
             div paymentEditButtonsRow [
             	class: "modal-footer"
  
-                navigation SavePaymentEditButton (paymentStatusScreen, "{SAVE}") [  
+                navigation SavePaymentEditButton (updateScheduledPayment, "{SAVE}") [  
                     class: "btn btn-primary"
                     	data: [
 		                    	fPayAmount,
@@ -1574,9 +1580,33 @@ useCase paymentHistory [
         ]
     ]   	    
 
-	action assignPaymentValues [
+	action assignPaymentValues[
 		UcPaymentAction.formatPayDate(sTodaysDate, fPayDate.aDate)
-		goto(futurePaymentEditPopin)
+		goto (futurePaymentEditPopin)
+	]
+
+	action updateScheduledPayment [
+		spUpdateSchedPayment.USER_ID = sUserId
+		spUpdateSchedPayment.ONLINE_TRANS_ID = sOnlineTransId
+		spUpdateSchedPayment.PAY_AMOUNT = fPayAmount.pInput
+		UcPaymentAction.formatPayDate(fPayDate.aDate, sPaymentDate)
+		spUpdateSchedPayment.PAY_DATE = sPaymentDate
+		switch apiCall Payment.UpdateScheduledPaymentB2C ( 	spUpdateSchedPayment, 
+															srUpdateSchedPayment,
+															ssUpdateSchedPayment ) [
+		    case apiSuccess updateScheduledPaymentSuccess
+		    default updateScheduledPaymentFailed
+			
+		]	
+	]
+	
+	action updateScheduledPaymentSuccess [
+		
+		goto (init)
+	]
+	
+	action updateScheduledPaymentFailed [
+		goto (init)
 	]
 	
 	/* 8. Delete scheduled payment. */	
