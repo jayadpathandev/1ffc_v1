@@ -50,6 +50,10 @@
              <fileset dir="resources"/>
 			 <fileset dir="${devkit.dir}/app - user/resources">
 			 	<include name="payment/**/*.*"/>
+				<include name="notification/**/*.*"/>
+			 </fileset>
+			 <fileset dir="../1ffc - payment/resources">
+			 	<include name="*.*"/>
 			 </fileset>
         </copy>
 		<copy file="control.xml" tofile="${output.dir}/batch/1ffc_update_status/build.xml"/>
