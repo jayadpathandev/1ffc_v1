@@ -6,22 +6,33 @@
     <target name="-init">
 		<loadproperties srcFile="../build.properties"/>
 
-        <property name="moduleName" value="service/status"/>
+        <property name="moduleName" value="StatusService"/>
 
-    	<property name="mod.output.dir"    value="${artifacts.dir}/package/${moduleName}"/>
-    	<property name="mod.artifacts.dir" value="${artifacts.dir}/${moduleName}"/>
-
-    	<mkdir dir="${mod.output.dir}"/>
+    	<property name="mod.artifacts.dir" value="${artifacts.dir}/build/${moduleName}"/>
     	<mkdir dir="${mod.artifacts.dir}"/>
+
+    	<property name="user.package.dir"  value="${artifacts.dir}/package/user"/>
+		<property name="auth.package.dir"  value="${artifacts.dir}/package/auth"/>
+
+    	<mkdir dir="${user.package.dir}/jars"/>
+		<mkdir dir="${user.package.dir}/usecases"/>
+		<mkdir dir="${user.package.dir}/resources"/>
+		<mkdir dir="${auth.package.dir}/jars"/>
+		<mkdir dir="${auth.package.dir}/usecases"/>
+		<mkdir dir="${auth.package.dir}/resources"/>
     </target>
 
     <!-- ######################################################################
          # Compile the java files.
          ################################################################## -->
     <target name="compile" depends="-init">
-
 		<mkdir dir="${mod.artifacts.dir}/api"/>
-		<copy file="src/AccountStatus.api" todir="${mod.artifacts.dir}/api"/>
+		<mkdir dir="${mod.artifacts.dir}/compiler"/>
+		<mkdir dir="${mod.artifacts.dir}/src-gen"/>
+
+		<copy todir="${mod.artifacts.dir}/api">
+			<fileset dir="src" includes="**/*.api"/>
+		</copy>
 
     	<ant antfile="persona.xml" dir="${devkit.dir}/build" inheritAll="false"  inheritRefs="false">
             <property name="persona.compiler.dir" value="${mod.artifacts.dir}/compiler"/>
@@ -47,11 +58,38 @@
          # Package everything up.
          ################################################################## -->
 	<target name="package" depends="-init, compile">
+		<copy todir="${user.package.dir}/usecases">
+			<fileset dir="src">
+				<include name="**/*.lib"/>
+				<include name="**/*.uc"/>
+				<include name="**/*.api"/>
+			</fileset>
+		</copy>
+		<copy todir="${auth.package.dir}/usecases">
+			<fileset dir="src">
+				<include name="**/*.lib"/>
+				<include name="**/*.uc"/>
+				<include name="**/*.api"/>
+			</fileset>
+		</copy>
+		<copy todir="${user.package.dir}/resources">
+			<fileset dir="src">
+				<include name="**/*.xml"/>
+				<include name="**/*.properties"/>
+				<exclude name="logback.xml"/>
+			</fileset>
+		</copy>
+		<copy todir="${auth.package.dir}/resources">
+			<fileset dir="src">
+				<include name="**/*.xml"/>
+				<include name="**/*.properties"/>
+				<exclude name="logback.xml"/>
+			</fileset>
+		</copy>
 
-		<jar destfile="${mod.output.dir}/serviceStatus.jar">
+		<jar destfile="${user.package.dir}/jars/1ffc${moduleName}.jar">
 		    <fileset dir="${mod.artifacts.dir}/classes"/>
-			<fileset dir="${mod.artifacts.dir}/src-gen"/>
-			<fileset dir="src" includes="*.xml"/>
 		</jar>
+		<copy file="${user.package.dir}/jars/1ffc${moduleName}.jar" todir="${auth.package.dir}/jars/"/>
 	</target>
 </project>

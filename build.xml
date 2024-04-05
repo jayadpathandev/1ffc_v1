@@ -359,9 +359,6 @@
                 <include name="*.uc"/>
                 <include name="*.lib"/>
             </fileset>
-            <fileset dir="1ffc - status service/src">
-                <include name="*.api"/>
-            </fileset>
 			<fileset dir="${mod.package.dir}/auth/usecases"/>
         </copy>
 
@@ -460,7 +457,6 @@
             <fileset dir="${mod.package.dir}/user/resources"/>
         </copy>
         <copy todir="${output.dir}/apps/user/lib/">
-            <fileset dir="${artifacts.dir}/package/service/status"/>
             <fileset dir="${mod.package.dir}/user/jars">
                 <include name="*.jar"/>
             </fileset>
