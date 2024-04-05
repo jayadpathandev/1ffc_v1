@@ -48,6 +48,9 @@
 
         <copy todir="${output.dir}/batch/1ffc_update_status/resources">
              <fileset dir="resources"/>
+			 <fileset dir="${devkit.dir}/app - user/resources">
+			 	<include name="payment/**/*.*"/>
+			 </fileset>
         </copy>
 		<copy file="control.xml" tofile="${output.dir}/batch/1ffc_update_status/build.xml"/>
         <echo file="${output.dir}/batch/1ffc_update_status/paths.properties">
