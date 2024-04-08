@@ -196,4 +196,8 @@ public class BalanceHelper extends FffcBalance {
 
 		return lszRetValue;
 	}
+	
+	public String isValidConvenienceFee(String szConvenienceFee) {
+		return BigDecimal.ZERO.compareTo(new BigDecimal(szConvenienceFee)) != 0 ? "true" : "false";
+	}
 }

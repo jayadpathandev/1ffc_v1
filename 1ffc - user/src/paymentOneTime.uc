@@ -362,7 +362,9 @@ useCase paymentOneTime [
 	string sHeaderEdit = "{edit}"
 	string fAutoScheduledConfirm_body = "{I acknowledge that there is a recurring payment set up for this account. Making one time payment will be in addition to the recurring payment.}"
 	
-	string sPaySourceEdit = "{edit}"    
+	string sPaySourceEdit = "{edit}"
+	
+	native string szValidConvenienceFee = CurrentBalanceHelper.isValidConvenienceFee (surchargeResult.convenienceFeeAmt)    
 	   
     native string sPaymentMethodNickName = ""
     persistent string sPaymentMethodType = ""
@@ -2199,9 +2201,17 @@ useCase paymentOneTime [
 		surchargeRequest.account = sPayAccountInternal
 		
 		switch apiCall AccountStatus.GetDebitConvenienceFee(surchargeRequest, surchargeResult, ssStatus) [
-			case apiSuccess addConvenienceFee
+			case apiSuccess validateConvenienceFee
 			default         submitPayment
 		]
+	]
+
+	action validateConvenienceFee [
+		if  szValidConvenienceFee == "true" then 
+			addConvenienceFee
+		else
+			submitPayment
+			
 	]
 
 	action addConvenienceFee [
