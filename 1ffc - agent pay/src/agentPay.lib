@@ -11,6 +11,7 @@ library agentPay [
     	apiDeleteAutomaticPaymentRuleForAgent
     	apiGetScheduledPaymentsForAgent
     	apiDeleteScheduledPaymentForAgent
+    	apiUpdateScheduledPaymentForAgent
     ]           
     
     audit [
