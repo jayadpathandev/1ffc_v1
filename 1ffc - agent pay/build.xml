@@ -55,6 +55,9 @@
 				<fileset dir="${devkit.dir}/app - admin/lib">
 					<include name="serviceOrgId.jar"/>
 				</fileset>
+				<fileset dir="${devkit.dir}/app - user/lib">
+				    <include name="servicePayment.jar"/>
+				</fileset>
 			</classpath>
     	</javac>
     </target>
