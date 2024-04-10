@@ -31,6 +31,7 @@ import { scheduled_payment } from './elements/scheduled_payment';
 import { UserProfile } from './elements/user_profile';
 import { payment_wallet } from './elements/wallet';
 import { zingcharts } from './elements/zingcharts';
+import { highlightRecentBills    } from './elements/document_search';
 
 //*****************************************************************************
 // This method any special elements that need to be transformed into a react
@@ -58,4 +59,5 @@ export default function user_elements(
     scheduled_payment(parent);
     payment_wallet(parent);
     fffc(parent);
+    highlightRecentBills(parent);
 }

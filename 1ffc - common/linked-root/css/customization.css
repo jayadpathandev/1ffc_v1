@@ -2145,3 +2145,10 @@ th button.btn.btn-sm {
 	width: 176px;
 }
 
+/**************************************************************************************************
+ * Document Search highlight the row.
+ *************************************************************************************************/
+.highlight {
+    background-color: #ffa; /* Soft yellow */
+    border-radius: 5px; /* Rounded corners */
+}
