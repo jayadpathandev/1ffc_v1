@@ -26,12 +26,13 @@ import React from 'react';
 import { hydrateRoot } from 'react-dom/client';
 import { fffc } from './1ffc';
 import { bill } from './elements/bill';
+import { highlightRecentBills } from './elements/document_search';
 import { one_time_payment } from './elements/one_time_payment';
 import { scheduled_payment } from './elements/scheduled_payment';
 import { UserProfile } from './elements/user_profile';
 import { payment_wallet } from './elements/wallet';
 import { zingcharts } from './elements/zingcharts';
-import { highlightRecentBills    } from './elements/document_search';
+import { payment_history } from './elements/payment_history';
 
 //*****************************************************************************
 // This method any special elements that need to be transformed into a react
@@ -60,4 +61,5 @@ export default function user_elements(
     payment_wallet(parent);
     fffc(parent);
     highlightRecentBills(parent);
+    payment_history(parent);
 }

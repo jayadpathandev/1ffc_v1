@@ -39,7 +39,8 @@ useCase paymentHistory [
     importJava I18n(com.sorrisotech.app.common.utils.I18n)   
     importJava UcPaymentAction(com.sorrisotech.uc.payment.UcPaymentAction) 
     importJava LocalizedFormat(com.sorrisotech.common.LocalizedFormat)
-    importJava FffcAccountAction(com.sorrisotech.fffc.account.FffcAccountAction)	
+    importJava FffcAccountAction(com.sorrisotech.fffc.account.FffcAccountAction)
+    importJava CurrentBalanceHelper (com.sorrisotech.fffc.payment.BalanceHelper)	
     
     import billCommon.sPayAccountInternal
     import billCommon.sPayGroup     
@@ -47,7 +48,11 @@ useCase paymentHistory [
     import validation.dateValidation  
         
     import paymentCommon.sPmtGroupConfigResult    
-     import paymentCommon.sScheduledDateWindow
+    import paymentCommon.sScheduledDateWindow
+    import paymentCommon.sMinDue
+    import paymentCommon.sMinDueDisplay
+    import paymentCommon.sMaxDue
+    import paymentCommon.sMaxDueDisplay
     import apiPayment.pmtRequest
     import apiPayment.getScheduledPayment
     import apiPayment.deleteScheduledPayment			    	
@@ -65,7 +70,10 @@ useCase paymentHistory [
     string sPastPaymentHeader		  	= "{View past payments}"
   	string sPaymentDetailsPopinTitle  	= "{Payment Details}"
   	string sPaymentEditPopinTitle  		= "{Edit Payment}"        	
+  	string sSchedPmtSuccess				= "{Your scheduled payment was updated successfully}"     	
     string sSourceErrorMsg              = "{An error occurred while trying to fulfill your request. Please try again later}"
+    string sSourceInternalErrorMsg      = "{An internal error occurred. Something wrong with your code}"
+    string sSchedPmtProcessMsg 			= "{Your Payment is already been processed}"
     string sPaymentSummaryHeader        = "{Payment summary}"
     string sPaymentMethodHeader         = "{Payment method}"
     string sPaymentMethodInfo           = "{Not having the total amount on your credit card on the processing date will result in additional costs.}"
@@ -81,7 +89,7 @@ useCase paymentHistory [
     static sAccountNumLabel     		= "{Account #}"
     static sBillNumberLabel				= "{Bill #}"
     static sPayAmountLabel	            = "{Pay amount}"
-    static sPayAmountEditLabel	        = "{PAY AMOUNT}"
+    static sPayAmountEditLabel	        = "{AMOUNT}"
 	static sPaySurchargeLabel           = "{Surcharge}"
 	static sConvienceFeeLabel           = "{CONVENIENCE FEE}"
     static sPayTotalAmountLabel         = "{Total amount}"
@@ -109,6 +117,11 @@ useCase paymentHistory [
 
 	static sMessageDelete   = "{Payment for <1> has been successfully removed.}"
 	volatile string sSourceDeleteMsg = I18n.translate ("paymentHistory_sMessageDelete", sAccountNumber) 
+	static sPayAmountText1 = "{: Min }"
+	static sPayAmountText2 = "{, Max }"
+	volatile string sPayAmountText1Localized = I18n.translate ("paymentHistory_sPayAmountText1")
+	volatile string sPayAmountText2Localized = I18n.translate ("paymentHistory_sPayAmountText2")
+	
 	
     native string sUserId                = Session.getUserId()
     native string sAppType 			 	 = Session.getAppType()
@@ -129,8 +142,7 @@ useCase paymentHistory [
     native string sPaymentRequestReceived  = ""
     native string sEstimatedProcessingDate = ""
 
-    native string sScheduledDeleteMsgFlag = "false"
-    native string sScheduledErrorMsgFlag  = "false"
+    native string sMessageFlag  		  = "false"
     native string sCancelTextFinal
     
     native string nAmount
@@ -138,8 +150,8 @@ useCase paymentHistory [
     native string sSurchargeFlag = UcPaymentAction.getSurchargeStatus()
 	native string sTodaysDate = FffcAccountAction.getCalendarConversion(sEstimatedProcessingDate)
 	native string sFormat = LocalizedFormat.toJsonString()
-	native string foo = ""
-    
+	native string sAmountEditLabel = ""
+
 	static sCancelText1         	   = "{Are you sure you want to cancel the payment of}"    	
 	static sCancelText2         	   = "{for account [b]<1>[/b]}"    	
 	volatile string sCancelNewText1    = I18n.translate ("paymentHistory_sCancelText1")
@@ -175,19 +187,21 @@ useCase paymentHistory [
 		string(title) sTitle = "{Not supported}"
 		string(body) sBody = "{There are more than one payment group configured to your account. We currently do not support multiple payment groups. Please contact your System Administrator.}"
 	]
-	
-    field fPayAmount [
-        input(control) pInput("^[+]?[0-9]{1,3}(?:[0-9]*(?:[.,][0-9]{2})?|(?:,[0-9]{3})*(?:\\.[0-9]{2})?|(?:\\.[0-9]{3})*(?:,[0-9]{2})?)$", fPayAmount.sValidation)            
-        string(validation) sValidation = "{Entry must be in standard US or European currency format.}"       
-        string(error) sErrorEmpty = "{You must enter an amount}"
-        string(error) sErrorOver = "{Warning, entry exceeds current balance.}"    
-        string(error) sErrorZero = "{Warning, amount should not be zero.}"    
-    ]    
  	
     field fPayDate [
         date(control) aDate("yyyy-MM-dd", dateValidation)         
     ]
 		
+	field fPayAmount [
+        input(control) pInput("^[+]?[0-9]{1,3}(?:[0-9]*(?:[.,][0-9]{2})?|(?:,[0-9]{3})*(?:\\.[0-9]{2})?|(?:\\.[0-9]{3})*(?:,[0-9]{2})?)$", fPayAmount.sValidation)            
+        string(validation) sValidation = "{Entry must be in standard US or European currency format.}"       
+        string(error) sErrorEmpty = "{You must enter an amount}"
+        string(error) sErrorOver = "{Warning, entry exceeds current balance.}" 
+        string(error) sErrorOverMax = "{Warning, amount exceeds the maximum due}"
+        string(error) sErrorBelowMin = "{Warning, amount is less than minimum due}" 
+        string(error) sErrorZero = "{Warning, amount should not be zero.}"    
+    ]
+    
 	/* Table for upcoming payments.*/	
 	table tScheduledPaymentsTable [
         emptyMsg: "{There are no upcoming payments to display}"
@@ -756,6 +770,14 @@ useCase paymentHistory [
     
     /* 6. Shows the payment history details. */
     xsltScreen paymentStatusScreen("{Payment}") [
+    	
+		display sMinDue [
+			class: "st-min-due-amt visually-hidden"
+		]
+		
+		display sMaxDue [
+			class: "st-max-due-amt visually-hidden"
+		]
 
 		child utilImpersonationActive		
 		  
@@ -785,7 +807,7 @@ useCase paymentHistory [
 			]
 			
 		  	div FuturePaymentBlock [
-				class: "st-padding-top st-padding-bottom"
+				class: "row st-padding-top st-padding-bottom"
 
 				// Display Header of the table
     	    	h4 futurePaymentHeader [
@@ -796,11 +818,22 @@ useCase paymentHistory [
     	    	div messagesCol [	    
     	    		class: "col-md-6"
     	    		
-    	    		div sourceCreateMsg	[
+    	    		div sourceSuccessMsg	[
 	    	    		logic: [
-							if sScheduledDeleteMsgFlag == "false" then "remove"						
+							if sMessageFlag != "success" then "remove"						
 						]
 						class: "st-payment-success float-end"
+    	    			
+		    	    	display sSchedPmtSuccess [
+							class: "st-padding-top"
+						]
+					]
+    	    		
+     	    		div sourceDeleteMsg	[
+	    	    		logic: [
+							if sMessageFlag != "delete" then "remove"						
+						]
+						class: "st-payment-error float-end"
     	    			
 		    	    	display sSourceDeleteMsg [
 							class: "st-padding-top"
@@ -809,11 +842,33 @@ useCase paymentHistory [
 					
     	    		div sourceErrorMsg	[
 	    	    		logic: [
-							if sScheduledErrorMsgFlag == "false" then "remove"						
+							if sMessageFlag != "error" then "remove"						
 						]
 						class: "st-payment-error float-end"
     	    			
 		    	    	display sSourceErrorMsg [
+							class: "st-padding-top"
+						]
+					]
+
+	   	    		div sourceInternalErrorMsg	[
+	    	    		logic: [
+							if sMessageFlag != "internal" then "remove"						
+						]
+						class: "st-payment-error float-end"
+    	    			
+		    	    	display sSourceInternalErrorMsg [
+							class: "st-padding-top"
+						]
+					]
+
+	   	    		div sourcePmgProcessMsg	[
+	    	    		logic: [
+							if sMessageFlag != "paymentProcessed" then "remove"						
+						]
+						class: "st-payment-error float-end"
+    	    			
+		    	    	display sSchedPmtProcessMsg [
 							class: "st-padding-top"
 						]
 					]
@@ -1141,16 +1196,7 @@ useCase paymentHistory [
 	          class: "modal-body"
 		      div paymentSummary [
 			      class: "st-border-bottom"
-			    			    					    			    		
- /* 			  div paymentSummaryContent [
-						class: "row"
-		
-						display tableContent [
-							attr_sorriso: "element-payment-status-table" 
-							attr_onlineTransId: sOnlineTransId		    								
-						]		
-		           ]
-*/		
+			    			    					    			    			
 		        // Summary Header
 		        div paymentSummaryHeader [
 				 	class: "row"
@@ -1173,8 +1219,8 @@ useCase paymentHistory [
 						
 						div amountSurLabel [
 							class: "col-md-12"
-							display sPayAmountEditLabel
-						]							
+							display sAmountEditLabel
+					    ]
 					]	
 
 					div col3 [
@@ -1213,9 +1259,19 @@ useCase paymentHistory [
 							           		
 	           		div paymentCol2 [
 	           			class: "col-md-3"
-	           			display fPayAmount [
-	           				control_attr_class: "form-control st-input-control text-end"
-	           			]
+						display fPayAmount [
+								control_attr_class: "form-control st-input-control text-end"
+							    sErrorEmpty_class_override: "st-amount-validation-msg alert alert-danger visually-hidden"
+							    sErrorEmpty_attr_sorriso-error: "required_pmt_hist"
+							    sErrorOver_class_override: "alert alert-warning visually-hidden"
+							    sErrorOver_attr_sorriso-error: "over_pmt_hist"
+							    sErrorOverMax_class_override: "alert alert-warning visually-hidden"
+							    sErrorOverMax_attr_sorriso-error: "over-max_pmt_hist"
+							    sErrorBelowMin_class_override: "alert alert-warning visually-hidden"
+							    sErrorBelowMin_attr_sorriso-error: "below-min_pmt_hist"
+							    sErrorZero_class_override: "st-amount-validation-msg alert alert-danger visually-hidden"
+							    sErrorZero_attr_sorriso-error: "zero_pmt_hist"
+							]	
 	           		]
 	           		
 	           		div paymentCol3 [
@@ -1234,8 +1290,6 @@ useCase paymentHistory [
 	           			display sTotalAmount 
 	           		]		           		
 		         ]     // end of content 	         
-		         		         
-		         
 		        ]
 		        
 		        div paymentMethod [
@@ -1580,11 +1634,14 @@ useCase paymentHistory [
         ]
     ]   	    
 
+	/* Set the values to display on the future edit payment screen */
 	action assignPaymentValues[
+		sAmountEditLabel = sPayAmountEditLabel + sPayAmountText1Localized + sMinDueDisplay + sPayAmountText2Localized + sMaxDueDisplay
 		UcPaymentAction.formatPayDate(sTodaysDate, fPayDate.aDate)
 		goto (futurePaymentEditPopin)
 	]
 
+	/* 8. Action to update scheduled payment */
 	action updateScheduledPayment [
 		spUpdateSchedPayment.USER_ID = sUserId
 		spUpdateSchedPayment.ONLINE_TRANS_ID = sOnlineTransId
@@ -1601,15 +1658,23 @@ useCase paymentHistory [
 	]
 	
 	action updateScheduledPaymentSuccess [
-		
+		sMessageFlag = "success"		
 		goto (init)
 	]
 	
 	action updateScheduledPaymentFailed [
-		goto (init)
+		switch srUpdateSchedPayment.REASON_CODE [	
+    		case noPaymentFound 	genericErrorMsg					// -- internal error
+    		case paymentProcessing	updateSchedPaymentProcessed  	// -- Your Payment is already been processed
+    		case pastCutoff			updateSchedPaymentProcessed		// -- Your Payment is already been processed 
+			case requiresDateOrTime	genericErrorMsg					// -- internal error
+			case invalidParameter	internalErrorMsg   				// -- internal error, something wrong with your code
+    		case internalError		genericErrorMsg 				// -- Internal error			
+			default 				genericErrorMsg
+		]
 	]
 	
-	/* 8. Delete scheduled payment. */	
+	/* Delete scheduled payment. */	
 	action assignText [
 		sCancelTextFinal = sCancelNewText1 + sDisplayAmt + sCancelNewText2	    
 		goto(cancelFuturePopin)	
@@ -1687,17 +1752,24 @@ useCase paymentHistory [
 	
 	/* 12. Sets delete scheduled payment success flag to true. */
 	action 	setScheduledDeleteMsgFlag [
-		sScheduledErrorMsgFlag  = "false"		
-		sScheduledDeleteMsgFlag = "true"
+		sMessageFlag  = "delete"		
 		
 		goto(init)
 	]    	    
 	
-	/* 13. Generic error message. */
+	/* 13. error messages. */
 	action genericErrorMsg [		
-		sScheduledErrorMsgFlag  = "true"
-		sScheduledDeleteMsgFlag = "false"
+		sMessageFlag  = "error"		
+		goto(init)
+	]	
 		
-        goto(paymentStatusScreen)
+	action internalErrorMsg [		
+		sMessageFlag  = "internal"		
+		goto(init)
+	]		
+	
+	action updateSchedPaymentProcessed [
+		sMessageFlag  = "paymentProcessed"		
+        goto(init)		
 	]	    
 ]  

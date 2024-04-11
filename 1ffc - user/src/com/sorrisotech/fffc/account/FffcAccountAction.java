@@ -22,11 +22,11 @@ package com.sorrisotech.fffc.account;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -46,7 +46,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sorrisotech.app.common.utils.I18n;
-import com.sorrisotech.common.DateFormat;
 import com.sorrisotech.common.app.RestResponseUtil;
 import com.sorrisotech.common.rest.Result;
 import com.sorrisotech.svcs.external.IExternalReuse;
@@ -108,6 +107,9 @@ public class FffcAccountAction implements IExternalReuse {
 				
 				String szSourceName = cRow.getDataValue("SOURCE_NAME");
 				String szSourceType = cRow.getDataValue("SOURCE_TYPE");
+				
+				String szPayAmtNum = new BigDecimal(cRow.getDataValue("PAY_AMT_NUM")).setScale(2, RoundingMode.HALF_UP).toString();
+				cRow.setDataValue("PAY_AMT_NUM", szPayAmtNum);
 				
 				// i18n Payment Type
 				if (szSourceType != null && szSourceType.equalsIgnoreCase("bank")) {

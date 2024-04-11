@@ -57,12 +57,14 @@ useCase accountSummaryChild [
 	importJava AppConfig(com.sorrisotech.utils.AppConfig)
 	importJava LocalizedFormat(com.sorrisotech.common.LocalizedFormat)	
 	importJava UcBillingAction(com.sorrisotech.uc.bill.UcBillingAction)
-//	importJava FlexFieldInfo(com.sorrisotech.fffc.user.FlexFieldInformation)
+	importJava I18n(com.sorrisotech.app.common.utils.I18n)
+	importJava UcPaymentAction(com.sorrisotech.fffc.user.FffcPaymentAction) 
 	importJava FFFCSession(com.sorrisotech.fffc.user.FFFCSession)
 
 	// -- specific to 1st Franklin ... helps calculate current balance --
 	importJava CurrentBalanceHelper (com.sorrisotech.fffc.payment.BalanceHelper)
 	importJava DisplayAccountMasked(com.sorrisotech.fffc.account.DisplayAccountMasked)    
+	importJava FlexFieldInformation (com.sorrisotech.fffc.user.FlexFieldInformation)
 				
     import billCommon.sBillAccountInternal
     import billCommon.sBillAccountExternal
@@ -85,6 +87,11 @@ useCase accountSummaryChild [
 	import billCommon.sPayIsBill
 	import billCommon.sPaySelectedDate
 
+	import paymentCommon.sMinDue
+	import paymentCommon.sMaxDue
+	import paymentCommon.sMinDueDisplay
+	import paymentCommon.sMaxDueDisplay
+	
 	
     // -- GetStatus returns the status for all major conditions and business
     //		drivers --
@@ -102,12 +109,16 @@ useCase accountSummaryChild [
 	native string sMaxPaymentEnabled = "true"	// -- this is true for 1FFC
 	native string bAutomaticPaymentEnabled = "true"
 
+
 	// -- for testing contracted monthly payment --
-	number nContractedPayment
-	serviceStatus srGetContractedPaymentStatus
-	serviceParam (AccountStatus.GetContractualMonthlyPaymentAmount) spGetContractedPaymentParams
-	serviceResult (AccountStatus.GetContractualMonthlyPaymentAmount) srGetContractedPaymentResult
+//	number nContractedPayment
+//	serviceStatus srGetContractedPaymentStatus
+//	serviceParam (AccountStatus.GetContractualMonthlyPaymentAmount) spGetContractedPaymentParams
+//	serviceResult (AccountStatus.GetContractualMonthlyPaymentAmount) srGetContractedPaymentResult
 	
+	serviceParam  (AccountStatus.IsMinimumPaymentRequired) srGetMinimumParams
+    serviceResult (AccountStatus.IsMinimumPaymentRequired) srGetMinimumResult
+    serviceStatus srGetMinimumCode
 		
 	// -- Information used for maaximum future payment days --
 	// -- retrieve app-config file setting --
@@ -128,6 +139,23 @@ useCase accountSummaryChild [
     native string maxAge =			 		AppConfig.get("recent.number.of.months", "3")
     native string sBillDate =		 		Format.formatDateNumeric(srBillOverviewResult.docDate)
     native string sBillDueDateDisplay = 	Format.formatDateNumeric(srBillOverviewResult.dueDate)
+	
+    native string sMinAmountDueEdit		// -- value passed to screen
+	native string sMaxAmountDueEdit		// -- value passed to screen
+	
+	// -- data for constructing heading for payment amount due column --
+	static sPayAmountText1 = "{Pay amount (Due}"
+	native string sPayAmountText2 = ")"		
+	volatile string sPayAmountNewText1 = I18n.translate ("paymentOneTime_sPayAmountText1")
+	native string sDisplayAmt = UcPaymentAction.formatAmtText(sCurrentBalance, sPayGroup, "onetime")
+	native string sPayAmountLabel	
+
+	// -- data for constructing heading for other amount column --
+	static sOtherAmountText1 = "{Min}"
+	static sOtherAmountText2 = "{, Max }"
+	volatile string sOtherAmountText1Localized = I18n.translate ("paymentOneTime_sOtherAmountText1")
+	volatile string sOtherAmountText2Localized = I18n.translate ("paymentOneTime_sOtherAmountText2")
+	native string sOtherAmountLabel    
 	
 	// -- returns a current balance calculated based on either bill or status (whichever is newer) less
 	//		payments since that last bill or status date (date inclusive) --
@@ -152,6 +180,63 @@ useCase accountSummaryChild [
 	native string sCurrentBalanceCalculatedValid // -- set to valid or zero --
     volatile native string sBillAccountBalanceDisplayed = 	LocalizedFormat.formatAmount(srBillOverviewParam.payGroup, srGetStatusResult.accountBalance)
     
+	/* min and max pay */
+	// -- for now, system takes the max due from where 1st Franklin files placed
+	//		it. It will eventually be take from status feed and need to change at that time --
+    native string sFlexFieldForMax = "16"
+    native string sErrorValueReturned = "--"
+	
+    volatile native string sLocalBillMaxPay = 
+    		FlexFieldInformation.getFlexFieldRaw(
+ 			sUserId, 							  // -- user id
+			srBillOverviewParam.account, 		  // -- account number
+			srBillOverviewParam.billDate, 		  // -- bill date
+			srBillOverviewParam.payGroup,		  // -- payment group
+			sFlexFieldForMax,					  // -- flex field nmber
+			sErrorValueReturned )				  // -- what returned if error
+	
+	// -- used in setting the sMinDueEdit variable --		
+ 	volatile native string sMinimumDue = 
+ 			CurrentBalanceHelper.getTrueMinimumDueRaw (
+		       srGetMinimumResult.sAmountRequired, // -- minimum due from status
+			   sCurrentBalanceEdit)				   // -- calculated current balance	
+			   									   // -- where minimum due is returned
+
+	// -- use din setting the sMaxDueEdit variable --
+	volatile native string sMaximumPay = 
+			CurrentBalanceHelper.getTrueMaximumPayRaw (
+				srBillOverviewParam.payGroup, 	// -- payment group
+				srBillOverviewParam.account,	// -- account
+				sLocalAccountBillDate,			// -- published date of bill
+				sLocalBillMaxPay
+			)
+
+	volatile native string sCurrentBalance
+			
+	// -- sets the minimum due used in display on the screen --
+  	volatile native string sMinimumDueDisplay  = 
+ 			CurrentBalanceHelper.getTrueMinimumDueFormattedAsCurrency (
+				srBillOverviewParam.payGroup, 	// -- payment group
+				sMinimumDue,						// -- minimum due from status or bill
+				sCurrentBalanceEdit)			// -- current balance calculated based on bill/status and payments
+				
+	// -- sets the maximum payment amount used in display on screen --
+	volatile native string sMaximumDueDisplay  = 
+			CurrentBalanceHelper.getTrueMaximumPayFormattedAsCurrency (
+				srBillOverviewParam.payGroup, 	// -- payment group
+				srBillOverviewParam.account,	// -- account
+				sLocalAccountBillDate,			// -- published date of bill
+				sLocalBillMaxPay)				// -- amount in bill
+							
+	volatile native string sCurrentBalanceEdit =
+			CurrentBalanceHelper.getCurrentBalanceRaw (
+				srBillOverviewParam.payGroup, 		// -- payment group
+				srBillOverviewParam.account,		// -- account
+				sLocalAccountBillDate,				// -- published date of bill
+				sLocalAccountBillAmount,			// -- amount due in bill
+				sLocalAccountStatusDate,			// -- published date of acct status
+				sLocalAccountStatusAmount )			// -- current amt due in status
+	   
 	string sUserId = Session.getUserId()
     string sAccNumLabel             = "{Account number:}"
     string sTotDueHead      		= "{Current amount due}"   
@@ -579,7 +664,7 @@ useCase accountSummaryChild [
 	action setAutomaticPaymentDisabled [
 		bAutomaticPaymentEnabled = "false"
 		evalActors()
-		goto (screenShowInfo)
+		goto (getMinimumDueRequired)    
 	]
 	
 	/**
@@ -599,7 +684,7 @@ useCase accountSummaryChild [
 		if "true" == bIsAccountCurrent then
 			setMaxDaysFuturePayment
 		else
-			screenShowInfo
+			getMinimumDueRequired
 	]
 	
 	/**
@@ -607,8 +692,95 @@ useCase accountSummaryChild [
 	 */
 	action setMaxDaysFuturePayment [
 		sScheduledDateWindow = sMaxFuturePaymentDays
+		goto (getMinimumDueRequired)
+	]
+	
+	//-----------------------------------------------------------------------------------------
+	// 1FFC SPECIFIC STARTS, REPLACES actions that retrieve current balance in core
+	//-----------------------------------------------------------------------------------------	
+	
+	/**
+	 * 5.3.2A Calculate minimum due (step 1 of 3) -- System gets the minimum due 
+	 *			from the status feed. This minimum arrives nightly. 
+	 */
+	action getMinimumDueRequired [
+		srGetMinimumParams.user = sUserId
+		srGetMinimumParams.paymentGroup = srBillOverviewParam.payGroup
+		srGetMinimumParams.account = srBillOverviewParam.account
+		// -- retrieve the status information --
+   		switch apiCall AccountStatus.IsMinimumPaymentRequired(srGetMinimumParams, 
+   															  srGetMinimumResult, 
+   															  srGetMinimumCode) [
+    		case apiSuccess isMinimumDueRequired
+    		default MsgInternalError
+    	]
+	]
+	
+	/**
+	 * 5.3.2B Calculate minimum due (step 2 of 3) - System checks status result
+	 *			to see if minimum due is required. 
+	 */
+	action isMinimumDueRequired [
+		sMinAmountDueEdit = "0.00"
+		if "false" == srGetMinimumResult.bMinimumRequired then
+			setMaximumDue
+		else
+			setMinimumDue
+	]
+
+	/**
+	 * 5.3.2C Calculate minimum due (step 3 of 3) - System assigns the true
+	 *			minimum due based on comparison to current balance.
+	 */
+	action setMinimumDue [
+		sMinDue = sMinimumDue		// set minDue and MinDueDisplay in paymentCommon
+		sMinDueDisplay = sMinimumDueDisplay
+		
+	    sMinAmountDueEdit   = sMinimumDue // -- true min due calculated in declaration of sMinDue
+		goto (setMaximumDue)	
+	]
+	
+	action setMaximumDue [
+		sMaxDue = sMaximumPay       // set maxDue and maxDueDisplay in paymentCommon
+		sMaxDueDisplay = sMaximumDueDisplay
+		
+	    sMaxAmountDueEdit   = sMaximumPay // -- max pay calculated in declaration of sMaxPay
+		goto (isPmtAccountCurrent)
+	]
+	
+	action isPmtAccountCurrent [
+		if "true" == bIsAccountCurrent then
+		 	setCurrentBalanceToZero
+		else
+			setPayAmtLabels
+	]
+	
+	action setCurrentBalanceToZero [
+		sCurrentBalance = "0.00"
+		sMinAmountDueEdit = "0.00"
+		sPayAmountLabel     = sPayAmountNewText1 + sDisplayAmt + sPayAmountText2
+		sOtherAmountLabel = sOtherAmountText1Localized + sMinimumDueDisplay + sOtherAmountText2Localized + sMaximumDueDisplay
+		goto (setPayAmtLabels)
+	]
+	
+	action setPayAmtLabels [
+		sCurrentBalance = sCurrentBalanceEdit
+		sPayAmountLabel     = sPayAmountNewText1 + sDisplayAmt + sPayAmountText2
+		sOtherAmountLabel = sOtherAmountText1Localized + sMinimumDueDisplay + sOtherAmountText2Localized + sMaximumDueDisplay
 		goto (screenShowInfo)
 	]
+	
+	/**
+	 * 5.3.2.D System finds that minimum payment call failed, report internal
+	 *			error to the user.
+	 */
+	action MsgInternalError [
+		displayMessage (type: "error" msg: msgStatusError)
+		goto(screenShowInfo)			
+	]
+
+
+	
 	
 	/**************************************************************************************
 	 * END 1ST FRANKLIN SPECIFIC -- ARE AUTOMATIC PAYMENTS ENABLED OR NOT
