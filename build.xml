@@ -586,6 +586,40 @@
         <zip destfile="${output.dir}/1ffc_uat.zip" basedir="${output.dir}/apps"/>
     </target>
 
+    <target name="package.app.training" depends="-init">
+        <loadproperties srcFile="uat.properties"/>
+
+		<propertyfile file="${output.dir}/apps/admin/classes/app-config.properties">
+            <entry key="nls.api.client.id" value="${nls.api.client.id}"/>
+            <entry key="nls.api.client.secret" value="${nls.api.client.secret}"/>
+			<entry key="nls.api.base.url" value="${nls.api.base.url}"/>
+			<entry key="nls.api.version" value="${nls.api.version}"/>
+        </propertyfile>
+
+		<propertyfile file="${output.dir}/apps/user/classes/app-config.properties">
+
+            <entry key="nls.api.client.id" value="${nls.api.client.id}"/>
+            <entry key="nls.api.client.secret" value="${nls.api.client.secret}"/>
+			<entry key="nls.api.base.url" value="${nls.api.base.url}"/>
+			<entry key="nls.api.version" value="${nls.api.version}"/>
+
+            <entry key="kinective.esign.base.url" value="${kinective.esign.base.url}"/>
+            <entry key="kinective.esign.host.fiid" value="${kinective.esign.host.fiid}"/>
+            <entry key="kinective.esign.user.id=" value="${kinective.esign.user.id}"/>
+            <entry key="kinective.esign.business.app.user.id" value="${kinective.esign.business.app.user.id}"/>
+            <entry key="kinective.esign.partner.id" value="${kinective.esign.partner.id}"/>
+            <entry key="kinective.esign.api.key" value="${kinective.esign.api.key}"/>
+
+        </propertyfile>
+
+        <ant dir="notification" inheritAll="false" inheritRefs="false">
+			<property name="zip.output.dir" value="${output.dir}/apps/admin/linked-root/config/"/>
+			<property name="login.url"      value="${b2c.login}"/>
+        </ant>
+
+        <zip destfile="${output.dir}/1ffc_training.zip" basedir="${output.dir}/apps"/>
+    </target>
+
     <target name="package" depends="-init, build.admin, build.auth, build.user, build.extdoc, package-libraries, package-communicate">
         <delete file="${output.dir}/package.zip"/>
 
@@ -593,6 +627,7 @@
         <ant dir="ui" target="package"/>
         <antcall target="package.app.qa"/>
         <antcall target="package.app.uat"/>
+        <antcall target="package.app.training"/>
 
         <copy file="${devkit.dir}/app - user/deploy/license" tofile="${output.dir}/1ffc.license"/>
         <zip destfile="${output.dir}/1ffc_jobs.zip" basedir="${output.dir}/batch"/>
