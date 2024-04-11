@@ -312,7 +312,7 @@ useCase paymentOneTime [
     static editSourceLostStolenFraudError = "{Failed to update payment source. The card has been reported lost, stolen, or fraud has been detected.}"
     static editSourceInvalidMethodError = "{Failed to update payment source. The card type is not supported.}"
     
-    static paymentGenericError = "{Failed to make payment.}"
+    static paymentGenericError = "{Sorry, we couldn't process your payment. Please contact a branch representative for assistance if the issue persists.}"
     static paymentDateManipulated = "{Failed to make payment, payment date out of acceptable range.}"
     static paymentInvalidAmountError = "{Failed to make payment. The amount is invalid.}"
     static paymentInsufficientFundsError = "{Failed to make payment. There are insufficient funds on your account.}"
@@ -460,7 +460,7 @@ useCase paymentOneTime [
     ]
     	
     structure(message) msgError [
-		string(title) sTitle = "{Payment error}"
+		string(title) sTitle = "{We're unable to make a payment at this time.}"
 		native string(body) sBody = "" 
 	]
 
