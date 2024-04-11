@@ -51,14 +51,10 @@ useCase accountSummaryChild [
 	* DATA ITEMS SECTION
 	*************************/     
 	importJava Session(com.sorrisotech.app.utils.Session)
-//	importJava UcPaymentAccountBalance(com.sorrisotech.uc.payment.UcPaymentAccountBalance)
-//	importJava UcPaymentAction(com.sorrisotech.uc.payment.UcPaymentAction)
 	importJava Format(com.sorrisotech.common.app.Format)
 	importJava AppConfig(com.sorrisotech.utils.AppConfig)
 	importJava LocalizedFormat(com.sorrisotech.common.LocalizedFormat)	
 	importJava UcBillingAction(com.sorrisotech.uc.bill.UcBillingAction)
-	importJava I18n(com.sorrisotech.app.common.utils.I18n)
-	importJava UcPaymentAction(com.sorrisotech.fffc.user.FffcPaymentAction) 
 	importJava FFFCSession(com.sorrisotech.fffc.user.FFFCSession)
 
 	// -- specific to 1st Franklin ... helps calculate current balance --
@@ -142,20 +138,6 @@ useCase accountSummaryChild [
 	
     native string sMinAmountDueEdit		// -- value passed to screen
 	native string sMaxAmountDueEdit		// -- value passed to screen
-	
-	// -- data for constructing heading for payment amount due column --
-	static sPayAmountText1 = "{Pay amount (Due}"
-	native string sPayAmountText2 = ")"		
-	volatile string sPayAmountNewText1 = I18n.translate ("paymentOneTime_sPayAmountText1")
-	native string sDisplayAmt = UcPaymentAction.formatAmtText(sCurrentBalance, sPayGroup, "onetime")
-	native string sPayAmountLabel	
-
-	// -- data for constructing heading for other amount column --
-	static sOtherAmountText1 = "{Min}"
-	static sOtherAmountText2 = "{, Max }"
-	volatile string sOtherAmountText1Localized = I18n.translate ("paymentOneTime_sOtherAmountText1")
-	volatile string sOtherAmountText2Localized = I18n.translate ("paymentOneTime_sOtherAmountText2")
-	native string sOtherAmountLabel    
 	
 	// -- returns a current balance calculated based on either bill or status (whichever is newer) less
 	//		payments since that last bill or status date (date inclusive) --
@@ -745,10 +727,10 @@ useCase accountSummaryChild [
 		sMaxDueDisplay = sMaximumDueDisplay
 		
 	    sMaxAmountDueEdit   = sMaximumPay // -- max pay calculated in declaration of sMaxPay
-		goto (isPmtAccountCurrent)
+		goto (screenShowInfo)
 	]
 	
-	action isPmtAccountCurrent [
+/* 	action isPmtAccountCurrent [
 		if "true" == bIsAccountCurrent then
 		 	setCurrentBalanceToZero
 		else
@@ -758,18 +740,14 @@ useCase accountSummaryChild [
 	action setCurrentBalanceToZero [
 		sCurrentBalance = "0.00"
 		sMinAmountDueEdit = "0.00"
-		sPayAmountLabel     = sPayAmountNewText1 + sDisplayAmt + sPayAmountText2
-		sOtherAmountLabel = sOtherAmountText1Localized + sMinimumDueDisplay + sOtherAmountText2Localized + sMaximumDueDisplay
 		goto (setPayAmtLabels)
 	]
 	
 	action setPayAmtLabels [
 		sCurrentBalance = sCurrentBalanceEdit
-		sPayAmountLabel     = sPayAmountNewText1 + sDisplayAmt + sPayAmountText2
-		sOtherAmountLabel = sOtherAmountText1Localized + sMinimumDueDisplay + sOtherAmountText2Localized + sMaximumDueDisplay
 		goto (screenShowInfo)
 	]
-	
+*/	
 	/**
 	 * 5.3.2.D System finds that minimum payment call failed, report internal
 	 *			error to the user.
