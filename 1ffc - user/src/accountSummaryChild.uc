@@ -136,8 +136,6 @@ useCase accountSummaryChild [
     native string sBillDate =		 		Format.formatDateNumeric(srBillOverviewResult.docDate)
     native string sBillDueDateDisplay = 	Format.formatDateNumeric(srBillOverviewResult.dueDate)
 	
-    native string sMinAmountDueEdit		// -- value passed to screen
-	native string sMaxAmountDueEdit		// -- value passed to screen
 	
 	// -- returns a current balance calculated based on either bill or status (whichever is newer) less
 	//		payments since that last bill or status date (date inclusive) --
@@ -703,7 +701,8 @@ useCase accountSummaryChild [
 	 *			to see if minimum due is required. 
 	 */
 	action isMinimumDueRequired [
-		sMinAmountDueEdit = "0.00"
+		sMinDue = "0.00"
+		sMinDueDisplay = sMinimumDueDisplay
 		if "false" == srGetMinimumResult.bMinimumRequired then
 			setMaximumDue
 		else
@@ -715,10 +714,7 @@ useCase accountSummaryChild [
 	 *			minimum due based on comparison to current balance.
 	 */
 	action setMinimumDue [
-		sMinDue = sMinimumDue		// set minDue and MinDueDisplay in paymentCommon
-		sMinDueDisplay = sMinimumDueDisplay
-		
-	    sMinAmountDueEdit   = sMinimumDue // -- true min due calculated in declaration of sMinDue
+		sMinDue = sMinimumDue
 		goto (setMaximumDue)	
 	]
 	
@@ -726,7 +722,6 @@ useCase accountSummaryChild [
 		sMaxDue = sMaximumPay       // set maxDue and maxDueDisplay in paymentCommon
 		sMaxDueDisplay = sMaximumDueDisplay
 		
-	    sMaxAmountDueEdit   = sMaximumPay // -- max pay calculated in declaration of sMaxPay
 		goto (screenShowInfo)
 	]
 	
