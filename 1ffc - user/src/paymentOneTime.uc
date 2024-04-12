@@ -316,7 +316,28 @@ useCase paymentOneTime [
     static paymentDateManipulated = "{Failed to make payment, payment date out of acceptable range.}"
     static paymentInvalidAmountError = "{Failed to make payment. The amount is invalid.}"
     static paymentInsufficientFundsError = "{Failed to make payment. There are insufficient funds on your account.}"
+    
+    static paymentConfirmationHeader = "{Thank you for using the 1st Franklin Financial payment service. This is to confirm your authorization on {date}, for a payment of {totalAmount} to be debited from account ending in {wallet} payable to 1st Franklin Financial.}"
+	static paymentConfirmationBody1 = "{Customer Name: <1> <2>}"
+	static paymentConfirmationBody2 = "{Account Number: {account}}"
+	static paymentConfirmationBody3 = "{Payment Date: {payDate}}"
+	static paymentConfirmationBody4 = "{Amount: {amount}}"
+	static paymentConfirmationBody5 = "{Convenience Fee: {fee}}"
+	static paymentConfirmationBody6 = "{Total Amount: {totalAmount}}"
+	static paymentConfirmationFooter = "{If the payment referenced above is scheduled for a future date and you wish to cancel, 48 hours before the effective date please either cancel through the portal or by contacting your branch.}"
+	
+	native string sPmtConfirmationHeader = ""
+	native string sPmtConfirmationBody2= ""
+	native string sPmtConfirmationBody3= ""
+	native string sPmtConfirmationBody4= ""
+	native string sPmtConfirmationBody5= ""
+	native string sPmtConfirmationBody6= ""
+	
+	native string sUserFirstName = ""
+	native string sUserLastName = ""
 
+	volatile string sPaymentConfirmationBody1 = I18n.translate ("paymentOneTime_paymentConfirmationBody1", sUserFirstName, sUserLastName)
+	
     native string sDueDate                 = Format.formatDateNumeric(srBillOverviewResult.dueDate)
 	native string sCurrentBalanceDisplay   = ''
 	native string sCurrentBalanceFlag      = ''
@@ -433,22 +454,12 @@ useCase paymentOneTime [
     
     field fCheckBoxes [        
     	checkBoxes(control) sField [
-        	Agree: "{I have read and agree with the [a href='#' st-pop-in='paymentTerms_en_us.html']terms & conditions[/a] of payment processing.}"            
+//        	Agree: "{I have read and agree with the [a href='#' st-pop-in='paymentTerms_en_us.html']terms & conditions[/a] of payment processing.}"
+			Agree: "{I have read and agree to the terms of use.}"            
         ]
         string(required) sRequired = "{This field is required.}"
     ]
     
-    static sEftNotice = "{By authorizing this transaction, customer agrees that merchant " +
-                        "may convert this transaction into an Electronic Funds Transfer " + 
-                        "(EFT) transaction or paper draft, and to debit this account " +
-                        "for the amount of the transaction. Additionally, in the event " + 
-                        "this draft or EFT is returned unpaid, a service fee, as " +
-                        "allowable by law, will be charged to this account via EFT or " + 
-                        "draft. In the event you choose to revoke this authorization, " +
-                        "please do so by contacting the merchant directly. Please note " +
-                        "that processing times may not allow for revocation of this " +
-                        "authorization.}"
-                        
 	static sSurchargeNotice = "{Payment by debit card will result in a one-time non-refundable convenience fee in the amount of $1.50. If you do not wish to pay this fee, you may cancel your payment and remit payment to 1FFC via ACH, Cash, Check, or Money Order.}"                        
     static sSurchargeNoticeExcludeText = "{Excludes FL, KY, SC, and VA}"
     
@@ -527,6 +538,10 @@ useCase paymentOneTime [
 	*************************/
 	/* 1. Get most recent document details. */
 	action init [
+		loadProfile (
+			firstName: sUserFirstName
+			lastName: sUserLastName
+		)
 		sUserName = getUserName()
         dPayAmount = ""
         bImpersonateActive = sImpersonationActive
@@ -975,6 +990,30 @@ useCase paymentOneTime [
 			    
 			    display sPayData [
 			    	class: "visually-hidden st-pay-data-hidden"
+			    ]
+			    
+			    display paymentConfirmationHeader [
+			    	class: "visually-hidden st-confirmation-header"
+			    ]
+			    
+			    display paymentConfirmationBody2 [
+			    	class: "visually-hidden st-confirmation-account"
+			    ]
+			    
+			    display paymentConfirmationBody3 [
+			    	class: "visually-hidden st-confirmation-pay-date"
+			    ]
+			    
+			    display paymentConfirmationBody4 [
+			    	class: "visually-hidden st-confirmation-amt"
+			    ]
+			    
+			    display paymentConfirmationBody5 [
+			    	class: "visually-hidden st-confirmation-fee"
+			    ]
+			    
+			    display paymentConfirmationBody6 [
+			    	class: "visually-hidden st-confirmation-total-amt"
 			    ]
 			    
 			    display sTotalPayAmt [
@@ -1732,13 +1771,38 @@ useCase paymentOneTime [
 						class: "row st-padding-top st-margin-left45"
 						
 						div messagesCol [
+							
 							class: "col-md-12 alert alert-warning"
 							
-							display sEftNotice
-							display sSurchargeNotice
-							display sSurchargeNoticeExcludeText [
-								class: "fw-bold px-1"
+							display sPmtConfirmationHeader
+							
+							ul listItems [
+								li customerName [
+									display sPaymentConfirmationBody1
+								]
+								
+								li accountNumber [
+									display sPmtConfirmationBody2
+								]
+								
+								li paymentDate [
+									display sPmtConfirmationBody3
+								]
+								
+								li paymentAmount [
+									display sPmtConfirmationBody4
+								]
+								
+								li paymentConvenienceFee [
+									display sPmtConfirmationBody5
+								]
+								
+								li paymentTotalAmount [
+									display sPmtConfirmationBody6
+								]
 							]
+							
+							display paymentConfirmationFooter
 						]
 						
 						div checboxesCol [
@@ -2220,6 +2284,7 @@ useCase paymentOneTime [
 	]
 
 	action addConvenienceFee [
+		sSurchargeAmountComplete = surchargeResult.convenienceFeeAmt
 		srMakePaymentParam.FLEX_VALUE = "convenienceFee=true" + "|" + "convenienceFeeAmount=" + surchargeResult.convenienceFeeAmt
 		srMakePaymentParam.FLEX_DEFINITION = flexDefinition
 		

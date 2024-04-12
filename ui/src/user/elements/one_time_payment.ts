@@ -161,18 +161,16 @@ function state_update_display(
         $('.st-payment-method-nickname').text(nickname);
     });
     state.source_type((type) => {
-        $('div[id^="paymentOneTime_messagesCol_"]').addClass('visually-hidden');
-        $('#paymentOneTime_sEftNotice').addClass('visually-hidden');
-        $('[id^="paymentOneTime_sSurchargeNotice"]').addClass('visually-hidden');
-
+        $('[id^="paymentOneTime_messagesCol_"]').addClass('visually-hidden');
+        
         if (type === 'bank') {
-            $('#paymentOneTime_sEftNotice').removeClass('visually-hidden');
-            $('div[id^="paymentOneTime_messagesCol_"]').removeClass('visually-hidden');
+            $('[id^="paymentOneTime_messagesCol_"]').removeClass('visually-hidden');
+            $('[id^="paymentOneTime_paymentConvenienceFee_"]').addClass('visually-hidden');
         }
         else if (type === 'debit') {
             if ($('.st-surcharge').text() === 'true') {
-                $('div[id^="paymentOneTime_messagesCol_"]').removeClass('visually-hidden');
-                $('[id^="paymentOneTime_sSurchargeNotice"]').removeClass('visually-hidden');
+                $('[id^="paymentOneTime_messagesCol_"]').removeClass('visually-hidden');
+                $('[id^="paymentOneTime_paymentConvenienceFee_"]').removeClass('visually-hidden');
              }
        }
 
@@ -183,6 +181,72 @@ function state_update_display(
     state.source_account_masked((text) => {
         $('.st-payment-method-account').text(text);
     });
+
+   
+}
+
+//*****************************************************************************
+function payment_confirmation() {
+    $('form[name="paymentForm"] :input').on('change', () => {
+        create_confirmation_text();
+    });
+}
+
+//*****************************************************************************
+function create_confirmation_text() {
+    const account : string | undefined = $('#paymentOneTime_sDisplayAccountNickname').text()?.trim();
+    const paymentDate : string | undefined = $('#paymentOneTime_sPaymentDateComplete').text()?.trim();
+    const amount : string | undefined = $('#paymentOneTime_sAmountComplete').text()?.trim();
+    const convenienceFee : string | undefined = $('#paymentOneTime_sSurchargeAmountComplete').text()?.trim();
+    const totalAmount : string | undefined = $('#paymentOneTime_sTotalAmountComplete').text()?.trim();
+    const walletNum : string | undefined = $('#paymentOneTime_sPaymentMethodAccount').text()?.trim();
+
+    const cnfLabelHeader: JQuery<HTMLElement> = $('#paymentOneTime_sPmtConfirmationHeader');
+    const cnfLabelAccount: JQuery<HTMLElement> = $('#paymentOneTime_sPmtConfirmationBody2');
+    const cnfLabelPmtDate: JQuery<HTMLElement> = $('#paymentOneTime_sPmtConfirmationBody3');
+    const cnfLabelAmt: JQuery<HTMLElement> = $('#paymentOneTime_sPmtConfirmationBody4');
+    const cnfLabelConvenienceFee: JQuery<HTMLElement> = $('#paymentOneTime_sPmtConfirmationBody5');
+    const cnfLabelTotalAmt:JQuery<HTMLElement> = $('#paymentOneTime_sPmtConfirmationBody6');
+
+    const payDate: string = new Date(paymentDate).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+    });
+
+    const authorizationDate = new Date().toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+    });
+
+    const parsedHeader : string = $('.st-confirmation-header').text()
+            .replace('{date}', authorizationDate)
+            .replace('{totalAmount}', totalAmount)
+            .replace('{wallet}', walletNum).trim();
+
+    cnfLabelHeader.empty();
+    cnfLabelHeader.text(parsedHeader);
+
+    const parsedAccount: string = $('.st-confirmation-account').text().replace('{account}', account).trim();
+    cnfLabelAccount.empty();
+    cnfLabelAccount.text(parsedAccount);
+
+    const parsedPmtDate: string = $('.st-confirmation-pay-date').text().replace('{payDate}', payDate).trim();
+    cnfLabelPmtDate.empty();
+    cnfLabelPmtDate.text(parsedPmtDate)
+
+    const parsedAmt: string = $('.st-confirmation-amt').text().replace('{amount}', amount).trim();
+    cnfLabelAmt.empty();
+    cnfLabelAmt.text(parsedAmt);
+
+    const parsedConvenienceFee: string = $('.st-confirmation-fee').text().replace('{fee}', convenienceFee).trim();
+    cnfLabelConvenienceFee.empty();
+    cnfLabelConvenienceFee.text(parsedConvenienceFee);
+
+    const psrsedTotalAmt: string = $('.st-confirmation-total-amt').text().replace('{totalAmount}', totalAmount).trim();
+    cnfLabelTotalAmt.empty();
+    cnfLabelTotalAmt.text(psrsedTotalAmt);
 }
 
 //*****************************************************************************
@@ -977,5 +1041,6 @@ export function one_time_payment(
         payment_source_edit();
         payment_submit();
         payment_iframe();
+        payment_confirmation();
     }
 }
