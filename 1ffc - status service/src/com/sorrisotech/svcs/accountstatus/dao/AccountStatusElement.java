@@ -1,7 +1,6 @@
 package com.sorrisotech.svcs.accountstatus.dao;
 
 import java.math.BigDecimal;
-import java.util.Calendar;
 
 import com.sorrisotech.svcs.accountstatus.cache.EnumConst.AcctStatus;
 import com.sorrisotech.svcs.accountstatus.cache.EnumConst.AchEnabled;

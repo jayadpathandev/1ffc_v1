@@ -76,7 +76,6 @@ public class InsertTmAccountRecordDaoImpl implements IInsertTmAccountRecordDao {
 		
 		try {
 			BigDecimal lIdValue = BigDecimal.ZERO;
-			int iResultSet = 0;
 			
 			// -- get a new sequence number --
 		   lIdValue = (BigDecimal) mSeqJdbc.queryForObject(
@@ -94,7 +93,7 @@ public class InsertTmAccountRecordDaoImpl implements IInsertTmAccountRecordDao {
           cParams.put("orgIdVal", oElement.m_szOrgId); 
 			
 			// -- insert the record --
-			iResultSet = mJdbc.update(m_InsertTmAccountDetailsSQL, cParams);
+			mJdbc.update(m_InsertTmAccountDetailsSQL, cParams);
 		}
 		catch (Exception e) {
 			LOG.error("InsertTmAccountRecord -- Exception thrown for insert internal account id {}", 

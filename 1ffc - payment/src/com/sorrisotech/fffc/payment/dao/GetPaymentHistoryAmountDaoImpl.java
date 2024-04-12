@@ -40,7 +40,8 @@ public class GetPaymentHistoryAmountDaoImpl implements IGetPaymentHistoryAmountD
 	static {	
 		try {
 			final ApplicationContext context = new ClassPathXmlApplicationContext("1ffcbalancehelper.xml");
-			mDao = context.getBean("getHistoryForAccountSinceDateDao", GetPaymentHistoryAmountDaoImpl.class);				
+			mDao = context.getBean("getHistoryForAccountSinceDateDao", GetPaymentHistoryAmountDaoImpl.class);
+			((ClassPathXmlApplicationContext)context).close();
 		}
 		catch (Throwable e) {
 			LOG.error("Could not load 1ffcbalancehelper.xml", e); 

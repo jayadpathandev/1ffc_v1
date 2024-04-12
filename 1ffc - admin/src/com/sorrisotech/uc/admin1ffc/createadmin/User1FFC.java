@@ -33,7 +33,6 @@ import java.util.Map;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
-import com.sorrisotech.uc.admin1ffc.createadmin.User1FFCUtil;
 import com.sorrisotech.app.common.utils.AuthUtil;
 import com.sorrisotech.app.utils.Session;
 import com.sorrisotech.persona.search.api.IUserSearchRepository;
@@ -54,7 +53,6 @@ import com.sorrisotech.svcs.itfc.exceptions.MargaritaCredentialException;
 import com.sorrisotech.svcs.itfc.i18n.IInternationalization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.sorrisotech.uc.admin1ffc.createadmin.Role1FFCConstants;
 
 public class User1FFC
 	implements IExternalReuse
@@ -156,7 +154,6 @@ public class User1FFC
 	 * @throws CredentialNotFoundException
 	 * @throws ClassNotFoundException 
 	 */
-	@SuppressWarnings("unchecked")
 	private String initUserApp(final IServiceLocator2 cLocator, final IUserData cData, final String szUserRole)
 			throws MargaritaCredentialException, CredentialNotFoundException, ClassNotFoundException {
 		
@@ -178,6 +175,7 @@ public class User1FFC
 	 * @return
 	 * @throws ClassNotFoundException
 	 */
+	@SuppressWarnings("unchecked")
 	public String performUserAppSearch(final IServiceLocator2 cLocator, final IUserData cData, final String szUserRole
 			 ) throws ClassNotFoundException {
 		
@@ -387,6 +385,7 @@ public class User1FFC
 		return (m_aRows == null || m_aRows.size() == 0 ? "no_user" : "user");
 	}
 	
+	@SuppressWarnings("rawtypes")
 	public Map[] listUsers(
 		final IServiceLocator2 cLocator,
 		final IUserData        cData
