@@ -1,6 +1,5 @@
 package com.sorrisotech.uc.admin1ffc.createadmin;
 
-import com.sorrisotech.uc.admin1ffc.createadmin.Role1FFCConstants;
 import com.sorrisotech.svcs.external.IServiceLocator2;
 import com.sorrisotech.svcs.itfc.data.IUserData;
 import com.sorrisotech.svcs.itfc.i18n.IInternationalization;

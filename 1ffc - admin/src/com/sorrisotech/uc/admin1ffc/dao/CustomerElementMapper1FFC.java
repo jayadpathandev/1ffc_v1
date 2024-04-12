@@ -3,8 +3,6 @@ package com.sorrisotech.uc.admin1ffc.dao;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowMapper;
 
 /**
@@ -17,8 +15,6 @@ import org.springframework.jdbc.core.RowMapper;
  */
 public class CustomerElementMapper1FFC implements RowMapper<CustomerElement1FFC>{
 
-	
-	private static final Logger LOG = LoggerFactory.getLogger(CustomerElementMapper1FFC.class);
 	
 	@Override
 	public CustomerElement1FFC mapRow(ResultSet arg0, int arg1) throws SQLException {

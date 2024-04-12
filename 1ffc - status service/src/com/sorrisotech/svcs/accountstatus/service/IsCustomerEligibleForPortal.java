@@ -1,6 +1,5 @@
 package com.sorrisotech.svcs.accountstatus.service;
 
-import java.util.HashMap;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -9,10 +8,6 @@ import org.slf4j.LoggerFactory;
 import com.sorrisotech.svcs.accountstatus.api.IApiAccountStatus;
 import com.sorrisotech.svcs.accountstatus.dao.AccountForRegistrationElement;
 import com.sorrisotech.svcs.accountstatus.dao.AccountsForRegistrationDaoImpl;
-import com.sorrisotech.svcs.accountstatus.dao.InsertTmAccountRecordDaoImpl;
-import com.sorrisotech.svcs.accountstatus.dao.TmAccountsFromOrgIdDaoImpl;
-import com.sorrisotech.svcs.accountstatus.dao.ITmAccountsFromOrgIdDao;
-import com.sorrisotech.svcs.accountstatus.dao.IInsertTmAccountRecordDao;
 import com.sorrisotech.svcs.serviceapi.api.IRequestInternal;
 import com.sorrisotech.svcs.serviceapi.api.ServiceAPIErrorCode;
 
