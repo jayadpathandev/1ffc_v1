@@ -14,7 +14,6 @@ import com.sorrisotech.common.app.NotifUtil;
 import com.sorrisotech.svcs.external.IExternalReuse;
 import com.sorrisotech.svcs.itfc.data.IUserData;
 import com.sorrisotech.uc.admin1ffc.dao.CustomerElement1FFC;
-import com.sorrisotech.uc.admin1ffc.dao.ISearchByCustomerIdDao;
 import com.sorrisotech.uc.admin1ffc.dao.SearchByCustomerIdDaoImpl;
 
 /**
