@@ -130,7 +130,7 @@ public class BalanceHelper extends FffcBalance {
 				 cszCurrentBalanceAmt);
 		
 		if (lszInternalUnformatted == m_cszReturnForInvalid) {
-			return lszInternalUnformatted;
+			lszInternalUnformatted = "0.00";
 		}
 			
 		if (null != lszInternalUnformatted) {
