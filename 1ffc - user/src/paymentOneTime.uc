@@ -460,8 +460,7 @@ useCase paymentOneTime [
         string(required) sRequired = "{This field is required.}"
     ]
     
-	static sSurchargeNotice = "{Payment by debit card will result in a one-time non-refundable convenience fee in the amount of $1.50. If you do not wish to pay this fee, you may cancel your payment and remit payment to 1FFC via ACH, Cash, Check, or Money Order.}"                        
-    static sSurchargeNoticeExcludeText = "{Excludes FL, KY, SC, and VA}"
+	static sSurchargeNotice = "{Payment by debit card will result in a one-time non-refundable convenience fee in the amount of $1.50. If you do not wish to pay this fee, you may cancel your payment and remit payment to 1FFC via ACH, Cash, Check, or Money Order. [strong]Excludes FL, KY, SC, and VA[/strong]}"                        
     
     field fAutoScheduledConfirm [        
     	checkBoxes(control) sField = Agree [
@@ -1803,6 +1802,10 @@ useCase paymentOneTime [
 							]
 							
 							display paymentConfirmationFooter
+							
+							display sSurchargeNotice [
+								class: "px-1"
+							]
 						]
 						
 						div checboxesCol [

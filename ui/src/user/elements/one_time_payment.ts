@@ -149,6 +149,7 @@ function state_update_display(
         FormatService.currency(amount, paygroup, (text) => {
             $('#paymentOneTime_sSurchargeAmountComplete').text(text);
         });
+
         $('input[name="sSurCharge"]').val(amount.toFixed(2));
     });
     state.total_amount((amount) => {
@@ -163,26 +164,18 @@ function state_update_display(
     state.source_type((type) => {
         $('[id^="paymentOneTime_messagesCol_"]').addClass('visually-hidden');
         
-        if (type === 'bank') {
+        if (type === 'bank' || type === 'debit') {
             $('[id^="paymentOneTime_messagesCol_"]').removeClass('visually-hidden');
-            $('[id^="paymentOneTime_paymentConvenienceFee_"]').addClass('visually-hidden');
         }
-        else if (type === 'debit') {
-            if ($('.st-surcharge').text() === 'true') {
-                $('[id^="paymentOneTime_messagesCol_"]').removeClass('visually-hidden');
-                $('[id^="paymentOneTime_paymentConvenienceFee_"]').removeClass('visually-hidden');
-             }
-       }
-
     });
+
     state.source_type_i18n((text) => {
         $('.st-payment-method-type').text(text);
     });
+
     state.source_account_masked((text) => {
         $('.st-payment-method-account').text(text);
     });
-
-   
 }
 
 //*****************************************************************************
