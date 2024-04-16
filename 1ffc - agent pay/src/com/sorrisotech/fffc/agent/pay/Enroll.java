@@ -32,7 +32,6 @@ import com.sorrisotech.persona.comgmt.api.CompanyManagementFactory;
 import com.sorrisotech.persona.comgmt.api.ICompany;
 import com.sorrisotech.persona.usercompanylink.api.UserCompanyLinkFactory;
 import com.sorrisotech.saas.orgid.api.OrgIdFactory;
-import com.sorrisotech.svcs.agentpay.api.IApiAgentPay;
 import com.sorrisotech.svcs.external.IServiceLocator2;
 import com.sorrisotech.svcs.itfc.aaa.CredentialNames;
 import com.sorrisotech.svcs.itfc.aaa.IAAAClassFactory;
@@ -40,7 +39,6 @@ import com.sorrisotech.svcs.itfc.aaa.api.ICredential;
 import com.sorrisotech.svcs.itfc.aaa.credMgmt.ICredentialManager;
 import com.sorrisotech.svcs.itfc.exceptions.DuplicateEntityException;
 import com.sorrisotech.svcs.itfc.exceptions.MargaritaCredentialException;
-import com.sorrisotech.svcs.serviceapi.api.ServiceAPIErrorCode;
 import com.sorrisotech.utils.AppConfig;
 
 public class Enroll {
