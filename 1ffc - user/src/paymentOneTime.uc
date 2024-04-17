@@ -170,6 +170,9 @@ useCase paymentOneTime [
     native string sLocalAccountBillDate
     native string sLocalAccountBillAmount
 	
+	native string convertedTodaysDate = CurrentBalanceHelper.parseDateToOtherFormat(sTodaysDate)
+	native string convertedPayDate = CurrentBalanceHelper.parseDateToOtherFormat(sPaymentDate)
+	
 	string msgStatusError = "Internal System Error, please try again later."
     
     native string sErrorValueReturned = "--"
@@ -2440,10 +2443,10 @@ useCase paymentOneTime [
 		
  		SurchargeSession.emptyMap()
 		
-		sNtfParams = "transactionId=" + transactionId + "|" + "sourceName=" + sPayDataSourceAccount + "|" +
+		sNtfParams = "transactionId=" + transactionId + "|" + "sourceName=" + sPayDataSourceAccount + "|" +"nickName="+ sPayDataSourceName + "|" + "currentDate="+ convertedTodaysDate + "|" +
 		              "amount=" + sTotalPayAmt +  "|" + "sourceType=" + sPaymentMethodType + "|" + 
 		              "surchargeFlag=" + surchargeFlag + "|"  + "surcharge=" + sSurCharge + "|" + "totalAmount=" + sTotalAmount + "|" +
-		              "paymentDate=" + sPaymentDate + "|" + "groupingData=" + sGroupingDataString + "|" + "currency=" + sCurrency
+		              "paymentDate=" + convertedPayDate + "|" + "groupingData=" + sGroupingDataString + "|" + "currency=" + sCurrency
 		switch NotifUtil.sendRegisteredUserEmail(sUserId, sNtfParams, "payment_onetime_scheduled_success") [
 			case "success" jsonSetScheduledSuccessResponse
 			default jsonSetScheduledSuccessResponse
