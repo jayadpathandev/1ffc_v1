@@ -19,7 +19,9 @@ import com.sorrisotech.fffc.payment.dao.GetPaymentHistoryAmountDaoImpl;
  * @version 2024-Jan-31 jak Hopefully works right away
  * @version 2024-Feb-07 jak Added min/max and several minor defect fixes around that.
  * @version 2024-Feb-18 jak Added some checks around bill vs status comparison to prevent
- * 																exceptions should one be empty.
+ * 								exceptions should one be empty.
+ * @version 2024-Apr-17 jak	Added tests for "0" date which happens if you have no bills
+ * 								and are looking for current balance.
  * 
  */
 public class FffcBalance {
@@ -138,11 +140,11 @@ public class FffcBalance {
 		
 		// -- get the date in proper format --
 		try {
-			if ((null != cszBillDate) && (0 != cszBillDate.length())) {
+			if ((null != cszBillDate) && (0 != cszBillDate.length()) && (!cszBillDate.equalsIgnoreCase("0"))) {
 				lBillDate = LocalDate.parse(cszBillDate, DateTimeFormatter.BASIC_ISO_DATE);
 				bHasBillDate = true;
 			}
-			if ((null != cszStatusDate) && (0 != cszStatusDate.length())) {
+			if ((null != cszStatusDate) && (0 != cszStatusDate.length()) && (!cszStatusDate.equalsIgnoreCase("0"))) {
 				lStatusDate = LocalDate.parse(cszStatusDate, DateTimeFormatter.BASIC_ISO_DATE);
 				bHasStatusDate = true;
 			}
