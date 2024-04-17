@@ -9,6 +9,8 @@
 	"walletNickName" : "$sourceName",
 #end
 #set($payments = $json.parse($groupingData))
+	"dateOfAuthorization" : "$currentDate",
+	"accountName" : "$nickName",
 	"accountNumber" : "$payments[0].displayAccountNumber",
 	"amount" : "$currencyTool.format($currency, $payments[0].amount)",
 	"surcharge" : "$currencyTool.format($currency, $payments[0].surcharge)",

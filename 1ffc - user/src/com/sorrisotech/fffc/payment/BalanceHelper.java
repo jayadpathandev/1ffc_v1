@@ -1,6 +1,9 @@
 package com.sorrisotech.fffc.payment;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +32,7 @@ public class BalanceHelper extends FffcBalance {
 	 * Logger for this class.
 	 */
 	private static final Logger m_cLog = LoggerFactory.getLogger(BalanceHelper.class);
-		
+
 	/**
 	 * Calculates the current balance based on information from the bill,
 	 * the status feed, and payment history.
@@ -199,5 +202,14 @@ public class BalanceHelper extends FffcBalance {
 	
 	public String isValidConvenienceFee(String szConvenienceFee) {
 		return BigDecimal.ZERO.compareTo(new BigDecimal(szConvenienceFee)) != 0 ? "true" : "false";
+	}
+	
+	public String parseDateToOtherFormat (String date) {
+		try {
+			return DateTimeFormatter.ofPattern("MMMM dd, yyyy").format(LocalDate.parse(date));
+		} catch(DateTimeParseException e) {
+			m_cLog.error("parseDateToOtherFormat() .. unable to parse the date, exception occurred {}", e);
+			return null;
+		}
 	}
 }
