@@ -238,7 +238,7 @@
 
 							<#--  Automatic (recurring) payments enable/disable control driven by status, currency of account, and if there's already
 											and automatic payment rule set  -->
-							<#if status. bAutoPayLinkEnabled>
+							<#if status.bAutoPayLinkEnabled>
 								<#--  automatic payment is enabled -->
 								<a class="text-nowrap" href="startAutomaticPayment">Set&nbsp;up&nbsp;recurring&nbsp;payments</a>				
 							<#else>

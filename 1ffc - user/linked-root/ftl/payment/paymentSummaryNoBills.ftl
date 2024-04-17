@@ -10,7 +10,8 @@
 	   			closedAccount
 	   
 	   2023-Dec-11	jak-- first iteration
-	   2024-Feb-19 jak --changed wording for old bill
+	   2024-Feb-19 	jak --changed wording for old bill
+	   2024-Apr-17	jak -- adjusted so customers without bills could pay
   -->
 
 <#--  "debug" -- if true will show the status and scheduled payment stuff on the screen for visual validation
@@ -75,18 +76,35 @@
 							<#--  All links disabled -->
 							<a class="me-4 disabled pe-none opacity-50" aria-disabled="true">View statement</a>
 							<a class="me-4 text-nowrap disabled pe-none opacity-50" aria-disabled="true" >Transaction History</a>
-							<a class="text-nowrap disabled pe-none opacity-50" aria-disabled="true">Set&nbsp;up&nbsp;recurring&nbsp;payment</a>				
+							<#--  Automatic (recurring) payments enable/disable control driven by status, currency of account, and if there's already
+											and automatic payment rule set  -->
+							<#if status.bAutoPayLinkEnabled>
+								<#--  automatic payment is enabled -->
+								<a class="text-nowrap" href="startAutomaticPayment">Set&nbsp;up&nbsp;recurring&nbsp;payments</a>				
+							<#else>
+								<#--  automatic payment is disabled -->
+								<a class="text-nowrap disabled pe-none opacity-50" aria-disabled="true">Set&nbsp;up&nbsp;recurring&nbsp;payment</a>				
+							</#if>
 							<#break>
 						<#case "activeAccount">
-							<#--  This is an active account with no bills so its basically the same as closed account -->
+							<a class="me-4 disabled pe-none opacity-50" aria-disabled="true">View statement</a>
+							<a class="me-4 text-nowrap" href="#" st-pop-in="fffcViewTransactions?offset=${jumpToOffset}">Transaction History</a>
+								<#--  Automatic (recurring) payments enable/disable control driven by status, currency of account, and if there's already
+											and automatic payment rule set  -->
+							<#if status.bAutoPayLinkEnabled>
+								<#--  automatic payment is enabled -->
+								<a class="text-nowrap" href="startAutomaticPayment">Set&nbsp;up&nbsp;recurring&nbsp;payments</a>				
+							<#else>
+								<#--  automatic payment is disabled -->
+								<a class="text-nowrap disabled pe-none opacity-50" aria-disabled="true">Set&nbsp;up&nbsp;recurring&nbsp;payment</a>				
+							</#if>
+							<#break>
 						<#case "closedAccount">
 							<#-- Other links enabled, payment link disabled -->
 							<a class="me-4 disabled pe-none opacity-50" aria-disabled="true">View statement</a>
 							<a class="me-4 text-nowrap" href="#" st-pop-in="fffcViewTransactions?offset=${jumpToOffset}">Transaction History</a>
 							<a class="text-nowrap disabled pe-none opacity-50" aria-disabled="true">Set&nbsp;up&nbsp;recurring&nbsp;payment</a>				
 							<#break>
-						<#case "activeAccount">
-							<#--  This is an active account with no bills so its basically the same as closed account -->
 						<#case "unknown">
 						<#default>
 							<#--  IF THERE ARE NO STATUS FOR BILL AVAILABLE THAT MAKES SENSE, DON'T SHOW THE LINKS -->
@@ -95,7 +113,8 @@
 			</div>
 		</div>
 		<div class="col-2">
-			<a class="btn btn-primary disabled" href="startMakePayment" disabled="true">PAY THIS BILL</a>
+			<a class="btn btn-primary <#if !status.bPayEnabled>disabled</#if>" href="startMakePayment" 
+										<#if !status.bPayEnabled>disabled="true"</#if>>PAY THIS BILL</a>
 		</div>
 	</div>
 	
