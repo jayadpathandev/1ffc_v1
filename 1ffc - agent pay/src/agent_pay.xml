@@ -130,11 +130,14 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 					source_id
 				from 
 					pmt_automatic,
-					pmt_automatic_grouping
+					pmt_automatic_grouping,
+					pmt_automatic_history
 				where
 					pmt_automatic.automatic_id = pmt_automatic_grouping.automatic_id and
+					pmt_automatic.automatic_id = pmt_automatic_history.automatic_id and
 					pmt_automatic.user_id = :userId and
-					pmt_automatic_grouping.internal_account_number = :accountId
+					pmt_automatic_grouping.internal_account_number = :accountId and
+					pmt_automatic_history.config_change != :config_change
 	    	</value>
         </constructor-arg>   
     </bean>    

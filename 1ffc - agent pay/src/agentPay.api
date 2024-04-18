@@ -6,7 +6,8 @@ define service AgentPay(com.sorrisotech.app.serviceapi.uc.UcRequestClient) [
 
     define method Start  [
 		string customerId
-    	string accountId	
+    	string accountId
+    	string configChange	
     ] returns [
     	number userid
     	string userName
@@ -29,6 +30,7 @@ define service AgentPay(com.sorrisotech.app.serviceapi.uc.UcRequestClient) [
 	define method GetAutoPay [
 		string customerId
 		string accountId
+		string configChange
 	] returns [
 		boolean automaticEnabled
 		string automaticDate

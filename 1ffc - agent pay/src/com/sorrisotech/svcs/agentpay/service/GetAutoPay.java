@@ -25,9 +25,10 @@ public class GetAutoPay extends GetAutoPayBase {
 	private void populateAuto(
 				final BigDecimal       userId,
 				final String           accountId,
+				final String           configChange,
 				final IRequestInternal op
 			) {
-		final var data = mDao.autoPay(userId, accountId);
+		final var data = mDao.autoPay(userId, accountId, configChange);
 		
 		if (data != null) {
 			op.set(IApiAgentPay.GetAutoPay.automaticEnabled, true);
@@ -49,8 +50,9 @@ public class GetAutoPay extends GetAutoPayBase {
 	@Override
 	protected ServiceAPIErrorCode processInternal(IRequestInternal op) {
 
-		final String customerId = op.getString(IApiAgentPay.Start.customerId);
-		final String accountId  = op.getString(IApiAgentPay.Start.accountId);
+		final String customerId   = op.getString(IApiAgentPay.Start.customerId);
+		final String accountId    = op.getString(IApiAgentPay.Start.accountId);
+		final String configChange = op.getString(IApiAgentPay.Start.configChange);
 		
 		op.setToResponse();
 		
@@ -70,7 +72,7 @@ public class GetAutoPay extends GetAutoPayBase {
 			return ServiceAPIErrorCode.Failure;			
 		}
 		
-		populateAuto(user.userId, accountId, op);
+		populateAuto(user.userId, accountId, configChange, op);
 		
 		op.setRequestStatus(ServiceAPIErrorCode.Success);
 		return ServiceAPIErrorCode.Success;

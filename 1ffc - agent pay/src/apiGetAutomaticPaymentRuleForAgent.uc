@@ -18,6 +18,7 @@ useCase apiGetAutomaticPaymentRuleForAgent
     native string securityToken
     native string customerId
     native string accountId
+    native string sDeleteAutoHistoryConfigChange = "Recurring payment deleted."
 	
 	native string sErrorStatus
 	native string sErrorDesc
@@ -151,8 +152,9 @@ useCase apiGetAutomaticPaymentRuleForAgent
     	sErrorDesc   = "Invalid [customerId] or [accountId] cannot find details."
     	sErrorCode   = "invalid_customer_id_account_id_pair"
 		
-		spGetAutoPay.customerId = customerId
-		spGetAutoPay.accountId  = accountId
+		spGetAutoPay.customerId		 = customerId
+		spGetAutoPay.accountId  	 = accountId
+		spGetAutoPay.configChange  	 = sDeleteAutoHistoryConfigChange
 		
 		switch apiCall AgentPay.GetAutoPay(spGetAutoPay, srGetAutoPay, ssStatus) [
 		   case apiSuccess checkSourceId
