@@ -227,12 +227,14 @@ public class ApiPayDao {
 	 */
 	public AutoPayBean autoPay(
 			final BigDecimal userId,
-			final String     accountId
+			final String     accountId,
+			final String     configChange
 			) {
 		final var params = new HashMap<String, Object>();
 		
 		params.put("userId", userId.toPlainString());
 		params.put("accountId", accountId);
+		params.put("config_change", configChange);
 		
 		AutoPayBean retval = null;
 

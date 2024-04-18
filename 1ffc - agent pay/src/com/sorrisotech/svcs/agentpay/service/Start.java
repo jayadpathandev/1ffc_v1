@@ -56,9 +56,10 @@ public class Start extends StartBase {
 	private void populateAuto(
 				final BigDecimal       userId,
 				final String           accountId,
+				final String           configChange,
 				final IRequestInternal op
 			) {
-		final var data = mDao.autoPay(userId, accountId);
+		final var data = mDao.autoPay(userId, accountId, configChange);
 		
 		if (data != null) {
 			op.set(IApiAgentPay.Start.automaticEnabled, true);
@@ -81,6 +82,7 @@ public class Start extends StartBase {
 			) {
 		final String customerId = op.getString(IApiAgentPay.Start.customerId);
 		final String accountId  = op.getString(IApiAgentPay.Start.accountId);
+		final String configChange = op.getString(IApiAgentPay.Start.configChange);
 		
 		op.setToResponse();
 		
@@ -123,7 +125,7 @@ public class Start extends StartBase {
 		op.set(IApiAgentPay.Start.payGroup, account.payGroup);
 		
 		populateScheduled(user.userId, accountId, op);
-		populateAuto(user.userId, accountId, op);
+		populateAuto(user.userId, accountId, configChange, op);
 		
 		op.setRequestStatus(ServiceAPIErrorCode.Success);
 		return ServiceAPIErrorCode.Success;

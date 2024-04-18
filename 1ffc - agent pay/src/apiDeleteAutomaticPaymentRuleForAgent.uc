@@ -20,6 +20,7 @@ useCase apiDeleteAutomaticPaymentRuleForAgent
 	native string sErrorDesc
 	native string sErrorCode
 	native string sAutoPayId
+	native string sDeleteAutoHistoryConfigChange = "Recurring payment deleted."
 	
 	serviceStatus                 	   ssGetAutoPay
     serviceParam (AgentPay.GetAutoPay) spGetAutoPay
@@ -28,6 +29,9 @@ useCase apiDeleteAutomaticPaymentRuleForAgent
 	serviceStatus								   ssDeleteRequest
 	serviceParam (Payment.DeleteAutomaticPayment)  spDeleteRequest
 	serviceResult (Payment.DeleteAutomaticPayment) srDeleteResult
+	
+	serviceParam(Payment.DeleteAutomaticPaymentHistory)  srDeleteAutomaticHistoryParam
+    serviceResult(Payment.DeleteAutomaticPaymentHistory) srDeleteAutomaticHistoryResult
 	
    /*************************
      * MAIN SUCCESS SCENARIO
@@ -119,8 +123,9 @@ useCase apiDeleteAutomaticPaymentRuleForAgent
     	sErrorDesc   = "Invalid [customerId] or [accountId] cannot find details."
     	sErrorCode   = "invalid_customer_id_account_id_pair"
 		
-		spGetAutoPay.customerId = sCustomerId
-		spGetAutoPay.accountId  = sAccountId
+		spGetAutoPay.customerId 	= sCustomerId
+		spGetAutoPay.accountId  	= sAccountId
+		spGetAutoPay.configChange  	= sDeleteAutoHistoryConfigChange
 		
 		switch apiCall AgentPay.GetAutoPay(spGetAutoPay, srGetAutoPay, ssGetAutoPay) [
 		   case apiSuccess checkAutomaticPaymentId
@@ -145,7 +150,7 @@ useCase apiDeleteAutomaticPaymentRuleForAgent
 
 
  	/*************************
-	 * 6. Delete the autopay rule.
+	 * 6a. Delete the autopay rule.
 	 */
 	action deleteAutoPayRule [
 		sErrorStatus = "400"
@@ -154,10 +159,22 @@ useCase apiDeleteAutomaticPaymentRuleForAgent
 
 		spDeleteRequest.AUTOMATIC_ID = sAutoPayId
 		switch apiCall Payment.DeleteAutomaticPayment(spDeleteRequest, srDeleteResult, ssDeleteRequest) [
-			case apiSuccess actionSuccessResponse
+			case apiSuccess deleteAutomaticPaymentHistory
 			default actionFailure
 		]
 	]
+	
+	/*************************
+	* 6b. Delete automatic payment history. 
+	*/	
+	action deleteAutomaticPaymentHistory [
+		srDeleteAutomaticHistoryParam.AUTOMATIC_ID = sAutoPayId
+		srDeleteAutomaticHistoryParam.CONFIG_CHANGE = sDeleteAutoHistoryConfigChange
+		switch apiCall Payment.DeleteAutomaticPaymentHistory(srDeleteAutomaticHistoryParam, srDeleteAutomaticHistoryResult, ssDeleteRequest) [
+            case apiSuccess actionSuccessResponse
+            default actionFailure
+        ]	
+    ]
 	
  	/*************************
 	 * 7. Response with success back to the client.

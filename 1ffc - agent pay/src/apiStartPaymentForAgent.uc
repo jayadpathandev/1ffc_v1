@@ -38,7 +38,7 @@ useCase apiStartPaymentForAgent
     serviceResult (AccountStatus.GetAccountsForRegistration) srAcctsReg
     native string sStatusPayGroup = Config.get("1ffc.ignore.group")
     native string sBillPayGroup = Config.get("1ffc.bill.group")
-    
+    native string sDeleteAutoHistoryConfigChange = "Recurring payment deleted."
 
 	native volatile string id        = ApiPay.id()
 	native volatile string sourceUrl = ApiPay.sourceUrl(sBaseUrl, "startChooseSource")
@@ -142,8 +142,9 @@ useCase apiStartPaymentForAgent
     	sErrorDesc   = "Invalid [customerId] or [accountId] cannot find details."
     	sErrorCode   = "invalid_customer_id_account_id_pair"
 		
-		spStart.customerId = customerId
-		spStart.accountId  = accountId
+		spStart.customerId    = customerId
+		spStart.accountId  	  = accountId
+		spStart.configChange  = sDeleteAutoHistoryConfigChange
 		
 		switch apiCall AgentPay.Start(spStart, srStart, ssStart) [
 		   case apiSuccess actionCheckForUser
