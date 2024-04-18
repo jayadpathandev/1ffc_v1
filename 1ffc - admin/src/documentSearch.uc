@@ -168,6 +168,10 @@ useCase documentSearch [
         	None: ""
 	        Letter: "{Letter}"
 	        Statement: "{Statement}"
+	        CommunicateEmails: "{Communicate emails}"
+	        RecAuthorizations: "{Recurring EFT authorizations}"
+			OnlineApplications: "{Online applications}"
+			BranchLiveChecks: "{Branch live checks}"
 	    ]    
     ]  
 
@@ -1236,13 +1240,44 @@ useCase documentSearch [
 		if srFindRequest.REQ_FLEX2 == "None" then
 		   resetFlex2
 		else
-		   isFlexField3Empty
+		   getFlex2SearchValue
 	]
 
 	action resetFlex2 [
 		srFindRequest.REQ_FLEX2 = ""
 		goto (isFlexField3Empty)
 	]	
+
+	/* Assign the correct value for flex2 to search for */			
+	action getFlex2SearchValue [
+	   switch srFindRequest.REQ_FLEX2 [
+            case "CommunicateEmails" 	assignCommunicateEmails
+            case "RecAuthorizations"  	assignRecurAuthorization 
+            case "OnlineApplications" 	assignOnlineApplication
+            case "BranchLiveChecks"  	assignBranchLiveCheck
+            default isFlexField3Empty    
+            ]		
+	]	
+
+	action assignCommunicateEmails [
+		srFindRequest.REQ_FLEX2 = "Communicate emails"
+		goto (isFlexField3Empty)
+	]
+	
+	action assignRecurAuthorization [
+		srFindRequest.REQ_FLEX2 = "Recurring EFT authorizations"
+		goto (isFlexField3Empty)
+	]
+
+	action assignOnlineApplication [
+		srFindRequest.REQ_FLEX2 = "Online applications"
+		goto (isFlexField3Empty)
+	]
+	
+	action assignBranchLiveCheck [
+		srFindRequest.REQ_FLEX2 = "Branch live checks"
+		goto (isFlexField3Empty)		
+	]
 	
 	action isFlexField3Empty [
 		if srFindRequest.REQ_FLEX3 == "None" then
