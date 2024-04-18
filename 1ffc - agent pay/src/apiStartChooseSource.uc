@@ -18,7 +18,9 @@ useCase apiStartChooseSource [
 		walletToken
 	]
 	
-	shortcut startChooseSourceFailure(actionWalletError) 
+	shortcut startChooseSourceFailure(actionWalletError) [
+		error
+	]
 	
 	startAt init [
 		code
@@ -38,6 +40,8 @@ useCase apiStartChooseSource [
 	native volatile string sUserId   = ApiPay.userid()
 	native volatile string sUserName = ApiPay.userName()
 	
+	native string error
+	
 	action init [
 		switch ApiPay.load(code) [
 			case "true" actionDisplay
@@ -46,8 +50,10 @@ useCase apiStartChooseSource [
 	]
 		
 	action actionDisplay [
+		error = ""
 		Session.setUserId(sUserId)
 		Session.setUsername(sUserName)
+		ApiPay.setError(error)
 		ApiPay.prepareIframe(itemType)
 		foreignHandler ApiPay.showIframe()		
 	]
@@ -57,16 +63,22 @@ useCase apiStartChooseSource [
 	]
 	
  	action actionWalletError [
-		foreignHandler ApiPay.showHtmlError("api_start_wallet_error.html")				
+		ApiPay.setError(error)
+		ApiPay.prepareIframe(itemType)
+		foreignHandler ApiPay.showIframe()		
 	]	
 
 	action actionUseSource [
+		error = ""
+		ApiPay.setError(error)
 		ApiPay.setWallet(walletToken)
 		ApiPay.prepareIframe(itemType)
 		foreignHandler ApiPay.showIframe()		
 	]
 	
 	action actionNewSource [
+		error = ""
+		ApiPay.setError(error)
 		ApiPay.setWallet(walletType, walletAccount, walletExpiry, walletToken)
 		ApiPay.prepareIframe(itemType)
 		foreignHandler ApiPay.showIframe()		

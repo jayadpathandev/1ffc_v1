@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sorrisotech.utils.Spring;
-
+import com.sorrisotech.app.common.utils.I18n;
 import com.sorrisotech.app.utils.Freemarker;
 import com.sorrisotech.fffc.agent.pay.PaySession.PayStatus;
 import com.sorrisotech.svcs.external.IExternalReuse;
@@ -60,6 +60,7 @@ public class ApiPay implements IExternalReuse {
 	//*************************************************************************
 	private PaySession mCurrent   = null;
 	private String     mIFrame    = null;
+	private String     mError     = "";
 	
 	//*************************************************************************
 	@Override
@@ -429,6 +430,39 @@ public class ApiPay implements IExternalReuse {
 		if (mCurrent == null) throw new RuntimeException("There is no current session.");
 		value.putValue(mCurrent.walletName() + "|" + mCurrent.walletType() + "|" + mCurrent.walletAccount());
 	}
+
+	//*************************************************************************
+	public void setError(
+				final IServiceLocator2 locator,
+				final IUserData        userData,
+				final String error
+			) {
+		switch(error) {
+		case "11": 	mError = I18n.translate(locator, userData, "paymentOneTime_addSourceGenericError"); break;
+		case "12":  mError = I18n.translate(locator, userData, "paymentOneTime_addSourceCardNumberError"); break;
+		case "13":  mError = I18n.translate(locator, userData, "paymentOneTime_addSourceAddressError"); break;
+		case "14":  mError = I18n.translate(locator, userData, "paymentOneTime_addSourceCvvError"); break;
+		case "15":  mError = I18n.translate(locator, userData, "paymentOneTime_addSourceCardExpiredError"); break;
+		case "16":  mError = I18n.translate(locator, userData, "paymentOneTime_addSourceLostStolenFraudError"); break;
+		case "17":  mError = I18n.translate(locator, userData, "paymentOneTime_addSourceInvalidMethodError"); break;
+		case "18":  mError = I18n.translate(locator, userData, "paymentOneTime_addSourceCardDeclinedError"); break;
+		case "132": mError = I18n.translate(locator, userData, "paymentOneTime_addSourceCardNotAcceptedError"); break;
+		case "21":  mError = I18n.translate(locator, userData, "paymentOneTime_editSourceGenericError"); break;
+		case "22":  mError = I18n.translate(locator, userData, "paymentOneTime_editSourceCardNumberError"); break;
+		case "23":  mError = I18n.translate(locator, userData, "paymentOneTime_editSourceAddressError"); break;
+		case "24":  mError = I18n.translate(locator, userData, "paymentOneTime_editSourceCvvError"); break;
+		case "25":  mError = I18n.translate(locator, userData, "paymentOneTime_editSourceCardExpiredError"); break;
+		case "26":  mError = I18n.translate(locator, userData, "paymentOneTime_editSourceLostStolenFraudError"); break;
+		case "27":  mError = I18n.translate(locator, userData, "paymentOneTime_editSourceInvalidMethodError"); break;
+		case "133": mError = I18n.translate(locator, userData, "paymentOneTime_editSourceCardNotAcceptedError"); break;	
+		case "":
+			mError = "";
+			break;
+		default:
+			mError =I18n.translate(locator, userData, "apiStartChooseSource_sInternalError"); 
+			break;				
+		}
+	}
 	
 	//*************************************************************************
 	public void prepareIframe(
@@ -493,6 +527,7 @@ public class ApiPay implements IExternalReuse {
 		context.put("wallet", items.toArray());
 		context.put("iframe", iframe);
 		context.put("walletItem", mCurrent.walletToken());
+		context.put("error", mError);
 		
 		// --------------------------------------------------------------------
 		try {

@@ -25,6 +25,16 @@
         <script src="js/lib/bootstrap.bundle.min.js"></script>
 	</head>
 	<body>
+		<#if error != "">
+			<div class="alert alert-warning" role="alert alert-danger">
+				<h4>
+					<span>Data entry error</span>
+				</h4>
+				<p>
+					${error}
+				</p>
+			</div>
+		</#if>
 		<div class="apipay">
 			<h4>
 				Payment method
@@ -90,15 +100,15 @@
 						}
 					});					
 				}
-				function failure() {
-					document.location.href = "startChooseSourceFailure"					
+				function failure(data) {
+					document.location.href = 'startChooseSourceFailure?error=' + data.responseCode					
 				}
 				function cancel() {
-					document.location.href = "startChooseSource?code=${code?c}"					
+					document.location.href = 'startChooseSource?code=${code?c}'					
 				}
 				
 				window.handleAddSourceSuccessResponseCallback = function(data) { success(data); }
-				window.handleAddSourceErrorResponseCallback = function() { failure(); }
+				window.handleAddSourceErrorResponseCallback = function(data) { failure(data); }
 				window.handleErrorResponseCallback = function() { failure(); }
 				window.handleCancelResponseCallback = function() { cancel(); }						
 			});
