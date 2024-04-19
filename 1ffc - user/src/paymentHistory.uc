@@ -833,7 +833,7 @@ useCase paymentHistory [
 	    	    		logic: [
 							if sMessageFlag != "delete" then "remove"						
 						]
-						class: "st-payment-error float-end"
+						class: "st-payment-success float-end"
     	    			
 		    	    	display sSourceDeleteMsg [
 							class: "st-padding-top"
