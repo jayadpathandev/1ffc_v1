@@ -163,7 +163,7 @@ useCase documentSearch [
     ]
     
 	field fFlex2 [						// Document type is for Flex2
-	    string(label) sLabel = "{Document type}" 
+	    string(label) sLabel = "{Document type:}" 
         dropDown (control) pInput [
         	None: ""
 	        Letter: "{Letter}"
