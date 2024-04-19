@@ -1174,6 +1174,14 @@ f
     height: 32px;
 }
 
+#contactPreferences_textIconCol {
+	display: none;
+}
+
+#contactPreferences_contactMiddle {
+	display: none;
+}
+
 #contactPreferences_contactRight {
 	display: none;
 }

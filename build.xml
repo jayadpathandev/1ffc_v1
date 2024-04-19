@@ -466,12 +466,13 @@
         </copy>
 
     	<propertyfile file="${output.dir}/apps/user/internationalization/topics_en.properties">
-    		<entry key="topics_bills_documents" value="Electronic Document Delivery"/>
-    		<entry key="topics_marketing" value="Marketing Messages"/>
-    		<entry key="topics_payment" value="Account Servicing"/>
-    		<entry key="topics_collections" value="Collections"/>
-    		<entry key="topics_system" value="System Alerts"/>
-            <entry key="topics_order" value="marketing|payment|bills_documents"/>
+    		<entry key="topics_system" value="System alerts"/>
+            <entry key="topics_account" value="Account alerts"/>
+            <entry key="topics_payment" value="Payment notice"/>
+            <entry key="topics_marketing" value="Marketing messages"/>
+            <entry key="topics_collections" value="Collections"/>
+            <entry key="topics_bills_documents" value="Paperless delivery"/>
+            <entry key="topics_order" value="account|marketing|bills_documents"/>
     	</propertyfile>
     	<propertyfile file="${output.dir}/apps/user/classes/app-config.properties">
     		<entry key="user.app.url" value="${base.public.url}personaWeb/user/"/>
