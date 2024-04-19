@@ -61,9 +61,12 @@
 						</select>
 					</#if>
 				</div>
-				<div class="col-4">
-					<a class="btn btn-primary" href="startChooseNew?itemType=bank">Use a new bank account</a>
-				</div>
+				
+				<#if !disableAch>
+					<div class="col-4">
+						<a class="btn btn-primary" href="startChooseNew?itemType=bank">Use a new bank account</a>
+					</div>
+				</#if>
 				<div class="col-4">
 					<a class="btn btn-primary" href="startChooseNew?itemType=debit">Use a new debit card</a>
 				</div>
