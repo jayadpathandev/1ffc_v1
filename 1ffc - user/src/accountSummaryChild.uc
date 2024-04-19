@@ -105,13 +105,7 @@ useCase accountSummaryChild [
 	native string sMaxPaymentEnabled = "true"	// -- this is true for 1FFC
 	native string bAutomaticPaymentEnabled = "true"
 
-
-	// -- for testing contracted monthly payment --
-//	number nContractedPayment
-//	serviceStatus srGetContractedPaymentStatus
-//	serviceParam (AccountStatus.GetContractualMonthlyPaymentAmount) spGetContractedPaymentParams
-//	serviceResult (AccountStatus.GetContractualMonthlyPaymentAmount) srGetContractedPaymentResult
-	
+	//	-- used to determine if there is a minimum payment needed --
 	serviceParam  (AccountStatus.IsMinimumPaymentRequired) srGetMinimumParams
     serviceResult (AccountStatus.IsMinimumPaymentRequired) srGetMinimumResult
     serviceStatus srGetMinimumCode
@@ -122,58 +116,54 @@ useCase accountSummaryChild [
 	// -- target variable paymentOneTime.uc uses to set the calendar --
 	import paymentCommon.sScheduledDateWindow 
 
-
-    
-    
-//	  serviceStatus srStatus	
-//    serviceResult(SystemConfig.GetCurrentBalanceConfig) srGetComm
-    
-    serviceStatus srBillOverviewStatus
-    serviceParam(Documents.BillOverview) 	srBillOverviewParam
-    serviceResult(Documents.BillOverview) 	srBillOverviewResult    
+	// -- Varariables used to retrieve bill overview info --
+    serviceStatus ssBillOverview
+    serviceParam(Documents.BillOverview) 	spBillOverview
+    serviceResult(Documents.BillOverview) 	srBillOverview    
     
     native string maxAge =			 		AppConfig.get("recent.number.of.months", "3")
-    native string sBillDate =		 		Format.formatDateNumeric(srBillOverviewResult.docDate)
-    native string sBillDueDateDisplay = 	Format.formatDateNumeric(srBillOverviewResult.dueDate)
+    native string sBillDate =		 		Format.formatDateNumeric(srBillOverview.docDate)
+    native string sBillDueDateDisplay = 	Format.formatDateNumeric(srBillOverview.dueDate)
 	
 	
 	// -- returns a current balance calculated based on either bill or status (whichever is newer) less
 	//		payments since that last bill or status date (date inclusive) --
 	volatile string sBillAmountDueDisplay = 
 			CurrentBalanceHelper.getCurrentBalanceFormattedAsCurrency (
-				srBillOverviewParam.payGroup, 
-				srBillOverviewParam.account,
+				sPayGroup, 
+				sAccountInternal,
 				sLocalAccountBillDate,
 				sLocalAccountBillAmount,
 				sLocalAccountStatusDate,
 				sLocalAccountStatusAmount )	 
 	
-	// -- returns true if the acount is current i.e. current balance <= 0 --
+	// -- returns true if the account is current i.e. current balance <= 0 --
 	volatile string bIsAccountCurrent = CurrentBalanceHelper.isAccountCurrent (
-				srBillOverviewParam.payGroup, 
-				srBillOverviewParam.account,
+				sPayGroup, 
+				sAccountInternal,
 				sLocalAccountBillDate,
 				sLocalAccountBillAmount,
 				sLocalAccountStatusDate,
 				sLocalAccountStatusAmount )	 
-														 // --   set in the admin app --
-	native string sCurrentBalanceCalculatedValid // -- set to valid or zero --
-    volatile native string sBillAccountBalanceDisplayed = 	LocalizedFormat.formatAmount(srBillOverviewParam.payGroup, srGetStatusResult.accountBalance)
+
+    volatile native string sBillAccountBalanceDisplayed = 	
+    			LocalizedFormat.formatAmount(sPayGroup, srGetStatusResult.accountBalance)
     
 	/* min and max pay */
 	// -- for now, system takes the max due from where 1st Franklin files placed
 	//		it. It will eventually be take from status feed and need to change at that time --
     native string sFlexFieldForMax = "16"
-    native string sErrorValueReturned = "--"
-	
+    native string sErrorValueReturned = " --"  
+    
+	// -- maximum payment amount
     volatile native string sLocalBillMaxPay = 
     		FlexFieldInformation.getFlexFieldRaw(
- 			sUserId, 							  // -- user id
-			srBillOverviewParam.account, 		  // -- account number
-			srBillOverviewParam.billDate, 		  // -- bill date
-			srBillOverviewParam.payGroup,		  // -- payment group
-			sFlexFieldForMax,					  // -- flex field nmber
-			sErrorValueReturned )				  // -- what returned if error
+ 			sUserId, 						  // -- user id
+			sAccountInternal,		 		  // -- account number
+			sLatestBillDate, 		  // -- bill date
+			sPayGroup,		  // -- payment group
+			sFlexFieldForMax,				  // -- flex field number
+			sErrorValueReturned )			  // -- what returned if error
 	
 	// -- used in setting the sMinDueEdit variable --		
  	volatile native string sMinimumDue = 
@@ -185,8 +175,8 @@ useCase accountSummaryChild [
 	// -- use din setting the sMaxDueEdit variable --
 	volatile native string sMaximumPay = 
 			CurrentBalanceHelper.getTrueMaximumPayRaw (
-				srBillOverviewParam.payGroup, 	// -- payment group
-				srBillOverviewParam.account,	// -- account
+				sPayGroup, 	// -- payment group
+				sAccountInternal,	// -- account
 				sLocalAccountBillDate,			// -- published date of bill
 				sLocalBillMaxPay
 			)
@@ -196,22 +186,22 @@ useCase accountSummaryChild [
 	// -- sets the minimum due used in display on the screen --
   	volatile native string sMinimumDueDisplay  = 
  			CurrentBalanceHelper.getTrueMinimumDueFormattedAsCurrency (
-				srBillOverviewParam.payGroup, 	// -- payment group
+				sPayGroup, 	// -- payment group
 				sMinimumDue,						// -- minimum due from status or bill
 				sCurrentBalanceEdit)			// -- current balance calculated based on bill/status and payments
 				
 	// -- sets the maximum payment amount used in display on screen --
 	volatile native string sMaximumDueDisplay  = 
 			CurrentBalanceHelper.getTrueMaximumPayFormattedAsCurrency (
-				srBillOverviewParam.payGroup, 	// -- payment group
-				srBillOverviewParam.account,	// -- account
+				sPayGroup, 						// -- payment group
+				sAccountInternal,				// -- account
 				sLocalAccountBillDate,			// -- published date of bill
 				sLocalBillMaxPay)				// -- amount in bill
 							
 	volatile native string sCurrentBalanceEdit =
 			CurrentBalanceHelper.getCurrentBalanceRaw (
-				srBillOverviewParam.payGroup, 		// -- payment group
-				srBillOverviewParam.account,		// -- account
+				sPayGroup, 		// -- payment group
+				sAccountInternal,		// -- account
 				sLocalAccountBillDate,				// -- published date of bill
 				sLocalAccountBillAmount,			// -- amount due in bill
 				sLocalAccountStatusDate,			// -- published date of acct status
@@ -223,16 +213,15 @@ useCase accountSummaryChild [
 	string sInvDueDateLabel			= "{Monthly payment due date}"		
 	string sLoanAmountLabel         = "{Current loan balance}"
 	
-
-                
-	native string sBalanceType	 
-	native string sPaymentFlag      = Session.arePaymentsEnabled()
 	native string sMultipleAccounts = Session.multipleAccounts()
 	
-	volatile string sOlderThanXMonths = UcBillingAction.checkBillAge(maxAge, srBillOverviewParam.billDate)
+	volatile string sOlderThanXMonths = UcBillingAction.checkBillAge(maxAge, sLatestBillDate)
 	
 	native string sAccountDisplay
-	native string sIsBill		// not being used, does this mean if there's no bill we don't work?
+	native string sAccountInternal
+	native string sPayGroup
+	native string sIsBill
+	native string sLatestBillDate
 	
 	// -- variables for holding nickname or last 4 masked display account --
 	native volatile string sDisplayAccountNickname = DisplayAccountMasked.displayAccountLookup(sUserId,sBillAccountInternal,sPayGroup)
@@ -264,11 +253,11 @@ useCase accountSummaryChild [
 	/* 1. System retrieves the account selected.*/	
 	action selectAccount[
 		dAccounts = sSelectedDropDown
-		Session.getAccount(dAccounts, srBillOverviewParam.account)
+		Session.getAccount(dAccounts, sAccountInternal)
 		Session.getAccountDisplay(dAccounts, sAccountDisplay)
-		Session.getPayGroup(dAccounts, srBillOverviewParam.payGroup)
-		Session.getIsBill(dAccounts, srBillOverviewParam.isBill)
-		Session.getLatestBillDate(dAccounts, srBillOverviewParam.billDate)
+		Session.getPayGroup(dAccounts, sPayGroup)
+		Session.getIsBill(dAccounts, sIsBill)
+		Session.getLatestBillDate(dAccounts, sLatestBillDate)
 		goto (getAccountStatus)
 	]
 
@@ -287,8 +276,8 @@ useCase accountSummaryChild [
 		sLocalAccountStatus = "enabled"	// initialize status variable
 		sLocalCreatePaymentStatus = "enabled" // initialize create payment status variable
 		srGetStatusParams.user = sUserId
-		srGetStatusParams.paymentGroup = srBillOverviewParam.payGroup
-		srGetStatusParams.account = srBillOverviewParam.account
+		srGetStatusParams.paymentGroup = sPayGroup
+		srGetStatusParams.account = sAccountInternal
 		// -- retrieve the status information --
    		switch apiCall AccountStatus.GetStatus(srGetStatusParams, srGetStatusResult, srAccountStatusCode) [
     		case apiSuccess checkAccountViewStatus
@@ -444,13 +433,14 @@ useCase accountSummaryChild [
 	 * BEGIN STANDARD BILL CHECKS FROM PRODUCT
 	 ************************************************************************************** */
 
+	
  	 /** 
  	  * 10a. System checks latest bill date for 0 as a proxy for no documents available. This is
  	  * 	 because Documents.getBillOveriew throws an exception if there are no documents.
  	  * 	 billDate (is zero when there aren't any recent bills). ?? should we fix getBillOverview ??
  	  */
  	 action isThereALatestBill [
- 	 	if "0" == srBillOverviewParam.billDate then
+ 	 	if "0" == sLatestBillDate then
  	 		IsActiveNoBill
  	 	else
  	 		isTheBillTooOld
@@ -476,7 +466,7 @@ useCase accountSummaryChild [
  	 	if "activeAccount" == sLocalAccountStatus then 
  	 		setActiveNoBill
  	 	else
- 	 		screenShowInfo
+ 	 		CheckStatus
  	 ]
  	 
  	 /**
@@ -485,28 +475,32 @@ useCase accountSummaryChild [
  	  */
  	 action setActiveNoBill [
  	 	sLocalAccountStatus = "activeNoBill"
- 	 	goto(screenShowInfo)
+ 	 	goto(CheckStatus)
  	 ]
 	
 	/**
 	 *  14a. System retrieves the most recent bill overview or multiple, or marks as "nodocs".
 	 */			
 	action getBillOverview [		
-		srBillOverviewParam.user = sUserId
+		spBillOverview.user = sUserId
+		spBillOverview.payGroup = sPayGroup
+		spBillOverview.account = sAccountInternal
+		spBillOverview.billDate = sLatestBillDate
+		spBillOverview.isBill = sIsBill
 		
-	    switch apiCall Documents.BillOverview(srBillOverviewParam, srBillOverviewResult, srBillOverviewStatus) [
+	    switch apiCall Documents.BillOverview(spBillOverview, srBillOverview, ssBillOverview) [
 		   case apiSuccess howManyDocs
 	       default actionBillProblem
 	    ]	
-	]		
+	]
  	
  	/**
  	 * 15a. System expects a single recent bill. If there's more than one, that's an issue.
  	 */
  	action howManyDocs [
- 		switch srBillOverviewResult.result [
-			case "noDocs" 		screenShowInfo
-			case "singleDoc"	checkStatusOneDoc
+ 		switch srBillOverview.result [
+			case "noDocs" 		CheckStatus
+			case "singleDoc"	CheckStatus
 			default actionBillProblem
  		]
  	]
@@ -525,10 +519,11 @@ useCase accountSummaryChild [
 	 * 		system needs to determine if payment is enabled for this account (next step). 
 	 * 		If account is closed, system goes right to the message screen.
 	 */ 
-	action checkStatusOneDoc [
+	action CheckStatus [
 		switch sLocalAccountStatus [
 			case "newAccount" 		checkPaymentState	
 			case "activeAccount" 	checkPaymentState
+			case "activeNoBill"		checkPaymentState
 			case "closedAccount"	screenShowInfo
 			default actionBillProblem
 		]
@@ -546,11 +541,10 @@ useCase accountSummaryChild [
  	 * 			doc transitions to an active account.
  	 */
  	 action checkPaymentState [
- 	 	sLocalAccountStatus = "activeAccount"
  		sPaymentButtonOn = "true"
  		switch srGetStatusResult.paymentEnabled [
- 			case "enabled"	checkResult
- 			case "disableDQ" checkResult // -- delinquent isn't really turned off, just sets minimum payment amount
+ 			case "enabled"	checkAccount
+ 			case "disableDQ" checkAccount // -- delinquent isn't really turned off, just sets minimum payment amount
  			default turnOffPaymentButton
  		]
  	]
@@ -560,7 +554,7 @@ useCase accountSummaryChild [
  	 */
  	action turnOffPaymentButton [
  		sPaymentButtonOn = "false"
- 		goto(checkResult)
+ 		goto(checkAccount)
  	]
 
 	/**************************************************************************************
@@ -569,38 +563,65 @@ useCase accountSummaryChild [
 	 ************************************************************************************** */
 
 		
-	/* 3. Get results from BillOverview call */
-	action checkResult [
-	    switch srBillOverviewResult.result [
-	        case "singleDoc"    loadLatestBill
-	        case "noDocs"       hidePdfLink
-	        case "multipleDocs" hidePdfLink
-	    ]
+	/**
+	 * 16a. System found "singleDoc" if account status is newAccount or activeAccount, 
+	 * 		system needs to determine if payment is enabled for this account (next step). 
+	 * 		If account is closed, system goes right to the message screen.
+	 */ 
+	action checkAccount [
+		switch sLocalAccountStatus [
+			case "newAccount" 		loadLatestBillNoDocs	
+			case "activeAccount" 	loadLatestBill
+			case "activeNoBill"		loadLatestBillNoDocs
+			case "closedAccount"	screenShowInfo
+			default actionBillProblem
+		]
 	]
 
+	
 	/**************************************************************************************
 	 * BEGIN STANDARD PRODUCT
 	 ************************************************************************************** */
 	
 	/* 4. Load the latest bill data into screen elements. */
     action loadLatestBill [    
-        sBillAccountInternal     	= srBillOverviewParam.account   	// internalAccount
+        sBillAccountInternal     	= sAccountInternal   				// internalAccount
         sBillAccountExternal 		= sAccountDisplay               	// externalAccount
-        sBillGroup         			= srBillOverviewParam.payGroup		// payment group for this account
+        sBillGroup         			= sPayGroup							// payment group for this account
         sBillingPeriod          	= sBillDate					 		// ubf:billdate -- date the bill was published, formatted
-		sLocalAccountBillDate		= srBillOverviewResult.docDate		// used when calculating current balance
-		sLocalAccountBillAmount		= srBillOverviewResult.totalDue		// used when calculating current balance
-        sBillStream 				= srBillOverviewResult.docStream	// bill stream name for this account
-        sBillVersion 				= srBillOverviewResult.docVersion 	// document version for this account
-        sIsBill						= srBillOverviewParam.isBill		// true if this is a bill, otherwise we are look at a doc.
+		sLocalAccountBillDate		= srBillOverview.docDate			// used when calculating current balance
+		sLocalAccountBillAmount		= srBillOverview.totalDue			// used when calculating current balance
+        sBillStream 				= srBillOverview.docStream			// bill stream name for this account
+        sBillVersion 				= srBillOverview.docVersion 		// document version for this account
+        sIsBill						= sIsBill							// true if this is a bill, otherwise we are look at a doc.
         
-        sPayAccountInternal         = srBillOverviewParam.account 		// used when making payment?  
+        sPayAccountInternal         = sAccountInternal 					// used when making payment?  
         sPayAccountExternal 		= sAccountDisplay                	// used when showing in payment?
-        sPayGroup         		    = srBillOverviewParam.payGroup		// used when making payment?
-        sPaySelectedDate			= srBillOverviewResult.docDate		// used when making payment (unformatted)
+        sPayGroup         		    = sPayGroup							// used when making payment?
+        sPaySelectedDate			= srBillOverview.docDate			// used when making payment (unformatted)
         			
 		goto(areAutomaticPaymentsEnabled) /** WE SKIP RIGHT OVER THE CURRENT BALANCE CHECK AND GO TO SCREEN */
 	]
+	
+    action loadLatestBillNoDocs [    
+        sBillAccountInternal     	= sAccountInternal   				// internalAccount
+        sBillAccountExternal 		= sAccountDisplay               	// externalAccount
+        sBillGroup         			= sPayGroup							// payment group for this account
+        sBillingPeriod          	= sBillDate					 		// ubf:billdate -- date the bill was published, formatted
+		sLocalAccountBillDate		= sLatestBillDate					// used when calculating current balance
+		sLocalAccountBillAmount		= "0"								// used when calculating current balance
+        sBillStream 				= ""								// bill stream name for this account
+        sBillVersion 				= "" 								// document version for this account
+        sIsBill						= sIsBill							// true if this is a bill, otherwise we are look at a doc.
+        
+        sPayAccountInternal         = sAccountInternal 					// used when making payment?  
+        sPayAccountExternal 		= sAccountDisplay                	// used when showing in payment?
+        sPayGroup         		    = sPayGroup							// used when making payment?
+        sPaySelectedDate			= sLatestBillDate							// used when making payment (unformatted)
+        			
+		goto(areAutomaticPaymentsEnabled) /** WE SKIP RIGHT OVER THE CURRENT BALANCE CHECK AND GO TO SCREEN */
+	]
+
 
 	/**************************************************************************************
 	 * END STANDARD PRODUCT
@@ -648,7 +669,7 @@ useCase accountSummaryChild [
 	]
 	
 	/**
-	 * 4d. System enables autoamtic payments based on status above 
+	 * 4d. System enables automatic payments based on status above 
 	 */
 	action setAutomaticPaymentEnabled [
 		bAutomaticPaymentEnabled = "true"
@@ -685,8 +706,8 @@ useCase accountSummaryChild [
 	 */
 	action getMinimumDueRequired [
 		srGetMinimumParams.user = sUserId
-		srGetMinimumParams.paymentGroup = srBillOverviewParam.payGroup
-		srGetMinimumParams.account = srBillOverviewParam.account
+		srGetMinimumParams.paymentGroup = sPayGroup
+		srGetMinimumParams.account = sAccountInternal
 		// -- retrieve the status information --
    		switch apiCall AccountStatus.IsMinimumPaymentRequired(srGetMinimumParams, 
    															  srGetMinimumResult, 
@@ -704,7 +725,7 @@ useCase accountSummaryChild [
 		sMinDue = "0.00"
 		sMinDueDisplay = sMinimumDueDisplay
 		if "false" == srGetMinimumResult.bMinimumRequired then
-			setMaximumDue
+			setMaximumDueTest
 		else
 			setMinimumDue
 	]
@@ -715,7 +736,23 @@ useCase accountSummaryChild [
 	 */
 	action setMinimumDue [
 		sMinDue = sMinimumDue
-		goto (setMaximumDue)	
+		goto (setMaximumDueTest)	
+	]
+	
+	/**
+	 * VERY TEMPORARY UNTIL WE GET PROPER 1FFC STATUS FILE */
+	action setMaximumDueTest [
+ 	 	if "true" == sOlderThanXMonths then
+ 	 		setDummyMaximumDue
+ 	 	else
+ 	 		setMaximumDue
+	]
+	
+	// -- until we get the calculated maximum due in the status file --
+	action setDummyMaximumDue [
+		sMaxDue = "999.99"
+		sMaxDueDisplay = "$999.99"
+		goto (screenShowInfo)
 	]
 	
 	action setMaximumDue [
