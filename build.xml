@@ -550,6 +550,13 @@
 			<property name="login.url"      value="${b2c.login}"/>
         </ant>
 
+        <propertyfile file="${output.dir}/apps/extdoc/drivers/nls/nls.properties">
+			<entry key="nls.api.base.url" value="${nls.api.base.url}"/>
+			<entry key="nls.api.version" value="${nls.api.version}"/>
+            <entry key="nls.api.client.id" value="${nls.api.client.id}"/>
+            <entry key="nls.api.client.secret" value="${nls.api.client.secret}"/>
+        </propertyfile>
+
         <zip destfile="${output.dir}/1ffc_qa.zip" basedir="${output.dir}/apps"/>
     </target>
 
@@ -584,6 +591,13 @@
 			<property name="login.url"      value="${b2c.login}"/>
         </ant>
 
+        <propertyfile file="${output.dir}/apps/extdoc/drivers/nls/nls.properties">
+			<entry key="nls.api.base.url" value="${nls.api.base.url}"/>
+			<entry key="nls.api.version" value="${nls.api.version}"/>
+            <entry key="nls.api.client.id" value="${nls.api.client.id}"/>
+            <entry key="nls.api.client.secret" value="${nls.api.client.secret}"/>
+        </propertyfile>
+
         <zip destfile="${output.dir}/1ffc_uat.zip" basedir="${output.dir}/apps"/>
     </target>
 
@@ -617,6 +631,13 @@
 			<property name="zip.output.dir" value="${output.dir}/apps/admin/linked-root/config/"/>
 			<property name="login.url"      value="${b2c.login}"/>
         </ant>
+
+        <propertyfile file="${output.dir}/apps/extdoc/drivers/nls/nls.properties">
+			<entry key="nls.api.base.url" value="${nls.api.base.url}"/>
+			<entry key="nls.api.version" value="${nls.api.version}"/>
+            <entry key="nls.api.client.id" value="${nls.api.client.id}"/>
+            <entry key="nls.api.client.secret" value="${nls.api.client.secret}"/>
+        </propertyfile>
 
         <zip destfile="${output.dir}/1ffc_training.zip" basedir="${output.dir}/apps"/>
     </target>
