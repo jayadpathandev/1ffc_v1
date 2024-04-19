@@ -20,15 +20,14 @@ useCase apiRequestPaymentStatusForAgent [
     native volatile string accountId  = ApiPay.accountId()
     
     native volatile string transactionStatus = ApiPay.getStatus(transactionId)
+	native volatile string nickName          = ApiPay.sourceName()
+	native volatile string payAccount        = ApiPay.sourceAccount()
+	native volatile string accountType       = ApiPay.sourceType()
 	
 	native string sErrorStatus
 	native string sErrorDesc
 	native string sErrorCode
-	
-	serviceStatus status
-	serviceParam (Payment.GetWalletByToken) srGetWalletInfoParam
-	serviceResult (Payment.GetWalletByToken) srGetWalletInfoResult
-	
+		
 	/*************************
      * MAIN SUCCESS SCENARIO
      *************************/
@@ -87,37 +86,20 @@ useCase apiRequestPaymentStatusForAgent [
     	sErrorCode   = "invalid_transaction_id"
 		
 		switch ApiPay.load(transactionId) [
-			case "true" fetchWalletData
+			case "true" actionSendResponse
 			default actionFailure
 		] 
 	]
 	
-	/*************************
-	 * 7a. Fetch wallet data to send wallet info in success response.
-	 */
-     action fetchWalletData [
-    	sErrorStatus = "400"
-    	sErrorDesc   = "Unable to fetch wallet details."
-    	sErrorCode   = "no_payment_source"
-    	
-    	ApiPay.walletToken         (srGetWalletInfoParam.SOURCE_ID)
-    	
-    	switch apiCall Payment.GetWalletByToken(srGetWalletInfoParam, srGetWalletInfoResult, status) [
-		    case apiSuccess actionSendResponse
-		    default actionFailure
-		]
-    	
-    ]
-
  	/*************************
 	 * Everything is good, reply with the data the client needs.
 	 */
 	action actionSendResponse [
 		JsonResponse.reset()
 		JsonResponse.setString("status", transactionStatus)
-		JsonResponse.setString("nickName", srGetWalletInfoResult.SOURCE_NAME)
-		JsonResponse.setString("paymentAccount", srGetWalletInfoResult.SOURCE_NUM)
-		JsonResponse.setString("paymentAcctType", srGetWalletInfoResult.SOURCE_TYPE)
+		JsonResponse.setString("nickName", nickName)
+		JsonResponse.setString("paymentAccount", payAccount)
+		JsonResponse.setString("paymentAcctType", accountType)
 		
 	    auditLog(audit_agent_pay.cancel_payment_for_agent_success) [
 	   		customerId accountId

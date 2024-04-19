@@ -435,6 +435,24 @@ public class ApiPay implements IExternalReuse {
 	}
 
 	//*************************************************************************
+	public String sourceName() {
+		if (mCurrent == null) throw new RuntimeException("There is no current session.");
+		return mCurrent.walletName();		
+	}
+
+	//*************************************************************************
+	public String sourceAccount() {
+		if (mCurrent == null) throw new RuntimeException("There is no current session.");
+		return mCurrent.walletAccount();		
+	}
+
+	//*************************************************************************
+	public String sourceType() {
+		if (mCurrent == null) throw new RuntimeException("There is no current session.");
+		return mCurrent.walletType();		
+	}
+	
+	//*************************************************************************
 	public void setError(
 				final IServiceLocator2 locator,
 				final IUserData        userData,
