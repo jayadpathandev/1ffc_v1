@@ -41,7 +41,7 @@ useCase paymentUpdateAutomaticPayment [
 	importJava ForeignProcessor(com.sorrisotech.app.common.ForeignProcessor)
 	importJava NotifUtil(com.sorrisotech.common.app.NotifUtil)
 	importJava Session(com.sorrisotech.app.utils.Session)
-	importJava UcPaymentAction(com.sorrisotech.uc.payment.UcPaymentAction)
+	importJava UcPaymentAction(com.sorrisotech.fffc.user.FffcPaymentAction)
 	importJava LocalizedFormat(com.sorrisotech.common.LocalizedFormat)
 	importJava FffcAccountAction(com.sorrisotech.fffc.account.FffcAccountAction)
 	importJava EsignHelper(com.sorrisotech.fffc.user.EsignHelper)

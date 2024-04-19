@@ -5,10 +5,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -474,7 +477,7 @@ public class ApiPay implements IExternalReuse {
 		final var context = new HashMap<String, Object>();
 
 		// --------------------------------------------------------------------
-		final var wallet = mWalletDao.getPaymentWallet(mCurrent.userId());
+		var wallet = mWalletDao.getPaymentWallet(mCurrent.userId());
 		final var items  = new LinkedList<HashMap<String, Object>>();
 		
 		var currentName  = mCurrent.walletName();
@@ -482,6 +485,16 @@ public class ApiPay implements IExternalReuse {
 		var currentToken = mCurrent.walletToken();
 		
 		var found = false;
+		
+		boolean disableAch = false;
+		
+		if (!data.getActors().contains("bank_payment_enabled")) {
+			List<PaymentWalletFields> cPaymentWalletList = new ArrayList<>(Arrays.asList(wallet));
+			cPaymentWalletList.removeIf(val -> "bank".equals(val.getSourceType()));
+			wallet = cPaymentWalletList.toArray(new PaymentWalletFields[cPaymentWalletList.size()]);
+			disableAch = true;
+		}
+
 		
 		if (wallet != null && wallet.length > 0) {
 			for(final PaymentWalletFields source : wallet) {
@@ -526,6 +539,7 @@ public class ApiPay implements IExternalReuse {
 		context.put("hasWallet", !items.isEmpty());
 		context.put("wallet", items.toArray());
 		context.put("iframe", iframe);
+		context.put("disableAch", disableAch);
 		context.put("walletItem", mCurrent.walletToken());
 		context.put("error", mError);
 		
