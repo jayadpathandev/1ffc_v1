@@ -10,6 +10,15 @@
 
         <mkdir dir="deploy/${app}"/> 
         <mkdir dir="deploy/${app}/classes"/>
+		<mkdir dir="deploy/${app}/linked-root"/>
+		<mkdir dir="deploy/${app}/linked-root/js"/>
+	</target>
+	
+	<target name="-ui" depends="-init">
+		<ant dir="../ui" target="debug" inheritAll="false" inheritRefs="false">
+			<property name="fileName" value="auth"/>
+			<property name="outDir" value="${basedir}/deploy/${app}/linked-root/js"/>
+		</ant>
 	</target>
 	
 	<target name="-base" depends="-init">
@@ -67,7 +76,7 @@
 
 	</target>
 	
-    <target name="deploy" depends="-init, -base, -common">
+    <target name="deploy" depends="-ui, -init, -base, -common">
         <copy todir="deploy/${app}/classes">
             <fileset dir="${install.dir}/app - admin/resources">
             	<include name="org-id/*.xml"/>

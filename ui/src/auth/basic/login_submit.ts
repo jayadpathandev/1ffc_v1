@@ -102,4 +102,17 @@ export default function login_submit(
         FORM   = $(parent).find('form#loginCsrResetPassword_askResetPasswordForm');
         process($event, "recognized");
     });    
+
+    $(parent).find('input#login2FactorAuthValidation_ValidationCodeSubmit').on('click', ($event : JQuery.Event)=>{
+        BUTTON = $(parent).find('input#login2FactorAuthValidation_ValidationCodeSubmit');
+        FORM   = $(parent).find('form#login2FactorAuthValidation_login2FactorAuthValidationForm');
+        process($event, "recognized");
+    });  
+
+    $(parent).find('input#login2FASelfRecovery_validateAuthCodeSubmit').on('click', ($event : JQuery.Event)=>{
+        BUTTON = $(parent).find('input#login2FASelfRecovery_validateAuthCodeSubmit');
+        FORM   = $(parent).find('form#login2FASelfRecovery_enterAuthCodeForm');
+        process($event, "recognized");
+    });
+
 }
