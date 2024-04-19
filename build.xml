@@ -588,7 +588,7 @@
     </target>
 
     <target name="package.app.training" depends="-init">
-        <loadproperties srcFile="uat.properties"/>
+        <loadproperties srcFile="training.properties"/>
 
 		<propertyfile file="${output.dir}/apps/admin/classes/app-config.properties">
             <entry key="nls.api.client.id" value="${nls.api.client.id}"/>
