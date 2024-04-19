@@ -42,11 +42,5 @@
 		<copy todir="${extdoc.package.dir}">
 			<fileset dir="." includes="nls.properties"/>
 		</copy>
-        <propertyfile file="${extdoc.package.dir}/nls.properties">
-			<entry key="nls.api.base.url" value="${nls.api.base.url}"/>
-			<entry key="nls.api.version" value="${nls.api.version}"/>
-            <entry key="nls.api.client.id" value="${nls.api.client.id}"/>
-            <entry key="nls.api.client.secret" value="${nls.api.client.secret}"/>
-        </propertyfile>
 	</target>
 </project>
