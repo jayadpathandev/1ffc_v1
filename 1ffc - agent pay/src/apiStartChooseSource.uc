@@ -42,17 +42,45 @@ useCase apiStartChooseSource [
 	
 	native string error
 	
+    serviceStatus reqStatus
+    serviceParam (AccountStatus.GetStatus) reqParams
+    serviceResult (AccountStatus.GetStatus) reqResult
+	
 	action init [
 		switch ApiPay.load(code) [
-			case "true" actionDisplay
+			case "true" checkStatus
 			default     actionError 
 		]
+	]
+
+	action checkStatus [
+		Session.setUserId(sUserId)
+		Session.setUsername(sUserName)
+
+		ApiPay.userid(reqParams.user)
+		ApiPay.payGroup(reqParams.paymentGroup)
+		ApiPay.accountId(reqParams.account)
+		
+   		switch apiCall AccountStatus.GetStatus(reqParams, reqResult, reqStatus) [
+    		case apiSuccess checkAch
+    		default         actionError
+    	]		
+	]
+	
+	action checkAch [
+		if reqResult.achEnabled == "false" then
+			disableAch
+		else
+			actionDisplay			
+	]
+	
+	action disableAch [
+		ApiPay.disableAch()
+		goto(actionDisplay)
 	]
 		
 	action actionDisplay [
 		error = ""
-		Session.setUserId(sUserId)
-		Session.setUsername(sUserName)
 		ApiPay.setError(error)
 		ApiPay.prepareIframe(itemType)
 		foreignHandler ApiPay.showIframe()		

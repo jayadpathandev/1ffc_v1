@@ -21,6 +21,8 @@ public class PaySession {
 	private String         mWalletAccount;
 	private String         mWalletExpiry;
 	private String         mWalletToken = "";
+	private boolean        mAchEnabled = true;
+	
 	public  enum		   PayStatus {
 								created,
 								started,
@@ -75,7 +77,7 @@ public class PaySession {
 	public String accountId() {
 		return mAccountId;
 	}
-
+		
 	// ************************************************************************
 	public void invoice(
 			final String value
@@ -222,5 +224,13 @@ public class PaySession {
 	public void setStatus(final PayStatus ceStatus) {
 		
 		meSessStatus = ceStatus;
+	}
+	
+	// ************************************************************************
+	public void disableAch() {
+		mAchEnabled = false;
+	}
+	public boolean isAchEnabled() {
+		return mAchEnabled;
 	}
 }
