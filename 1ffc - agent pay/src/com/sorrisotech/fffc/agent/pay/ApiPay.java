@@ -164,6 +164,12 @@ public class ApiPay implements IExternalReuse {
 	}	
 
 	//*************************************************************************
+	public void disableAch() {
+		if (mCurrent == null) throw new RuntimeException("There is no current session.");
+		mCurrent.disableAch();
+	}
+	
+	//*************************************************************************
 	public void setCustomerId(
 			final String value
 			) {
@@ -506,13 +512,12 @@ public class ApiPay implements IExternalReuse {
 		
 		boolean disableAch = false;
 		
-		if (!data.getActors().contains("bank_payment_enabled")) {
+		if (mCurrent.isAchEnabled() == false) {
 			List<PaymentWalletFields> cPaymentWalletList = new ArrayList<>(Arrays.asList(wallet));
 			cPaymentWalletList.removeIf(val -> "bank".equals(val.getSourceType()));
 			wallet = cPaymentWalletList.toArray(new PaymentWalletFields[cPaymentWalletList.size()]);
 			disableAch = true;
 		}
-
 		
 		if (wallet != null && wallet.length > 0) {
 			for(final PaymentWalletFields source : wallet) {
