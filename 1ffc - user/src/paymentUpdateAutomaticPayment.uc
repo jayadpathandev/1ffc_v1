@@ -967,8 +967,8 @@ useCase paymentUpdateAutomaticPayment [
 		srEsignUrlParams.extDocId = ""
 		srEsignUrlParams.flex1 = ""
 		srEsignUrlParams.flex2 = "Letter"
-		srEsignUrlParams.flex3 = "external"
-		srEsignUrlParams.flex4 = "portal"
+		srEsignUrlParams.flex3 = "P"
+		srEsignUrlParams.flex4 = "Recurring EFT authorizations"
 		
 		switch apiCall DocumentEsign.GetDocumentEsignUrl(srEsignUrlParams, srEsignUrlResult, ssStatus) [
             case apiSuccess setEsignUrl
