@@ -39,6 +39,7 @@ import com.sorrisotech.svcs.accountstatus.dao.AccountStatusElement;
  *  @version 2024-Jan-22	jak added new fields (current amount due and convenience fee)
  * 	@version 2024-Feb-01	jak added currentbalance
  *  @version 2024-Mar-17 	jak added getMonthlyPayment	
+ *  @version 2024-Apr-24	jak	updated portal access call for proper view status
  */
 public class UserStatusCacheItem implements IUserStatusCacheItem, IUserStatusItemUpdate {
 
@@ -178,7 +179,8 @@ public class UserStatusCacheItem implements IUserStatusCacheItem, IUserStatusIte
 		// -- goes through list of accounts to see if any deny portal access, if one
 		//		does then return false otherwise true --
 		for (HashMap.Entry< AccountKey, AccountStatusElement> entry :  AccountStatusMap.entrySet()) {
-			if (entry.getValue().getViewAccount() == ViewAcct.disabledPortal) {
+			if ((entry.getValue().getViewAccount() == ViewAcct.disabledEconsent) ||
+					(entry.getValue().getViewAccount() == ViewAcct.disabledUser)) {
 				LOG.debug ("UserStatusCacheItem:hasPortalAccess Portal Disabled for account {}", entry.getKey());
 				return false;
 			}
