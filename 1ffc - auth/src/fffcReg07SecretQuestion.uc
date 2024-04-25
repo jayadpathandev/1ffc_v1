@@ -37,7 +37,7 @@ useCase fffcReg07SecretQuestion [
 	 
 	importJava UcSecretQuestions(com.sorrisotech.uc.secretquestions.UcSecretQuestions)
 	
-    string sPageName = "{Registration - Choose Secret Questions (step 7 of 8)}"
+    string sPageName = "{Registration - Choose Secret Questions (step 4 of 5)}"
        
     persistent auto "{* Question 1}" dropDown dSecretQuestion1 [ 
     	null  : "{(Please select a question)}"
@@ -173,7 +173,7 @@ useCase fffcReg07SecretQuestion [
      *  2. System Displays secret questions screen where user selects
      * 	   secret questions and enters answers.
      */  	
-    noMenu xsltScreen regSecretQuestionScreen("{Registration - Choose Secret Questions (step 7 of 8)}") [
+    noMenu xsltScreen regSecretQuestionScreen("{Registration - Choose Secret Questions (step 4 of 5)}") [
     	
 		form regSecretQuestionForm [
 	    	class: "st-login"

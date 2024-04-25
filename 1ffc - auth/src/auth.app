@@ -7,7 +7,7 @@ application [
 	
 	modules [
 	    LANDING => landing
-		REGISTRATION => fffcReg01EmailTnC
+		REGISTRATION => fffcReg05BillingInfo
 		COMPLETE_REGISTRATION => regCompleteEnrollment
 		LOGIN => ^login
 		ERROR_PASSWORD_LOCKOUT => errorPwdFailureLockout
