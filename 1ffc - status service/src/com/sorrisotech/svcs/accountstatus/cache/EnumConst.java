@@ -35,7 +35,7 @@ public final class EnumConst {
 	 * Values for <code>viewAccount</code> returned using <code>toString()</code>.
 	 */
 	public enum ViewAcct {
-		enabled, disabledAccount, disabledPortal, disabledFraud, disabledBankruptcy
+		enabled, disabledAccount, disabledUser, disabledEconsent
 	}
 	
 	/**
