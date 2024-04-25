@@ -27,6 +27,9 @@ define service FffcNotify(com.sorrisotech.app.serviceapi.uc.UcRequestClient) [
 		
 		// IP address of user 
 		string ipAddress
+		
+		// e consent active or not.
+		string sConsentActive
 	]
 	
 	// Setting user contact setting in NLS
@@ -98,5 +101,8 @@ define service FffcNotify(com.sorrisotech.app.serviceapi.uc.UcRequestClient) [
 		
 		// The contact preferences configuration for the user.
 		string contactPrefsJsonConfig
+		
+		// e consent active or not.
+		string sConsentActive
 	]
 ]

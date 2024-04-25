@@ -124,8 +124,9 @@ public class SetContactSettingsNls extends SetContactSettingsNlsBase {
 			// Creating contact preference request with updated contact preference of user
 			// (szJsonConfig) to send contact preferences setting to NLS.
 			cContactPrefrencesRequest = new ContactPrefrences(szCustomerId, szDateTime,
-					cContactPreferencesofUser.getPayload().getChannelAddresses(), cTopicPreferenceRequest);
-
+			        cContactPreferencesofUser.getPayload().getChannelAddresses(),
+			        cTopicPreferenceRequest, cContactPreferencesofUser.getPayload().getEconsent());
+			
 			// --------------------------------------------------------------------------------------
 			// Sending notification preferences of user to NLS by calling NLS API with
 			// updated topic preferences.

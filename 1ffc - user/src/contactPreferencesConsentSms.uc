@@ -72,6 +72,7 @@ useCase contactPreferencesConsentSms [
     native string sCategory          = "address"
     native string sType              = "sms"
     native string sOperation         = "The user successfully updated their sms address."
+    native string bIsConsentActive   = "true"
     
     tag hTermsText = UcTermsConditions.getTermsConditions(sorrisoLanguage, sorrisoCountry)
     
@@ -338,6 +339,7 @@ useCase contactPreferencesConsentSms [
     	setDataFffc.browserGeo = sGeolocation
     	setDataFffc.ipGeo = setLocationResp.IP_GEO
     	setDataFffc.ipAddress = sIpAddress
+    	setDataFffc.sConsentActive = bIsConsentActive
     	switch apiCall FffcNotify.SetUserAddressNls(setDataFffc, status) [
     		case apiSuccess checkProfileUpdateNotificationFlag
     		default saveContactDetailsError

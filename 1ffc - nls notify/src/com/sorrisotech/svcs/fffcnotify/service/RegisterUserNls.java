@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sorrisotech.app.library.nls.NLSClient;
 import com.sorrisotech.client.main.model.response.ContactPrefrences;
 import com.sorrisotech.client.main.model.response.ContactPrefrences.ChannelAddress;
+import com.sorrisotech.client.main.model.response.ContactPrefrences.Econsent;
 import com.sorrisotech.client.main.model.response.ContactPrefrences.TopicChannel;
 import com.sorrisotech.client.main.model.response.ContactPrefrences.TopicPreference;
 import com.sorrisotech.svcs.fffcnotify.api.IApiFffcNotify;
@@ -70,6 +71,9 @@ public class RegisterUserNls extends RegisterUserNlsBase {
 		
 		final String szIpAddress = request.getString(IApiFffcNotify.RegisterUserNls.ipAddress);
 		
+		final String szIsConsentActive = request
+		        .getString(IApiFffcNotify.RegisterUserNls.sConsentActive);
+		
 		ContactPrefrences cContactPrefrencesRequest = null;
 		
 		final Location cLocation = Location.getLocation(szBrowserGeo, szIpGeolocation);
@@ -122,7 +126,8 @@ public class RegisterUserNls extends RegisterUserNlsBase {
 			// (szContactPrefsJsonConfig) and channel addresses (szChannelAddrJsonConfig) to
 			// send contact preferences setting to NLS.
 			cContactPrefrencesRequest = new ContactPrefrences(szCustomerId, szDateTime,
-			        channelAddressesList, cTopicPreferencesList);
+			        channelAddressesList, cTopicPreferencesList,
+			        new Econsent(Boolean.parseBoolean(szIsConsentActive), szDateTime));
 			
 			// --------------------------------------------------------------------------------------
 			// Sending default contact preferences setting to NLS

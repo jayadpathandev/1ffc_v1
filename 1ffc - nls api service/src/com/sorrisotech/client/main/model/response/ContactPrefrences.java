@@ -58,6 +58,12 @@ public class ContactPrefrences {
 	@JsonProperty("channel_addresses")
 	@NotEmpty(message = "Channel addresses can not be null or empty")
 	private List<ChannelAddress> m_szChannelAddresses;
+
+	/**************************************************************************
+	 * Econsent data.
+	 */
+	@JsonProperty("econsent")
+	private Econsent econsent;
 	
 	/**************************************************************************
 	 * List of all topic preferences.
@@ -103,6 +109,15 @@ public class ContactPrefrences {
 	}
 	
 	/**************************************************************************
+	 * Getter for econsent.
+	 *
+	 * @return the econsent status along with last updated date.
+	 */
+	public Econsent getEconsent() {
+		return econsent;
+	}
+	
+	/**************************************************************************
 	 * Setter for customer ID of user.
 	 */
 	public void setCustomerId(String m_szCustomerId) {
@@ -130,6 +145,15 @@ public class ContactPrefrences {
 		this.m_szTopicPreferences = m_szTopicPreferences;
 	}
 	
+	/**************************************************************************
+	 * Setter for e consent status along with updated date.
+	 * 
+	 * @param econsent the e consent to set
+	 */
+	public void setEconsent(Econsent econsent) {
+		this.econsent = econsent;
+	}
+
 	@Override
 	public String toString() {
 		return "ContactPrefrences [m_szCustomerId=" + m_szCustomerId + ", m_szDateTime="
@@ -151,11 +175,13 @@ public class ContactPrefrences {
 	        @NotEmpty(message = "Customer ID can not be null or empty") String m_szCustomerId,
 	        @NotEmpty(message = "Date and time can not be null or empty") String m_szDateTime,
 	        @NotEmpty(message = "Channel addresses can not be null or empty") List<ChannelAddress> m_szChannelAddresses,
-	        @NotEmpty(message = "Topic prefrences can not be null or empty") List<TopicPreference> m_szTopicPreferences) {
+	        @NotEmpty(message = "Topic prefrences can not be null or empty") List<TopicPreference> m_szTopicPreferences,
+	        @NotEmpty (message = "The consent data can not be null or empty") Econsent m_cEconsent) {
 		this.m_szCustomerId = m_szCustomerId;
 		this.m_szDateTime = m_szDateTime;
 		this.m_szChannelAddresses = m_szChannelAddresses;
 		this.m_szTopicPreferences = m_szTopicPreferences;
+		this.econsent = m_cEconsent;
 	}
 	
 	/**************************************************************************
@@ -497,5 +523,93 @@ public class ContactPrefrences {
 			this.m_bSelected = m_bSelected;
 		}
 		
+	}
+	
+	/**************************************************************************
+	 * Inner class that holds e consent status.
+	 */
+	@JsonInclude(Include.NON_NULL)
+	public static class Econsent {
+		
+		/**************************************************************************
+		 * Boolean property for that consent is active or not.
+		 */
+		@JsonProperty("active")
+		@NotNull(message = "The active field can not be null or empty.")
+		private boolean active;
+		
+		/**************************************************************************
+		 * Channel name of that particular topic.
+		 */
+		@JsonProperty("date_time")
+		@NotNull(message = "The date time can not be null")
+		private String dateTime;
+		
+		/**************************************************************************
+		 * Default constructor
+		 */
+		public Econsent() {
+			super();
+		}
+		
+		/**************************************************************************
+		 * All argument constructor.
+		 * 
+		 * @param active   boolean field for active status.
+		 * @param dateTime the date and time to set.
+		 */
+		public Econsent(
+		        @NotNull(message = "The active field can not be null or empty.") boolean active,
+		        @NotNull(message = "The date time can not be null") String dateTime) {
+			super();
+			this.active = active;
+			this.dateTime = dateTime;
+		}
+		
+		/**************************************************************************
+		 * Getter for channel name.
+		 * 
+		 * @return boolean the active status of e consent.
+		 */
+		public boolean isActive() {
+			return active;
+		}
+		
+		/**************************************************************************
+		 * Setter for e consent active status.
+		 * 
+		 * @param active the active to set
+		 */
+		public void setActive(boolean active) {
+			this.active = active;
+		}
+		
+		/**************************************************************************
+		 * Getter for date time.
+		 * 
+		 * @return the dateTime
+		 */
+		public String getDateTime() {
+			return dateTime;
+		}
+		
+		/**************************************************************************
+		 * Setter for e consent date and time.
+		 * 
+		 * @param dateTime the dateTime to set
+		 */
+		public void setDateTime(String dateTime) {
+			this.dateTime = dateTime;
+		}
+		
+		/**************************************************************************
+		 * Overridden toString method.
+		 * 
+		 * @return a string representation of the object.
+		 */
+		@Override
+		public String toString() {
+			return "Econsent [active=" + active + ", dateTime=" + dateTime + "]";
+		}
 	}
 }
