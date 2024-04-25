@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import com.sorrisotech.app.library.nls.NLSClient;
 import com.sorrisotech.client.main.model.request.ContactPreferencesRequest;
 import com.sorrisotech.client.main.model.response.ContactPrefrences.ChannelAddress;
+import com.sorrisotech.client.main.model.response.ContactPrefrences.Econsent;
 import com.sorrisotech.client.main.model.response.CreateContactPrefrencesResponse;
 import com.sorrisotech.svcs.fffcnotify.api.IApiFffcNotify;
 import com.sorrisotech.svcs.fffcnotify.data.Location;
@@ -73,6 +74,9 @@ public class SetUserAddressNls extends SetUserAddressNlsBase {
 		final String szIpGeolocation = request.getString(IApiFffcNotify.SetUserAddressNls.ipGeo);
 		
 		final String szIpAddress = request.getString(IApiFffcNotify.SetUserAddressNls.ipAddress);
+		
+		final String szIsConsentActive = request
+		        .getString(IApiFffcNotify.RegisterUserNls.sConsentActive);
 		
 		CreateContactPrefrencesResponse contactPreferencesofUser = null;
 		
@@ -170,6 +174,12 @@ public class SetUserAddressNls extends SetUserAddressNlsBase {
 					// --------------------------------------------------------------------------------------
 					// Setting new Date() as an date time in yyyy-MM-dd'T'HH:mm:ss.SSS'Z' format.
 					contactPreferencesofUser.getPayload().setDateTime(szDateTime);
+					
+					// --------------------------------------------------------------------------------------
+					// Setting consent status and last updated date as current date.
+					contactPreferencesofUser.getPayload().setEconsent(
+					        new Econsent(Boolean.parseBoolean(szIsConsentActive), szDateTime));
+					
 					NLSClient.updateContactPreferences(contactPreferencesofUser.getPayload());
 					eReturnCode = ServiceAPIErrorCode.Success;
 				} catch (Exception e) {

@@ -96,6 +96,7 @@ useCase fffcReg99B2C [
     native string sCategory = "terms_and_conditions "
     native string sType = "web_site "
     native string sOperation = "User signed consent related to terms and conditions during registration process."
+    native string bIsConsentActive = "true"
 	
     serviceParam (Profile.AddLocationTrackedEvent) setLocationData
 	serviceResult (Profile.AddLocationTrackedEvent) setLocationResp
@@ -412,6 +413,8 @@ useCase fffcReg99B2C [
 		setDefaultDataFffc.browserGeo = sGeolocation
     	setDefaultDataFffc.ipGeo = setLocationResp.IP_GEO
     	setDefaultDataFffc.ipAddress = sIpAddress
+    	setDefaultDataFffc.sConsentActive = bIsConsentActive
+    	
 	    switch apiCall FffcNotify.RegisterUserNls(setDefaultDataFffc, status) [
 		    case apiSuccess saveRegConsentNls
 		    default deleteNlsUserProfile
@@ -433,6 +436,8 @@ useCase fffcReg99B2C [
 		setDataFffc.browserGeo = sGeolocation
     	setDataFffc.ipGeo = setLocationResp.IP_GEO
     	setDataFffc.ipAddress = sIpAddress
+    	setDataFffc.sConsentActive = bIsConsentActive
+    	
 	    switch apiCall FffcNotify.SetUserAddressNls(setDataFffc, status) [
 		    case apiSuccess generateAuthCode
 		    default deleteNlsUserProfile

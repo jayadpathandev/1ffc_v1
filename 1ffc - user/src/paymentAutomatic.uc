@@ -124,6 +124,7 @@ useCase paymentAutomatic [
     native string sPortalChannel 	 = "portal"
     native string sOrgId
     native string sDeleteAutomaticHistoryText = "Recurring payment deleted."
+    native string bIsConsentActive = "true"
     
     persistent input sGeolocation
     
@@ -432,6 +433,8 @@ useCase paymentAutomatic [
     	setDataFffc.browserGeo = sGeolocation
     	setDataFffc.ipGeo = setLocationResp.IP_GEO
     	setDataFffc.ipAddress = sIpAddress
+    	setDataFffc.sConsentActive = bIsConsentActive
+    	
     	switch apiCall FffcNotify.SetUserAddressNls(setDataFffc, ssStatus) [
     		case apiSuccess checkAutomaticPaymentMethods
     		default genericErrorMsg

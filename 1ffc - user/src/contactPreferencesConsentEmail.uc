@@ -70,6 +70,7 @@ useCase contactPreferencesConsentEmail [
     native string sCategory          = "address"
     native string sType              = "email"
     native string sOperation         = "The user successfully updated their email address."
+    native string bIsConsentActive 	 = "true"
     
     tag hTermsText = UcTermsConditions.getTermsConditions(sorrisoLanguage, sorrisoCountry)
     
@@ -335,6 +336,7 @@ useCase contactPreferencesConsentEmail [
     	setDataFffc.browserGeo = sGeolocation
     	setDataFffc.ipGeo = setLocationResp.IP_GEO
     	setDataFffc.ipAddress = sIpAddress
+    	setDataFffc.sConsentActive = bIsConsentActive
     	switch apiCall FffcNotify.SetUserAddressNls(setDataFffc, status) [
     		case apiSuccess checkProfileUpdateNotificationFlag
     		default saveContactDetailsError
