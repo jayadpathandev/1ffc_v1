@@ -2,7 +2,7 @@ useCase fffcReg03ElectronicTnC [
 
     documentation [
         preConditions: [[
-            1. The user want's to enroll in the application.
+            1. The user wants to enroll in the application.
         ]]
         triggers: [[
             1. The user accepts the has completed the SMS Terms and Conditions.
@@ -16,10 +16,11 @@ useCase fffcReg03ElectronicTnC [
 
   	/**************************
 	 * DATA ITEMS SECTION
-	 **************************/  	 	
+	 **************************/  	 
+	importJava PersonaData(com.sorrisotech.app.utils.PersonaData)	
 	importJava TermsAndConditions(com.sorrisotech.fffc.auth.TermsAndConditions)
 
-    string sPageName = "{Registration - E-SIGN Consent (step 3 of 8)}"   
+    string sPageName = "{Registration - E-SIGN Consent (step 2 of 5)}"   
 	
     tag hTermsText = TermsAndConditions.loadFile("terms_electronic_en_us.html")			       
         
@@ -28,11 +29,17 @@ useCase fffcReg03ElectronicTnC [
         	Agree: "{I have read and agree to the terms of use.}"            
         ]        
     ]
+    
+	checkBoxes cPaperLessOption = false [
+		true : "{Yes, I would like to opt-in for paperless delivery and stop receiving paper statements by email.}"	
+	]    
+	
+	persistent native string sPaperLessOption = "false"
 
 	/**************************************************************************
      * Main Path.
      **************************************************************************/ 
-    noMenu xsltScreen regTermsAndConditionsScreen("{Registration - ESIGN Consent (step 3 of 8)}") [
+    noMenu xsltScreen regTermsAndConditionsScreen("{Registration - ESIGN Consent (step 2 of 5)}") [
     	    	
         form regTermsAndConditionsForm [
 	    	class: "st-login"
@@ -61,6 +68,11 @@ useCase fffcReg03ElectronicTnC [
             			control_attr_tabindex: "1"
 						control_attr_autofocus: ""
             		]
+            		
+            		display cPaperLessOption [
+            			control_attr_tabindex: "2"
+						control_attr_autofocus: ""
+            		]            		
 				]
 			]
 			
@@ -73,38 +85,59 @@ useCase fffcReg03ElectronicTnC [
 					div col1 [
 						class: "col-md-12"
 						
-						navigation termsConditionsSubmit(gotoWebTnC, "{Next}") [			                
+						navigation termsConditionsSubmit(isOptinPaperless, "{Next}") [			             
 		                	class: "btn btn-primary"  
-		                	 
+
+		                    data :[
+		                    	cPaperLessOption
+		                    ]	
+		                    	                	 
 		                	require: [
 		                		fCheckBoxes
 		                	]
-		                	attr_tabindex: "2"                			                    
+		                	attr_tabindex: "3"                			                    
 		                ]        			
 						
 		                navigation termsConditionsCancel(gotoLogin, "{Cancel}") [			                
 							class: "btn btn-secondary"
-							attr_tabindex: "3"
+							attr_tabindex: "4"
 						] 							
 						
-						navigation termsConditionsBack(gotoEmailConsent, "{Back}") [
-							attr_tabindex: "4"
+						navigation termsConditionsBack(gotoBillingInfo, "{Back}") [
+							attr_tabindex: "5"
 						]
 					]
 				]					
 			]			
         ]
     ]
-  
-    action gotoWebTnC [        
-        gotoUc(fffcReg04WebTnC)
-    ]     
 
+    /**************************************************************************
+     * 1. Retrieve the value of paperless option
+     */ 
+	action isOptinPaperless [		
+		PersonaData.isSelected(cPaperLessOption, "true", sPaperLessOption)
+		goto(gotoLoginInfo)		
+	]  
+
+    /**************************************************************************
+     * 2. Go to next step, login info
+     */ 	
+	action gotoLoginInfo [
+		gotoUc(fffcReg06LoginInfo)	
+	]	
+
+   /**************************************************************************
+    * User clicks on cancel
+    */ 		
     action gotoLogin [
     	gotoModule(LOGIN)
     ]    
 
-    action gotoEmailConsent [        
-        gotoUc(fffcReg02SmsTnC)
+   /**************************************************************************
+    * User clicks on back link
+    */ 		
+    action gotoBillingInfo [        
+        gotoUc(fffcReg05BillingInfo)
     ]     
 ]

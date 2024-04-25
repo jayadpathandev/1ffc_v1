@@ -24,7 +24,7 @@ useCase fffcReg05BillingInfo [
         ]]
         postConditions: [[
             1. Primary -- System displays Registration - Setup Login Profile
-            2. Alternative 1 -- Users selects back link, System take users to the Terms & Conditions page
+            2. Alternative 1 -- Users selects back link, System take users to the Login page
         ]]
     ]
 	startAt checkBillCountFlag
@@ -61,8 +61,8 @@ useCase fffcReg05BillingInfo [
    native string sIsEligible
 	
 	
-    string sTitle = "{Registration - Let's Find Your Account (step 5 of 8)}"    
-    string sTitleBill = "{Registration - Let's Find Your Account (step 5 of 8)}"
+    string sTitle = "{Registration - Let's Find Your Account (step 1 of 5)}"    
+    string sTitleBill = "{Registration - Let's Find Your Account (step 1 of 5)}"
     string sBillDetailsTitle = "{Please make sure you have the following to complete the registration process. You also will need to be able to receive an e-mail from us.}"    
     string sItemEmail  = "{E-mail address}"        
     string sPara1 = "{As part of your contract agreement, you should have received at least one document which includes your account number. If you do not have this information, please contact customer service at 1-800-XXX-XXXX.}"
@@ -119,7 +119,13 @@ useCase fffcReg05BillingInfo [
 	auto "{Select document or bill type: }" dropDown fBillType [ 
 		UcBillStreams.getBillNames(sorrisoLanguage, sorrisoCountry, sAppType)
 	]	
-                 
+	
+    field fCheckBoxes [        
+    	checkBoxes(control) sField [         
+        	Agree: "{I have read and agree to [a style='font-size: 14px;' target='_blank' href='https://www.1ffc.com/wp-content/uploads/2024/03/Online_Services_Agreement.pdf']Online Services Agreement[/a], [a style='font-size: 14px;' target='_blank' href='https://www.1ffc.com/wp-content/uploads/2023/07/1FF_Online_Privacy_Policy-1.pdf'] Online Privacy Notice[/a], [a style='font-size: 14px;' target='_blank' href='https://www.1ffc.com/wp-content/uploads/2024/03/1FFC-Privacy-Notice_2023_Final.pdf'] Privacy Notice[/a], [a style='font-size: 14px;' target='_blank' href='https://www.1ffc.com/wp-content/uploads/2024/03/Text_Use_Policy.pdf'] Text User Policy. [/a]}"          
+        ]        
+    ]	
+        
     persistent field fAccountNumber [
         native string(label) sLabel = UcBillStream.getLabel(sorrisoLanguage, sorrisoCountry, sAccountAttr)
         input(control) pInput = ""
@@ -268,7 +274,7 @@ useCase fffcReg05BillingInfo [
     /**************************************************************************
      * 5. System displays the Registration Billing Info Screen.
      */    
-    noMenu xsltScreen regBillingInfoScreen("{Registration - Let's Find Your Account (step 5 of 8)}") [
+    noMenu xsltScreen regBillingInfoScreen("{Registration - Let's Find Your Account (step 1 of 5)}") [
          
            
         form regBillingInfoForm1 [
@@ -363,7 +369,7 @@ useCase fffcReg05BillingInfo [
 				
 				div col26 [
 					class: "col-md-12"
-					    						
+					
 					div fieldRow [
 						class: "row"
 						ordered [
@@ -434,7 +440,12 @@ useCase fffcReg05BillingInfo [
     		                	control_attr_tabindex: "11"
     						]	    						
     					]
-					]
+    				]
+    					
+					display fCheckBoxes [
+						class: "col-7"
+            			control_attr_tabindex: "12"
+            		]
 				]										
 			]
 			
@@ -572,7 +583,7 @@ useCase fffcReg05BillingInfo [
 								sFlagShowSelfReg3,
 								sFlagShowSelfReg4
 							]
-							attr_tabindex: "12"							
+							attr_tabindex: "13"							
 						]       			
 						
 						navigation serviceLevelSubmit(validateRegFieldAnswers, "{Next}") [
@@ -605,18 +616,19 @@ useCase fffcReg05BillingInfo [
 								fAccountNumber => fAccountNumber.sRequired,
 								fServiceNumber => fServiceNumber.sRequired,
 								fBillingDate => fBillingDate.sRequired,
-								fAmount => fAmount.sRequired
+								fAmount => fAmount.sRequired,
+								fCheckBoxes
 							]
-							attr_tabindex: "12"							
+							attr_tabindex: "13"							
 						]     
 						
 		                navigation billDetailsCancel(gotoLogin, "{Cancel}") [
 							class: "btn btn-secondary"
-							attr_tabindex: "13"
+							attr_tabindex: "14"
 						] 							
 						
-						navigation billDetailsBack2(gotoPreviousScreen, "{Back}") [
-							attr_tabindex: "14"
+						navigation billDetailsBack2(gotoLogin, "{Back}") [
+							attr_tabindex: "15"
 						]
 					]				
 				]		
@@ -766,7 +778,7 @@ useCase fffcReg05BillingInfo [
 	 * 14. Go to the registration login info usecase.
 	 */    
     action gotoRegLoginInfo [    
-        gotoUc(fffcReg06LoginInfo)
+		gotoUc(fffcReg03ElectronicTnC)
     ] 
     
 	/**************************************************************************

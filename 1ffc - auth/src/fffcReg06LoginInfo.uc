@@ -41,8 +41,10 @@ useCase fffcReg06LoginInfo [
 	
 	import validation.usernameRegex
 	import regChecklist.sUserNameFailed
+	import regContactInfo.fUserEmail
+	
 	 		  
-    string sPageName = "{Registration - Establish Login Profile (step 6 of 8)}"    
+    string sPageName = "{Registration - Establish Login Profile (step 3 of 5)}"    
 		
 	native string sUserName = Session.getUsername()
 	native string sFirstName = Session.getFirstName()
@@ -89,13 +91,14 @@ useCase fffcReg06LoginInfo [
     	fUserName.pInput = sUserName
     	fFirstName.pInput = sFirstName
     	fLastName.pInput = sLastName
+    	fUserEmail.pInput = ""
  		goto(regLoginInfoScreen)
  	]
  	
     /**************************************************************************
      * 2. System displays the Registration Login Screen.
      */    
-    noMenu xsltScreen regLoginInfoScreen("{Registration - Establish Login Profile (step 6 of 8)}") [
+    noMenu xsltScreen regLoginInfoScreen("{Registration - Establish Login Profile (step 3 of 5)}") [
     	    	
         form regLoginInfoForm [
 	    	class: "st-login"
@@ -115,12 +118,20 @@ useCase fffcReg06LoginInfo [
 	        	      
 	    		div formContentCol [
 					class: "col-sm-4 row"
+					
+					div row1 [
+						display fUserEmail [
+	            			control_attr_tabindex: "1"
+	            			control_attr_autofocus: ""
+							pInput_attr_st-new-email: ""
+							sError_attr_sorriso-error: "new-email"
+					    ]						
+					]
 				
 					div row1 [						
 						display fUserName[
 							pInput_attr_st-new-user-name: ""								
-							control_attr_tabindex: "1"
-							control_attr_autofocus: ""
+							control_attr_tabindex: "2"
 							sError_ng-show: "regLoginInfoForm['fUserName.pInput'].$invalid && !!regLoginInfoForm['fUserName.pInput'].$error.username && regLoginInfoForm['fUserName.pInput'].$dirty"
 							sError_attr_sorriso-error: "new-user-name"
 						]			
@@ -128,13 +139,13 @@ useCase fffcReg06LoginInfo [
 					
 					div row2 [
 	                	display fFirstName [
-	                		control_attr_tabindex: "2"
+	                		control_attr_tabindex: "3"
 	                	]
                 	]
                 	
                 	div row3 [
 	                	display fLastName [
-							control_attr_tabindex: "3"
+							control_attr_tabindex: "4"
 	                	]
 					]               						
 				]			
@@ -154,26 +165,28 @@ useCase fffcReg06LoginInfo [
 		                    class: "btn btn-primary"
 		                    
 		                    data :[
+		                    	fUserEmail,
 		                    	fUserName,
 								fFirstName,
 								fLastName	
 		                    ]
 		                    
 		                    require:[
-								fUserName => fUserName.sRequired,
+		                    	fUserEmail => fUserEmail.sRequired,
+								fUserName  => fUserName.sRequired,
 								fFirstName => fFirstName.sRequired,
-								fLastName => fLastName.sRequired
+								fLastName  => fLastName.sRequired
 							]
-							attr_tabindex: "4"	
+							attr_tabindex: "5"	
 						]
 		               
 		                navigation loginInfoCancel(gotoLogin, "{Cancel}") [
 							class: "btn btn-secondary"
-							attr_tabindex: "5"
+							attr_tabindex: "6"
 		                ]
 		                							
 						navigation loginInfoBack(checkAppTypeBack, "{Back}") [
-							attr_tabindex: "6"
+							attr_tabindex: "7"
 						]
 					]
 				]					
@@ -245,7 +258,7 @@ useCase fffcReg06LoginInfo [
 	 */    
     action checkAppTypeBack [
     	switch sAppType [        
-          case "b2c" gotoRegBillingInfo
+          case "b2c" gotoElectronicTnC
           case "b2b"  checkB2BLoginAction                 
           default genericErrorMsg
         ]     
@@ -267,6 +280,10 @@ useCase fffcReg06LoginInfo [
      */
     action gotoRegBillingInfo [
     	gotoUc(fffcReg05BillingInfo)
+    ] 
+
+    action gotoElectronicTnC [
+    	gotoUc(fffcReg03ElectronicTnC)
     ] 
    
     /**************************************************************************

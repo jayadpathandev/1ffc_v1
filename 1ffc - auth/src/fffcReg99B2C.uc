@@ -51,6 +51,7 @@ useCase fffcReg99B2C [
 	import regChecklist.sEmailFailed
 	
 	import fffcReg01EmailTnC.sGeolocation
+	import fffcReg03ElectronicTnC.sPaperLessOption
 	    	
 	import fffcReg05BillingInfo.sSelectedBillStream
 	import fffcReg05BillingInfo.fAccountNumber
@@ -108,6 +109,9 @@ useCase fffcReg99B2C [
 	serviceResult(Notifications.GetUserAddresses) getResponse
 	serviceParam(Notifications.GetContactSettings) getContactData
 	serviceResult(Notifications.GetContactSettings) getContactResponse
+	serviceParam(Notifications.ChangeTopicState) setTopicStateData
+	
+	
 	serviceParam(FffcNotify.SetUserAddressNls) setDataFffc
 	serviceParam(FffcNotify.RegisterUserNls) setDefaultDataFffc
 	
@@ -330,13 +334,27 @@ useCase fffcReg99B2C [
 	action enableNotifications [
 		setRegData.userid = sUserId
 	    switch apiCall Notifications.RegisterUser(setRegData, status) [
-		    case apiSuccess assignUserToAccountWithNewCompany
+		    case apiSuccess setPaperBillNotification
 		    default deleteUserProfile
 		]
 	]
-	        
+
     /**************************************************************************
-     * 9b. System links the user with their account.     
+     * 9b. Set paperbill on or off     
+     */
+     action setPaperBillNotification [
+		setTopicStateData.userid = sUserId
+		setTopicStateData.topic = "bills_documents"
+		setTopicStateData.channel = sEmailChannel
+		setTopicStateData.option = sPaperLessOption
+        switch apiCall Notifications.ChangeTopicState(setTopicStateData, status) [        
+            case apiSuccess assignUserToAccountWithNewCompany
+            default deleteUserProfile    
+		]
+     ]
+		       
+    /**************************************************************************
+     * 9c. System links the user with their account.     
      */
     action assignUserToAccountWithNewCompany [    
         switch FffcRegistration.assignUserToAccountWithNewCompany(sUserAccountId, sUserId, sOrgId) [        
