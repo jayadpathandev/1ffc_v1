@@ -1737,7 +1737,14 @@ useCase paymentHistory [
                 class: "modal-footer"
 
     			navigation yesFutureButton (deleteScheduledPayment, "{YES}") [  
+    				logic: [if bImpersonateActive == "true" then "remove"]
                 	class: "btn btn-primary"
+                	attr_tabindex: "10"		                   		                                    
+            	]
+
+    			navigation yesFutureDisableButton (deleteScheduledPayment, "{DISABLED FOR AGENT}") [  
+    				logic: [if bImpersonateActive != "true" then "remove"]
+                	class: "btn btn-primary disabled"
                 	attr_tabindex: "10"		                   		                                    
             	]
             	
