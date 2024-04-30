@@ -158,6 +158,11 @@ useCase paymentHistory [
 	volatile string sCancelNewText2    = I18n.translate ("paymentHistory_sCancelText2", sAccountNumber)
 	
 	string sSurchargeClass = "hide-surcharge"    //-- By default the surcharge is disabled untill user turn it on in configuration 
+	
+		// -- handling impersonation --
+ 	import utilImpersonationActive.sImpersonationActive
+ 	native string bImpersonateActive
+	
 		
 	serviceStatus ssStatus
 	
@@ -672,7 +677,8 @@ useCase paymentHistory [
 	*************************/
 	
 	/* 1. Get the most recent docs. */
-	action init [				
+	action init [		
+		bImpersonateActive = sImpersonationActive		
 		if sSurchargeFlag == "true"	then 
 		   	setSurchargeClass
 		else 		
@@ -1421,6 +1427,17 @@ useCase paymentHistory [
  
                 navigation SavePaymentEditButton (updateScheduledPayment, "{SAVE}") [  
                     class: "btn btn-primary"
+                    logic: [if bImpersonateActive == "true" then "remove"]
+                    	data: [
+		                    	fPayAmount,
+								fPayDate
+		                      ]	                   
+                    attr_tabindex: "2"
+                ]		                
+
+                navigation SavePaymentEditButtonDisable (updateScheduledPayment, "{DISABLED FOR AGENT}") [  
+                    class: "btn btn-primary disabled"
+                    logic: [if bImpersonateActive != "true" then "remove"]
                     	data: [
 		                    	fPayAmount,
 								fPayDate
