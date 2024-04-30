@@ -174,18 +174,41 @@ public class UserStatusCacheItem implements IUserStatusCacheItem, IUserStatusIte
 	}
 
 	@Override
-	public Boolean hasPortalAccess() throws AccountStatusException {
+	public EnumPortalAccess hasPortalAccess() throws AccountStatusException {
 
-		// -- goes through list of accounts to see if any deny portal access, if one
-		//		does then return false otherwise true --
+		// -- goes through list of accounts to see if any deny portal access.
+		//		stop at the first disabledUser account -- one does they all do (even though they should all be marked).
+		//		continue through marking disabledUser.  If we find one of those and no disabledUser, we return that, 
+		//		disabledUser trumps disabledEconsent. --
+
+		EnumPortalAccess rVal = EnumPortalAccess.enabled;
+		Boolean bHasDisabledEconsent = false;
+		AccountKey lAcctKeyForDisabledEconsent = null;
 		for (HashMap.Entry< AccountKey, AccountStatusElement> entry :  AccountStatusMap.entrySet()) {
-			if ((entry.getValue().getViewAccount() == ViewAcct.disabledEconsent) ||
-					(entry.getValue().getViewAccount() == ViewAcct.disabledUser)) {
-				LOG.debug ("UserStatusCacheItem:hasPortalAccess Portal Disabled for account {}", entry.getKey());
-				return false;
+			if (entry.getValue().getViewAccount() == ViewAcct.disabledUser) {
+				rVal = EnumPortalAccess.disabledUser;
+				if (true == bHasDisabledEconsent) {
+					// -- this case should NEVER be true, we received bad data --
+					LOG.error("UserStatusCache:hasPortalAccess -- Detected inconsistency in status between account id {} " + 
+							"disabledUser and account {} (disabledEconsent), returning disabledUser.", 
+							entry.getKey(), lAcctKeyForDisabledEconsent );
+					bHasDisabledEconsent = false;
+					lAcctKeyForDisabledEconsent = null;
+				}
+				rVal = EnumPortalAccess.disabledUser;
+				break;
+			} else if (entry.getValue().getViewAccount() == ViewAcct.disabledEconsent) {
+				bHasDisabledEconsent = true;
+				lAcctKeyForDisabledEconsent = entry.getKey();
 			}
 		}
-		return true;
+		
+		// -- if we got this during the course of traversing accounts, then return it --
+		if (bHasDisabledEconsent) {
+			rVal = EnumPortalAccess.disabledEconsent;
+		}
+		LOG.debug ("UserStatusCacheItem:hasPortalAccess returning {}", rVal.toString());
+		return rVal;
 	}
 
 	@Override

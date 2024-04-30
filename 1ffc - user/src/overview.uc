@@ -112,18 +112,21 @@ useCase overview [
 		srHasPortalAccessReq.user = sUserId
 		srHasPortalAccessReq.paymentGroup = sBillPaymentGroup
 		switch apiCall AccountStatus.HasPortalAccess(srHasPortalAccessReq, 
-																							 srHasPortalAccessResult,
-																							 srHasPortalAccessStatus) [
+													 srHasPortalAccessResult,
+													 srHasPortalAccessStatus) [
 			case apiSuccess testAccess
 			default genericErrorMsg																							 	
 		]
 	]
+
 	/* 0a. System checks result to see if user has access to portal */
 	action testAccess [
-		if srHasPortalAccessResult.bAccessEnabled == "true" then
-			getOnlineEligibleAccounts
-		else
-			genericErrorMsg 
+		switch srHasPortalAccessResult.portalAccess [
+			case enabled			getOnlineEligibleAccounts
+			case disabledUser 		genericErrorMsg
+			case disabledEconsent	genericErrorMsg
+			default 				genericErrorMsg
+		]
 	]
 	
 	

@@ -56,6 +56,7 @@ useCase accountSummaryChild [
 	importJava LocalizedFormat(com.sorrisotech.common.LocalizedFormat)	
 	importJava UcBillingAction(com.sorrisotech.uc.bill.UcBillingAction)
 	importJava FFFCSession(com.sorrisotech.fffc.user.FFFCSession)
+	importJava FFCCAccountAction(com.sorrisotech.fffc.account.FffcAccountAction)
 
 	// -- specific to 1st Franklin ... helps calculate current balance --
 	importJava CurrentBalanceHelper (com.sorrisotech.fffc.payment.BalanceHelper)
@@ -83,11 +84,19 @@ useCase accountSummaryChild [
 	import billCommon.sPayIsBill
 	import billCommon.sPaySelectedDate
 
+	// -- variables collected/calculated here and shared with
+	//		paymentOneTime, paymentHistory --
 	import paymentCommon.sMinDue
 	import paymentCommon.sMaxDue
 	import paymentCommon.sMinDueDisplay
 	import paymentCommon.sMaxDueDisplay
-	
+    import paymentCommon.sBillId
+    import paymentCommon.sBillOverviewResult
+    import paymentCommon.sBillOverviewDueDate
+	import paymentCommon.sDocBalanceRaw
+	import paymentCommon.sTotalBalanceRaw	
+	import paymentCommon.sDocLocation
+	import paymentCommon.sDocDate
 	
     // -- GetStatus returns the status for all major conditions and business
     //		drivers --
@@ -104,6 +113,7 @@ useCase accountSummaryChild [
 	native string sAchEnabledStatus = "true"
 	native string sMaxPaymentEnabled = "true"	// -- this is true for 1FFC
 	native string bAutomaticPaymentEnabled = "true"
+	
 
 	//	-- used to determine if there is a minimum payment needed --
 	serviceParam  (AccountStatus.IsMinimumPaymentRequired) srGetMinimumParams
@@ -124,7 +134,7 @@ useCase accountSummaryChild [
     native string maxAge =			 		AppConfig.get("recent.number.of.months", "3")
     native string sBillDate =		 		Format.formatDateNumeric(srBillOverview.docDate)
     native string sBillDueDateDisplay = 	Format.formatDateNumeric(srBillOverview.dueDate)
-	
+	native string sToday  =					FFCCAccountAction.getTodaysDate()
 	
 	// -- returns a current balance calculated based on either bill or status (whichever is newer) less
 	//		payments since that last bill or status date (date inclusive) --
@@ -466,7 +476,7 @@ useCase accountSummaryChild [
  	 	if "activeAccount" == sLocalAccountStatus then 
  	 		setActiveNoBill
  	 	else
- 	 		CheckStatus
+ 	 		setPaymentCommonNoBill
  	 ]
  	 
  	 /**
@@ -475,7 +485,7 @@ useCase accountSummaryChild [
  	  */
  	 action setActiveNoBill [
  	 	sLocalAccountStatus = "activeNoBill"
- 	 	goto(CheckStatus)
+ 	 	goto(setPaymentCommonNoBill)
  	 ]
 	
 	/**
@@ -495,14 +505,37 @@ useCase accountSummaryChild [
 	]
  	
  	/**
- 	 * 15a. System expects a single recent bill. If there's more than one, that's an issue.
+ 	 * 15a. System sets information for other payment use cases in payment common. 
+ 	 * 		System expects a single recent bill. If there's more than one, that's an issue.
  	 */
  	action howManyDocs [
+		sBillId = srBillOverview.docId
+		sBillOverviewResult = srBillOverview.result
+     	sBillOverviewDueDate = srBillOverview.dueDate
+     	sDocBalanceRaw = srBillOverview.docAmount
+     	sTotalBalanceRaw = srBillOverview.totalDue
+     	sDocLocation = srBillOverview.docLocation
+     	sDocDate = srBillOverview.docDate
  		switch srBillOverview.result [
 			case "noDocs" 		CheckStatus
 			case "singleDoc"	CheckStatus
 			default actionBillProblem
  		]
+ 	]
+ 	
+ 	/**
+ 	 * 15b. With no bill to show, the system sets the payment common results to 
+ 	 *  		values that allow a user to pay if they have no bill
+ 	 */
+ 	action setPaymentCommonNoBill [
+		sBillId = "----"
+		sBillOverviewResult = "noDocs"
+		sBillOverviewDueDate = sToday
+		sDocBalanceRaw = "0"
+		sTotalBalanceRaw = "0"
+		sDocLocation = ""
+		sDocDate = sToday
+   		goto (CheckStatus)
  	]
 
 	/**************************************************************************************
@@ -658,7 +691,7 @@ useCase accountSummaryChild [
 		evalActors()
 		goto (checkIfFuturePaymentNeedsUpdate)
 	]
-	
+		
 	/**
 	 * 4c. System disables automatic payments based on status above
 	 */
@@ -722,7 +755,7 @@ useCase accountSummaryChild [
 	 *			to see if minimum due is required. 
 	 */
 	action isMinimumDueRequired [
-		sMinDue = "0.00"
+		sMinDue = "0"
 		sMinDueDisplay = sMinimumDueDisplay
 		if "false" == srGetMinimumResult.bMinimumRequired then
 			setMaximumDueTest

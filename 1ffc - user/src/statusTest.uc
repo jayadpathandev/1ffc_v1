@@ -600,7 +600,7 @@ useCase statusTest [
     /** 17. Assign HasPortalAccess information to the screen variables
      */
     action assignHasPortalAccess [
-		fHasPortalAccess.control = srHasPortalAccessResult.bAccessEnabled
+		fHasPortalAccess.control = srHasPortalAccessResult.portalAccess
     	goto (init)
     ]
     

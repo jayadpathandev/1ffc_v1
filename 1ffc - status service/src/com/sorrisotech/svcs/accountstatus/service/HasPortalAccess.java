@@ -21,6 +21,7 @@ import com.sorrisotech.svcs.serviceapi.api.ServiceAPIErrorCode;
  *  @return <li><b>accessEnabled</b> -	True if user has online access to this account
  *  
  *  @version 24-Sep-2023
+ *  @version 2024-Apr-29	jak updated to new api specification
  *  @since 24-Sep-2023
  *  @author John A. Kowalonek 
  */
@@ -40,21 +41,17 @@ public class HasPortalAccess extends HasPortalAccessBase {
 		
 		ServiceAPIErrorCode rVal = ServiceAPIErrorCode.Failure;
 		IUserStatusCacheItem cacheItem = UserStatusCache.getItem(sUser);
-		boolean bHasAccess = false;
 		request.setToResponse();
 		
 		if (null != cacheItem) {
-			try {
-				// -- returns true if this USER has portal access... not account dependent --
-				if (cacheItem.hasPortalAccess())
-					bHasAccess = true;
-				request.set(IApiAccountStatus.HasAccountAccess.bAccessEnabled, bHasAccess);
+		try {
+			request.set(IApiAccountStatus.HasPortalAccess.portalAccess, cacheItem.hasPortalAccess().toString());
 				rVal = ServiceAPIErrorCode.Success;
 			} catch (AccountStatusException e) {
 				LOG.error("HasPortalAccess:processInternal -- failed to get access info for user {}, group {}",
 						sUser, sPaymentGroup, e);
 				rVal = ServiceAPIErrorCode.InternalFailure;
-			}
+			} 
 		}
 
 		request.setStatus(rVal);

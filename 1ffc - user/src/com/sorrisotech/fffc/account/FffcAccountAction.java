@@ -590,4 +590,16 @@ public class FffcAccountAction implements IExternalReuse {
 	        return outputDate;
 	    }
 	
+	/**
+	 * Used when we have no bill calculating today's date
+	 * 
+	 * @return today's date formatted as YYYYMMDD
+	 */
+	public static String getTodaysDate() {
+			Date date = new java.util.Date();
+	        SimpleDateFormat format2 = new SimpleDateFormat("yyyyMMdd");
+	        String szOutputDate = format2.format(date);
+			return szOutputDate;
+	}
+	
 }
