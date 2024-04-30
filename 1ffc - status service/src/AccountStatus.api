@@ -277,6 +277,7 @@ define service AccountStatus(com.sorrisotech.app.serviceapi.uc.UcRequestClient) 
  		boolean bMinimumRequired
  		string	sAmountRequired
  	]
+ 	
 	// --------------------------------------------------------------------
  	// -- use hasAccountAccess to determine if the user has online access
  	//		to this account (ignoring reasons) .. used in processing account
@@ -288,7 +289,7 @@ define service AccountStatus(com.sorrisotech.app.serviceapi.uc.UcRequestClient) 
 	] returns [
 		boolean		bAccessEnabled	// Returns true if user can view this account		
  	] // -- end hasAccountAccess
- 	
+ 	 	
 	// --------------------------------------------------------------------
  	// -- use hasPortalAccess to determine if the user can in fact have
  	//		ANY access to the portal for any of their accounts --
@@ -296,7 +297,11 @@ define service AccountStatus(com.sorrisotech.app.serviceapi.uc.UcRequestClient) 
 		string		user			// ID for the current user
     	string		paymentGroup	// Payment Group for this account number					
  	] returns [
- 		boolean		bAccessEnabled	// returns True if portal is available for this user
+ 		list portalAccess[
+ 			enabled,				// user has portal access
+ 			disabledUser,			// user denied portal access
+ 			disabledEconsent		// user needs to consent for portal access
+ 		]
  	] // -- end hasPorta]Access
  	
 	// --------------------------------------------------------------------

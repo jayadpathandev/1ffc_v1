@@ -47,6 +47,12 @@ public interface IUserStatusCacheItem {
 		Integer		mostRecentUpdate
 		)  {}
 	
+	public enum EnumPortalAccess {
+		enabled,					// user has access
+		disabledUser,				// user is disabled
+		disabledEconsent			// user disabled needs to consent
+	}
+	
 	/**
 	 * Return data for monthly minimum
 	 */
@@ -142,10 +148,10 @@ public interface IUserStatusCacheItem {
 	/**
 	 * returns true if this user has portal access, otherwise false
 	 * 
-	 * @return boolean 
+	 * @return EnumPortalAccess access for all accounts associated with this user 
 	 * @throws AccountStatusException
 	 */
-	abstract public Boolean hasPortalAccess() throws AccountStatusException;
+	abstract public EnumPortalAccess hasPortalAccess() throws AccountStatusException;
 	
 	/**
 	 * Returns MonthlyMinimumData object.

@@ -70,6 +70,7 @@ useCase accountOverview [
     * 		2.4	2024-Apr-17		JAK	Refactored to handle turning links on when there are no bills or
     * 									this is a new account. Removed lots of "dead" code from the
     * 									"core" product so this doen'st have code for invoice mode.
+    * 		2.5 2024-Apr-28		JAK	fixed defect where a transitioned new bill didn't check bill age
     */
 
     documentation [
@@ -364,7 +365,7 @@ useCase accountOverview [
 	 */
 	action transitionNewAccount [
 		sLocalAccountStatus = "activeAccount"
-		goto(setSummaryTemplate)
+		goto(isBillTooOld)
 	]
 
 	/**
