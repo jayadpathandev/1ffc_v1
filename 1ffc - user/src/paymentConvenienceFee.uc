@@ -33,11 +33,18 @@ useCase paymentConvenienceFee [
         pay_group,
 	    pay_account_number
     ]
+    
+    shortcut getConvenienceFeePay(validateUserIdPay) [
+    	user_id_pay
+        pay_group_pay,
+	    account_number_pay
+    ]
 
     /*************************
 	* DATA ITEMS SECTION
 	*************************/  
     importJava Session(com.sorrisotech.app.utils.Session)
+    importJava JsonResponse(com.sorrisotech.app.common.JsonResponse)
 
     /* Status service goes here */
     serviceStatus srAccountStatusCode
@@ -48,8 +55,12 @@ useCase paymentConvenienceFee [
 	native string pay_group				= ""
 	native string pay_account_number	= ""
 	
-	native string convenienceFeeAmount	= ""
+	native string user_id_pay 			= ""
+    native string pay_group_pay			= ""
+	native string account_number_pay	= ""
 	
+	native string convenienceFeeAmount	= ""
+	native string convenienceFeeAmountPay = ""
 
 	/*
 	 * Response codes:
@@ -101,7 +112,7 @@ useCase paymentConvenienceFee [
 	 	else
 	 		getConvenienceFee
 	]
-
+	
 	/* 4.1. get convenience fee value */
     action getConvenienceFee [
 		srGetDebitConvenienceFeeParams.user 		= user_id
@@ -166,8 +177,84 @@ useCase paymentConvenienceFee [
 		goto (returnError)
 	]
 	
-	/* 6.2 Json error.*/
+		/* 6.2 Json error.*/
 	json returnError [
+		display resultCode
+		display httpStatus
+		display convenienceFeeAmount
+	]
+	
+	action validateUserIdPay [
+		if user_id_pay == "" then  
+			validationErrorPay
+	    else
+	    	validatePayGroupPay
+	]
+
+	/* 2. Validate PayGroup */
+	action validatePayGroupPay [
+		if pay_group_pay == "" then 
+			validationErrorPay
+	 	else
+	 		validateAccountNumberPay
+	]
+	
+	/* 3. Validate PayGroup */
+	action validateAccountNumberPay [
+		if account_number_pay == "" then 
+			validationErrorPay
+	 	else
+	 		getConvenienceFeePay
+	]
+	
+	action getConvenienceFeePay [
+		srGetDebitConvenienceFeeParams.user 		= user_id_pay
+		srGetDebitConvenienceFeeParams.paymentGroup = pay_group_pay
+		srGetDebitConvenienceFeeParams.account		= account_number_pay
+		
+		// getting the convenienceFee value
+   		switch apiCall AccountStatus.GetDebitConvenienceFee(srGetDebitConvenienceFeeParams, srGetDebitConvenienceFeeResult, srAccountStatusCode) [
+    		case apiSuccess getConvenienceFeeSuccessResponse
+    		default getConvenienceFeeErrorResponse
+    	]
+	]
+	
+	action getConvenienceFeeSuccessResponse [
+		
+		convenienceFeeAmountPay = srGetDebitConvenienceFeeResult.convenienceFeeAmt
+		
+		JsonResponse.reset()
+		JsonResponse.setString("convenienceFeePay", convenienceFeeAmountPay)
+		
+	    foreignHandler JsonResponse.send()
+    ]
+		
+		/* 5.2. audit log for success */
+	action getConvenienceFeeErrorResponse [
+		convenienceFeeAmountPay = "0"
+		
+		JsonResponse.reset()
+		JsonResponse.setString("convenienceFeePay", convenienceFeeAmountPay)
+		JsonResponse.setString("Error","Couldn't retrieve convenienceFeeAmount")
+		
+	    foreignHandler JsonResponse.send()
+    ]		
+	
+		
+	action validationErrorPay [
+		resultCode = invalidInput
+		httpStatus = statusInvalid
+		convenienceFeeAmount = "0"
+    	auditLog(audit_payment.convenience_fee_invalid_input) [
+    		user_id_pay
+    		pay_group_pay
+    		account_number_pay
+    	]			
+		goto (returnErrorPay)
+	]
+	
+	/* 6.2 Json error.*/
+	json returnErrorPay [
 		display resultCode
 		display httpStatus
 		display convenienceFeeAmount
