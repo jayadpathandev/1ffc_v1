@@ -18,6 +18,7 @@
 	   						be enabled.
 	   2024-Feb-20 jak -- added support for nickname/link to edit edit nickname for account.
 	   2024-Feb-28 jak -- set a floor of 0 for the amount due instead of showing negative.   
+	   2024-May-01 jak -- fix payment links to properly use offset variable.
   -->
 
 <#--  "date_format" -- setting the date format here for just this template... was having a problem with the date 
@@ -240,7 +241,7 @@
 											and automatic payment rule set  -->
 							<#if status.bAutoPayLinkEnabled>
 								<#--  automatic payment is enabled -->
-								<a class="text-nowrap" href="startAutomaticPayment">Set&nbsp;up&nbsp;recurring&nbsp;payments</a>				
+								<a class="text-nowrap" href="overviewJumpToAutoPay?offset=${jumpToOffset}">Set&nbsp;up&nbsp;recurring&nbsp;payments</a>				
 							<#else>
 								<#--  automatic payment is disabled -->
 								<a class="text-nowrap disabled pe-none opacity-50" aria-disabled="true">Set&nbsp;up&nbsp;recurring&nbsp;payment</a>				
@@ -256,7 +257,7 @@
 			</div>
 		</div>
 		<div class="col-2">
-			<a class="btn btn-primary <#if !status.bPayEnabled>disabled</#if>" href="startMakePayment" 
+			<a class="btn btn-primary <#if !status.bPayEnabled>disabled</#if>" href="overviewJumpToPayment?offset=${jumpToOffset}" 
 										<#if !status.bPayEnabled>disabled="true"</#if>>PAY THIS BILL</a>
 		</div>
 	</div>

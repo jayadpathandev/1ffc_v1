@@ -12,6 +12,7 @@
 	   2023-Dec-11	jak-- first iteration
 	   2024-Feb-19 	jak --changed wording for old bill
 	   2024-Apr-17	jak -- adjusted so customers without bills could pay
+	   2024-May-01	jak	-- fixed payment links to properly use offset variable
   -->
 
 <#--  "debug" -- if true will show the status and scheduled payment stuff on the screen for visual validation
@@ -80,7 +81,7 @@
 											and automatic payment rule set  -->
 							<#if status.bAutoPayLinkEnabled>
 								<#--  automatic payment is enabled -->
-								<a class="text-nowrap" href="startAutomaticPayment">Set&nbsp;up&nbsp;recurring&nbsp;payments</a>				
+								<a class="text-nowrap" href="jumpToAutoPay?offset=${AccountOffset}">Set&nbsp;up&nbsp;recurring&nbsp;payments</a>				
 							<#else>
 								<#--  automatic payment is disabled -->
 								<a class="text-nowrap disabled pe-none opacity-50" aria-disabled="true">Set&nbsp;up&nbsp;recurring&nbsp;payment</a>				
@@ -93,7 +94,7 @@
 											and automatic payment rule set  -->
 							<#if status.bAutoPayLinkEnabled>
 								<#--  automatic payment is enabled -->
-								<a class="text-nowrap" href="startAutomaticPayment">Set&nbsp;up&nbsp;recurring&nbsp;payments</a>				
+								<a class="text-nowrap" href="overviewJumpToAutoPay?offset=${jumpToOffset}">Set&nbsp;up&nbsp;recurring&nbsp;payments</a>				
 							<#else>
 								<#--  automatic payment is disabled -->
 								<a class="text-nowrap disabled pe-none opacity-50" aria-disabled="true">Set&nbsp;up&nbsp;recurring&nbsp;payment</a>				
@@ -113,7 +114,7 @@
 			</div>
 		</div>
 		<div class="col-2">
-			<a class="btn btn-primary <#if !status.bPayEnabled>disabled</#if>" href="startMakePayment" 
+			<a class="btn btn-primary <#if !status.bPayEnabled>disabled</#if>" href="overviewJumpToPayment?offset=${jumpToOffset}" 
 										<#if !status.bPayEnabled>disabled="true"</#if>>PAY THIS BILL</a>
 		</div>
 	</div>
