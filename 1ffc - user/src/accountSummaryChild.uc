@@ -291,7 +291,7 @@ useCase accountSummaryChild [
 		// -- retrieve the status information --
    		switch apiCall AccountStatus.GetStatus(srGetStatusParams, srGetStatusResult, srAccountStatusCode) [
     		case apiSuccess checkAccountViewStatus
-    		default actionBillProblem
+    		default errorRetrievingStatus
     	]
  	]
  	
