@@ -112,7 +112,7 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 					org.bill_group = :pmtGroup
 				  FETCH FIRST 1 ROW ONLY
 				)
-				SELECT
+				SELECT DISTINCT
 				  -- get the list of eligible accounts under the same org id,
 				  -- much of what is here will be used to create tm account entry
 				  -- for accounts that appear in status but don't yet have a bill
@@ -142,7 +142,7 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
       <bean id="getEligibleRegisteredAccountsForUserSql" class="java.lang.String">
         <constructor-arg>
         	<value>
- 	       	SELECT
+ 	       	SELECT DISTINCT
 					tm.account_number as internalAccountId,
 					tm.account_number_display as displayAccountId
 				FROM
