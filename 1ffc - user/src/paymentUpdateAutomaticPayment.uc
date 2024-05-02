@@ -828,7 +828,8 @@ useCase paymentUpdateAutomaticPayment [
 			                    class: "btn btn-primary disabled"	
 							]
 							
-							navigation signDocument(getUserDetails, "{SIGN DOCUMENT}") [								
+							navigation signDocument(getUserDetails, "{SIGN DOCUMENT}") [	
+								logic: [if bImpersonateActive == "true" then "remove"]						
 				            	class: "btn btn-primary"	
 				            	type: "popin"
 				            	popin_size: "lg"
@@ -847,7 +848,28 @@ useCase paymentUpdateAutomaticPayment [
 				            	attr_tabindex: "14"
    						    ] 		               
 
-							navigation createAutomaticPaymentButtonDisabled(checkMinAmtFlag, "{CREATE DISABLED FOR AGENT}") [
+							navigation signDocumentDisable(getUserDetails, "{SIGN DISABLED FOR AGENT}") [	
+								logic: [if bImpersonateActive != "true" then "remove"]							
+				            	class: "btn btn-primary disabled"	
+				            	type: "popin"
+				            	popin_size: "lg"
+				            	popin_backdrop: "static"
+				            	popin_keyboard: "false"
+				            	ng-disabled: "isSourceEmpty() == 'true' || hasExceededPayUptoAmount() == 'true'"		                    
+				                data :[
+				                   		fPayInvoices,
+				                   		fPayAmount1,
+				                   		fPayAmount2,
+										fPayEffective							
+				                ]		                    
+			                    require: [
+			                    	dWalletItems
+			                    ]     
+				            	attr_tabindex: "14"
+   						    ] 		               
+
+							// Never got to here. 
+ /* 							navigation createAutomaticPaymentButtonDisabled(checkMinAmtFlag, "{CREATE DISABLED FOR AGENT}") [
 								logic: [
 									if sSelectedAutomaticId  != "" then "remove"
 				                	// -- this button shows if agent is impersonating --
@@ -855,7 +877,7 @@ useCase paymentUpdateAutomaticPayment [
 								]									
 				            	class: "btn btn-primary disabled"	
    						   ]
-   						   
+*/   						   
 			               navigation cancelPaymentLink(gotoPaymentAutomatic, "{CANCEL}") [
 								class: "ms-4 btn btn-secondary st-padding-top"							
 								attr_tabindex: "13"
