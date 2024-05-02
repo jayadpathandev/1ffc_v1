@@ -99,10 +99,13 @@
     	<propertyfile file="deploy/${app}/internationalization/topics_en.properties">
     		<entry key="topics_system" value="System alerts"/>
     		<entry key="topics_account" value="Account alerts"/>
+    		<entry key="topics_account_desc" value="Payment Reminders, Payment Confirmations, and Branch Updates"/>
     		<entry key="topics_payment" value="Payment notice"/>
     		<entry key="topics_marketing" value="Marketing messages"/>
+    		<entry key="topics_marketing_desc" value="Cash Available Updates, Promotions and Offers"/>
     		<entry key="topics_collections" value="Collections"/>
     		<entry key="topics_bills_documents" value="Paperless delivery"/>
+    		<entry key="topics_bills_documents_desc" value="Select if you would prefer not to get statements and notifications via the mail. Your monthly statements and communications will be available to view in the portal, and we will notify you by email when a new document is available to view. Must have a valid email on your account."/>
     		<entry key="topics_order" value="account|marketing|bills_documents"/>
     	</propertyfile>
     </target>
