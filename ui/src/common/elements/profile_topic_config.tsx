@@ -91,13 +91,17 @@ function CheckBox(props : CheckboxProps) {
 
 function Topic(props : Topic) {
 	const [ topicTxt, 		setTopicTxt 	] = React.useState('');
-
+	const [ topicDesc, 		setTopicDesc 	] = React.useState('');
 
 	React.useEffect(()=> {
 		const i18nTopic = new I18nService('topics');
 
 		i18nTopic.get(props.topic, (text:string) => {
 		    setTopicTxt(text);
+		})
+
+		i18nTopic.get(props.topic + '_desc', (text:string) => {
+		    setTopicDesc(text);
 		})
 
 	}, []);
@@ -117,7 +121,8 @@ function Topic(props : Topic) {
     return (
 	    <div className="row st-border-bottom pb-4 mb-4">
 		    <div className="col-12 col-sm-6">
-				<span>{topicTxt}</span>
+				<div className="topic-header">{topicTxt}</div>
+				<div className="topic-desc">{topicDesc}</div>
 			</div>
 		    {list}
 	    </div>

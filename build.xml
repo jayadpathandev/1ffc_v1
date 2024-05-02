@@ -215,12 +215,16 @@
         </copy>
 
     	<propertyfile file="${output.dir}/apps/admin/internationalization/topics_en.properties">
-    		<entry key="topics_bills_documents" value="Electronic Document Delivery"/>
-    		<entry key="topics_marketing" value="Marketing Messages"/>
-    		<entry key="topics_payment" value="Account Servicing"/>
+            <entry key="topics_system" value="System alerts"/>
+    		<entry key="topics_account" value="Account alerts"/>
+    		<entry key="topics_account_desc" value="Payment Reminders, Payment Confirmations, and Branch Updates"/>
+    		<entry key="topics_payment" value="Payment notice"/>
+    		<entry key="topics_marketing" value="Marketing messages"/>
+    		<entry key="topics_marketing_desc" value="Cash Available Updates, Promotions and Offers"/>
     		<entry key="topics_collections" value="Collections"/>
-    		<entry key="topics_system" value="System Alerts"/>
-            <entry key="topics_order" value="system"/>
+    		<entry key="topics_bills_documents" value="Paperless delivery"/>
+    		<entry key="topics_bills_documents_desc" value="Select if you would prefer not to get statements and notifications via the mail. Your monthly statements and communications will be available to view in the portal, and we will notify you by email when a new document is available to view. Must have a valid email on your account."/>
+    		<entry key="topics_order" value="account|marketing|bills_documents"/>
     	</propertyfile>
 
         <copy file="notification/build.properties.template" tofile="notification/build.properties"/>
@@ -466,13 +470,16 @@
         </copy>
 
     	<propertyfile file="${output.dir}/apps/user/internationalization/topics_en.properties">
-    		<entry key="topics_system" value="System alerts"/>
-            <entry key="topics_account" value="Account alerts"/>
-            <entry key="topics_payment" value="Payment notice"/>
-            <entry key="topics_marketing" value="Marketing messages"/>
-            <entry key="topics_collections" value="Collections"/>
-            <entry key="topics_bills_documents" value="Paperless delivery"/>
-            <entry key="topics_order" value="account|marketing|bills_documents"/>
+            <entry key="topics_system" value="System alerts"/>
+    		<entry key="topics_account" value="Account alerts"/>
+    		<entry key="topics_account_desc" value="Payment Reminders, Payment Confirmations, and Branch Updates"/>
+    		<entry key="topics_payment" value="Payment notice"/>
+    		<entry key="topics_marketing" value="Marketing messages"/>
+    		<entry key="topics_marketing_desc" value="Cash Available Updates, Promotions and Offers"/>
+    		<entry key="topics_collections" value="Collections"/>
+    		<entry key="topics_bills_documents" value="Paperless delivery"/>
+    		<entry key="topics_bills_documents_desc" value="Select if you would prefer not to get statements and notifications via the mail. Your monthly statements and communications will be available to view in the portal, and we will notify you by email when a new document is available to view. Must have a valid email on your account."/>
+    		<entry key="topics_order" value="account|marketing|bills_documents"/>
     	</propertyfile>
     	<propertyfile file="${output.dir}/apps/user/classes/app-config.properties">
     		<entry key="user.app.url" value="${base.public.url}personaWeb/user/"/>
