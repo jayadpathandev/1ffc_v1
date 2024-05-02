@@ -52,6 +52,7 @@ useCase overview [
     importJava UcPaymentAction(com.sorrisotech.uc.payment.UcPaymentAction)    
     importJava ParentOverview(com.sorrisotech.uc.overview.ParentOverview)
 	importJava Config(com.sorrisotech.utils.AppConfig)
+	importJava TermsAndConditions(com.sorrisotech.fffc.user.TermsAndConditions)
     
     import billCommon.sBillAccountInternal
 	import billCommon.sBillGroup
@@ -72,7 +73,12 @@ useCase overview [
     serviceStatus srHasPortalAccessStatus
     serviceParam(AccountStatus.HasPortalAccess) srHasPortalAccessReq
     serviceResult(AccountStatus.HasPortalAccess) srHasPortalAccessResult
-
+    
+    serviceStatus srEconsentNlsStatus
+	serviceParam(FffcNotify.SetEconsentNls) srSetEconsentNlsReq
+	serviceParam(FffcNotify.GetEconsentStatusNls) srGetEconsentNlsReq
+	serviceResult(FffcNotify.GetEconsentStatusNls) srGetEconsentNlsResult
+	
     serviceStatus srOverviewStatus	
     serviceParam(Documents.AccountOverview) srAcctsParam
     serviceResult(Documents.AccountOverview) srAcctsResult
@@ -91,8 +97,9 @@ useCase overview [
 	native string account
 	native string payGroup
 	native string offset
-  
 	
+    native string sOrgId
+  
 	string sPageHeader = "{Account overview}"
     
     // this is needed to force persona to generate i18n files
@@ -101,6 +108,21 @@ useCase overview [
     structure(message) msgNoAccessToAccount [
     	string(title) sTitle = "{Access Denied}"
         string(body) sBody = "{You do not have access to any accounts on this portal, please contact your branch for further information.}"
+    ]
+    
+    structure(message) msgAccessDenied [
+        string(title) sTitle = "{Access Denied}"
+        string(body) sBody = "{You do not have access to this application.}"
+    ]
+    
+    string sPageName = "{E-SIGN Consent}"   
+	
+    tag hTermsText = TermsAndConditions.loadFile("terms_electronic_en_us.html")			       
+        
+    field fCheckBoxes [        
+    	checkBoxes(control) sField [
+        	Agree: "{I have read and agree to the terms of use.}"            
+        ]        
     ]
 	       
 	/*************************
@@ -124,13 +146,33 @@ useCase overview [
 		switch srHasPortalAccessResult.portalAccess [
 			case enabled			getOnlineEligibleAccounts
 			case disabledUser 		genericErrorMsg
-			case disabledEconsent	genericErrorMsg
+			case disabledEconsent	getEconsentDataNls
 			default 				genericErrorMsg
 		]
 	]
 	
+	/* 0b. Gets consent data from NLS if disabledEconsent*/
+	action getEconsentDataNls [
+		loadProfile(            
+            fffcCustomerId: sOrgId   
+            )
+        srGetEconsentNlsReq.customerId = sOrgId    
+            
+		switch apiCall FffcNotify.GetEconsentStatusNls(srGetEconsentNlsReq, srGetEconsentNlsResult, srGetOnlineAcctsStatus)[
+			case apiSuccess isEconsentEnabledAtNls
+			default genericErrorMsg
+		]
+	]
 	
-	/* 0a. System retrieves the accounts this user is eligible to view online */
+	/* 0c. Checks consent is enabled at NLS side or not.*/
+	action isEconsentEnabledAtNls [
+		if srGetEconsentNlsResult.sConsentActive == "false" then
+		 regTermsAndConditionsScreen
+		else
+		 getOnlineEligibleAccounts
+	]
+	
+	/* 0d. System retrieves the accounts this user is eligible to view online */
 	action getOnlineEligibleAccounts [
     	srGetOnlineAcctsReq.user = sUserId
     	srGetOnlineAcctsReq.statusPaymentGroup = sStatusPaymentGroup
@@ -275,6 +317,104 @@ useCase overview [
     	
         displayMessage(type: "danger" msg: msgNoAccessToAccount)     
         goto (overviewScreen)        
+    ]
+    
+    /**************************************************************************
+     * E-consent page if user disabled e-consent.
+     **************************************************************************/ 
+    noMenu xsltScreen regTermsAndConditionsScreen("{ESIGN Consent}") [
+    	    	
+        form regTermsAndConditionsForm [
+	    	class: "st-login"
+	            
+	        div header [
+				class: "row"
+				
+				h1 headerCol [
+					class: "col-md-12"
+	            
+    	            display sPageName
+	            ]
+			]
+	    
+	    	div content [
+									
+				div terms [
+					display hTermsText    
+				]
+								
+				div divider [
+        			class: "border-top mt-3 pt-3"
+					
+				
+            		display fCheckBoxes [
+            			control_attr_tabindex: "1"
+						control_attr_autofocus: ""
+            		]
+            		
+				]
+			]
+			
+			div buttons [
+				class: "st-buttons"
+				
+				div row [
+					class: "row"
+					
+					div col1 [
+						class: "col-md-12"
+						
+						navigation termsConditionsSubmit(actionUpdateConsentFlag, "{Next}") [			             
+		                	class: "btn btn-primary"  
+
+		                	require: [
+		                		fCheckBoxes
+		                	]
+		                	attr_tabindex: "3"                			                    
+		                ]        			
+						
+		                navigation termsConditionsCancel(actionAccessDenied, "{Cancel}") [			                
+							class: "btn btn-secondary"
+							attr_tabindex: "4"
+						] 							
+					]
+				]					
+			]			
+        ]
+    ]
+    
+    /* Update the consent flag in user profile table*/
+    action actionUpdateConsentFlag [
+     	updateProfile(
+        	userId: sUserId        	
+            eSignConsentEnabled: "true"   
+            )
+     	        
+        if success then saveEconsentAtNls
+        if failure then genericErrorMsg 
+    ]
+    
+    /* Saves the consent data via NLS API service */
+    action saveEconsentAtNls [
+    	loadProfile(            
+            fffcCustomerId: sOrgId   
+            )
+    	
+    	srSetEconsentNlsReq.customerId = sOrgId
+    	srSetEconsentNlsReq.sConsentActive = "true"
+    	
+    	
+    	switch apiCall FffcNotify.SetEconsentNls(srSetEconsentNlsReq, srEconsentNlsStatus) [
+    		case apiSuccess getOnlineEligibleAccounts
+    		default genericErrorMsg
+    	]
+    ]
+    
+    /* Go to login screen.*/
+    action actionAccessDenied [
+        displayMessage(type: "danger" msg: msgAccessDenied)
+
+        gotoModule(LOGIN)
     ]	 
       
 ]

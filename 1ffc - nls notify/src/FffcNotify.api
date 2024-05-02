@@ -105,4 +105,26 @@ define service FffcNotify(com.sorrisotech.app.serviceapi.uc.UcRequestClient) [
 		// e consent active or not.
 		string sConsentActive
 	]
+	
+	// Send users E-Consent setting at NLS.
+	define method SetEconsentNls [
+		
+		// The ID of the user we are setting the address for.
+		string customerId
+		
+		// e consent enabled(true)/disabled(false).
+		string sConsentActive
+	]
+	
+	// Get users E-Consent setting from NLS.
+	define method GetEconsentStatusNls [
+		
+		// The ID of the user we are setting the address for.
+		string customerId
+		
+	] returns [
+		
+		// e consent enabled(true)/disabled(false).
+		string sConsentActive
+	]
 ]
