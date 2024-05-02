@@ -108,10 +108,11 @@ public class GetAccountsForRegistration extends GetAccountsForRegistrationBase {
 																			final String cszOrgId) {
 		boolean bRetValue = false;
 		
-		// -- get list of accounts that are already in tm_accounts --
+		// -- get list of bill payment group accounts that are already in tm_accounts --
 		ITmAccountsFromOrgIdDao DAO = new TmAccountsFromOrgIdDaoImpl();
 		List<String> lTmAccountsForRegistration	= null;
 		try {
+			// -- note it gets accounts that have a tm_account record but are NOT in the status group --
 			lTmAccountsForRegistration = DAO.getTmAccountsList(cszOrgId, cszStatusPayGroup);
 		}
 		catch (Exception e) {
