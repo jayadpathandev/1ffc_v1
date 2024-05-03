@@ -18,7 +18,6 @@ useCase customerSearch [
     *        1.0 21-Nov-2015 First Version Coded [Maybelle Johnsy Kanjirapallil]
     * 		 1.1 2024-Jan-16 jak customization for 1st Franklin
     *        1.2 2024-Jan-24 YN Removed temporary password
-    *        
     */
         
 
@@ -86,7 +85,7 @@ useCase customerSearch [
 	// *-- Important : Do not  delete the 4 messages below. The use case uses it !!
 	string msgNewEmailSuccess = "{E-mail address changed from <1> to <2>. We sent you the validation code to the new e-mail. Use it to login.}"
 	string msgSameEmailSuccess = "{We sent you the validation code to the new e-mail <1>. Use it to login.}"
-//	string msgResetNewEmailSuccess = "{E-mail address changed from <1> to <2>. We sent you the new validation code to the new e-mail. Use it to login.}"
+	string msgResetNewEmailSuccess = "{E-mail address changed from <1> to <2>. We sent you the new validation code to the new e-mail. Use it to login.}"
 	string msgResetSameEmailSuccess = "{We sent the new validation code to the e-mail <1>. Use it to login.}"
 		
 	native string sAppNameSpace = AuthUtil.getAppNameSpace()	
@@ -851,7 +850,19 @@ useCase customerSearch [
 		                    	control_attr_tabindex: "10"
 		                    	control_attr_autofocus: ""
 		                    ]
-						]						
+						]
+						
+						div resetPwdfieldsCol2 [
+                        	class: "col-md-12"
+                    
+		                    display fUserEmailRetype [		                    			                    	
+			                    pInput_attr_st-compare-to: "form.fUserEmail"
+			                    sError_ng-show: "!content.$error.stPattern && !!content.$error.stCompareTo"
+			                    control_attr_tabindex: "11"		
+			                    sError_attr_sorriso-error: 'same-as'
+								pInput_attr_st-same-as: 'fUserEmail'	                
+		                    ]
+						]											
 					]
                 ]
             ]
@@ -866,8 +877,11 @@ useCase customerSearch [
                       ]  
                 ] 
                 
-                navigation resetPwdSubmit (resetCsrPasswordFlag, "{Submit}") [
+                navigation resetPwdSubmit (verifyResetPwdPopinFields, "{Submit}") [
                     class: "btn btn-primary"
+                    data: [fUserEmail, fUserEmailRetype, sGeolocation]
+                    require: [fUserEmail, fUserEmailRetype] 
+                    type: "popin"
                     attr_tabindex: "12"		                    
                 ]
                  navigation resetPwdCancel (customerSearchScreen, "{Cancel}") [
@@ -880,7 +894,7 @@ useCase customerSearch [
 	]
     
     /* 29. Verify field values. */
-/* 	action verifyResetPwdPopinFields [
+	action verifyResetPwdPopinFields [
     	switch NotifUtil.verifyEmailFields(sEmailAddress, fUserEmail.pInput, sMaskedEmailId) [
     		case "equal" getUserDetails
     		case "success" getUserDetails
@@ -890,7 +904,7 @@ useCase customerSearch [
     ]
     
     /* 30. System updated the email address. */ 
-/*     action getUserDetails [       	 
+    action getUserDetails [       	 
 		setData.userid = sSelectedUserId
     	setData.channel = sEmailChannel
     	setData.address = sEmailAddress
@@ -899,9 +913,9 @@ useCase customerSearch [
 		    default genericErrorMsg
 		]                	
     ]
-*/    
-      /* 31. Adding geolocation track event */
-/*     action addLocationTrackedEventResetPwd [
+    
+     /* 31. Adding geolocation track event */
+    action addLocationTrackedEventResetPwd [
     	setLocationData.sUser = sSelectedUserId
     	setLocationData.sCategory = sCategory
     	setLocationData.sType = sEmailChannel
@@ -915,9 +929,9 @@ useCase customerSearch [
     		default genericErrorMsg
     	]
     ]
-*/    
+    
     /* 32. Saves the new email address via NLS API service */
-/*     action saveEmailAddressAtNlsResetPwd [
+    action saveEmailAddressAtNlsResetPwd [
     	setDataFffc.customerId = sSelectedCustomerId
     	setDataFffc.channel = sEmailChannel
     	setDataFffc.address = sEmailAddress
@@ -929,7 +943,7 @@ useCase customerSearch [
     		default genericErrorMsg
     	]
     ]
-*/        
+        
     /* 33. Updates the user's profile attributes. */    
     action resetCsrPasswordFlag [
         updateProfile(
