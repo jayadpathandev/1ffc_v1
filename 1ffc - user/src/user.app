@@ -68,6 +68,8 @@ application [
 		fffcContactPreferencesApi
 		fffcEditDisplayAccount
 		
+		paymentContractedAmount
+		
 		statusTest
 		testFtlTemplating
  	]
