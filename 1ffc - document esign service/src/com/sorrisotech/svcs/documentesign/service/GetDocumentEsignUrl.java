@@ -56,6 +56,7 @@ public class GetDocumentEsignUrl extends GetDocumentEsignUrlBase{
 	@Override
 	protected ServiceAPIErrorCode processInternal(IRequestInternal request) {
 		
+		final String monthlyContractedAmount = request.getString(IApiDocumentEsign.GetDocumentEsignUrl.monthlyContractedAmount);
 		final String displayAccount = request.getString(IApiDocumentEsign.GetDocumentEsignUrl.displayAccount);
 		final String internalAccount = request.getString(IApiDocumentEsign.GetDocumentEsignUrl.internalAccount);
 		final String customerId = request.getString(IApiDocumentEsign.GetDocumentEsignUrl.customerId);
@@ -81,8 +82,7 @@ public class GetDocumentEsignUrl extends GetDocumentEsignUrlBase{
     	}
     	
     	final Map<String, String> sourceMap = getSourceDetailsMap(sourceId);
-    	
-    	final String monthlyPaymentAmount = Dao.getInstance().getLatestMonthlyPaymentAmount(internalAccount);
+    	final String monthlyPaymentAmount = monthlyContractedAmount;
     	
     	if (null == sourceMap || sourceMap.isEmpty() ) {
     		LOGGER.warn("Unable to finds the source for sourceId : {}", sourceId);

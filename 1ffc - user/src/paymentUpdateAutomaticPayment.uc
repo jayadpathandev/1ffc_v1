@@ -47,7 +47,7 @@ useCase paymentUpdateAutomaticPayment [
 	importJava EsignHelper(com.sorrisotech.fffc.user.EsignHelper)
 	importJava UcProfileAction(com.sorrisotech.app.profile.UcProfileAction)
 	importJava Spinner(com.sorrisotech.app.utils.Spinner)
-	importJava DisplayAccountMasked(com.sorrisotech.fffc.account.DisplayAccountMasked)  
+	importJava DisplayAccountMasked(com.sorrisotech.fffc.account.DisplayAccountMasked)
 			
     import validation.dateValidation
 		
@@ -132,7 +132,7 @@ useCase paymentUpdateAutomaticPayment [
 	volatile string sExpiryDateStatement   = EsignHelper.getExpiryDateStatement(fPayEffective.aDate)
 	volatile string sFormattedDate = EsignHelper.formatEftDate(fPayInvoices.aDate)
 	volatile string sPayDay = EsignHelper.getDayFromDate(fPayInvoices.aDate)
-                                                   
+       
     field fPayInvoices [
         string(label) sLabel = "{Pay bills *}"        
 //        radioSet(control) rInput = option1 [        
@@ -982,6 +982,8 @@ useCase paymentUpdateAutomaticPayment [
 			lastName: sLastName
 		) 
 		
+		
+		srEsignUrlParams.monthlyContractedAmount = srGetContractedPaymentResult.monthlyPaymentAmount
 		srEsignUrlParams.internalAccount = sPayAccountInternal
 		srEsignUrlParams.displayAccount = sPayAccountExternal
 		srEsignUrlParams.sourceId = dWalletItems

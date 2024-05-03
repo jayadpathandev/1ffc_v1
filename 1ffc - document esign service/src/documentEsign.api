@@ -6,6 +6,7 @@ define service DocumentEsign(com.sorrisotech.app.serviceapi.uc.UcRequestClient) 
 	
 	/* This endpoint will create and return esign URL for of the document */
 	define method GetDocumentEsignUrl [
+		string monthlyContractedAmount
 		string displayAccount
 		string internalAccount
 		string customerId
