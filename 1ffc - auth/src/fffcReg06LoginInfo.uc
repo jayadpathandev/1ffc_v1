@@ -36,7 +36,7 @@ useCase fffcReg06LoginInfo [
 	 
     importJava Session(com.sorrisotech.app.utils.Session)
 
-	import regCompleteEnrollment.sAppType
+//	import regCompleteEnrollment.sAppType
 	import regCompleteEnrollment.sLoginAction
 	
 	import validation.usernameRegex
@@ -46,9 +46,6 @@ useCase fffcReg06LoginInfo [
 	 		  
     string sPageName = "{Registration - Establish Login Profile (step 3 of 5)}"    
 		
-	native string sUserName = Session.getUsername()
-	native string sFirstName = Session.getFirstName()
-	native string sLastName = Session.getLastName()
 	native string sAppType = Session.getAppType()
 	
     persistent field fUserName [
@@ -88,10 +85,10 @@ useCase fffcReg06LoginInfo [
      * 1. Get user details from the session.
      */ 
 	action initialize [
-    	fUserName.pInput = sUserName
-    	fFirstName.pInput = sFirstName
-    	fLastName.pInput = sLastName
-    	fUserEmail.pInput = ""
+//    	fUserName.pInput = sUserName
+//    	fFirstName.pInput = sFirstName
+//    	fLastName.pInput = sLastName
+//    	fUserEmail.pInput = ""
  		goto(regLoginInfoScreen)
  	]
  	

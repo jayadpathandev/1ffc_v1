@@ -43,8 +43,6 @@ useCase fffcReg99B2C [
 	importJava FffcRegistration(com.sorrisotech.fffc.auth.FffcRegistration)
 	importJava Initialize(com.sorrisotech.fffc.auth.Initialize)
 	importJava Config(com.sorrisotech.utils.AppConfig)
-	 
-	import regCompleteEnrollment.sAppType
 	   
 	import regChecklist.sAccountInfoFailed
 	import regChecklist.sUserNameFailed
@@ -98,6 +96,7 @@ useCase fffcReg99B2C [
     native string sType = "web_site "
     native string sOperation = "User signed consent related to terms and conditions during registration process."
     native string bIsConsentActive = "true"
+    native string sAppType = Session.getAppType()
 	
     serviceParam (Profile.AddLocationTrackedEvent) setLocationData
 	serviceResult (Profile.AddLocationTrackedEvent) setLocationResp
