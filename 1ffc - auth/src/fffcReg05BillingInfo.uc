@@ -5,7 +5,7 @@ useCase fffcReg05BillingInfo [
     *  created: 23-Oct-2015
     *
     *  Primary Goal:
-    *       1. System displays Registration - Billing Information page (Step 2 of 6)
+    *       1. System displays Registration - Billing Information page (Step 1 of 5)
     *       
     *  Alternative Outcomes:
     *       1. User cancels the information and returns to the login page 
@@ -20,15 +20,19 @@ useCase fffcReg05BillingInfo [
             1. A user accesses the application
         ]]
         triggers: [[
-            1. Users agrees on Terms & Conditions and click on next button on the Terms & Conditions page
+            1. Users click on the Signup button at the login screen
         ]]
         postConditions: [[
             1. Primary -- System displays Registration - Setup Login Profile
             2. Alternative 1 -- Users selects back link, System take users to the Login page
         ]]
     ]
-	startAt checkBillCountFlag
-
+    
+	startAt startInit [
+		sLoginAction,
+		sAppType
+	]
+	
  	/**************************
 	 * DATA ITEMS SECTION
 	 **************************/  
@@ -39,11 +43,32 @@ useCase fffcReg05BillingInfo [
 	importJava Config(com.sorrisotech.utils.AppConfig)
 		
     import validation.dateValidation
-    
-	import regCompleteEnrollment.sLoginAction
-	import regCompleteEnrollment.sAppType
-	
+
 	import regChecklist.sAccountInfoFailed
+	import regChecklist.sUserNameFailed
+	import regChecklist.sEmailFailed
+
+    import fffcReg06LoginInfo.fUserName
+	import fffcReg06LoginInfo.fFirstName
+	import fffcReg06LoginInfo.fLastName
+
+	import fffcReg07SecretQuestion.dSecretQuestion1
+	import fffcReg07SecretQuestion.dSecretQuestion2
+	import fffcReg07SecretQuestion.dSecretQuestion3
+	import fffcReg07SecretQuestion.dSecretQuestion4
+	import fffcReg07SecretQuestion.fSecretAnswer1
+	import fffcReg07SecretQuestion.fSecretAnswer2
+	import fffcReg07SecretQuestion.fSecretAnswer3
+	import fffcReg07SecretQuestion.fSecretAnswer4
+	
+	import fffcReg08PersonalImage.groupId
+	import fffcReg08PersonalImage.memberId
+	import fffcReg08PersonalImage.imageId
+
+	import regContactInfo.fUserEmail
+	import regContactInfo.fUserEmailRetype
+	import regContactInfo.fMobileNumber
+	import regContactInfo.fPhoneNumber	
 	
 	//flag to set so that the json_is_username_available can be whitelisted
 	import utilIsUserNameAvailable.sReqWorkflow
@@ -105,6 +130,9 @@ useCase fffcReg05BillingInfo [
 		
 	persistent native string sSelectedBillStream	
 	persistent native string sCompanyId
+    persistent native string sAppType
+    native string sLoginAction
+	
 				
 	number nAccountNumberOrder = UcBillStream.getOrder(sorrisoLanguage, sorrisoCountry, sAccountAttr)
     number nServiceNumberOrder = UcBillStream.getOrder(sorrisoLanguage, sorrisoCountry, sSvcNumAttr)
@@ -229,7 +257,57 @@ useCase fffcReg05BillingInfo [
     /**************************************************************************
      * Main Path.
      **************************************************************************/ 
-     
+ 
+ 	action startInit [
+ 		if 	sLoginAction == "signup" then 
+ 			initRegistrationInfo
+ 		else
+ 			checkBillCountFlag
+ 	]    
+ 	
+	action initRegistrationInfo [
+		sAppType = "b2c"
+		
+    	fAccountNumber.pInput = ""
+    	fServiceNumber.pInput = ""
+		fBillingDate.aDate = ""
+		fAmount.pInput = ""
+		
+		fSelfReg0.pInput = ""
+		fSelfReg1.pInput = ""
+		fSelfReg2.pInput = ""
+		fSelfReg3.pInput = ""
+		fSelfReg4.pInput = ""
+			
+		fUserName.pInput = ""
+		fFirstName.pInput = ""
+		fLastName.pInput = ""
+
+		groupId="1"
+		memberId="1"	
+		imageId=""
+			
+		dSecretQuestion1=""
+		dSecretQuestion2=""
+		dSecretQuestion3=""
+		dSecretQuestion4=""
+		fSecretAnswer1.pInput = ""
+		fSecretAnswer2.pInput = ""
+		fSecretAnswer3.pInput = ""
+		fSecretAnswer4.pInput = ""
+				
+		fUserEmail.pInput = ""
+		fUserEmailRetype.pInput = ""
+		fMobileNumber.pInput = ""
+		fPhoneNumber.pInput = ""
+
+		sAccountInfoFailed = "false"
+		sUserNameFailed = "false"
+		sEmailFailed = "false"		
+						
+		sLoginAction = ""
+		goto(checkBillCountFlag)
+	] 	
     /**************************************************************************
      * 1. Checks the bill stream count.
      */
@@ -705,7 +783,7 @@ useCase fffcReg05BillingInfo [
 		if sAccountInfoFailed == "true" then
 			gotoRegistrationB2B
 		else
-			gotoRegLoginInfo	
+			gotoRegElectronicTnC	
 	]
 	    
     /**************************************************************************
@@ -763,7 +841,7 @@ useCase fffcReg05BillingInfo [
 		if sAccountInfoFailed == "true" then
 			gotoRegistrationB2C
 		else
-			gotoRegLoginInfo	
+			gotoRegElectronicTnC	
 	]
 
 	
@@ -777,7 +855,7 @@ useCase fffcReg05BillingInfo [
 	/**************************************************************************
 	 * 14. Go to the registration login info usecase.
 	 */    
-    action gotoRegLoginInfo [    
+    action gotoRegElectronicTnC [    
 		gotoUc(fffcReg03ElectronicTnC)
     ] 
     
@@ -823,14 +901,14 @@ useCase fffcReg05BillingInfo [
      * 19. User clicks the back button. Decides where to go based on the 
      *     bill stream count.
      */
-    action gotoPreviousScreen [
+/*     action gotoPreviousScreen [
     	sFlag = "false" 
     	if sStreamCount == "one" then
 			gotoRegTermsAndConditions
 		else
 			checkBillCountFlag
     ]
-    
+*/    
     /**************************************************************************
      * 20. User clicks the back button. Go to the registration T&C usecase.
      */

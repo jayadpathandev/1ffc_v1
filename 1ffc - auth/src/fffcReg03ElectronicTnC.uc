@@ -2,10 +2,10 @@ useCase fffcReg03ElectronicTnC [
 
     documentation [
         preConditions: [[
-            1. The user wants to enroll in the application.
+            1. The user wants to enroll in the application. Step 2 of 5
         ]]
         triggers: [[
-            1. The user accepts the has completed the SMS Terms and Conditions.
+            1. The user entered the billing info on the billing info screen and click on next
         ]]
         postConditions: [[
         	None.
