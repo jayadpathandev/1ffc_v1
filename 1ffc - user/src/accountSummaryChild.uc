@@ -256,6 +256,7 @@ useCase accountSummaryChild [
     string sMessageAccessDenied = "Your online account access is disabled. Visit or call your local branch immediately to make payment arrangements."
     string sMessageNoBillFound = "Our apologies, we can't find a recent bill for your account."
 	
+	native string space = "|"
 	/*************************
 	* MAIN SUCCESS SCENARIOS
 	*************************/
@@ -509,7 +510,7 @@ useCase accountSummaryChild [
  	 * 		System expects a single recent bill. If there's more than one, that's an issue.
  	 */
  	action howManyDocs [
-		sBillId = srBillOverview.docId
+		sBillId = srBillOverview.docNumber
 		sBillOverviewResult = srBillOverview.result
      	sBillOverviewDueDate = srBillOverview.dueDate
      	sDocBalanceRaw = srBillOverview.docAmount
@@ -842,7 +843,6 @@ useCase accountSummaryChild [
        		
        div summary [
             class: "row st-dashboard-summary"
-            
             div info [
             	class: "col-8 col-sm-9 col-lg-10 row"
 

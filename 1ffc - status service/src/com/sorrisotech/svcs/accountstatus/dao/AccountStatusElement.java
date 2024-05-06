@@ -1,6 +1,7 @@
 package com.sorrisotech.svcs.accountstatus.dao;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 
 import com.sorrisotech.svcs.accountstatus.cache.EnumConst.AcctStatus;
 import com.sorrisotech.svcs.accountstatus.cache.EnumConst.AchEnabled;
@@ -8,6 +9,7 @@ import com.sorrisotech.svcs.accountstatus.cache.EnumConst.PayEnabled;
 import com.sorrisotech.svcs.accountstatus.cache.EnumConst.AutoPmtStatus;
 import com.sorrisotech.svcs.accountstatus.cache.EnumConst.ContPrefsStats;
 import com.sorrisotech.svcs.accountstatus.cache.EnumConst.ViewAcct;
+
 
 /**
  * Status information for a single account. Includes getters and setters for
@@ -27,7 +29,8 @@ import com.sorrisotech.svcs.accountstatus.cache.EnumConst.ViewAcct;
  * @author John A. Kowalonek
  * @since 25-Sep-2023
  * @version 01-Jan-2024 - Added additional status information
- * 
+ * @version 2024-May-03	jak	updated to add timestamp and extend the data
+ * 							put in log output to include all current info.
  */
 public class AccountStatusElement {
 
@@ -53,6 +56,7 @@ public class AccountStatusElement {
 	private 	BigDecimal		m_dCurrentAmtDue = null;
 	private 	BigDecimal		m_dDebitConvenienceFee = null;
 	private 	BigDecimal		m_dAccountBalance = null;
+	private 	BigDecimal		m_dLastTimeUpdated = null;
 	
 	/**
 	 * Used by slf4J to log the contents of this object.
@@ -80,7 +84,13 @@ public class AccountStatusElement {
 					"    MaxPaymentAcount - " + m_dMaxPaymentAmount.toString() + "\n" +
 					"    CurrentAmtDue - " + m_dCurrentAmtDue.toString() + "\n" +
 					"    DebitConvenienceFee - " + m_dDebitConvenienceFee.toString() + "\n" +
-					"    MostRecentUpdate - " + m_iMostRecentUpdate.toString() + "\n");
+					"    MostRecentUpdate - " + m_iMostRecentUpdate.toString() + "\n" +
+					"    ContactPreferenceStatus - " + m_ContPrefStatus.toString() + "\n" +
+					"    MaxPaymentAmount - " + m_dMaxPaymentAmount.toString() + "\n" +
+					"    CurrentAmountDue - " + m_dCurrentAmtDue.toString() + "\n" +
+					"    DebitConvenienceFee - " + m_dDebitConvenienceFee.toString() + "\n" +
+					"    AccountBalance - " + m_dAccountBalance.toString() + "\n" +
+					"    TimeLastUpdated - " + m_dLastTimeUpdated.toString() + "\n" );
 	}
 	
 	public String getStatusGroupId() {
@@ -239,7 +249,7 @@ public class AccountStatusElement {
 		return m_dCurrentAmtDue;
 	}
 	
-	void setCurrentAmountDue(final BigDecimal cCurrAmountDue) {
+	public void setCurrentAmountDue(final BigDecimal cCurrAmountDue) {
 		m_dCurrentAmtDue = cCurrAmountDue;
 	}
 	
@@ -247,15 +257,23 @@ public class AccountStatusElement {
 		return m_dAccountBalance;
 	}
 
-	void setAccountBalance(final BigDecimal cAcctBalance) {
+	public void setAccountBalance(final BigDecimal cAcctBalance) {
 		m_dAccountBalance = cAcctBalance;
 	}
 	public BigDecimal getDebitConvenienceFee() {
 		return m_dDebitConvenienceFee;
 	}
 	
-	void setDebitConvenienceFee(final BigDecimal cDebitConvenienceFee) {
+	public void setDebitConvenienceFee(final BigDecimal cDebitConvenienceFee) {
 		m_dDebitConvenienceFee = cDebitConvenienceFee;
+	}
+	
+	public BigDecimal getLastUpdate() {
+		return m_dLastTimeUpdated;
+	}
+	
+	public void setLastUpdate(final BigDecimal cLastUpdate) {
+		m_dLastTimeUpdated = cLastUpdate;
 	}
 
 }

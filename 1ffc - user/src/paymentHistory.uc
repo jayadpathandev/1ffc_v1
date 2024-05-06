@@ -344,8 +344,6 @@ useCase paymentHistory [
         "PAY_CHANNEL"         => string sPayChannel
         "PAY_DATE"            => string sPayDate
         "PAY_DATE_NUM"        => number nPayDate         
-        "DUE_DATE"            => string sDueDate        
-        "DUE_DATE_NUM"        => number nDueDate
         "USER_ID"             => string sUserId
         "FLEX_1"			  => string sFlexCol1
         "FLEX_2"			  => string sFlexCol2

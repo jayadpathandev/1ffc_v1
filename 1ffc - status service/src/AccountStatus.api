@@ -297,6 +297,8 @@ define service AccountStatus(com.sorrisotech.app.serviceapi.uc.UcRequestClient) 
 		string		user			// ID for the current user
     	string		paymentGroup	// Payment Group for this account number					
  	] returns [
+ 		number	lastUpdateTimestamp // a numeric timestamp in milliseconds since Unix Epoch
+ 									// 	(no timezone)
  		list portalAccess[
  			enabled,				// user has portal access
  			disabledUser,			// user denied portal access
