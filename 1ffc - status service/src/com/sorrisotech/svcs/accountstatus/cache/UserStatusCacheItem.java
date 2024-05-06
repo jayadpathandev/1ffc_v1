@@ -367,4 +367,14 @@ public class UserStatusCacheItem implements IUserStatusCacheItem, IUserStatusIte
 		BigDecimal ldMonthlyPaymentAmount = lStatusElement.getMonthlyPayment();
 		return ldMonthlyPaymentAmount;
 	}
+
+	@Override
+	public BigDecimal getLastUpdate(String cszPaymentGroup, String cszAccountIdentifier) throws AccountStatusException {
+		// TODO Auto-generated method stub
+		AccountStatusElement lStatusElement = getStatusElement(cszPaymentGroup, cszAccountIdentifier);
+		BigDecimal ldLastUpdate = lStatusElement.getLastUpdate();
+		return ldLastUpdate;
+	}
+	
+	
 }

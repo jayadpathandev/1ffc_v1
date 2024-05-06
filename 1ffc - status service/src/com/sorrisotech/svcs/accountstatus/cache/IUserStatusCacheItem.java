@@ -26,6 +26,7 @@ import com.sorrisotech.svcs.accountstatus.cache.EnumConst.ContPrefsStats;
  * @version 22-Jan-2024 jak Added new fields current amount due and convenience fee
  * @version 01-Feb-2024 jak	Added account balance
  * @version 17-Mar-2024 jak Added getMonthlyPayment
+ * @version 03-May-2024 jak	Added getLastUpdate
  */
 public interface IUserStatusCacheItem {
 	
@@ -250,4 +251,14 @@ public interface IUserStatusCacheItem {
 	 */
 	abstract public BigDecimal getMonthlyPayment (String cszPaymentGroup, String cszAccountIdentifier) throws AccountStatusException;
 	
+
+	/** 
+	 * Returns time of last update as milliseconds since the UNIX epoch
+	 * 
+	 * @param cszPaymentGroup
+	 * @param cszAccountIdentifier
+	 * @return
+	 * @throws AccountStatusException
+	 */
+	abstract public BigDecimal getLastUpdate(String cszPaymentGroup, String cszAccountIdentifier) throws AccountStatusException;
 }

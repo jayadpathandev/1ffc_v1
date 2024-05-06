@@ -148,6 +148,8 @@ useCase paymentOneTime [
 	import paymentCommon.sDocLocation
 	import paymentCommon.sDocDate
 	
+	string sMinDueLocal
+	
     import apiPayment.pmtRequest			    	
 	import apiPayment.makePaymentUrl	       
     	
@@ -512,6 +514,7 @@ useCase paymentOneTime [
 		)
 		sUserName = getUserName()
         dPayAmount = ""
+        sMinDueLocal = sMinDue
         bImpersonateActive = sImpersonationActive
         goto(getDocuments)
 	] 
@@ -913,7 +916,7 @@ useCase paymentOneTime [
 			    	class: "visually-hidden st-statement"
 			    ]
 			    
-			    display sMinDue [
+			    display sMinDueLocal [
 			    	class: "visually-hidden st-minimum"
 			    ]
 
@@ -1705,7 +1708,7 @@ useCase paymentOneTime [
 									fOtherAmount,
 									token,
 									dWalletItems,
-									sMinDue,
+									sMinDueLocal,
 									sPayData,
 									sTotalPayAmt,
 									sSurCharge,
