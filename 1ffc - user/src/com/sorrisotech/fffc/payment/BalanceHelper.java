@@ -24,6 +24,7 @@ import com.sorrisotech.svcs.itfc.exceptions.MargaritaDataException;
  * @version 2024-Feb-07 jak Added min/max and several minor defect fixes around that.
  * @version 2024-Feb-18 jak Added some checks around bill vs status comparison to prevent
  * 																exceptions should one be empty.
+ * @version 2024-May-07 jak Forced max payment to zero is it was less than zero.
  * 
  */
 public class BalanceHelper extends FffcBalance {
@@ -179,13 +180,15 @@ public class BalanceHelper extends FffcBalance {
 												   cszIntAccount,
 												   cszMaxDate,
 												   cszFileMaxDue);
-		if (ldTrueMaxPaymentAmount.equals(BigDecimal.ZERO)) {
-			return m_cszReturnForInvalid;
+
+		// -- If not greater than zero force return to be zero 
+		//		this only happens if we've received bad status data --
+		if (1 != ldTrueMaxPaymentAmount.compareTo(BigDecimal.ZERO)) {
+			ldTrueMaxPaymentAmount = BigDecimal.ZERO;
 		}
 
 		// -- format it for return --
-		if (!ldTrueMaxPaymentAmount.equals(BigDecimal.ZERO)) {
-			try {
+		try {
 				LocalizedFormat format = new LocalizedFormat(locator, data.getLocale());
 				ldTrueMaxPaymentAmount.setScale(2);
 				lszRetValue = " " + format.formatAmount(cszPayGroup, ldTrueMaxPaymentAmount);
@@ -194,9 +197,8 @@ public class BalanceHelper extends FffcBalance {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				return m_cszReturnForInvalid;
-			}
 		}
-
+		
 		return lszRetValue;
 	}
 	
