@@ -21,9 +21,14 @@
 package com.sorrisotech.svcs.fffcnotify.service;
 
 import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.StringJoiner;
+
+import javax.transaction.Transactional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,9 +36,11 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sorrisotech.client.main.model.response.ContactPrefrences;
+import com.sorrisotech.client.main.model.response.ContactPrefrences.Econsent;
 import com.sorrisotech.persona.notification.preferences.api.IPreferences;
 import com.sorrisotech.persona.notification.preferences.api.PreferencesFactory;
 import com.sorrisotech.svcs.fffcnotify.api.IApiFffcNotify;
+import com.sorrisotech.svcs.fffcnotify.dao.FffcNotifyDao;
 import com.sorrisotech.svcs.notifications.service.NotificationsDao;
 import com.sorrisotech.svcs.serviceapi.api.IRequestInternal;
 import com.sorrisotech.svcs.serviceapi.api.ServiceAPIErrorCode;
@@ -66,6 +73,24 @@ public class SetContactPreferences extends SetContactPreferencesBase {
 	 */
 	private static final NotificationsDao m_cDao = NotificationsDao.get();
 	
+	/**********************************************************************************************
+	 * Dao instance for accessing the database.
+	 */
+	private static final FffcNotifyDao m_cFffcNotifyDao = FffcNotifyDao.get();
+	
+	private static final SimpleDateFormat m_cDateFormatter = new SimpleDateFormat(
+	        "yyyy-MM-dd'T'HH:mm:ss");
+	
+	/**********************************************************************************************
+	 * Attribute name in auth_user_profile for eSignConsentEnabled
+	 */
+	private static final String ECONSENT_ENABLED = "eSignConsentEnabled";
+	
+	/**********************************************************************************************
+	 * Attribute name in auth_user_profile for eSignConsentLastUpdatedTimeStamp
+	 */
+	private static final String ECONSENT_LAST_UPDATED_TIMESTAMP = "eSignConsentLastUpdatedTimeStamp";
+	
 	/**************************************************************************
 	 * 1. Turn the request around. 2. Insert all the configuration parameters. 3.
 	 * Return the request with success.
@@ -87,6 +112,9 @@ public class SetContactPreferences extends SetContactPreferencesBase {
 		
 		final String szTopicPreferences = request
 		        .getString(IApiFffcNotify.SetContactPreferences.topicPrefrences);
+		
+		final String szEconsentData = request
+		        .getString(IApiFffcNotify.SetContactPreferences.eConsentData);
 		
 		LOG.debug("SetContactPreferences:processInternal ..... entered method");
 		
@@ -114,6 +142,10 @@ public class SetContactPreferences extends SetContactPreferencesBase {
 			                new TypeReference<List<ContactPrefrences.TopicPreference>>() {
 			                });
 			
+			// --------------------------------------------------------------------------------------
+			// Converting E-consent data JSON into java objects.
+			final Econsent cEconsent = m_cObjectMapper.readValue(szEconsentData, Econsent.class);
+			
 			// Validating the topic preferences
 			if (!validateRequest(cTopicPreferencesList)) {
 				request.set(IApiFffcNotify.SetContactPreferences.status, "validationError");
@@ -129,9 +161,14 @@ public class SetContactPreferences extends SetContactPreferencesBase {
 			saveUserAddresses(cUserId, cChannelAddressesList, cPreferences);
 			
 			// --------------------------------------------------------------------------------------
-			// Saving all topic preferences of user to databse as per user setting received
+			// Saving all topic preferences of user to database as per user setting received
 			// from JSON request.
 			saveUserTopicPreferences(cUserId, cTopicPreferencesList, cPreferences);
+			
+			// --------------------------------------------------------------------------------------
+			// Saving E-consent data of user to database as per user setting received
+			// from JSON request.
+			saveEconsentData(cUserId, cEconsent);
 			
 			request.set(IApiFffcNotify.SetContactPreferences.status, "good");
 			
@@ -285,6 +322,30 @@ public class SetContactPreferences extends SetContactPreferencesBase {
 		}
 		
 		return isValidRequest;
+	}
+	
+	/*************************************************************************************
+	 * This method can be used to save users e-consent data in auth_user_table
+	 * table based on userId and attribute name.
+	 */
+	@Transactional
+	private static void saveEconsentData(final BigDecimal szUserId, final Econsent econsent) throws ParseException {
+		
+		if (m_cFffcNotifyDao.upsertAuthUserProfile(szUserId, ECONSENT_ENABLED,
+		        String.valueOf(econsent.isActive()))) {
+			m_cFffcNotifyDao.upsertAuthUserProfile(szUserId, ECONSENT_LAST_UPDATED_TIMESTAMP,
+			        convertToEpochTime(econsent.getDateTime()));
+		}
+	}
+	
+	/*************************************************************************************
+	 * This method can be used to convert date into epoch time.
+	 */
+	private static String convertToEpochTime(String dateString) throws ParseException {
+		
+		Date date = m_cDateFormatter.parse(dateString);
+		
+		return String.valueOf(date.getTime());
 	}
 	
 }

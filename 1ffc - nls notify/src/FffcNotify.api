@@ -56,7 +56,7 @@ define service FffcNotify(com.sorrisotech.app.serviceapi.uc.UcRequestClient) [
 	]
 	
 	//*************************************************************************
-    // Set contact preferences of user to database
+    // Set contact preferences of user to database.
     // 
 	define method SetContactPreferences [
 		// Unique identifier of user.
@@ -67,6 +67,8 @@ define service FffcNotify(com.sorrisotech.app.serviceapi.uc.UcRequestClient) [
 		string channelAddresses
 		// All topic preferences settings JSON of user.
 		string topicPrefrences
+		// E-consent data JSON of user.
+		string eConsentData
 		
 	] returns [
 		
