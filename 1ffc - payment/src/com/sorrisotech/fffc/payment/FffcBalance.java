@@ -22,6 +22,7 @@ import com.sorrisotech.fffc.payment.dao.GetPaymentHistoryAmountDaoImpl;
  * 								exceptions should one be empty.
  * @version 2024-Apr-17 jak	Added tests for "0" date which happens if you have no bills
  * 								and are looking for current balance.
+ * @version 2024-May-07 jak Forced max payment to zero if it was less than zero.
  * 
  */
 public class FffcBalance {
@@ -341,6 +342,13 @@ public class FffcBalance {
 		else {
 			ldTrueMaxPayment = ldTempMaxPayment;
 		}
+		
+		// -- if less than or equal to zero for to zero
+		//		only happens when we get bad status information --
+		if (1 != ldTrueMaxPayment.compareTo(BigDecimal.ZERO)) {
+			ldTrueMaxPayment = BigDecimal.ZERO;
+		}
+		
 		m_cLog.debug("getTrueMaximumPayInternal amount to return: {}", ldTrueMaxPayment);
 		
 		return ldTrueMaxPayment;
