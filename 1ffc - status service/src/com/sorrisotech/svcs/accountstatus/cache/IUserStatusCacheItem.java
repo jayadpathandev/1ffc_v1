@@ -253,12 +253,11 @@ public interface IUserStatusCacheItem {
 	
 
 	/** 
-	 * Returns time of last update as milliseconds since the UNIX epoch
+	 * Returns oldest time of last update as milliseconds since the UNIX epoch for all the accounts
+	 * associated with this user
 	 * 
-	 * @param cszPaymentGroup
-	 * @param cszAccountIdentifier
-	 * @return
+	 * @return BigDecimal -- time since last update in milliseconds
 	 * @throws AccountStatusException
 	 */
-	abstract public BigDecimal getLastUpdate(String cszPaymentGroup, String cszAccountIdentifier) throws AccountStatusException;
+	abstract public BigDecimal getLastUpdate() throws AccountStatusException;
 }
