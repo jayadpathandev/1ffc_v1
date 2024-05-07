@@ -27,6 +27,7 @@ import com.sorrisotech.svcs.serviceapi.api.ServiceAPIErrorCode;
  * @author john kowalonek
  * @since  2024-Mar-22
  * @version 2024-Mar-22  jak  First version.
+ * @version 2024-may-07	 jak  Fixed problem where we created the same tm_Account more than once.
  */
 public class GetAccountsForRegistration extends GetAccountsForRegistrationBase {
 
@@ -141,7 +142,7 @@ public class GetAccountsForRegistration extends GetAccountsForRegistrationBase {
 			
 			if (!bFound) {
 				// -- if not found, then add a tm account record into the status field --
-				bRetValue = addAccountToTmAccounts (cszBillPayGroup, lAccountsForRegistration.get(iElementNum));
+				bRetValue = addAccountToTmAccounts (cszBillPayGroup, lAccountsForRegistration.get(i));
 				if (!bRetValue) {
 					LOG.error ("GetAccountsForRegistration:processInternal -- failed to add tm_account record for internal account id {}.", 
 							lAccountsForRegistration.get(iElementNum).m_szInternalAccountId);
