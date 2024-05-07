@@ -20,6 +20,7 @@
  */
 package com.sorrisotech.svcs.fffcnotify.dao;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 
 import org.slf4j.Logger;
@@ -29,6 +30,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 /**************************************************************************************************
@@ -62,6 +64,11 @@ public class FffcNotifyDao {
 	@Autowired
 	@Qualifier("sqlUserIdFromAttrNameAndValue")
 	private String sqlUserIdFromAttrNameAndValue;
+	
+	/**********************************************************************************************
+	 * The SQL to save user profile attributes data in auth_user_profile table.
+	 */
+	private String authUserProfileAddSQL = null;
 	
 	/**********************************************************************************************
 	 * This method is calling sqlUserIdFromAttrNameAndValue query and returning the
@@ -117,4 +124,34 @@ public class FffcNotifyDao {
 		}
 		return singleton;
 	}
+	
+	/**********************************************************************************************
+	 * Used to add/update data in auth_user_profile table.
+	 * 
+	 * @param szUserId    The user id.
+	 * @param szAttrName  The attribute name.
+	 * @param szAttrValue The attribute value.
+	 */
+	public boolean upsertAuthUserProfile(
+	        final BigDecimal szUserId,
+	        final String szAttrName,
+	        final String szAttrValue) {
+		
+		final MapSqlParameterSource authUserProfileParams = new MapSqlParameterSource()
+		        .addValue("id", szUserId)
+		        .addValue("attrname", szAttrName)
+		        .addValue("attrvalue", szAttrValue);
+		
+		return jdbc.update(authUserProfileAddSQL, authUserProfileParams) == 1;
+	}
+	
+	/**********************************************************************************************
+	 * Sets the SQL to update the auth_user_profile table.
+	 * 
+	 * @param authUserProfileAddSQL the authUserProfileAddSQL to set
+	 */
+	public void setAuthUserProfileAddSQL(String authUserProfileAddSQL) {
+		this.authUserProfileAddSQL = authUserProfileAddSQL;
+	}
+	
 }

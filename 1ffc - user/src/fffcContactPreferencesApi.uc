@@ -25,6 +25,7 @@ useCase fffcContactPreferencesApi
     native string sdateTime			  = JsonRequest.value("date_time")
     native string sChannelAddresses   = JsonRequest.value("channel_addresses")
     native string sTopicPreferences   = JsonRequest.value("topic_preferences")
+    native string sEconsent   = JsonRequest.value("econsent")
 
    /*************************
      * MAIN SUCCESS SCENARIO
@@ -77,6 +78,13 @@ useCase fffcContactPreferencesApi
 
     action verifyTopicPreferences [
        switch JsonRequest.exist("topic_preferences") [
+            case "true"   verifyHasEconsentData
+            default       actionBadRequest
+        ]
+    ]
+    
+    action verifyHasEconsentData [
+       switch JsonRequest.exist("econsent") [
             case "true"   verify
             default       actionBadRequest
         ]
@@ -123,6 +131,7 @@ useCase fffcContactPreferencesApi
 		srSetContactPrefsParam.dateTime 		= sdateTime
 		srSetContactPrefsParam.channelAddresses = sChannelAddresses
 		srSetContactPrefsParam.topicPrefrences  = sTopicPreferences
+		srSetContactPrefsParam.eConsentData  	= sEconsent
 		
 		switch apiCall FffcNotify.SetContactPreferences(srSetContactPrefsParam, srSetContactPrefsStatus, srSetContactPrefsResult)[
 			case apiSuccess actionCheckStatus

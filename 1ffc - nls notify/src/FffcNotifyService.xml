@@ -37,6 +37,76 @@
 	</bean>
 
 	<bean id="dao" class="com.sorrisotech.svcs.fffcnotify.dao.FffcNotifyDao">
+		<property name="authUserProfileAddSQL" ref="authUserProfileAddSQL.${database}"/>
+	</bean>
+	
+	<bean name="authUserProfileAddSQL.postgres" class="java.lang.String">
+    	<constructor-arg>
+    		<value>
+    			<![CDATA[
+    				INSERT INTO auth_user_profile (
+						id,
+						attrname,
+						attrvalue
+					) VALUES (
+						:id,
+						:attrname,
+						:attrvalue
+					) ON CONFLICT (
+						id,
+						attrname
+					) DO UPDATE SET 
+						attrvalue = :attrvalue
+    			]]>
+    		</value>
+    	</constructor-arg>
+    </bean>
+    
+    <bean name="authUserProfileAddSQL.mysql" class="java.lang.String">
+	    <constructor-arg>
+	        <value>
+	            <![CDATA[
+	                INSERT INTO auth_user_profile (
+	                    id,
+						attrname,
+						attrvalue
+	                ) VALUES (
+	                    :id,
+						:attrname,
+						:attrvalue
+	                ) ON DUPLICATE KEY UPDATE 
+						attrvalue = :attrvalue
+	            ]]>
+	        </value>
+	    </constructor-arg>
+	</bean>
+	
+	<bean name="authUserProfileAddSQL.oracle" class="java.lang.String">
+	    <constructor-arg>
+	        <value>
+	            <![CDATA[
+	                MERGE INTO auth_user_profile aup
+	                USING dual
+	                ON (
+	                    aup.id = :id AND
+	                    aup.attrname = :attrname
+	                )
+	                WHEN MATCHED THEN
+	                    UPDATE SET 
+							aup.attrvalue = :attrvalue
+	                WHEN NOT MATCHED THEN
+	                    INSERT (
+	                        aup.id,
+							aup.attrname,
+							aup.attrvalue
+	                    ) VALUES (
+	                        :id,
+							:attrname,
+							:attrvalue
+	                    )
+	            ]]>
+	        </value>
+	    </constructor-arg>
 	</bean>
 
 </beans>
