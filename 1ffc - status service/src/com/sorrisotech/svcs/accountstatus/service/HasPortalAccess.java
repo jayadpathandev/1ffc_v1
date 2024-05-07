@@ -46,7 +46,7 @@ public class HasPortalAccess extends HasPortalAccessBase {
 		if (null != cacheItem) {
 		try {
 			request.set(IApiAccountStatus.HasPortalAccess.portalAccess, cacheItem.hasPortalAccess().toString());
-//			request.set(IApiAccountStatus.HasPortalAccess.lastUpdateTimestamp, cacheItem.getLastUpdate(sPaymentGroup, sPaymentGroup)
+			request.set(IApiAccountStatus.HasPortalAccess.lastUpdateTimestamp, cacheItem.getLastUpdate());
 				rVal = ServiceAPIErrorCode.Success;
 			} catch (AccountStatusException e) {
 				LOG.error("HasPortalAccess:processInternal -- failed to get access info for user {}, group {}",

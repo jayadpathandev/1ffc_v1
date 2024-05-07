@@ -369,11 +369,23 @@ public class UserStatusCacheItem implements IUserStatusCacheItem, IUserStatusIte
 	}
 
 	@Override
-	public BigDecimal getLastUpdate(String cszPaymentGroup, String cszAccountIdentifier) throws AccountStatusException {
-		// TODO Auto-generated method stub
-		AccountStatusElement lStatusElement = getStatusElement(cszPaymentGroup, cszAccountIdentifier);
-		BigDecimal ldLastUpdate = lStatusElement.getLastUpdate();
-		return ldLastUpdate;
+	public BigDecimal getLastUpdate() throws AccountStatusException {
+
+		// -- returning the the oldest update across all accounts --
+		Boolean bFirst = true;
+		BigDecimal ldReturnValue = BigDecimal.ZERO;
+		
+		for (HashMap.Entry< AccountKey, AccountStatusElement> entry :  AccountStatusMap.entrySet()) {
+			// -- first time just assign --
+			if (bFirst) {
+				ldReturnValue = entry.getValue().getLastUpdate();
+				bFirst = false;
+			// -- compare to current if less than assign to current --
+			} else if (1 == ldReturnValue.compareTo(entry.getValue().getLastUpdate())) {
+				ldReturnValue = entry.getValue().getLastUpdate();
+			}
+		}
+		return ldReturnValue;
 	}
 	
 	

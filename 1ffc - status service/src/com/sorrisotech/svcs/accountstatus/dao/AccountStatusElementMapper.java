@@ -3,6 +3,7 @@ package com.sorrisotech.svcs.accountstatus.dao;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,7 +73,13 @@ public class AccountStatusElementMapper implements RowMapper<AccountStatusElemen
 		lAcctStats.setDebitConvenienceFee(getSafeBigDecimal(arg0.getString("debit_convenience_fee"),"debit_convenience_fee",lAcctStats));
 		lAcctStats.setAccountBalance(getSafeBigDecimal(arg0.getString("account_balance"), "account_balance", lAcctStats));
 		
+		// -- get the timestamp --
+		Timestamp ltimestamp = arg0.getTimestamp("last_updated");
+		BigDecimal ldtime = new BigDecimal(ltimestamp.getTime());
+		lAcctStats.setLastUpdate(ldtime);
+		
 		LOG.debug("AccountStatusElement mapping complete ", lAcctStats);
+		
 		
 		return lAcctStats;
 	}
