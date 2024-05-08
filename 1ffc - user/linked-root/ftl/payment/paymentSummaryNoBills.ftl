@@ -81,7 +81,7 @@
 											and automatic payment rule set  -->
 							<#if status.bAutoPayLinkEnabled>
 								<#--  automatic payment is enabled -->
-								<a class="text-nowrap" href="jumpToAutoPay?offset=${AccountOffset}">Set&nbsp;up&nbsp;recurring&nbsp;payments</a>				
+								<a class="text-nowrap" href="jumpToAutoPay?offset=${jumpToOffset}">Set&nbsp;up&nbsp;recurring&nbsp;payments</a>				
 							<#else>
 								<#--  automatic payment is disabled -->
 								<a class="text-nowrap disabled pe-none opacity-50" aria-disabled="true">Set&nbsp;up&nbsp;recurring&nbsp;payment</a>				
