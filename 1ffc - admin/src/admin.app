@@ -144,14 +144,12 @@ application [
             document
             payment
             doc_search_assist 
-            view_audit_log
             video
         ]
         
         role Role_Admin_DocumentController [
             profile
             document
-//          doc_search_assist 
             documentController
          ]
 	]
