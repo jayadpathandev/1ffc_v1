@@ -178,9 +178,9 @@ useCase adminListUsers [
     /** I18N values used by the JAVA codee */
     static Role_Admin_SystemAdmin = "{System Administrator}"
     static Role_Admin_Company = "{Company Administrator}"
-    static Role_Admin_OrganizationAdmin = "{Agent Administrator}"
-    static Role_Admin_Agent = "{Agent}"
-    static Role_Admin_DocumentController = "{Agent Document Controller}"
+    static Role_Admin_OrganizationAdmin = "{Sorriso Admin SystemAdmin}"
+    static Role_Admin_Agent = "{Sorriso Admin Agent}"
+    static Role_Admin_DocumentController = "{Sorriso Admin Agent Document Controller}"
     static Role_Biz_OrganizationAdmin = "{Organization Administrator}"
     static Role_Biz_Admin = "{Manager}"
     static Role_Biz_EndUser = "{End User}"

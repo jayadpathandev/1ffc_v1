@@ -166,8 +166,8 @@ useCase documentSearch [
 	    string(label) sLabel = "{Document type:}" 
         dropDown (control) pInput [
         	None: ""
-	        Letter: "{Letter}"
-	        Statement: "{Statement}"
+	        Letter: "{Letters}"
+	        Statement: "{Statements}"
 	        CommunicateEmails: "{Communicate emails}"
 	        RecAuthorizations: "{Recurring EFT authorizations}"
 			OnlineApplications: "{Online applications}"

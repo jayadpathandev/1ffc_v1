@@ -38,15 +38,15 @@ public class User1FFCUtil {
 				break;
 				
 			case Role1FFCConstants.ROLE_ADMIN_ORGANIZATION_ADMIN:
-				zsReturn = cI18n.internationalize(cData, "adminListUsers_Role_Admin_OrganizationAdmin", "{Agent Administrator}");
+				zsReturn = cI18n.internationalize(cData, "adminListUsers_Role_Admin_OrganizationAdmin", "{Sorriso Admin SystemAdmin}");
 				break;
 				
 			case Role1FFCConstants.ROLE_ADMIN_AGENT:
-				zsReturn = cI18n.internationalize(cData, "adminListUsers_Role_Admin_Agent", "{Agent}");
+				zsReturn = cI18n.internationalize(cData, "adminListUsers_Role_Admin_Agent", "{Sorriso Admin Agent}");
 				break;
 			
 			case Role1FFCConstants.ROLE_ADMIN_DOCUMENT_CONTROLLER:
-				zsReturn = cI18n.internationalize(cData, "adminListUsers_Role_Admin_DocumentController", "{Agent Document Controller}");
+				zsReturn = cI18n.internationalize(cData, "adminListUsers_Role_Admin_DocumentController", "{Sorriso Admin Document Controller}");
 				break;
 			}
 		
