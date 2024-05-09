@@ -53,6 +53,7 @@ useCase overview [
     importJava ParentOverview(com.sorrisotech.uc.overview.ParentOverview)
 	importJava Config(com.sorrisotech.utils.AppConfig)
 	importJava TermsAndConditions(com.sorrisotech.fffc.user.TermsAndConditions)
+	importJava UcHelper(com.sorrisotech.fffc.user.UcHelper)
     
     import billCommon.sBillAccountInternal
 	import billCommon.sBillGroup
@@ -76,8 +77,6 @@ useCase overview [
     
     serviceStatus srEconsentNlsStatus
 	serviceParam(FffcNotify.SetEconsentNls) srSetEconsentNlsReq
-	serviceParam(FffcNotify.GetEconsentStatusNls) srGetEconsentNlsReq
-	serviceResult(FffcNotify.GetEconsentStatusNls) srGetEconsentNlsResult
 	
     serviceStatus srOverviewStatus	
     serviceParam(Documents.AccountOverview) srAcctsParam
@@ -98,7 +97,11 @@ useCase overview [
 	native string payGroup
 	native string offset
 	
-    native string sOrgId
+	native string sOrgId
+    number eSignConsentLastUpdatedTimeStampProfile
+    native string sIsConsentDataUpdatedRecently
+    native string eSignConsentEnabled
+    native volatile string sCurrentEpochTime = UcHelper.getCurrentEpochTime()
   
 	string sPageHeader = "{Account overview}"
     
@@ -146,30 +149,32 @@ useCase overview [
 		switch srHasPortalAccessResult.portalAccess [
 			case enabled			getOnlineEligibleAccounts
 			case disabledUser 		genericErrorMsg
-			case disabledEconsent	getEconsentDataNls
+			case disabledEconsent	compareEconsentLastUpdatedTime
 			default 				genericErrorMsg
 		]
 	]
 	
-	/* 0b. Gets consent data from NLS if disabledEconsent*/
-	action getEconsentDataNls [
-		loadProfile(            
-            fffcCustomerId: sOrgId   
+	/* 0b. Compare last updated time-stamp if disabledEconsent*/
+	action compareEconsentLastUpdatedTime [
+		loadProfile(
+			eSignConsentEnabled: eSignConsentEnabled            
+            eSignConsentLastUpdatedTimeStamp: eSignConsentLastUpdatedTimeStampProfile   
             )
-        srGetEconsentNlsReq.customerId = sOrgId    
-            
-		switch apiCall FffcNotify.GetEconsentStatusNls(srGetEconsentNlsReq, srGetEconsentNlsResult, srGetOnlineAcctsStatus)[
-			case apiSuccess isEconsentEnabledAtNls
-			default genericErrorMsg
-		]
+        UcHelper.isConsentUpdatedRecently(eSignConsentLastUpdatedTimeStampProfile , srHasPortalAccessResult.lastUpdateTimestamp, sIsConsentDataUpdatedRecently)
+        
+        if sIsConsentDataUpdatedRecently == "true" then 
+           checkEconsentStatusUserProfile
+        else 
+           regTermsAndConditionsScreen
 	]
 	
 	/* 0c. Checks consent is enabled at NLS side or not.*/
-	action isEconsentEnabledAtNls [
-		if srGetEconsentNlsResult.sConsentActive == "false" then
-		 regTermsAndConditionsScreen
+	action checkEconsentStatusUserProfile [
+		
+		if eSignConsentEnabled == "false" then
+		  regTermsAndConditionsScreen
 		else
-		 getOnlineEligibleAccounts
+		  getOnlineEligibleAccounts
 	]
 	
 	/* 0d. System retrieves the accounts this user is eligible to view online */
@@ -387,7 +392,8 @@ useCase overview [
     action actionUpdateConsentFlag [
      	updateProfile(
         	userId: sUserId        	
-            eSignConsentEnabled: "true"   
+            eSignConsentEnabled: "true"
+            eSignConsentLastUpdatedTimeStamp: sCurrentEpochTime   
             )
      	        
         if success then saveEconsentAtNls
