@@ -97,6 +97,7 @@ useCase fffcReg99B2C [
     native string sOperation = "User signed consent related to terms and conditions during registration process."
     native string bIsConsentActive = "true"
     native string sAppType = Session.getAppType()
+    native volatile string sCurrentEpochTime = FffcRegistration.getCurrentEpochTime()
 	
     serviceParam (Profile.AddLocationTrackedEvent) setLocationData
 	serviceResult (Profile.AddLocationTrackedEvent) setLocationResp
@@ -285,7 +286,8 @@ useCase fffcReg99B2C [
         	secretQuestionAnswer3: fSecretAnswer3.pInput
             secretQuestionAnswer4: fSecretAnswer4.pInput
             securityImage: imageId   
-            eSignConsentEnabled: "true"   
+            eSignConsentEnabled: "true"
+            eSignConsentLastUpdatedTimeStamp: sCurrentEpochTime   
             )
         if success then saveEmailAddress
         if failure then deleteUserProfile    

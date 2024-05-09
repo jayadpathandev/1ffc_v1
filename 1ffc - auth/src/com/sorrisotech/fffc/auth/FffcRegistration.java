@@ -30,6 +30,7 @@ import com.sorrisotech.utils.AppConfig;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -155,6 +156,12 @@ public class FffcRegistration {
 		if (companyId != null) {
 			CompanyManagementFactory.getCompanyRepository().delete(companyId);
 		}
+    }
+	
+	// ************************************************************************
+	// This method returns current UNIX epoch time stamp.
+	public static String getCurrentEpochTime() {
+        return String.valueOf(new Date().getTime());
     }
 	
 }
