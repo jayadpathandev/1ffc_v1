@@ -1,7 +1,7 @@
 output.dir    =
 devkit.dir    =
 artifacts.dir =
-release.package =
+release.dir   =
 
 base.local.url  = http://localhost:8080/
 base.public.url = https://1ffc.server2.sorrisoqa.com/
