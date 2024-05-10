@@ -1,4 +1,4 @@
-<project name="1ffc" default="package" basedir=".">
+<project name="1ffc" default="package" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
 
     <target name="-init">
         <available property="has.build.properties" file="build.properties"/>
@@ -11,16 +11,25 @@
         </fail>
 
         <loadproperties srcFile="build.properties"/>
+        <property name="dss.dir"         value="${artifacts.dir}/dss"/>
+    	<property name="mod.package.dir" value="${artifacts.dir}/package/"/>
 
         <mkdir dir="${output.dir}"/>
         <mkdir dir="${artifacts.dir}"/>
 
-    	<property name="mod.package.dir" value="${artifacts.dir}/package/"/>
+        <mkdir dir="${dss.dir}"/>
+        <unzip src="${release.dir}/package.zip" dest="${dss.dir}"/>
 
         <mkdir dir="${output.dir}/apps"/>
         <mkdir dir="${output.dir}/apps/admin"/>
         <mkdir dir="${output.dir}/apps/auth"/>
         <mkdir dir="${output.dir}/apps/user"/>
+
+		<mkdir dir="${artifacts.dir}/build/3rd-party-apis"/>
+    	<ivy:settings/>
+    	<ivy:resolve/>
+    	<ivy:retrieve type="jar,bundle" pattern="${artifacts.dir}/build/3rd-party-apis/[artifact]-[revision].[ext]" setId="api-jars"/>
+
     </target>
 
     <target name="clean">
@@ -30,7 +39,18 @@
         <delete dir="${artifacts.dir}"/>
     </target>
 
-    <target name="update" depends="-init">
+    <target name="update">
+        <available property="has.build.properties" file="build.properties"/>
+        <fail unless="has.build.properties">
+            Please copy build.properties.template to build.properties and edit it for your system.
+        </fail>
+        <uptodate property="uptodate.build.properties" srcfile="build.properties.template" targetfile="build.properties"/>
+        <fail unless="uptodate.build.properties">
+            The build.properties.template file has been updated. Please merge and edit any changes over.
+        </fail>
+
+        <loadproperties srcFile="build.properties"/>
+
         <mkdir dir="${artifacts.dir}/update"/>
         <javac srcdir="1ffc - update/src"
                destdir="${artifacts.dir}/update"
@@ -65,30 +85,50 @@
     </target>
 
     <target name="package-libraries">
-        <ant dir="1ffc - nls api service" inheritAll="false" inheritRefs="false"/>
+        <ant dir="1ffc - nls api service" inheritAll="false" inheritRefs="false">
+            <property name="dss.dir" value="${dss.dir}"/>
+        </ant>
         <ant dir="1ffc - nls api library" inheritAll="false" inheritRefs="false"/>
-        <ant dir="1ffc - extdoc" inheritAll="false" inheritRefs="false"/>
-        <ant dir="1ffc - status service" inheritAll="false" inheritRefs="false"/>
-		<ant dir="1ffc - nls notify" inheritAll="false" inheritRefs="false"/>
-        <ant dir="1ffc - payment" inheritAll="false" inheritRefs="false"/>
-        <ant dir="1ffc batch - status processor" inheritAll="false" inheritRefs="false"/>
-        <ant dir="1ffc - transaction history batch" inheritAll="false" inheritRefs="false"/>
-        <ant dir="1ffc - agent pay" inheritAll="false" inheritRefs="false"/>
-        <ant dir="1ffc - document esign library" inheritAll="false" inheritRefs="false"/>
-        <ant dir="1ffc - document esign service" inheritAll="false" inheritRefs="false"/>
+        <ant dir="1ffc - extdoc" inheritAll="false" inheritRefs="false">
+            <property name="dss.dir" value="${dss.dir}"/>
+        </ant>
+        <ant dir="1ffc - status service" inheritAll="false" inheritRefs="false">
+            <property name="dss.dir" value="${dss.dir}"/>
+        </ant>
+		<ant dir="1ffc - nls notify" inheritAll="false" inheritRefs="false">
+            <property name="dss.dir" value="${dss.dir}"/>
+        </ant>
+        <ant dir="1ffc - payment" inheritAll="false" inheritRefs="false">
+            <property name="dss.dir" value="${dss.dir}"/>
+        </ant>
+        <ant dir="1ffc batch - status processor" inheritAll="false" inheritRefs="false">
+            <property name="dss.dir" value="${dss.dir}"/>
+        </ant>
+        <ant dir="1ffc - transaction history batch" inheritAll="false" inheritRefs="false">
+            <property name="dss.dir" value="${dss.dir}"/>
+        </ant>
+        <ant dir="1ffc - agent pay" inheritAll="false" inheritRefs="false">
+            <property name="dss.dir" value="${dss.dir}"/>
+        </ant>
+        <ant dir="1ffc - document esign library" inheritAll="false" inheritRefs="false">
+            <property name="dss.dir" value="${dss.dir}"/>
+        </ant>
+        <ant dir="1ffc - document esign service" inheritAll="false" inheritRefs="false">
+            <property name="dss.dir" value="${dss.dir}"/>
+        </ant>
         <ant dir="batch" inheritAll="false" inheritRefs="false"/>
     </target>
 
     <target name="-build.extdoc.uc" depends="-init">
-        <delete dir="${artifacts.dir}/extdoc"/>
+        <delete dir="${artifacts.dir}/build/extdoc"/>
         <mkdir  dir="${output.dir}/apps/extdoc"/>
 
-        <copy todir="${artifacts.dir}/extdoc" overwrite="true" flatten="true">
-            <fileset dir="${devkit.dir}/app - extdoc/usecases"/>
+        <copy todir="${artifacts.dir}/build/extdoc">
+            <fileset dir="${dss.dir}/uc/extdoc/"/>
         </copy>
 
-        <ant dir="${devkit.dir}/build" antfile="persona.xml" inheritAll="false" inheritRefs="false">
-            <property name="usecase.directories" value="${artifacts.dir}/extdoc"/>
+        <ant dir="${dss.dir}/uc/build" antfile="persona.xml" inheritAll="false" inheritRefs="false">
+            <property name="usecase.directories" value="${artifacts.dir}/build/extdoc"/>
             <property name="usecase.output" value="${output.dir}/apps/extdoc"/>
         </ant>
     </target>
@@ -96,26 +136,13 @@
     <target name="build.extdoc" depends="-init, -build.extdoc.uc, package-libraries">
         <mkdir dir="${output.dir}/apps/extdoc"/>
 
-        <!-- Copy the classpath from the base application -->
-        <mkdir dir="${output.dir}/apps/extdoc/classes"/>
-        <copy todir="${output.dir}/apps/extdoc/classes" overwrite="true">
-            <fileset dir="${devkit.dir}/app - extdoc/resources">
-            	<exclude name="linked-root/**"/>
-            	<exclude name="layout-pages/**"/>
+		<!-- Grab the base resources. -->
+        <copy todir="${output.dir}/apps/extdoc">
+            <fileset dir="${dss.dir}/apps/extdoc">
+            	<exclude name="internationalization/**"/>
+            	<exclude name="usecaes/**"/>
+                <exclude name="extdoc.xml"/>
             </fileset>
-        </copy>
-
-		<!-- Usecases/I18N/services from the base application. -->
-        <copy todir="${output.dir}/apps/extdoc/" overwrite="true">
-        	<fileset dir="${devkit.dir}/app - extdoc/resources" includes="config.properties"/>
-        	<fileset dir="${devkit.dir}/app - extdoc/resources" includes="services/*.xml"/>
-            <fileset dir="${devkit.dir}/app - extdoc" includes="lib/*.jar" excludes="lib/persona-jetty.jar"/>
-        </copy>
-
-    	<!-- Copy the linked-root and layout-pages from the base application. -->
-        <copy todir="${output.dir}/apps/extdoc/" overwrite="true">
-            <fileset dir="${devkit.dir}/app - extdoc/resources" includes="linked-root/**/*.*"/>
-        	<fileset dir="${devkit.dir}/app - extdoc/resources" includes="layout-pages/**/*.*"/>
         </copy>
 
     	<!-- Copy the NLS driver -->
@@ -133,19 +160,21 @@
         <delete dir="${artifacts.dir}/build/admin"/>
         <mkdir  dir="${output.dir}/apps/admin"/>
 
-        <copy todir="${artifacts.dir}/build/admin" overwrite="true" flatten="true">
-            <fileset dir="${devkit.dir}/app - admin/usecases"/>
+        <copy todir="${artifacts.dir}/build/admin">
+            <fileset dir="${dss.dir}/uc/admin/"/>
         </copy>
 
         <copy todir="${artifacts.dir}/build/admin" overwrite="true" flatten="true">
             <fileset dir="1ffc - admin/src">
                 <include name="**/*.app"/>
                 <include name="**/*.uc"/>
+                <include name="**/*.lib"/>
+                <include name="**/*.api"/>
             </fileset>
             <fileset dir="${artifacts.dir}/package/admin/usecases"/>
         </copy>
 
-        <ant dir="${devkit.dir}/build" antfile="persona.xml" inheritAll="false" inheritRefs="false">
+        <ant dir="${dss.dir}/uc/build" antfile="persona.xml" inheritAll="false" inheritRefs="false">
             <property name="usecase.directories" value="${artifacts.dir}/build/admin"/>
             <property name="usecase.output" value="${output.dir}/apps/admin"/>
         </ant>
@@ -156,23 +185,13 @@
     <target name="build.admin" depends="-init, -build.admin.uc, package-libraries">
         <mkdir dir="${output.dir}/apps/admin"/>
 
-        <!-- Copy the classpath from the base application -->
-        <mkdir dir="${output.dir}/apps/admin/classes"/>
-
-        <copy todir="${output.dir}/apps/admin/classes" overwrite="true">
-            <fileset dir="${devkit.dir}/app - admin/resources">
-            	<exclude name="linked-root/**"/>
-            	<exclude name="layout-pages/**"/>
-                <exclude name="audit_config.xml"/>
-                <exclude name="roles_config.xml"/>
+		<!-- Grab the base resources. -->
+        <copy todir="${output.dir}/apps/admin">
+            <fileset dir="${dss.dir}/apps/admin">
+            	<exclude name="internationalization/**"/>
+            	<exclude name="usecaes/**"/>
+                <exclude name="admin.xml"/>
             </fileset>
-        </copy>
-
-		<!-- Usecases/I18N/services from the base application. -->
-        <copy todir="${output.dir}/apps/admin/" overwrite="true">
-        	<fileset dir="${devkit.dir}/app - admin/resources" includes="config.properties"/>
-        	<fileset dir="${devkit.dir}/app - admin/resources" includes="services/*.xml"/>
-            <fileset dir="${devkit.dir}/app - admin" includes="lib/*.jar" excludes="lib/persona-jetty.jar"/>
         </copy>
 
     	<!-- Copy the linked-root and layout-pages from the base application. -->
@@ -214,6 +233,10 @@
             <fileset dir="${artifacts.dir}/package/admin/jars"/>
         </copy>
 
+    	<propertyfile file="${output.dir}/apps/admin/classes/db/common.properties">
+            <entry key="database" value="postgres"/>
+        </propertyfile>
+
     	<propertyfile file="${output.dir}/apps/admin/internationalization/topics_en.properties">
             <entry key="topics_system" value="System alerts"/>
     		<entry key="topics_account" value="Account alerts"/>
@@ -243,8 +266,8 @@
         <delete dir="${artifacts.dir}/build/auth"/>
         <mkdir  dir="${output.dir}/apps/auth"/>
 
-        <copy todir="${artifacts.dir}/build/auth" overwrite="true" flatten="true">
-            <fileset dir="${devkit.dir}/app - auth/usecases"/>
+        <copy todir="${artifacts.dir}/build/auth">
+            <fileset dir="${dss.dir}/uc/auth/"/>
         </copy>
 
         <copy todir="${artifacts.dir}/build/auth" overwrite="true" flatten="true">
@@ -266,33 +289,16 @@
     <target name="build.auth" depends="-init, -build.auth.uc, package-libraries">
         <mkdir dir="${output.dir}/apps/auth"/>
 
-        <!-- Copy the classpath from the base application -->
-        <mkdir dir="${output.dir}/apps/auth/classes"/>
-        <copy todir="${output.dir}/apps/auth/classes">
-            <fileset dir="${devkit.dir}/app - auth/resources">
-            	<exclude name="linked-root/**"/>
-            	<exclude name="layout-pages/**"/>
-                <exclude name="app-config.properties"/>
-                <exclude name="audit_config.xml"/>
-                <exclude name="roles_config.xml"/>
+		<!-- Grab the base resources. -->
+        <copy todir="${output.dir}/apps/auth">
+            <fileset dir="${dss.dir}/apps/auth">
+            	<exclude name="internationalization/**"/>
+            	<exclude name="usecaes/**"/>
+                <exclude name="auth.xml"/>
             </fileset>
-            <fileset dir="${devkit.dir}/app - admin/resources">
-                <include name="org-id/**.*"/>
+            <fileset dir="${dss.dir}/apps/admin">
+                <include name="classes/org-id/*"/>
             </fileset>
-        </copy>
-
-		<!-- Usecases/I18N/services from the base application. -->
-        <copy todir="${output.dir}/apps/auth/" overwrite="true">
-        	<fileset dir="${devkit.dir}/app - auth/resources" includes="config.properties"/>
-        	<fileset dir="${devkit.dir}/app - auth/resources" includes="services/*.xml"/>
-            <fileset dir="${devkit.dir}/app - auth" includes="lib/*.jar" excludes="lib/persona-jetty.jar"/>
-            <fileset dir="${devkit.dir}/app - admin" includes="lib/serviceOrgId.jar"/>
-        </copy>
-
-    	<!-- Copy the linked-root and layout-pages from the base application. -->
-        <copy todir="${output.dir}/apps/auth/" overwrite="true">
-            <fileset dir="${devkit.dir}/app - auth/resources" includes="linked-root/**/*.*"/>
-        	<fileset dir="${devkit.dir}/app - auth/resources" includes="layout-pages/**/*.*"/>
         </copy>
 
     	<!-- Copy the common resources from 1ffc common to the application. -->
@@ -327,14 +333,17 @@
 
         <javac srcdir="1ffc - auth/src" destdir="${output.dir}/apps/auth/classes/" includeAntRuntime="false">
             <classpath>
-                <fileset dir="${devkit.dir}/app - auth/lib">
+                <fileset dir="${dss.dir}/apps/auth/lib">
                     <include name="*.jar"/>
                 </fileset>
-                <fileset dir="${devkit.dir}/app - admin/lib">
+                <fileset dir="${dss.dir}/apps/admin/lib">
                     <include name="serviceOrgId.jar"/>
                 </fileset>
 				<fileset dir="${mod.package.dir}/auth/jars">
 					<include name="*.jar"/>
+				</fileset>
+				<fileset dir="${dss.dir}/server/lib">
+					<include name="persona-api*.jar"/>
 				</fileset>
             </classpath>
         </javac>
@@ -342,19 +351,22 @@
 				<fileset dir="${mod.package.dir}/auth/jars">
 					<include name="*.jar"/>
 				</fileset>
-            <fileset dir="${devkit.dir}/app - admin/lib">
+            <fileset dir="${dss.dir}/apps/admin/lib">
                 <include name="serviceOrgId.jar"/>
             </fileset>
         </copy>
+
+    	<propertyfile file="${output.dir}/apps/auth/classes/db/common.properties">
+            <entry key="database" value="postgres"/>
+        </propertyfile>
     </target>
 
     <target name="-build.user.uc" depends="-init">
         <delete dir="${artifacts.dir}/build/user"/>
         <mkdir  dir="${output.dir}/apps/user"/>
 
-        <copy todir="${artifacts.dir}/build/user" overwrite="true" flatten="true">
-            <fileset dir="${devkit.dir}/app - user/usecases"/>
-            <fileset dir="${artifacts.dir}/package/user/usecases"/>
+        <copy todir="${artifacts.dir}/build/user">
+            <fileset dir="${dss.dir}/uc/user/"/>
         </copy>
 
         <copy todir="${artifacts.dir}/build/user" overwrite="true" flatten="true">
@@ -363,10 +375,10 @@
                 <include name="*.uc"/>
                 <include name="*.lib"/>
             </fileset>
-			<fileset dir="${mod.package.dir}/auth/usecases"/>
+			<fileset dir="${mod.package.dir}/user/usecases"/>
         </copy>
 
-        <ant dir="${devkit.dir}/build" antfile="persona.xml" inheritAll="false" inheritRefs="false">
+        <ant dir="${dss.dir}/uc/build" antfile="persona.xml" inheritAll="false" inheritRefs="false">
             <property name="usecase.directories" value="${artifacts.dir}/build/user"/>
             <property name="usecase.output"      value="${output.dir}/apps/user"/>
         </ant>
@@ -376,33 +388,16 @@
     <target name="build.user" depends="-init, -build.user.uc, package-libraries">
         <mkdir dir="${output.dir}/apps/user"/>
 
-        <!-- Copy the classpath from the base application -->
-        <mkdir dir="${output.dir}/apps/user/classes"/>
-
-        <copy todir="${output.dir}/apps/user/classes" overwrite="true">
-            <fileset dir="${devkit.dir}/app - user/resources">
-            	<exclude name="linked-root/**"/>
-            	<exclude name="layout-pages/**"/>
-                <exclude name="roles_config.xml"/>
-                <exclude name="audit_config.xml"/>
+		<!-- Grab the base resources. -->
+        <copy todir="${output.dir}/apps/user">
+            <fileset dir="${dss.dir}/apps/user">
+            	<exclude name="internationalization/**"/>
+            	<exclude name="usecaes/**"/>
+                <exclude name="admin.xml"/>
             </fileset>
-            <fileset dir="${devkit.dir}/app - admin/resources">
-                <include name="org-id/**.*"/>
+            <fileset dir="${dss.dir}/apps/admin">
+                <include name="classes/org-id/*"/>
             </fileset>
-            <fileset dir="${mod.package.dir}/user/classes"/>
-        </copy>
-
-		<!-- Usecases/I18N/services from the base application. -->
-        <copy todir="${output.dir}/apps/user/" overwrite="true">
-        	<fileset dir="${devkit.dir}/app - user/resources" includes="config.properties"/>
-        	<fileset dir="${devkit.dir}/app - user/resources" includes="services/*.xml"/>
-            <fileset dir="${devkit.dir}/app - user" includes="lib/*.jar" excludes="lib/persona-jetty.jar"/>
-        </copy>
-
-    	<!-- Copy the linked-root and layout-pages from the base application. -->
-        <copy todir="${output.dir}/apps/user/" overwrite="true">
-            <fileset dir="${devkit.dir}/app - user/resources" includes="linked-root/**/*.*"/>
-        	<fileset dir="${devkit.dir}/app - user/resources" includes="layout-pages/**/*.*"/>
         </copy>
 
     	<!-- Copy the common resources from 1ffc common to the application. -->
@@ -420,7 +415,10 @@
 		<copy todir="${output.dir}/apps/user" overwrite="true">
             <fileset dir="1ffc - user" includes="layout-pages/**/*"/>
             <fileset dir="1ffc - user" includes="linked-root/**/*"/>
-            <fileset dir="${mod.package.dir}/user" includes="linked-root/**/*"/>
+            <fileset dir="${mod.package.dir}/user">
+                <include name="linked-root/**/*"/>
+                <include name="classes/**/*"/>
+            </fileset>
         </copy>
 
         <propertyfile file="${output.dir}/apps/user/classes/app-config.properties">
@@ -432,18 +430,23 @@
 
         <javac srcdir="1ffc - user/src" destdir="${output.dir}/apps/user/classes/" includeAntRuntime="false">
             <src path="1ffc - user/src"/>
-            <src path="1ffc - agent pay/src"/>
             <classpath>
                 <fileset dir="${output.dir}/apps/user/lib">
                     <include name="1ffcUser.jar"/>
                 </fileset>
-                <fileset dir="${devkit.dir}/app - user/lib">
+                <fileset dir="${dss.dir}/apps/user/lib">
                     <include name="*.jar"/>
                 </fileset>
-                <fileset dir="${devkit.dir}/app - admin/lib">
+                <fileset dir="${dss.dir}/apps/admin/lib">
                     <include name="serviceOrgId.jar"/>
                 </fileset>
 				<fileset dir="${mod.package.dir}/user/jars">
+					<include name="*.jar"/>
+				</fileset>
+				<fileset dir="${dss.dir}/server/lib">
+					<include name="persona-api*.jar"/>
+				</fileset>
+				<fileset dir="${artifacts.dir}/build/3rd-party-apis">
 					<include name="*.jar"/>
 				</fileset>
             </classpath>
@@ -464,10 +467,14 @@
             <fileset dir="${mod.package.dir}/user/jars">
                 <include name="*.jar"/>
             </fileset>
-            <fileset dir="${devkit.dir}/app - admin/lib">
+            <fileset dir="${dss.dir}/apps/admin/lib">
                 <include name="serviceOrgId.jar"/>
             </fileset>
         </copy>
+
+    	<propertyfile file="${output.dir}/apps/admin/classes/db/common.properties">
+            <entry key="database" value="postgres"/>
+        </propertyfile>
 
     	<propertyfile file="${output.dir}/apps/user/internationalization/topics_en.properties">
             <entry key="topics_system" value="System alerts"/>
@@ -491,13 +498,13 @@
 
     <target name="package-communicate" depends="-init">
         <mkdir dir="${output.dir}/batch/payment_reconciliation/resources"/>
-        <copy file="${devkit.dir}/batch - payment reconciliation/resources/reconciliation.properties" todir="${output.dir}/batch/payment_reconciliation/resources"/>
+        <copy file="${dss.dir}/batch/payment_reconciliation/resources/reconciliation.properties" todir="${output.dir}/batch/payment_reconciliation/resources"/>
         <propertyfile file="${output.dir}/batch/payment_reconciliation/resources/reconciliation.properties">
             <entry key="pmt.provider.id" value="1FFC-ea0f1923-255f-4f12-a603-16a1ed4f950c"/>
         </propertyfile>
 
         <mkdir dir="${output.dir}/batch/notify_iq/resources/notification"/>
-        <copy file="${devkit.dir}/server - notify iq/resources/notification/notification.properties" todir="${output.dir}/batch/notify_iq/resources/notification"/>
+        <copy file="${dss.dir}/server/notify_iq/resources/notification/notification.properties" todir="${output.dir}/batch/notify_iq/resources/notification"/>
         <propertyfile file="${output.dir}/batch/notify_iq/resources/notification/notification.properties">
             <entry key="email.transport" value="communicate"/>
             <entry key="precisely.campaign.name" value="${precisely.campaign.name}"/>
@@ -510,7 +517,7 @@
         </propertyfile>
 
         <mkdir dir="${output.dir}/batch/notify_dq/resources/notification"/>
-        <copy file="${devkit.dir}/server - notify dq/resources/notification/notification.properties" todir="${output.dir}/batch/notify_dq/resources/notification"/>
+        <copy file="${dss.dir}/server/notify_dq/resources/notification/notification.properties" todir="${output.dir}/batch/notify_dq/resources/notification"/>
         <propertyfile file="${output.dir}/batch/notify_dq/resources/notification/notification.properties">
             <entry key="email.transport" value="communicate"/>
             <entry key="precisely.campaign.name" value="${precisely.campaign.name}"/>
@@ -679,7 +686,7 @@
         <antcall target="package.app.uat"/>
         <antcall target="package.app.training"/>
 
-        <copy file="${devkit.dir}/app - user/deploy/license" tofile="${output.dir}/1ffc.license"/>
+        <copy file="license" tofile="${output.dir}/1ffc.license"/>
         <zip destfile="${output.dir}/1ffc_jobs.zip" basedir="${output.dir}/batch"/>
         <zip destfile="${output.dir}/1ffc_jenkins.zip" basedir="${output.dir}/jenkins"/>
         <zip destfile="${output.dir}/1ffc_sql.zip" basedir="sql"/>

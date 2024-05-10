@@ -32,7 +32,7 @@
     	        <pathelement location="src"/>
     		</src>
 			<classpath>
-				<fileset dir="${devkit.dir}/batch - common/lib"/>
+				<fileset dir="${dss.dir}/batch/lib"/>
 				<fileset dir="${bat.package.dir}"/>
 			</classpath>
     	</javac>

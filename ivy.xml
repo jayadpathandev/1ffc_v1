@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ivy-module version="2.0">
+    <info organisation="com.sorrisotech" module="service-document-esign"/>
+
+    <dependencies>
+        <!-- https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api -->
+        <dependency org="javax.servlet" name="javax.servlet-api" rev="4.0.1"/>
+    </dependencies>
+</ivy-module>
