@@ -15,8 +15,8 @@
 	<classpathentry kind="lib" path="/app - user/lib/spring-tx-6.0.7.jar"/>
 	<classpathentry kind="lib" path="/app - user/lib/spring-core-6.0.7.jar"/>
 	<classpathentry kind="lib" path="/app - user/lib/commons-logging-1.3.0.jar"/>
-	<classpathentry kind="lib" path="/app - user/lib/jackson-databind-2.17.0.jar"/>
-	<classpathentry kind="lib" path="/app - user/lib/jackson-core-2.17.0.jar"/>
-	<classpathentry kind="lib" path="/app - user/lib/jackson-annotations-2.17.0.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/jackson-databind-2.17.1.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/jackson-core-2.17.1.jar"/>
+	<classpathentry kind="lib" path="/app - user/lib/jackson-annotations-2.17.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
