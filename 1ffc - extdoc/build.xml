@@ -24,7 +24,7 @@
     	<javac destdir="${mod.artifacts.dir}/classes" includeAntRuntime="false">
 			<classpath>
 				<fileset dir="${extdoc.package.dir}"/>
-				<pathelement location="${devkit.dir}/app - extdoc/lib/extDocApi.jar"/>
+				<pathelement location="${dss.dir}/apps/extdoc/lib/extDocApi.jar"/>
 			</classpath>
     	    <src>
     	        <pathelement location="src"/>

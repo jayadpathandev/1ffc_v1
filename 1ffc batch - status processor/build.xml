@@ -17,10 +17,10 @@
 		<mkdir dir="${bat.package.dir}"/>
 
     	<path id="classpath">
-    		<fileset dir="${devkit.dir}/batch - common/lib">
+    		<fileset dir="${dss.dir}/batch/lib">
     			 <include name="*.jar"/>
     		</fileset>
-			<fileset dir="${devkit.dir}/app - user/lib">
+			<fileset dir="${dss.dir}/apps/user/lib">
     			 <include name="servicePayment.jar"/>
     		</fileset>
     	</path>
@@ -48,7 +48,7 @@
 
         <copy todir="${output.dir}/batch/1ffc_update_status/resources">
              <fileset dir="resources"/>
-			 <fileset dir="${devkit.dir}/app - user/resources">
+			 <fileset dir="${dss.dir}/apps/user/classes">
 			 	<include name="payment/**/*.*"/>
 				<include name="notification/**/*.*"/>
 			 </fileset>

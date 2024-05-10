@@ -38,7 +38,7 @@
 			<fileset dir="src" includes="**/*.api"/>
 		</copy>
 
-    	<ant antfile="persona.xml" dir="${devkit.dir}/build" inheritAll="false"  inheritRefs="false">
+    	<ant antfile="persona.xml" dir="${dss.dir}/uc/build" inheritAll="false"  inheritRefs="false">
             <property name="persona.compiler.dir" value="${mod.artifacts.dir}/compiler"/>
             <property name="usecase.directories"  value="${mod.artifacts.dir}/api"/>
             <property name="usecase.output"       value="${mod.artifacts.dir}/src-gen"/>
@@ -52,7 +52,7 @@
     		</src>
 			<classpath>
 				<fileset dir="${user.package.dir}/jars"/>
-				<fileset dir="${devkit.dir}/app - user/lib">
+				<fileset dir="${dss.dir}/apps/user/lib">
 					<include name="*.jar"/>
 				</fileset>
 			</classpath>

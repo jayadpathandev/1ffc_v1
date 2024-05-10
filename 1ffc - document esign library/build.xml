@@ -35,7 +35,7 @@
     	        <pathelement location="src"/>
     		</src>
 			<classpath>
-				<fileset dir="${devkit.dir}/app - user/lib">
+				<fileset dir="${dss.dir}/apps/user/lib">
 					<include name="*.jar"/>
 				</fileset>
 				<fileset dir="${jar.package.dir}">

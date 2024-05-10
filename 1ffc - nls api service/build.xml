@@ -40,7 +40,7 @@
     	<javac destdir="${mod.artifacts.dir}/classes" includeAntRuntime="false">
 			<classpath>
 				<fileset dir="${user.package.dir}/jars"/>
-				<fileset dir="${devkit.dir}/app - user/lib"/>
+				<fileset dir="${dss.dir}/apps/user/lib"/>
 			</classpath>
     	    <src>
     	        <pathelement location="src"/>
