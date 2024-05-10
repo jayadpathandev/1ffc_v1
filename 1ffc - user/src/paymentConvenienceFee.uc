@@ -34,17 +34,15 @@ useCase paymentConvenienceFee [
 	    pay_account_number
     ]
     
-    shortcut getConvenienceFeePay(validateUserIdPay) [
-    	user_id_pay
-        pay_group_pay,
-	    account_number_pay
-    ]
+    shortcut getConvenienceFeePay(convenienceFeeInit)
 
     /*************************
 	* DATA ITEMS SECTION
 	*************************/  
     importJava Session(com.sorrisotech.app.utils.Session)
-    importJava JsonResponse(com.sorrisotech.app.common.JsonResponse)
+    importJava JsonRequest(com.sorrisotech.app.common.JsonRequest)
+    importJava JsonResponse(com.sorrisotech.fffc.user.JsonResponse)
+    importJava Config(com.sorrisotech.utils.AppConfig)
 
     /* Status service goes here */
     serviceStatus srAccountStatusCode
@@ -55,13 +53,17 @@ useCase paymentConvenienceFee [
 	native string pay_group				= ""
 	native string pay_account_number	= ""
 	
-	native string user_id_pay 			= ""
-    native string pay_group_pay			= ""
-	native string account_number_pay	= ""
+	native string auth_code				= JsonRequest.value("authCode")
+	native string user_id_pay 			= JsonRequest.value("userId")
+    native string pay_group_pay			= JsonRequest.value("payGroup")
+	native string account_number_pay	= JsonRequest.value("accountNumber")
 	
 	native string convenienceFeeAmount	= ""
 	native string convenienceFeeAmountPay = ""
 
+	native string sServiceUserName    	= Config.get("service.api.username")
+    native string sServiceNameSpace   	= Config.get("service.api.namespace")
+	
 	/*
 	 * Response codes:
 	 * 
@@ -73,7 +75,8 @@ useCase paymentConvenienceFee [
 	 */
                      
 	native string successCode       = "200"	
-	native string invalidInput   	= "400"	
+	native string invalidInput   	= "400"
+	native string authenticationError = "401"	
 	native string generalError	    = "500"
 	
 	native string statusSuccess		= "Success"
@@ -83,7 +86,6 @@ useCase paymentConvenienceFee [
 	native string resultCode 		= ""        
 	native string httpStatus		= ""
 	
-        
     /*************************
 	* MAIN SUCCESS SCENARIOS
 	*************************/
@@ -184,6 +186,19 @@ useCase paymentConvenienceFee [
 		display convenienceFeeAmount
 	]
 	
+	action convenienceFeeInit [
+		JsonRequest.load()
+		
+		goto(validateAuthCode)
+	]
+	
+	action validateAuthCode [
+		if auth_code == "" then
+			validationErrorPay
+		else
+			validateUserIdPay
+	]
+	
 	action validateUserIdPay [
 		if user_id_pay == "" then  
 			validationErrorPay
@@ -204,8 +219,26 @@ useCase paymentConvenienceFee [
 		if account_number_pay == "" then 
 			validationErrorPay
 	 	else
-	 		getConvenienceFeePay
+	 		authenticateRequest
 	]
+	
+	action authenticateRequest  [                                     
+        authenticate(          
+            username: sServiceUserName
+            password: auth_code
+            namespace: sServiceNameSpace            
+            )
+        if success then getConvenienceFeePay
+        if authenticationFailure then actionAuthFailure
+        if failure then actionAuthFailure
+    ]  
+	
+	action actionAuthFailure [
+		convenienceFeeAmountPay = "0" 
+		resultCode = authenticationError
+		httpStatus = "Unauthorized Request"
+		goto(returnErrorPay)
+    ]   
 	
 	action getConvenienceFeePay [
 		srGetDebitConvenienceFeeParams.user 		= user_id_pay
@@ -226,6 +259,8 @@ useCase paymentConvenienceFee [
 		JsonResponse.reset()
 		JsonResponse.setString("convenienceFeePay", convenienceFeeAmountPay)
 		
+		logout()
+		
 	    foreignHandler JsonResponse.send()
     ]
 		
@@ -238,13 +273,14 @@ useCase paymentConvenienceFee [
 		JsonResponse.setString("Error","Couldn't retrieve convenienceFeeAmount")
 		
 	    foreignHandler JsonResponse.send()
-    ]		
+	    
+	 ]		
 	
 		
 	action validationErrorPay [
 		resultCode = invalidInput
 		httpStatus = statusInvalid
-		convenienceFeeAmount = "0"
+		convenienceFeeAmountPay = "0"
     	auditLog(audit_payment.convenience_fee_invalid_input) [
     		user_id_pay
     		pay_group_pay
@@ -254,10 +290,16 @@ useCase paymentConvenienceFee [
 	]
 	
 	/* 6.2 Json error.*/
-	json returnErrorPay [
-		display resultCode
-		display httpStatus
-		display convenienceFeeAmount
+	action returnErrorPay [
+		
+		JsonResponse.reset()
+		JsonResponse.setString("resultCode", resultCode)
+		JsonResponse.setString("httpStatus", httpStatus)
+		JsonResponse.setString("convenienceFeeAmount", convenienceFeeAmountPay)
+		
+		logout()
+		
+		foreignHandler JsonResponse.errorWithResponse(resultCode)
 	]
 
 ]
