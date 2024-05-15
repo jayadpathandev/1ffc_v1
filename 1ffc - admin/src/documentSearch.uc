@@ -84,6 +84,7 @@ useCase documentSearch [
 	importJava LocalizedFormat(com.sorrisotech.common.LocalizedFormat)
 	importJava ExternalDocuments(com.sorrisotech.uc.bill.ExternalDocuments)
 	importJava DocumentSearch(com.sorrisotech.uc.documents.DocumentSearch)
+	importJava Config(com.sorrisotech.utils.AppConfig)
 	
     import validation.dateValidation
 	
@@ -496,6 +497,7 @@ useCase documentSearch [
     native string sSelectedExtDocId     = DocumentSearch.selectedValue(tdocList, selectRow, "extDocId")
     
 	native string hasActorDocController = "false"
+	native string sBillPayGroup = Config.get("1ffc.bill.group")
     
      table tdocList [
     	
@@ -1209,7 +1211,7 @@ useCase documentSearch [
  		srFindRequest.REQ_ACCOUNT_NUMBER  	= fAccountNumber.pInput
  		srFindRequest.REQ_DOCUMENT_NUMBER 	= fDocIdentifier.pInput 
  		srFindRequest.REQ_ACCOUNT_NAME      = fAccountName.pInput 	
- 		srFindRequest.REQ_PAYMENT_GROUP     = "1FFC-ea0f1923-255f-4f12-a603-16a1ed4f950c"
+		srFindRequest.REQ_PAYMENT_GROUP		= sBillPayGroup
 		srFindRequest.REQ_ORG_ID 	        = fCustomerId.pInput
  			
 		srFindRequest.REQ_FLEX1 			= fFlex1.pInput
