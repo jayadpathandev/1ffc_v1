@@ -108,9 +108,9 @@ export function PaymentStatusTableContent(props: Props) {
     const surcharge = record !== null && record.PAY_SURCHARGE > 0;
     const col1Class = surcharge ? 'col-3' : 'col-4';
     const col2Class = surcharge ? 'col-3 d-none d-md-table-cell' : 'col-4';
-    const col3Class = surcharge ? 'col-2 d-none d-md-table-cell' : 'col-4';
-    const col4Class = surcharge ? 'col-2 d-none d-md-table-cell' : 'd-none';
-    const col5Class = surcharge ? 'col-2' : 'd-none';
+    const col3Class = surcharge ? 'col-2 d-none d-md-table-cell text-end' : 'col-4';
+    const col4Class = surcharge ? 'col-2 d-none d-md-table-cell text-end' : 'd-none';
+    const col5Class = surcharge ? 'col-2 text-end' : 'd-none';
 
     // link for expand tables
     const link = <a id="sPaymentDetailsPopinHeader_expand" className="btn btn-link btn-cancel st-padding-top5 st-payment-account-expand" tabIndex={5} onClick={toggle}>{expandedAccounts} </a>
