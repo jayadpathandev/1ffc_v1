@@ -290,7 +290,7 @@ useCase paymentOneTime [
     static paymentInvalidAmountError = "{Failed to make payment. The amount is invalid.}"
     static paymentInsufficientFundsError = "{Failed to make payment. There are insufficient funds on your account.}"
     
-    static paymentConfirmationHeader = "{Thank you for using the 1st Franklin Financial payment service. This is to confirm your authorization on {date}, for a payment of {totalAmount} to be debited from account ending in {account} payable to 1st Franklin Financial.}"
+    static paymentConfirmationHeader = "{Thank you for using the 1st Franklin Financial payment service. This is to confirm your authorization on {date}, for a payment of {totalAmount} to be debited from account via card ending in {account} payable to 1st Franklin Financial.}"
 	static paymentConfirmationBody1 = "{Customer Name: <1> <2>}"
 	static paymentConfirmationBody2 = "{Account Number: {account}}"
 	static paymentConfirmationBody3 = "{Payment Date: {payDate}}"
@@ -431,7 +431,7 @@ useCase paymentOneTime [
         string(required) sRequired = "{This field is required.}"
     ]
     
-	static sSurchargeNotice = "{Payment by debit card will result in a one-time non-refundable convenience fee in the amount of $1.50. If you do not wish to pay this fee, you may cancel your payment and remit payment to 1FFC via ACH, Cash, Check, or Money Order. [strong]Excludes FL, KY, SC, and VA[/strong]}"                        
+	static sSurchargeNotice = "{Payment by debit card will result in a one-time non-refundable convenience fee in the amount of $1.50. If you do not wish to pay this fee, you may cancel your payment and remit payment to 1FFC via ACH, Cash, Check, or Money Order. [strong]Excludes KY, SC, and VA[/strong]}"                        
     
     field fAutoScheduledConfirm [        
     	checkBoxes(control) sField = Agree [
