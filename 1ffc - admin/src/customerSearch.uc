@@ -780,7 +780,8 @@ useCase customerSearch [
         
     /* 23. Send email. */
     action sendRegistrationEmail [    
-    	switch NotifUtil.sendOrgAdminRegistration(sSelectedUserId, sSelectedUserName, sAuthCode, sAuthCode, sFirstName, sLastName) [         
+//    	switch NotifUtil.sendOrgAdminRegistration(sSelectedUserId, sSelectedUserName, sAuthCode, sAuthCode, sFirstName, sLastName) [    
+		switch NotifUtil.sendAuthCode(sSelectedUserId, sAppNameSpace, "b2c", sUserName, sAuthCode, sFirstName, sLastName) [     
            case "success" resendSuccess
             case "error"  resendConfirmationNotifErrorMsg
             default resendConfirmationNotifErrorMsg
