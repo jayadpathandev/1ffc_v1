@@ -309,7 +309,6 @@ useCase paymentAutomatic [
            
         column changeDateCol("{Change date}") [
             elements: [sChangeDate]   
-            sort: [sChangeDate]         
         ]
  
         column changeByCol("{Change by}") [
@@ -320,7 +319,6 @@ useCase paymentAutomatic [
  
        column congigChangeCol("{Configuration change}") [
             elements: [sConfigChange]   
-            sort: [sConfigChange]                     
         ]
      ]
     
