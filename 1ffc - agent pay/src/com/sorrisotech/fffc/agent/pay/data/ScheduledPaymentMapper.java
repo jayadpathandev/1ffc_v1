@@ -15,6 +15,7 @@ public class ScheduledPaymentMapper implements RowMapper<ScheduledPaymentBean> {
 		
 		retVal.paymentId = result.getString("paymentId");						// --online id
 		retVal.paymentDate = result.getDate("paymentDate"); 					// -- date its scheduled for
+		retVal.createdDate = result.getDate("createdDate"); 					// -- date its scheduled for
 		retVal.paymentAmount = result.getBigDecimal("paymentAmount");			// -- amount applied to account
 		retVal.paymentSurcharge = result.getBigDecimal("paymentSurcharge");		// -- any surcharge/convenience fee
 		retVal.paymentTotalAmount = result.getBigDecimal("paymentTotalAmount");	// -- total charged to payment account					   

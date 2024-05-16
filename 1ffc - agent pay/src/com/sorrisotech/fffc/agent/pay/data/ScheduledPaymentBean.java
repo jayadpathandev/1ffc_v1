@@ -16,4 +16,5 @@ public class ScheduledPaymentBean {
 	public String		paymentAccountNickname;	// -- nickname if there is one
 	public String		paymentAccountMasked;	// -- masked account number
 	public String		paymentAccountType;		// -- <bank, credit, debit, sepa>
+	public Date         createdDate;			// -- payment request date.
 }
