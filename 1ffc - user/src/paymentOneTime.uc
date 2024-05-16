@@ -290,7 +290,7 @@ useCase paymentOneTime [
     static paymentInvalidAmountError = "{Failed to make payment. The amount is invalid.}"
     static paymentInsufficientFundsError = "{Failed to make payment. There are insufficient funds on your account.}"
     
-    static paymentConfirmationHeader = "{Thank you for using the 1st Franklin Financial payment service. This is to confirm your authorization on {date}, for a payment of {totalAmount} to be debited from account via card ending in {account} payable to 1st Franklin Financial.}"
+    static paymentConfirmationHeader = "{Thank you for using the 1st Franklin Financial payment service. This is to confirm your authorization on {date}, for a payment of {totalAmount} to be debited from account via card ending in {wallet} payable to 1st Franklin Financial.}"
 	static paymentConfirmationBody1 = "{Customer Name: <1> <2>}"
 	static paymentConfirmationBody2 = "{Account Number: {account}}"
 	static paymentConfirmationBody3 = "{Payment Date: {payDate}}"
