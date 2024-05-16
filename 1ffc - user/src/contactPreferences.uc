@@ -45,6 +45,11 @@ useCase contactPreferences [
     importJava UcProfileAction(com.sorrisotech.app.profile.UcProfileAction)
     import validation.emailRegex
     
+    // -- handling impersonation --
+ 	import utilImpersonationActive.sImpersonationActive	
+ 	native string bImpersonateActive
+    
+    
     serviceStatus status
 	serviceParam(Notifications.GetUserAddresses) getData
 	serviceResult(Notifications.GetUserAddresses) getResponse
@@ -91,8 +96,6 @@ useCase contactPreferences [
     native string sCategory          = "topic"
     native string sType
     native string sOperation
-	
-	native string sImpersonateFlag 	 = "false"
 	
 	input sGeolocation
 	
@@ -183,6 +186,8 @@ useCase contactPreferences [
 	
 	/* Loads user profile account and consent status and json object. */       
     action getUserDetails [   
+    	bImpersonateActive = sImpersonationActive
+    	
         loadProfile(            
             accountStatus: sAccountStatus
             eSignConsentEnabled: sESignPrevious
@@ -305,10 +310,10 @@ useCase contactPreferences [
 								
 								div buttonsCol1 [
 									class: "col-md-12"
-									logic: [
-										if sImpersonateFlag == "true" then "remove"
-									]
 									navigation consentValidateEmail(verifyEmail, "{Consent and Validate}") [
+										logic: [
+											if bImpersonateActive == "true" then "remove"
+									     ]	
 										type: "popin"
 										class: "btn btn-primary"
 										popin_controller: "ChangeAuthCtl"
@@ -318,6 +323,21 @@ useCase contactPreferences [
 											fUserEmail
 										]
 									]
+									navigation consentValidateEmailDisable(verifyEmail, "{Consent and Validate Disabled}") [
+										logic: [
+											if bImpersonateActive != "true" then "remove"
+									     ]	
+										type: "popin"
+										class: "btn btn-primary disabled"
+										popin_controller: "ChangeAuthCtl"
+										popin_size: "lg"
+										attr_tabindex: "400"
+										require: [
+											fUserEmail
+										]
+									]
+									
+									
 								]
 							]
 	                	]
@@ -341,10 +361,10 @@ useCase contactPreferences [
 								
 								div buttonsCol2 [
 									class: "col-md-12"
-									logic: [
-										if sImpersonateFlag == "true" then "remove"
-									]
 									navigation consentValidateSms(verifySms, "{Consent and Validate}") [
+										logic: [
+											if bImpersonateActive == "true" then "remove"
+									     ]	
 										type: "popin"
 										class: "btn btn-primary"
 										popin_controller: "ChangeAuthCtl"
@@ -354,6 +374,20 @@ useCase contactPreferences [
 											fUserMobile
 										]
 									]
+									navigation consentValidateSmsDisable(verifySms, "{Consent and Validate Disabled}") [
+										logic: [
+											if bImpersonateActive != "true" then "remove"
+									     ]	
+										type: "popin"
+										class: "btn btn-primary disabled"
+										popin_controller: "ChangeAuthCtl"
+										popin_size: "lg"
+										attr_tabindex: "400"
+										require: [
+											fUserMobile
+										]
+									]
+									
 								]
 							]
 	                	]
@@ -378,11 +412,19 @@ useCase contactPreferences [
 				                                   	
 				                div buttonsCol3 [
 									class: "col-md-12 mt-4"
-									logic: [
-										if sImpersonateFlag == "true" then "remove"
-									]
 									navigation confirmESign (confirmESign, "{Submit}") [
+										logic: [
+											if bImpersonateActive == "true" then "remove"
+										]										
 										class: "btn btn-primary"
+										attr_tabindex: "400"
+										data: [cEnableESignConsent]
+									]
+									navigation confirmESignDisable (confirmESign, "{Submit Disabled}") [
+										logic: [
+											if bImpersonateActive != "true" then "remove"
+										]										
+										class: "btn btn-primary disabled"
 										attr_tabindex: "400"
 										data: [cEnableESignConsent]
 									]
@@ -437,7 +479,21 @@ useCase contactPreferences [
 		                    	class: "col-md-12 st-padding-top30"
 		                    	
 		                        navigation save (hasNotificationChanges, "{Save}") [
+				                     logic: [
+				                         if bImpersonateActive == "true" then "remove"
+				                    ]		                        	
 		                            class: "btn btn-primary"
+		                            attr_tabindex: "9"
+		                            data: [
+		                            	sGeolocation
+		                            ]
+		                        ]
+
+		                        navigation saveDisable (hasNotificationChanges, "{Save Disabled}") [
+				                     logic: [
+				                         if bImpersonateActive != "true" then "remove"
+				                    ]		                        	
+		                            class: "btn btn-primary disabled"
 		                            attr_tabindex: "9"
 		                            data: [
 		                            	sGeolocation
