@@ -1132,6 +1132,17 @@ f
 }
 
 /**************************************************************************************************
+ * [FFFC-561] Temporarily hide phone number for the profileContact.uc & profileContactEdit.uc pages.
+ *************************************************************************************************/
+#profileContactEdit_contentCol2 {
+	display: none;
+}
+
+#profileContact_fPhoneNumberDisplay {
+	display: none;
+}
+
+/**************************************************************************************************
  * Configuration icons for the configStatus.uc page.
  *************************************************************************************************/
 .config-icon {
