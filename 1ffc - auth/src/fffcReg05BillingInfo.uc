@@ -90,9 +90,9 @@ useCase fffcReg05BillingInfo [
     string sTitleBill = "{Registration - Let's Find Your Account (step 1 of 5)}"
     string sBillDetailsTitle = "{Please make sure you have the following to complete the registration process. You also will need to be able to receive an e-mail from us.}"    
     string sItemEmail  = "{E-mail address}"        
-    string sPara1 = "{As part of your contract agreement, you should have received at least one document which includes your account number. If you do not have this information, please contact customer service at 1-800-XXX-XXXX.}"
-    string sPara1Bill = "{As part of your contract agreement, you should have received at least one bill which includes your account number. If you do not have this information, please contact customer service at 1-800-XXX-XXXX.}"
-    string sPara3 = "{E-mail: contactservice@someplace.com}"
+    string sPara1 = "{As part of your contract agreement, you should have received at least one document which includes your account number. If you do not have this information, please contact customer service at 1-888-504-6520.}"
+    string sPara1Bill = "{As part of your contract agreement, you should have received at least one bill which includes your account number. If you do not have this information, please contact customer service at 1-888-504-6520.}"
+    string sPara3 = "{E-mail: no-reply@onlineservices.1ffc.com}"
         
     native string sFlag = "false"        
     native string sStreamCount  = UcBillStreams.getBillStreamCount(sAppType)           
@@ -150,7 +150,7 @@ useCase fffcReg05BillingInfo [
 	
     field fCheckBoxes [        
     	checkBoxes(control) sField [         
-        	Agree: "{I have read and agree to [a style='font-size: 14px;' target='_blank' href='https://www.1ffc.com/wp-content/uploads/2024/03/Online_Services_Agreement.pdf']Online Services Agreement[/a], [a style='font-size: 14px;' target='_blank' href='https://www.1ffc.com/wp-content/uploads/2023/07/1FF_Online_Privacy_Policy-1.pdf'] Online Privacy Notice[/a], [a style='font-size: 14px;' target='_blank' href='https://www.1ffc.com/wp-content/uploads/2024/03/1FFC-Privacy-Notice_2023_Final.pdf'] Privacy Notice[/a], [a style='font-size: 14px;' target='_blank' href='https://www.1ffc.com/wp-content/uploads/2024/03/Text_Use_Policy.pdf'] Text User Policy. [/a]}"          
+        	Agree: "{I have read and agree to the following: [a style='font-size: 14px;' target='_blank' href='https://www.1ffc.com/wp-content/uploads/2024/03/Online_Services_Agreement.pdf']Online Services Agreement[/a], [a style='font-size: 14px;' target='_blank' href='https://www.1ffc.com/wp-content/uploads/2023/07/1FF_Online_Privacy_Policy-1.pdf'] Online Privacy Policy[/a], [a style='font-size: 14px;' target='_blank' href='https://www.1ffc.com/wp-content/uploads/2024/03/1FFC-Privacy-Notice_2023_Final.pdf'] Privacy Notice[/a], [a style='font-size: 14px;' target='_blank' href='https://www.1ffc.com/wp-content/uploads/2024/03/Text_Use_Policy.pdf'] Text Use Policy. [/a]}"          
         ]        
     ]	
         
@@ -228,12 +228,12 @@ useCase fffcReg05BillingInfo [
 
     structure(message) msgDuplicateAccount [    
         string(title) sTitle = "Failure"
-        string(body) sBody = "Your registration cannot be completed because the account has already been registered. For further assistance, contact customer service."
+        string(body) sBody = "Your registration cannot be completed because the account has already been registered. For further assistance, contact Customer Service at 1-888-504-6520."
     ]
     
     structure(message) msgInvalidBillDetailsB2CError [    
         string(title) sTitle = "{We can not locate your account based on the information you provided.}"
-        string(body) sBody = "{We are unable to locate your account with the information provided. Please double-check your entries and try again. If you continue to experience issues, please contact your local branch.}"
+        string(body) sBody = "{We are unable to locate your 1st Franklin Financial account with the information provided. Please double-check your entries and try again. If you continue to experience issues, please contact your local branch.}"
     ]
     
     structure(message) msgInvalidBillDetailsB2BError [    

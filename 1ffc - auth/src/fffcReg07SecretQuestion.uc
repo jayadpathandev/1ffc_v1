@@ -41,7 +41,7 @@ useCase fffcReg07SecretQuestion [
        
     persistent auto "{* Question 1}" dropDown dSecretQuestion1 [ 
     	null  : "{(Please select a question)}"
-        q1: "{In what town/city where you raised?}"        
+        q1: "{In what town/city were you raised?}"        
 		q2: "{What is the name of your high school?}"
 		q3: "{What is your grandfather's first name?}"
 		q4: "{What is your mother's maiden name?}"
@@ -49,7 +49,7 @@ useCase fffcReg07SecretQuestion [
 		q6: "{Where is your mother's birthplace?}"
 		q7: "{What is the name of your childhood best friend?}"
 		q8: "{What is the name of your first pet?}"
-		q9: "{What is the make of your first car?}"
+		q9: "{What was the make of your first car?}"
 		q10: "{What is your favorite color?}"
     ]
     
@@ -62,7 +62,7 @@ useCase fffcReg07SecretQuestion [
 	
 	persistent auto "{* Question 2}" dropDown dSecretQuestion2 [ 
 		null  : "{(Please select a question)}"
-        q1: "{In what town/city where you raised?}"        
+        q1: "{In what town/city were you raised?}"        
 		q2: "{What is the name of your high school?}"
 		q3: "{What is your grandfather's first name?}"
 		q4: "{What is your mother's maiden name?}"
@@ -70,7 +70,7 @@ useCase fffcReg07SecretQuestion [
 		q6: "{Where is your mother's birthplace?}"
 		q7: "{What is the name of your childhood best friend?}"
 		q8: "{What is the name of your first pet?}"
-		q9: "{What is the make of your first car?}"
+		q9: "{What was the make of your first car?}"
 		q10: "{What is your favorite color?}"
     ]
    
@@ -83,7 +83,7 @@ useCase fffcReg07SecretQuestion [
     
     persistent auto "{* Question 3}" dropDown dSecretQuestion3 [ 
     	null  : "{(Please select a question)}"
-        q1: "{In what town/city where you raised?}"        
+        q1: "{In what town/city were you raised?}"        
 		q2: "{What is the name of your high school?}"
 		q3: "{What is your grandfather's first name?}"
 		q4: "{What is your mother's maiden name?}"
@@ -91,7 +91,7 @@ useCase fffcReg07SecretQuestion [
 		q6: "{Where is your mother's birthplace?}"
 		q7: "{What is the name of your childhood best friend?}"
 		q8: "{What is the name of your first pet?}"
-		q9: "{What is the make of your first car?}"
+		q9: "{What was the make of your first car?}"
 		q10: "{What is your favorite color?}"
     ]
    
@@ -104,7 +104,7 @@ useCase fffcReg07SecretQuestion [
     
     persistent auto "{* Question 4}" dropDown dSecretQuestion4 [ 
     	null  : "{(Please select a question)}"
-        q1: "{In what town/city where you raised?}"        
+        q1: "{In what town/city were you raised?}"        
 		q2: "{What is the name of your high school?}"
 		q3: "{What is your grandfather's first name?}"
 		q4: "{What is your mother's maiden name?}"
@@ -112,7 +112,7 @@ useCase fffcReg07SecretQuestion [
 		q6: "{Where is your mother's birthplace?}"
 		q7: "{What is the name of your childhood best friend?}"
 		q8: "{What is the name of your first pet?}"
-		q9: "{What is the make of your first car?}"
+		q9: "{What was the make of your first car?}"
 		q10: "{What is your favorite color?}"
     ]
    
