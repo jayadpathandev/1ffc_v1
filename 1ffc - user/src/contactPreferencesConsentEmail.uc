@@ -39,7 +39,7 @@ useCase contactPreferencesConsentEmail [
 	importJava Session(com.sorrisotech.app.utils.Session)
 	importJava UcNotificationsAction(com.sorrisotech.app.notifications.UcNotificationsAction)
 	importJava UcProfileAction(com.sorrisotech.app.profile.UcProfileAction)
-	importJava UcTermsConditions(com.sorrisotech.uc.termsconditions.UcTermsConditions)
+	//importJava UcTermsConditions(com.sorrisotech.uc.termsconditions.UcTermsConditions)
 	
 	serviceStatus status
 	serviceParam(Notifications.SetUserAddress) setData
@@ -72,7 +72,7 @@ useCase contactPreferencesConsentEmail [
     native string sOperation         = "The user successfully updated their email address."
     native string bIsConsentActive 	 = "true"
     
-    tag hTermsText = UcTermsConditions.getTermsConditions(sorrisoLanguage, sorrisoCountry)
+    //tag hTermsText = UcTermsConditions.getTermsConditions(sorrisoLanguage, sorrisoCountry)
     
     input sGeolocation
     
@@ -83,11 +83,11 @@ useCase contactPreferencesConsentEmail [
         string(required) sRequired = "{This field is required.}"                
     ]
     
-    field fCheckBoxes [        												  
+    /*field fCheckBoxes [        												  
     	checkBoxes(control) sField [
         	Agree: "{I have read and agree to the terms of use.}"            
         ]        
-    ]
+    ]*/
     
 	structure(message) oMsgValidationCodeSent [    
         string(title) sTitle = "{Validation code was sent}"
@@ -221,7 +221,7 @@ useCase contactPreferencesConsentEmail [
 					]
                 ]
                 
-                div emailNotificationTerms [
+                /*div emailNotificationTerms [
 									
 					div row2 [
 						class: "row"
@@ -246,7 +246,7 @@ useCase contactPreferencesConsentEmail [
 	                		]
 						]
 					]
-				]
+				]*/
 			]
 			
             div buttons [
@@ -262,7 +262,7 @@ useCase contactPreferencesConsentEmail [
                     class: "btn btn-primary"
                     require: [
                     	fvalidationCode
-                    	fCheckBoxes
+                    	//fCheckBoxes
                     ]
                     data: [
                     	sGeolocation
