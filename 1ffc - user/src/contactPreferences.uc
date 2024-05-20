@@ -64,7 +64,7 @@ useCase contactPreferences [
      *********************************************************************************************/ 
      
     static sMenuLink       = "{Contact preferences}"
-    string sHeader1        = "{Please select the new notification(s) that you would like to receive.}"
+    string sHeader1        = "{Please select how you would like to be communicated with.}"
     string sPageHeader     = "{Contact Preferences}"
     
     string(p) sIconMailTitle = "{Mail}"
@@ -100,7 +100,7 @@ useCase contactPreferences [
 	input sGeolocation
 	
     field fUserEmail [  													                                             
-	    string(label) sLabel = "{Update E-Mail message alert}"
+	    string(label) sLabel = "{If you would like to change your email address, please enter your new email into the box below.}"
 	    input(control) pInput(emailRegex, fUserEmail.sValidation)
         string(validation) sValidation = "{Please provide a valid e-mail address. Your e-mail address may contain up to 50 characters and must appear in the standard e-mail address format: name@example.com.}"
         string(required) sRequired = "{This field is required.}"     
