@@ -326,12 +326,19 @@ form .st-field .st-field-label {
 
 footer {
     background-color: #25408f;
-    padding:          20px 0px;
+    padding:          20px 20px 20px 20px;
     color:            #fff;
     font-size: 		  12px;
     font-weight:      bold;
     text-align:       center;
     line-height: 	  28px;
+    text-decoration:  none;
+}
+
+inner-footer {
+	font-weight:      normal;
+    text-align:       left;
+    line-height: 	  normal;
 }
 
 /**************************************************************************************************
