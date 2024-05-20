@@ -90,8 +90,8 @@ useCase contactPreferencesConsentEmail [
     ]*/
     
 	structure(message) oMsgValidationCodeSent [    
-        string(title) sTitle = "{Validation code was sent}"
-        string(body) sBody = "{We sent you the validation code using the specified method. Use it to proceed further.}"
+        string(title) sTitle = "{Validation Code was Sent:}"
+        string(body) sBody = "{We sent you the Validation Code using the method you specified. Use it to proceed further.}"
     ]
     
     structure(message) oMsgValidationCodeSuccess [    
