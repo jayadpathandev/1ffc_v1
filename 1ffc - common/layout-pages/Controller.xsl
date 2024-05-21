@@ -86,7 +86,7 @@
 								<div class="row d-lg-none profile-bar-mobile">
 									<div class="col-8 col-sm-10 col-lg-11 phone-number">
 										<xsl:if test="$settings/config/header/banner != 'csr'">
-					            			<span id="phone-number-text">(833) 555-HELP</span>
+					            			<span id="phone-number-text">1-888-504-6520</span>
 					            		</xsl:if>
 									</div>
 					            	<div class="col-3 col-sm-2 col-lg-1">
@@ -106,7 +106,7 @@
 									<div class="row d-none d-lg-flex hide-on-minimize">
 										<div class="col-8 col-sm-10 col-lg-9 phone-number text-end">
 											<xsl:if test="$settings/config/header/banner != 'csr'">
-							            		<span id="phone-number-text">(833) 555-HELP</span>
+							            		<span id="phone-number-text">1-888-504-6520</span>
 						            		</xsl:if>
 										</div>
 						            	<div class="col-3 col-sm-2 col-lg-3">

@@ -154,7 +154,7 @@
 	<#elseif "activeAccount" == accountStatus >
 		<h2 class="mt-3 pt-3 border-top border-dark row">
 			<div class="col fw-bold text-center">
-				Our apologies, we can't find a recent bill for your account.
+				We are unable to display a copy of your statement at this time. Please visit or call your local branch at 1-888-504-6520 for a copy of your statement.
 			</div>
 		</h2>
 		<div class="row">
