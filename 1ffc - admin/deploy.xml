@@ -30,7 +30,6 @@
             <fileset dir="${install.dir}/app - ${app}/src-gen/classes"/>
         	<fileset dir="${install.dir}/app - ${app}/src-gen" includes="com/**/*.class"/>
         </copy>
-
  
 		<!-- Usecases/I18N/services from the base application. -->
         <copy todir="deploy/${app}/">
@@ -89,6 +88,7 @@
     	
 		<copy todir="deploy/${app}" overwrite="true">
 			<fileset dir="." includes="layout-pages/**/*"/>
+			<fileset dir="." includes="linked-root/**/*"/>
         </copy>
     	<!-- pick up audit_config.xml and roles_config.xml  -->
     	<delete file="${install.dir}/app - admin/resources/audit_config.xml"/>
