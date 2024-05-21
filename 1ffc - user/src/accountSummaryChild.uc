@@ -254,7 +254,7 @@ useCase accountSummaryChild [
     string sMessageClosedAccount = "Congratulations! You've paid off this loan and the account is now closed."
     string sMessageNewAccount = "Thank you for opening your loan with 1st Franklin, we'll notify you when your first statement is available."
     string sMessageAccessDenied = "Your online account access is disabled. Visit or call your local branch immediately to make payment arrangements."
-    string sMessageNoBillFound = "Our apologies, we can't find a recent bill for your account."
+    string sMessageNoBillFound = "We are unable to display a copy of your statement at this time. Please visit or call your local branch at 1-888-504-6520 for a copy of your statement."
 	
 	native string space = "|"
 	/*************************
