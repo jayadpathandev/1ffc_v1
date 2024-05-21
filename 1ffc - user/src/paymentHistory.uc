@@ -83,11 +83,12 @@ useCase paymentHistory [
     string sProcessingDateLabel         = "{ESTIMATED PROCESSING DATE}"
     string sTransactionIdLabel          = "{Transaction ID}"
     string sPaymentDateLabel		    = "{Payment Date}"
+    string sImportantInfo = "{Important Information: Please allow up to 20 minutes for payments made in your online services account to be reflected in 1st Franklin's loan servicing system.}"
     
-    static sAccountIdLabel     			= "{Account #}"
-    static sAccountIdEditLabel     		= "{PAYMENT FOR}"
-    static sAccountNumLabel     		= "{Account #}"
-    static sBillNumberLabel				= "{Bill #}"
+    static sAccountIdLabel     			= "{Account number}"
+    static sAccountIdEditLabel     		= "{ACCOUNT NUMBER}"
+    static sAccountNumLabel     		= "{Account numbers}"
+    static sBillNumberLabel				= "{Statement number}"
     static sPayAmountLabel	            = "{Pay amount}"
     static sPayAmountEditLabel	        = "{AMOUNT}"
 	static sPaySurchargeLabel           = "{Surcharge}"
@@ -267,13 +268,13 @@ useCase paymentHistory [
            sPayGroup: sPayGroup
         ]
                    
-        column accountCol("{Pay for}") [
+        column accountCol("{Account number}") [
             elements: [sAccId]   
             sort: [sAccId]
             tags: [ "d-none", "d-md-table-cell" ]
         ]
             
-        column payFromCol("{Pay from}") [
+        column payFromCol("{Payment method}") [
             elements: [sSourceName]                      
         ] 
  
@@ -407,7 +408,7 @@ useCase paymentHistory [
            sEstimatedProcessingDate: sPayDate
         ]           
 
-        column documentCol("{Paid for}") [
+        column documentCol("{Account number}") [
             elements: [sAcctId]  
             sort: [sAcctId]
             tags: [ "visually-hidden" ]
@@ -419,7 +420,7 @@ useCase paymentHistory [
             tags: [ "d-none", "d-md-table-cell", "visually-hidden" ]
         ]
 
-        column payFromCol("{Paid from}") [
+        column payFromCol("{Pament method}") [
             elements: [sPayFrom]  
             tags: [ "d-none", "d-md-table-cell", "visually-hidden" ]
         ] 
@@ -977,7 +978,11 @@ useCase paymentHistory [
 					]	  
 				]											
 			]
-									                 	                          
+
+			div impInfo [
+				class: "row"
+				display sImportantInfo
+			]									                 	                          
 	      ]	  	    
 	]
 	
