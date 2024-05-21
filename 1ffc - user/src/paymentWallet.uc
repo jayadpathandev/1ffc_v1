@@ -259,7 +259,7 @@ useCase paymentWallet [
     		]
         ] 
         
-        column expiryCol("{Expiry}") [
+        column expiryCol("{Debit card expiration date}") [
             elements: [
             	sExpiry: [
             		^class: 'payment-wallet-expiry'

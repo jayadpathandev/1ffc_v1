@@ -265,9 +265,10 @@ useCase paymentOneTime [
 	static type_sepa    = "{SEPA ACCOUNT}"
 	static type_unsaved = "{UNSAVED METHOD}"
 	
-    static msgAutoScheduled_body = "{There is an recurring payment set up for this <1>. Recurring payments pay bills on your behalf, but you can choose to proceed with this manual payment if you choose. Recurring payments will then just pay whatever balance remains. If you want to view or cancel the recurring payment, click [a href='<2>']here[/a]}"
-    static msgPmtScheduled_body = "{There is a future-scheduled payment configured for this <1>. These amounts should already have been taken into account, but be sure to only pay the 'Current balance' for bills to avoid over-paying. If you want to view or cancel the upcoming payments, click [a href='<2>']here[/a]}"
-    
+    static msgAutoScheduled_body = "{There is a recurring payment set up for this <1>. Recurring payments pay bills on your behalf, but you can choose to proceed with this manual payment. If you want to view or cancel the recurring payment, click [a href='<2>']here[/a]}"
+//  static msgPmtScheduled_body = "{There is a future-scheduled payment configured for this <1>. These amounts should already have been taken into account, but be sure to only pay the 'Current balance' for bills to avoid over-paying. If you want to view or cancel the upcoming payments, click [a href='<2>']here[/a]}"
+    static msgPmtScheduled_body = "{There is a future dated payment(s) scheduled for this <1>. If you want to view or cancel the upcoming payments, click [a href='<2>']here[/a]}"
+        
     static addSourceGenericError = "{Failed to add payment source.}"
     static addSourceCardNumberError = "{Failed to add payment source. The card number is invalid.}"
     static addSourceAddressError = "{Failed to add payment source. The address is invalid or does not match your billing address.}"
@@ -358,6 +359,7 @@ useCase paymentOneTime [
 	string sAutomaticPaymentsBody = "{Save time and energy by scheduling repeating payments to occur automatically on a specific date, every month.}"
 	string sHeaderEdit = "{edit}"
 	string fAutoScheduledConfirm_body = "{I acknowledge that there is a recurring payment set up for this account. Making one time payment will be in addition to the recurring payment.}"
+	string sImportantInfo = "{Important Information: Please allow up to 20 minutes for payments made in your online services account to be reflected in 1st Franklin's loan servicing system.}"
 	
 	string sPaySourceEdit = "{edit}"
 	
@@ -1889,6 +1891,11 @@ useCase paymentOneTime [
 		        ]
 	        ]
 	    ]
+		
+		div pmtrowinfo [
+			class: "row"
+			display sImportantInfo
+		]
 	]
 
 	action iframeResetSourceType [

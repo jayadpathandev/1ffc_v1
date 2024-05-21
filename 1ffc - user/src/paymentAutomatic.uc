@@ -80,12 +80,13 @@ useCase paymentAutomatic [
     string sLabelPaymentCancel        = "{Cancel payment}"
     string szHistoryHeader            = "{Recurring payment history}"
     string sEmptyWalletMsg            = "{Payment wallet is empty.}"                    
-    string sMessageCreate 		      = "{You have created a new recurring payment schedule using <1> to make the payments. This recurring payment schedule will apply to all bills due from this day forward. If you have an overdue bill, you will need to pay that separately.}"      
+    string sMessageCreate 		      = "{You have created a new recurring payment schedule using (<1>) to make the payments. This recurring payment schedule will apply to all payments due until cancelled, or until the next to last payment due.}"      
 	string sMessageEdit	              = "{You have successfully modified this recurring payment of <1>. This recurring payment schedule will apply to all bills due from this day forward.}"
     string sMessageDelete             = "{Recurring payment has been successfully removed from <1>.}"  
     string sNoChangeMsg               = "{You didn't change any option. The system took no action as a result.}"
     string sErrorMsg                  = "{An error occurred while trying to fulfill your request. Please try again later}"
     string sConfirmDeleteText         = "{Are you sure you want to delete the recurring payment from <1>?}"
+    string sImportantInfo 			  = "{Important Information: Please allow up to 20 minutes for payments made in your online services account to be reflected in 1st Franklin's loan servicing system.}"
     
     // Bring over from b2b    
     volatile string sSourceCreateMsg = I18n.translate ("paymentAutomatic_sMessageCreate", sNickName)
@@ -235,12 +236,12 @@ useCase paymentAutomatic [
 			sSelectedAutomaticId: sAutomaticId
         ]
  
-         column payForScheduledCol("{Pay for}") [
+         column payForScheduledCol("{Account number}") [
             elements: [sAccountNumber]   
             sort: [sAccountNumber]         
         ]
  		             
-        column payFromCol("{Pay from}") [
+        column payFromCol("{Payment method}") [
             elements: [sSourceName]   
             sort: [sSourceName]         
         ]
@@ -251,7 +252,7 @@ useCase paymentAutomatic [
             tags: [ "d-none", "d-sm-none" ]
         ]  
  
-       column payTriggerCol("{Payment trigger}") [
+       column payTriggerCol("{Recurring payment date}") [
             elements: [sPayTrigger]   
             sort: [sPayTrigger]                     
         ]
@@ -262,7 +263,7 @@ useCase paymentAutomatic [
             tags: [ "d-none", "d-sm-none" ]
         ] 
 
-       column expiryCol("{Expiry}") [
+       column expiryCol("{Debit card expiration date}") [
             elements: [sPayExpiry]   
             sort: [sPayExpiry]
             tags: [ "d-none", "d-sm-none" ]
@@ -726,6 +727,11 @@ useCase paymentAutomatic [
 					]
 		        ] 
           ]			
+			
+			div impInfo [
+				class: "row"
+				display sImportantInfo
+			]
        ]
     ]
     
