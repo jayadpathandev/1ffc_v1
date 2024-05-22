@@ -194,12 +194,6 @@
             </fileset>
         </copy>
 
-    	<!-- Copy the linked-root and layout-pages from the base application. -->
-        <copy todir="${output.dir}/apps/admin/" overwrite="true">
-            <fileset dir="${devkit.dir}/app - admin/resources" includes="linked-root/**/*.*"/>
-        	<fileset dir="${devkit.dir}/app - admin/resources" includes="layout-pages/**/*.*"/>
-        </copy>
-
     	<!-- Copy the common resources from 1ffc common to the application. -->
 		<copy todir="${output.dir}/apps/admin" overwrite="true">
             <fileset dir="1ffc - common" includes="linked-root/**/*"/>
@@ -214,12 +208,16 @@
     	<!-- Copy the resources customized for 1ffc to the application. -->
 		<copy todir="${output.dir}/apps/admin" overwrite="true">
 			<fileset dir="1ffc - admin" includes="layout-pages/**/*"/>
+            <fileset dir="1ffc - admin" includes="linked-root/**/*"/>
         </copy>
 
         <javac srcdir="1ffc - admin/src" destdir="${output.dir}/apps/admin/classes/" includeAntRuntime="false">
             <classpath>
-                <fileset dir="${devkit.dir}/app - admin/lib"/>
+                <fileset dir="${dss.dir}/apps/admin/lib"/>
                 <fileset dir="${artifacts.dir}/package/admin/jars"/>
+				<fileset dir="${dss.dir}/server/lib">
+					<include name="persona-api*.jar"/>
+				</fileset>
             </classpath>
         </javac>
 		<copy todir="${output.dir}/apps/admin/classes" overwrite="true">
@@ -278,7 +276,7 @@
 			<fileset dir="${mod.package.dir}/auth/usecases"/>
         </copy>
 
-        <ant dir="${devkit.dir}/build" antfile="persona.xml" inheritAll="false" inheritRefs="false">
+        <ant dir="${dss.dir}/uc/build" antfile="persona.xml" inheritAll="false" inheritRefs="false">
             <property name="usecase.directories" value="${artifacts.dir}/build/auth"/>
             <property name="usecase.output" value="${output.dir}/apps/auth"/>
         </ant>
