@@ -1,0 +1,27 @@
+<html>
+    <head>
+    	<script src="js/lib/jquery.min.js"></script>
+    </head>
+    <body>
+        <script>        	
+        	$(function() {
+        		var endpoint = 'https://login.microsoftonline.com/66d43c31-cd54-4eb9-bc13-af33b2172a7f/saml2';
+        		var request = '<samlp:AuthnRequest xmlns="urn:oasis:names:tc:SAML:2.0:metadata" xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" Version="2.0" ' +
+                                      'ID="id{id}" IssueInstant="{time}">' +
+                                      '<Issuer xmlns="urn:oasis:names:tc:SAML:2.0:assertion">{issuer}</Issuer>' +
+                                      '<samlp:NameIDPolicy Format="{nameid}"/>' +
+                                      '</samlp:AuthnRequest>';
+        		request = request.replace('{id}',  Math.random().toString().substring(2));
+        		request = request.replace('{time}', new Date().toISOString());
+        		request = request.replace('{issuer}', '1c9ce26e-f5e5-4759-b4d8-fdac1633a8f5'); 
+        		request = request.replace('{nameid}', 'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress');
+       			$('form').attr('action', endpoint);
+       			$('input').attr('value', btoa(request));
+       			$('form').submit();
+        	});
+        </script>
+		<form method="post" action="">
+    		<input type="hidden" name="SAMLRequest" value=""/>
+		  </form>        
+    </body>
+</html>
