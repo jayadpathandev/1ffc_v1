@@ -2,6 +2,6 @@
 	"firstName" : "$firstName",
 	"lastName" : "$lastName",
 	"myAccountLogIn" : "@LOGIN_URL@",
-	"subject" : "Digital Self Service - Disabled 2FA Security Settings",
+	"subject" : "Your two-factor authentication settings have been reset",
 	"project" : "Login Alerts"
 }

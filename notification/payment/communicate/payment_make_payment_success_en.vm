@@ -19,6 +19,6 @@
 	"surcharge": "$currencyTool.format($currency, $payments[0].surcharge)",
 	"totalAmount":"$currencyTool.format($currency, $payments[0].totalAmount)",
 	"myAccountLogIn" : "@LOGIN_URL@",
-	"subject": "Digital Self Service - Payment Successful for Transaction $transactionId",
+	"subject": "Online Payment Successful",
 	"project" : "Payment Alerts"
 }

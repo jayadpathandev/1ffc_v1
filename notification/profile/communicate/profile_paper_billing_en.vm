@@ -3,10 +3,6 @@
 	"lastName" : "$lastName",
 	"paperBillingEnabled" : "$paperBillingEnabled",
 	"myAccountLogIn" : "@LOGIN_URL@",
-#if ($paperBillingEnabled == "true")
-	"subject": "Digital Self Service - Paper Billing Enabled",
-#else
-	"subject": "Digital Self Service - Paper Billing Disabled",
-#end
+	"subject": "Your preference on paper billing has changed.",
 	"project" : "Profile Alerts"
 }

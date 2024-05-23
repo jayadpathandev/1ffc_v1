@@ -3,10 +3,6 @@
 	"lastName" : "$lastName",
 	"twoFactorAuthMethod" : "$twoFactorAuthMethod",
 	"myAccountLogIn" : "@LOGIN_URL@",
-#if ($twoFactorAuthMethod == "app")
-	"subject" : "Digital Self Service - Two Factor Authentication Enabled",
-#else
-	"subject" : "Digital Self Service - Two Factor Authentication Disabled",
-#end
+	"subject" : "Your two-factor authentication settings have changed.",
 	"project" : "Profile Alerts"
 }

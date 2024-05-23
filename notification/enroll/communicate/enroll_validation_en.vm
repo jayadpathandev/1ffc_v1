@@ -5,6 +5,6 @@
 	"password" : "$password",
 	"authCode" : "$authCode",
 	"myAccountLogIn" : "@LOGIN_URL@",
-	"subject" : "Digital Self Service - Enrollment E-mail Validation",
+	"subject" : "Use the validation code to complete your registration",
 	"project" : "Enrollment Alerts"
 }

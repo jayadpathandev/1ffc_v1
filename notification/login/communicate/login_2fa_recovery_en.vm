@@ -4,6 +4,6 @@
 	"username" : "$username",
 	"twoFARecoveryAuthCode" : "$twoFARecoveryAuthCode",
 	"myAccountLogIn" : "@LOGIN_URL@",
-	"subject" : "Digital Self Service - Two Factor Authentication Recovery",
+	"subject" : "Let’s help recover your two-factor authentication option.",
 	"project" : "Login Alerts"
 }

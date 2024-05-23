@@ -2,6 +2,6 @@
 	"firstName" : "$firstName",
 	"lastName" : "$lastName",
 	"myAccountLogIn" : "@LOGIN_URL@",
-	"subject" : "Digital Self Service - Profile Updated",
+	"subject" : "Your 1st Franklin Online Services account has been updated",
 	"project" : "Profile Alerts"
 }
