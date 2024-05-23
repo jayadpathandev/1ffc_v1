@@ -39,7 +39,6 @@ useCase contactPreferences [
     importJava AuthUtil(com.sorrisotech.app.common.utils.AuthUtil)
     importJava ContactPrefs(com.sorrisotech.app.profile.ContactPrefs)
     importJava LoginUtil(com.sorrisotech.app.common.utils.LoginUtil)
-    importJava NotifUtil(com.sorrisotech.common.app.NotifUtil)
     importJava PersonaData(com.sorrisotech.app.utils.PersonaData)
     importJava Session(com.sorrisotech.app.utils.Session)	     
     importJava UcProfileAction(com.sorrisotech.app.profile.UcProfileAction)
@@ -80,7 +79,6 @@ useCase contactPreferences [
     
     native string sCurrentEmail
     native string sCurrentSms
-    native string sMaskedEmail = NotifUtil.getMaskedEmail(sCurrentEmail)
     
 	native string sAccountStatus                                              
     native string sNewEmail
@@ -238,7 +236,7 @@ useCase contactPreferences [
     
      /* Assign user profile values to the usecase fields. */
     action assignValuesToFields [       
-        fUserEmail.pInput = sMaskedEmail
+        fUserEmail.pInput = sCurrentEmail
         sNewEmail = sUnverifiedEmailAddress      
 		fUserMobile.pInput = sCurrentSms 
         goto(checkAccountStatus)
@@ -298,6 +296,7 @@ useCase contactPreferences [
 									field_class: "col-8"
 									control_attr_tabindex: "1"
 									control_attr_autofocus: ""
+									control_attr_st-require-change: ""
 									pInput_attr_new-email-address: ""
 									pInput_attr_st-new-email: ""
 									sError_ng-show: "main['fUserEmail.pInput'].$invalid && !!main['fUserEmail.pInput'].$error.email && main['fUserEmail.pInput'].$dirty"
@@ -519,7 +518,7 @@ useCase contactPreferences [
     /* User clicks the "Consent and Validate" button. System first verifies if the new email provided 
      * already exists. */
     action verifyEmail [
-    	if sMaskedEmail == fUserEmail.pInput then
+    	if sCurrentEmail == fUserEmail.pInput then
     		duplicateEmailMsg
     	else
     		verifyNewEmail
