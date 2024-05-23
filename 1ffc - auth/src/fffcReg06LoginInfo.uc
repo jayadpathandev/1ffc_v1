@@ -50,7 +50,9 @@ useCase fffcReg06LoginInfo [
 	
     persistent field fUserName [
         string(label) sLabel = "{* Create Username:}"      
-		input (control) pInput(usernameRegex, fUserName.sValidation)
+//		input (control) pInput(usernameRegex, fUserName.sValidation)
+  		input (control) pInput("^(?=.*\\p{Ll})(?=.*\\p{Lu})(?=.*\\d)[\\p{Ll}\\p{Lu}\\d]{8,50}$", fUserName.sValidation)
+ 
 		string(required) sRequired = "{This field is required.}"
 		string(validation) sValidation = "{Username must consist of at least eight characters and include one capital letter, one lowercase letter, and one number.}"
 		string(error) sError = "{Another user already has this user name. Please select another.}"
