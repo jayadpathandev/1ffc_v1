@@ -3,6 +3,6 @@
 	"lastName" : "$lastName",
 	"authCode" : "$authCode",
 	"myAccountLogIn" : "@LOGIN_URL@",
-	"subject" : "Digital Self Service - Forgot User Name?",
+	"subject" : "Recover your username",
 	"project" : "Login Alerts"
 }

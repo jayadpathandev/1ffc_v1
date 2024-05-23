@@ -8,6 +8,6 @@
 	"accountNumber": "$payments[0].displayAccountNumber",
 	"documentNumber":"$payments[0].documentNumber",
 	"myAccountLogIn" : "@LOGIN_URL@",
-	"subject" : "Digital Self Service - Scheduled payment cancelled, current balance is $0.00",
+	"subject" : "Your scheduled payment has been cancelled.",
 	"project" : "Payment Alerts"
 }

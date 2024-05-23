@@ -3,6 +3,6 @@
 	"lastName" : "$lastName",
 	"accountNumber" : "$accountNumber",
 	"myAccountLogIn" : "@LOGIN_URL@",
-	"subject" : "Digital Self Service - Create automatic payment successful",
+	"subject" : "A recurring payment has been created successfully",
 	"project" : "Payment Alerts"
 }

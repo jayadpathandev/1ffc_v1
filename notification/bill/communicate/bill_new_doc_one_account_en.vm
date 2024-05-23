@@ -1,10 +1,11 @@
 { 
 	"firstName" : "$firstName",
 	"lastName" : "$lastName",
+	"accountName": "$accountName",
 	"accountNumber" : "$accountNumber",
-	"billDate" : "$date.format('MMM dd, yyyy', $date.toDate('yyyyMMdd', $billDate))",
+	"billDate" : "$date.format('MM/dd/yyyy', $date.toDate('yyyyMMdd', $billDate))",
 	"billAmount" : "$currencyTool.format($currency, $billAmount)",
 	"myAccountLogIn" : "@LOGIN_URL@",
-	"subject" : "Digital Self Service - New Document Available for Account $accountNumber",
+	"subject" : "Your monthly statement is now available",
 	"project" : "Bill Alerts"
 }

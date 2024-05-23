@@ -2,7 +2,7 @@
 	"firstName" : "$firstName",
 	"lastName" : "$lastName",
    	"num_Accounts": "$NUM_ACCOUNTS",
-    	"dueDate": "$date.format('MMM dd, yyyy', $date.toDate('yyyyMMdd', $UPCOMING_BILL_DATE))",
+    	"dueDate": "$date.format('MM/dd/yyyy', $date.toDate('yyyyMMdd', $UPCOMING_BILL_DATE))",
 	"amountDue": "$currencyTool.format($currency, $TOTAL_AMOUNT_DUE)",
 	"myAccountLogIn" : "@LOGIN_URL@",
 	"subject: "Digital Self Service - New Documents Available",

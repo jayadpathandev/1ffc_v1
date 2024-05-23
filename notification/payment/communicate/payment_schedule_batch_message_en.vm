@@ -10,6 +10,6 @@
 	"balAmount" : "$number.currency($balAmount)",
 	"caseId" : "$caseId",
 	"myAccountLogIn" : "@LOGIN_URL@",
-	"subject" : "Digital Self Service - automatic payment update for payment source $sourceName",
+	"subject" : "We have an update on your recurring payment.",
 	"project" : "Payment Alerts"
 }

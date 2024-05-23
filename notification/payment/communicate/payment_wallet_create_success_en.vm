@@ -4,6 +4,6 @@
 	"nickName" : "$nickName",
 	"accountNumber" : "$accountNumber",
 	"myAccountLogIn" : "@LOGIN_URL@",
-	"subject" : "Digital Self Service - Add Payment Method Successful",
+	"subject" : "Payment method successfully added",
 	"project" : "Payment Alerts"
 }

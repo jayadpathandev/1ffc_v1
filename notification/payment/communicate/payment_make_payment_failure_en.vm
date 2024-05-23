@@ -15,6 +15,6 @@
 	"documentNumber":"$payments[0].documentNumber",
 	"totalAmount" : "$currencyTool.format($payments[0].currency, $payments[0].amount)",
 	"myAccountLogIn" : "@LOGIN_URL@",
-	"subject" : "Digital Self Service - Payment Failed for Transaction $transactionId",
+	"subject" : "Online Payment Failed",
 	"project" : "Payment Alerts"
 }
