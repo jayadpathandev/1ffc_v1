@@ -33,6 +33,8 @@ import { ValidatorRequiredSelect         } from './validator_required_select';
 import { ValidatorRestrictedPassword     } from './validator_restricted_password';
 import { ValidatorSameAs                 } from './validator_same_as';
 import { ValidatorRequiredInputIfVisible } from './validator_required_input_if_visible';
+import { ValidatorRequireChange          } from './validator_require_change';
+
 
 //*****************************************************************************
 export interface Validation {
@@ -124,6 +126,10 @@ export class ElementState {
 
         if (this.field.attr('st-same-as') !== undefined) {
             this.validators.push(new ValidatorSameAs(this, this.field));
+        }
+
+        if (this.field.attr('st-require-change') !== undefined) {
+            this.validators.push(new ValidatorRequireChange(this, this.field));
         }
 
     }
