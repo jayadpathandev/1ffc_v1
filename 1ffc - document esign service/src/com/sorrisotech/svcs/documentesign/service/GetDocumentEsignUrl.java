@@ -164,6 +164,12 @@ public class GetDocumentEsignUrl extends GetDocumentEsignUrlBase{
 		metadata.put("flex2", flex2);
 		metadata.put("flex3", flex3);
 		metadata.put("flex4", flex4);
+		
+		if (displayAccount != null && displayAccount.length() >= 4) {
+			metadata.put("billId",  "EFT form - " + displayAccount.substring(displayAccount.length() - 4));
+		} else {
+			metadata.put("billId",  "EFT form - XXXX");
+		}
 
 		final boolean documentAdded = PDFEsignService.getInstance().addDocumentToSession(
 				pdfDetailsMap, 
