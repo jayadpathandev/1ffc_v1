@@ -207,13 +207,8 @@ useCase paymentUpdateAutomaticPayment [
                        "authorization.}"
                        
    static sEftRecurringAlertMessage = "{For the final installment payment by EFT, you must make the payment directly at the 1FFC branch office no later than the Final Payment Due Date, as stated on your Loan Agreement. Recurring payments will not include the final payment.}"
-                       
-/*    static sSurchargeNotice = "{If you decide to pay through Direct Debit, 1st Franklin Financial will charge you a non-refundable Convenience Fee. " + 
-							 "This fee is payable in advance along with the Payment Amount and will be charged separately as a line item transaction.}"                       
-*/ 
- 	static sSurchargeNotice = "{For payments made via debit card, customers will be assessed a one-time, non-refundable Convenince Fee of $1.50. " +
- 	                          "If you do not wish to pay this fee, you may cancel your payment and remit payment to 1FFC via ACH, Cash, Check, or Money Order. " +
- 	                          "Excludes KY, SC, and VA. }"             
+                        
+   static sSurchargeNotice = "{For payments made via debit card, customers will be assessed a one-time, non-refundable Convenince Fee of $1.50. If you do not wish to pay this fee, you may cancel your payment and remit payment to 1FFC via ACH, Cash, Check, or Money Order. Excludes KY, SC, and VA.}"             
  	                                
     string sPaymentSurchargeMessage   = "{There will be a credit card processing charge for this order for processing the credit card you have selected to make this purchase. The fee is not greater than our expenses associated with accepting credit card payments. if you have payment notifications enabled, you will be notified of the processing fee when a payment is scheduled.If you would prefer to use a debit card or bank card, then there will be no processing fee.}"  
                     		
