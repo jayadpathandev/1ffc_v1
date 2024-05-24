@@ -152,6 +152,10 @@ public class FffcAccountAction implements IExternalReuse {
 				if (szPayType != null && szPayType.equalsIgnoreCase("onetime")) {
 					cRow.setDataValue("PAY_TYPE",
 					        I18n.translate(locator, userData, "paymentHistory_pay_type"));
+					
+					// -- Only show edit and cancel icon when it's one time payment
+					cRow.setDataValue("EDIT_CLASS", 	"payment-edit-img st-left-space");
+					cRow.setDataValue("CANCEL_CLASS", 	"payment-cancel-img st-left-space");
 				}
 				
 				boolean bFound = false;
