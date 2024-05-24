@@ -62,26 +62,6 @@
                 <pathelement path="${artifacts.dir}/update"/>
             </classpath>
         </java>
-        <propertyfile file="${devkit.dir}/server - notify iq/resources/notification/notification.properties">
-            <entry key="email.transport" value="communicate"/>
-            <entry key="precisely.campaign.name" value="${precisely.campaign.name}"/>
-            <entry key="precisely.sender.email" value="${precisely.sender.email}"/>
-            <entry key="precisely.sender.name" value="${precisely.sender.name}"/>
-            <entry key="precisely.replyto.email" value="${precisely.replyto.email}"/>
-            <entry key="precisely.client.id" value="${precisely.client.id}"/>
-            <entry key="precisely.secret" value="${precisely.secret}"/>
-            <entry key="precisely.customer.id" value="${precisely.customer.id}"/>
-        </propertyfile>
-        <propertyfile file="${devkit.dir}/server - notify dq/resources/notification/notification.properties">
-            <entry key="email.transport" value="communicate"/>
-            <entry key="precisely.campaign.name" value="${precisely.campaign.name}"/>
-            <entry key="precisely.sender.email" value="${precisely.sender.email}"/>
-            <entry key="precisely.sender.name" value="${precisely.sender.name}"/>
-            <entry key="precisely.replyto.email" value="${precisely.replyto.email}"/>
-            <entry key="precisely.client.id" value="${precisely.client.id}"/>
-            <entry key="precisely.secret" value="${precisely.secret}"/>
-            <entry key="precisely.customer.id" value="${precisely.customer.id}"/>
-        </propertyfile>
     </target>
 
     <target name="package-libraries">
@@ -576,7 +556,30 @@
             <entry key="nls.api.client.secret" value="${nls.api.client.secret}"/>
         </propertyfile>
 
+        <propertyfile file="${output.dir}/batch/notify_iq/resources/notification/notification.properties">
+            <entry key="email.transport" value="communicate"/>
+            <entry key="precisely.campaign.name" value="${precisely.campaign.name}"/>
+            <entry key="precisely.sender.email" value="${precisely.sender.email}"/>
+            <entry key="precisely.sender.name" value="${precisely.sender.name}"/>
+            <entry key="precisely.replyto.email" value="${precisely.replyto.email}"/>
+            <entry key="precisely.client.id" value="${precisely.client.id}"/>
+            <entry key="precisely.secret" value="${precisely.secret}"/>
+            <entry key="precisely.customer.id" value="${precisely.customer.id}"/>
+            <entry key="precisely.vault.endpoint" value="${precisely.vault.endpoint}/campaigns/{campaign_name}/transactional"/>
+        </propertyfile>
+        <propertyfile file="${output.dir}/batch/notify_dq/resources/notification/notification.properties">
+            <entry key="email.transport" value="communicate"/>
+            <entry key="precisely.campaign.name" value="${precisely.campaign.name}"/>
+            <entry key="precisely.sender.email" value="${precisely.sender.email}"/>
+            <entry key="precisely.sender.name" value="${precisely.sender.name}"/>
+            <entry key="precisely.replyto.email" value="${precisely.replyto.email}"/>
+            <entry key="precisely.client.id" value="${precisely.client.id}"/>
+            <entry key="precisely.secret" value="${precisely.secret}"/>
+            <entry key="precisely.vault.endpoint" value="${precisely.vault.endpoint}/campaigns/{campaign_name}/transactional"/>
+        </propertyfile>
+
         <zip destfile="${output.dir}/1ffc_qa.zip" basedir="${output.dir}/apps"/>
+        <zip destfile="${output.dir}/jobs_qa.zip" basedir="${output.dir}/batch"/>
     </target>
 
     <target name="package.app.uat" depends="-init">
@@ -624,7 +627,30 @@
             <entry key="nls.api.client.secret" value="${nls.api.client.secret}"/>
         </propertyfile>
 
+        <propertyfile file="${output.dir}/batch/notify_iq/resources/notification/notification.properties">
+            <entry key="email.transport" value="communicate"/>
+            <entry key="precisely.campaign.name" value="${precisely.campaign.name}"/>
+            <entry key="precisely.sender.email" value="${precisely.sender.email}"/>
+            <entry key="precisely.sender.name" value="${precisely.sender.name}"/>
+            <entry key="precisely.replyto.email" value="${precisely.replyto.email}"/>
+            <entry key="precisely.client.id" value="${precisely.client.id}"/>
+            <entry key="precisely.secret" value="${precisely.secret}"/>
+            <entry key="precisely.customer.id" value="${precisely.customer.id}"/>
+            <entry key="precisely.vault.endpoint" value="${precisely.vault.endpoint}/campaigns/{campaign_name}/transactional"/>
+        </propertyfile>
+        <propertyfile file="${output.dir}/batch/notify_dq/resources/notification/notification.properties">
+            <entry key="email.transport" value="communicate"/>
+            <entry key="precisely.campaign.name" value="${precisely.campaign.name}"/>
+            <entry key="precisely.sender.email" value="${precisely.sender.email}"/>
+            <entry key="precisely.sender.name" value="${precisely.sender.name}"/>
+            <entry key="precisely.replyto.email" value="${precisely.replyto.email}"/>
+            <entry key="precisely.client.id" value="${precisely.client.id}"/>
+            <entry key="precisely.secret" value="${precisely.secret}"/>
+            <entry key="precisely.vault.endpoint" value="${precisely.vault.endpoint}/campaigns/{campaign_name}/transactional"/>
+        </propertyfile>
+
         <zip destfile="${output.dir}/1ffc_uat.zip" basedir="${output.dir}/apps"/>
+        <zip destfile="${output.dir}/jobs_uat.zip" basedir="${output.dir}/batch"/>
     </target>
 
     <target name="package.app.training" depends="-init">
@@ -672,7 +698,30 @@
             <entry key="nls.api.client.secret" value="${nls.api.client.secret}"/>
         </propertyfile>
 
+        <propertyfile file="${output.dir}/batch/notify_iq/resources/notification/notification.properties">
+            <entry key="email.transport" value="communicate"/>
+            <entry key="precisely.campaign.name" value="${precisely.campaign.name}"/>
+            <entry key="precisely.sender.email" value="${precisely.sender.email}"/>
+            <entry key="precisely.sender.name" value="${precisely.sender.name}"/>
+            <entry key="precisely.replyto.email" value="${precisely.replyto.email}"/>
+            <entry key="precisely.client.id" value="${precisely.client.id}"/>
+            <entry key="precisely.secret" value="${precisely.secret}"/>
+            <entry key="precisely.customer.id" value="${precisely.customer.id}"/>
+            <entry key="precisely.vault.endpoint" value="${precisely.vault.endpoint}/campaigns/{campaign_name}/transactional"/>
+        </propertyfile>
+        <propertyfile file="${output.dir}/batch/notify_dq/resources/notification/notification.properties">
+            <entry key="email.transport" value="communicate"/>
+            <entry key="precisely.campaign.name" value="${precisely.campaign.name}"/>
+            <entry key="precisely.sender.email" value="${precisely.sender.email}"/>
+            <entry key="precisely.sender.name" value="${precisely.sender.name}"/>
+            <entry key="precisely.replyto.email" value="${precisely.replyto.email}"/>
+            <entry key="precisely.client.id" value="${precisely.client.id}"/>
+            <entry key="precisely.secret" value="${precisely.secret}"/>
+            <entry key="precisely.vault.endpoint" value="${precisely.vault.endpoint}/campaigns/{campaign_name}/transactional"/>
+        </propertyfile>
+
         <zip destfile="${output.dir}/1ffc_training.zip" basedir="${output.dir}/apps"/>
+        <zip destfile="${output.dir}/jobs_training.zip" basedir="${output.dir}/batch"/>
     </target>
 
     <target name="package" depends="-init, build.admin, build.auth, build.user, build.extdoc, package-libraries, package-communicate">
@@ -685,7 +734,6 @@
         <antcall target="package.app.training"/>
 
         <copy file="license" tofile="${output.dir}/1ffc.license"/>
-        <zip destfile="${output.dir}/1ffc_jobs.zip" basedir="${output.dir}/batch"/>
         <zip destfile="${output.dir}/1ffc_jenkins.zip" basedir="${output.dir}/jenkins"/>
         <zip destfile="${output.dir}/1ffc_sql.zip" basedir="sql"/>
     </target>
