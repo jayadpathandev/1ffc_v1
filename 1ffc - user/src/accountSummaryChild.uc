@@ -219,8 +219,8 @@ useCase accountSummaryChild [
 	   
 	string sUserId = Session.getUserId()
     string sAccNumLabel             = "{Account number:}"
-    string sTotDueHead      		= "{Current amount due}"   
-	string sInvDueDateLabel			= "{Monthly payment due date}"		
+    string sTotDueHead      		= "{Amount due}"   
+	string sInvDueDateLabel			= "{Payment due date}"		
 	string sLoanAmountLabel         = "{Current loan balance}"
 	
 	native string sMultipleAccounts = Session.multipleAccounts()
