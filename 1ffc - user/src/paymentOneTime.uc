@@ -249,7 +249,7 @@ useCase paymentOneTime [
 	static sNumberOfBillsDisplayText = "{<1> bills selected}"
 	volatile string sNumberOfBillsDisplayLabel = I18n.translate ("paymentOneTime_sNumberOfBillsDisplayText", sNumberOfBills)
 	
-    static sCurrentBalText = "{Current amount due}"
+    static sCurrentBalText = "{Amount due}"
     static sStatementBalText = "{Bill balance}"
     static sMinimumText = "{Minimum payment}"
     static sOther = "{Other amount}"

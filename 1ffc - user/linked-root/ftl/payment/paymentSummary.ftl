@@ -382,7 +382,7 @@
 						<#--  HANDLE GOOD OLD BILL THAT'S NOT LATE AND DOESN'T CONTAIN ANY OVERDUE AMOUNT -->
 						<#else> 
 							<div class="text-center mt-3 border border-2 rounded-pill border-info p-3">
-								Your next payment of 
+								Your payment of 
 								<span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nAmountDue)}</span>
 								is due on <span class="fw-bold text-decoration-underline">${dDueDate?date}</span>. 
 							</div>
@@ -445,10 +445,10 @@
 				Current loan balance<sup>*</sup>
 			</div>
 			<div class="col text-center">
-				Monthly payment due date
+				Payment due date
 			</div>
 			<div class="col">
-				<span class="float-end">Current amount due</span>
+				<span class="float-end">Amount due</span>
 			</div>
 		</div>
 		<div class"mt-5 row">
