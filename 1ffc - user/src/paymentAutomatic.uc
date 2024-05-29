@@ -80,7 +80,7 @@ useCase paymentAutomatic [
     string sLabelPaymentCancel        = "{Cancel payment}"
     string szHistoryHeader            = "{Recurring payment history}"
     string sEmptyWalletMsg            = "{Payment wallet is empty.}"                    
-    string sMessageCreate 		      = "{You have created a new recurring payment schedule using (<1>) to make the payments. This recurring payment schedule will apply to all payments due until cancelled, or until the next to last payment due.}"      
+    string sMessageCreate 		      = "{You have created a new recurring payment schedule using <1> to make the payments. This recurring payment schedule will apply to all payments due until cancelled, or until the next to last payment due.}"      
 	string sMessageEdit	              = "{You have successfully modified this recurring payment of <1>. This recurring payment schedule will apply to all bills due from this day forward.}"
     string sMessageDelete             = "{Recurring payment has been successfully removed from <1>.}"  
     string sNoChangeMsg               = "{You didn't change any option. The system took no action as a result.}"

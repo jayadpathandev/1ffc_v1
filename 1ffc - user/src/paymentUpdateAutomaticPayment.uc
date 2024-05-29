@@ -294,8 +294,12 @@ useCase paymentUpdateAutomaticPayment [
         static sTitle = "{Payment warning}"
     ]
 
-    structure msgMakeAutoAccAlreadyFound [
+/*  structure msgMakeAutoAccAlreadyFound [
         static sBody = "{One or more accounts you have selected have recurring payments configured. Recurring payments pay bills on your behalf, but you can choose to proceed with this manual payment if you choose. Recurring payments will then just pay whatever balance remains.}"
+    ]    
+*/
+    structure msgMakeAutoAccAlreadyFound [
+        static sBody = "{One or more accounts you have selected have recurring payments configured. Recurring payments pay bills on your behalf, but you can choose to proceed with this manual payment if you choose.}"
     ]    
     
     structure msgScheduledPaymentWarning [
