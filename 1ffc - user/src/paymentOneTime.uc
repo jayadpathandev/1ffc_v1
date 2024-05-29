@@ -267,7 +267,7 @@ useCase paymentOneTime [
 	
     static msgAutoScheduled_body = "{There is a recurring payment set up for this <1>. Recurring payments pay bills on your behalf, but you can choose to proceed with this manual payment. If you want to view or cancel the recurring payment, click [a href='<2>']here[/a]}"
 //  static msgPmtScheduled_body = "{There is a future-scheduled payment configured for this <1>. These amounts should already have been taken into account, but be sure to only pay the 'Current balance' for bills to avoid over-paying. If you want to view or cancel the upcoming payments, click [a href='<2>']here[/a]}"
-    static msgPmtScheduled_body = "{There is a future dated payment(s) scheduled for this <1>. If you want to view or cancel the upcoming payments, click [a href='<2>']here[/a]}"
+    static msgPmtScheduled_body = "{There is a future dated payment(s) scheduled for this account. If you want to view or cancel the upcoming payment(s), click [a href='<2>']here[/a]}"
         
     static addSourceGenericError = "{Failed to add payment source.}"
     static addSourceCardNumberError = "{Failed to add payment source. The card number is invalid.}"
