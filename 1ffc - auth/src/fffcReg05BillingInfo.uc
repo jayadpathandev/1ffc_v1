@@ -150,7 +150,7 @@ useCase fffcReg05BillingInfo [
 	
     field fCheckBoxes [        
     	checkBoxes(control) sField [         
-        	Agree: "{I have read and agree to the following: [a style='font-size: 14px;' target='_blank' href='https://www.1ffc.com/wp-content/uploads/2024/03/Online_Services_Agreement.pdf']Online Services Agreement[/a], [a style='font-size: 14px;' target='_blank' href='https://www.1ffc.com/wp-content/uploads/2024/05/Acceptable-Use-Policy-Online_Final.pdf'] Online Privacy Policy[/a], [a style='font-size: 14px;' target='_blank' href='https://www.1ffc.com/wp-content/uploads/2024/03/1FFC-Privacy-Notice_2023_Final.pdf'] Privacy Notice[/a], [a style='font-size: 14px;' target='_blank' href='https://www.1ffc.com/wp-content/uploads/2024/05/Text-Use-Policy_Final.pdf'] Text Use Policy. [/a]}"          
+        	Agree: "{I have read and agree to the following: [a style='font-size: 14px;' target='_blank' href='https://www.1ffc.com/wp-content/uploads/2024/03/Online_Services_Agreement.pdf']Online Services Agreement[/a], [a style='font-size: 14px;' target='_blank' href='https://www.1ffc.com/wp-content/uploads/2024/05/Acceptable-Use-Policy-Online_Final.pdf'] Online Privacy Policy[/a], [a style='font-size: 14px;' target='_blank' href='https://www.1ffc.com/wp-content/uploads/2024/03/1FFC-Privacy-Notice_2023_Final.pdf'] Privacy Notice[/a], and [a style='font-size: 14px;' target='_blank' href='https://www.1ffc.com/wp-content/uploads/2024/05/Text-Use-Policy_Final.pdf'] Text Use Policy. [/a]}"          
         ]        
     ]	
         
