@@ -176,7 +176,7 @@ useCase documentSearch [
 	    ]    
     ]  
 
-  	field fFlex3 [						// Document display for Flex3
+  	field fFlex3 [						// Document display for Flex3, Internal as 'I' and External as 'P'
 	    string(label) sLabel = "{Document display:}" 
         dropDown (control) pInput [
         	None: ""
@@ -1238,6 +1238,7 @@ useCase documentSearch [
 		goto(isFlexField2Empty)               
 	]
 
+	//-- Assign values to Flex2
 	action isFlexField2Empty [
 		if srFindRequest.REQ_FLEX2 == "None" then
 		   resetFlex2
@@ -1247,7 +1248,7 @@ useCase documentSearch [
 
 	action resetFlex2 [
 		srFindRequest.REQ_FLEX2 = ""
-		goto (isFlexField3Empty)
+		goto (isDocumentController)
 	]	
 
 	/* Assign the correct value for flex2 to search for */			
@@ -1257,35 +1258,50 @@ useCase documentSearch [
             case "RecAuthorizations"  	assignRecurAuthorization 
             case "OnlineApplications" 	assignOnlineApplication
             case "BranchLiveChecks"  	assignBranchLiveCheck
-            default isFlexField3Empty    
+            default isDocumentController    
             ]		
 	]	
 
 	action assignCommunicateEmails [
 		srFindRequest.REQ_FLEX2 = "Communicate emails"
-		goto (isFlexField3Empty)
+		goto (isDocumentController)
 	]
 	
 	action assignRecurAuthorization [
 		srFindRequest.REQ_FLEX2 = "Recurring EFT authorizations"
-		goto (isFlexField3Empty)
+		goto (isDocumentController)
 	]
 
 	action assignOnlineApplication [
 		srFindRequest.REQ_FLEX2 = "Online applications"
-		goto (isFlexField3Empty)
+		goto (isDocumentController)
 	]
 	
 	action assignBranchLiveCheck [
 		srFindRequest.REQ_FLEX2 = "Branch live checks"
-		goto (isFlexField3Empty)		
+		goto (isDocumentController)		
 	]
-	
-	action isFlexField3Empty [
-		if srFindRequest.REQ_FLEX3 == "None" then
-		   resetFlex3
+
+	// Assign value for flex3
+	action isDocumentController [
+		if hasActorDocController == "false" then
+		   setFlex3
 		else
-		   isDocumentController
+		   assignFlex3Value
+	]
+
+	action setFlex3 [					// Branch Agent only search for External 
+		srFindRequest.REQ_FLEX3= "P"
+		goto (isFlexField6Empty)
+	]
+
+	action assignFlex3Value [
+	   switch srFindRequest.REQ_FLEX3 [
+	   		case "None"			resetFlex3
+            case "External" 	assignExtDocumentType
+            case "Internal"  	assignIntDocumentType 
+            default isFlexField6Empty    
+       ]			
 	]
 
 	action resetFlex3 [
@@ -1293,18 +1309,18 @@ useCase documentSearch [
 		goto (isFlexField6Empty)
 	]		
 
-	action isDocumentController [
-		if hasActorDocController == "false" then
-		   setFlex3
-		else
-		   isFlexField6Empty
-	]
-
-	action setFlex3 [
-		srFindRequest.REQ_FLEX3= "External"
+	action assignExtDocumentType [
+		srFindRequest.REQ_FLEX3 = "P"
 		goto (isFlexField6Empty)
 	]
 	
+	action assignIntDocumentType [
+		srFindRequest.REQ_FLEX3 = "I"
+		goto (isFlexField6Empty)
+		
+	]	
+	
+	//-- Assign value to Flex6	
 	action isFlexField6Empty [
 		if srFindRequest.REQ_FLEX6 == "None" then
 		   resetFlex6
