@@ -99,7 +99,7 @@
     	<propertyfile file="deploy/${app}/internationalization/topics_en.properties">
     		<entry key="topics_system" value="System alerts"/>
     		<entry key="topics_account" value="Account alerts"/>
-    		<entry key="topics_account_desc" value="Payment Reminders, Payment Confirmations, and Branch Updates"/>
+    		<entry key="topics_account_desc" value="Payment Reminders, Payment Confirmations, and Branch Updates. Please note, you will still receive payment confirmations."/>
     		<entry key="topics_payment" value="Payment notice"/>
     		<entry key="topics_marketing" value="Marketing messages"/>
     		<entry key="topics_marketing_desc" value="Cash Available Updates, Promotions and Offers"/>
