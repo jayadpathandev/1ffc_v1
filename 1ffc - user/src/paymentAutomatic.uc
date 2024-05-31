@@ -141,7 +141,7 @@ useCase paymentAutomatic [
 
 	structure(message) msgPmtScheduledMsg3 [
 		string(title) sTitle = "{Payment warning}"
-		volatile native string (body) sBody = "{At least one payment is already scheduled for the account covered by this recurring payment schedule, which will not be affected by the new schedule.}"
+		string (body) sBody = "{At least one payment is already scheduled for the account covered by this recurring payment schedule, which will not be affected by the new schedule.}"
 	]
 
 	structure(message) msgNoPmtGroupError [
