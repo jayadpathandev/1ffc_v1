@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:tx="http://www.springframework.org/schema/tx"
+xmlns:util="http://www.springframework.org/schema/util"
+xmlns:aop="http://www.springframework.org/schema/aop"
+xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+	<!-- ************************************************************************* -->
+    <!-- ********      Import the Database Pool Bean                   *********** -->
+    <!-- ************************************************************************* -->
+    <import resource="classpath:/db/common_config.xml"/>
+	<import resource="classpath:doc_latest.xml"/>
+	<import resource="classpath:doc_vault.xml"/>
+	<import resource="classpath:doc_list.xml"/>	
+	
+    <bean id="docFactoryMgr" class="com.sorrisotech.app.service.documents.DocFactoryMgr" scope="prototype">
+        <property name="factories">
+        	<map key-type="java.lang.String" value-type="java.lang.String">
+        		<entry key="bill" value="billFactory"/>
+        		<entry key="vault" value="vaultFactory"/>
+        	</map>
+        </property>
+    </bean>
+    
+    <bean id="billFactory" class="com.sorrisotech.app.service.documents.DocVaultSumFactory" scope="prototype">
+        <constructor-arg>
+            <bean class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate">
+			<constructor-arg>
+				<ref bean="dataSource"/>
+			</constructor-arg>
+            </bean>            
+        </constructor-arg>
+        <property name="queryMap" ref="queryMap"/>
+    </bean>
+    
+    <bean id="vaultFactory" class="com.sorrisotech.app.service.documents.DocVaultSumFactory" scope="prototype">
+        <constructor-arg>
+            <bean class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate">
+			<constructor-arg>
+				<ref bean="dataSource"/>
+			</constructor-arg>
+            </bean>            
+        </constructor-arg>
+        <property name="queryMap" ref="queryMap"/>
+    </bean>
+    
+    <util:map id="queryMap" key-type="java.lang.String" value-type="java.lang.String">
+		<entry key="getAccountNumbersForUserSql">
+	    	<value>
+			    SELECT   
+			    	TM_ACCOUNT.ACCOUNT_NUMBER
+			    FROM 
+			    	PROF_COMPANY_ACCOUNT,
+			    	PROF_COMPANY_USER,
+			    	TM_ACCOUNT
+			    WHERE    
+			    	PROF_COMPANY_ACCOUNT.COMPANY_ID = PROF_COMPANY_USER.COMPANYID
+			    	AND TM_ACCOUNT.ID = PROF_COMPANY_ACCOUNT.ACCOUNT_ID
+			        AND PROF_COMPANY_USER.USERID = :userid
+			</value>
+		</entry>
+		<entry key="getBillsBetweenDatesSql">
+	    	<value>
+			    SELECT   
+			    	BILL.*,
+			    	BILL_SUMMARY.*,
+			    	BILL_FILE_META_DATA.bill_stream
+			    FROM     
+			    	BILL_SUMMARY,
+			        BILL,
+			        BILL_FILE_META_DATA
+			    WHERE    
+			    	BILL.BILL_ID = BILL_SUMMARY.BILL_ID
+			        AND BILL.BILL_FILE_ID = BILL_FILE_META_DATA.BILL_FILE_ID
+			        AND BILL_FILE_META_DATA.STATUS IN ('PUBLISHED','MERGED') 
+			        AND BILL_SUMMARY.LOCATION = :location
+			        AND BILL.ACCOUNT IN (@@ACCOUNTS@@)
+			        AND BILL_FILE_META_DATA.PAYMENT_GROUP = :billgroup
+                    AND BILL.BILL_DATE BETWEEN :fromDate AND :toDate
+                    -- additional optional column filters
+                    @@FILTERS@@
+			    ORDER BY 
+			    	BILL_DATE DESC
+			</value>
+		</entry>
+		<entry key="getBillsBetweenDatesSqlAdvSearch">
+	    	<value>
+			    SELECT   
+			    	BILL.*,
+			    	BILL_SUMMARY.*,
+			    	BILL_FILE_META_DATA.payment_group,
+			    	BILL_FILE_META_DATA.bill_stream
+			    FROM     
+			    	BILL_SUMMARY,
+			        BILL,
+			        BILL_FILE_META_DATA
+			    WHERE    
+			    	BILL.BILL_ID = BILL_SUMMARY.BILL_ID
+			        AND BILL.BILL_FILE_ID = BILL_FILE_META_DATA.BILL_FILE_ID
+			        AND BILL_FILE_META_DATA.STATUS IN ('PUBLISHED','MERGED') 
+			        AND BILL.ACCOUNT IN (@@ACCOUNTS@@)
+			        AND BILL_FILE_META_DATA.PAYMENT_GROUP = :billgroup
+                    AND BILL.BILL_DATE BETWEEN :fromDate AND :toDate
+                    AND upper(flex3) not like 'I'
+                    -- additional optional column filters
+                    @@FILTERS@@
+			    ORDER BY 
+			    	BILL_DATE DESC
+			</value>
+		</entry>
+		
+    </util:map>
+
+    <bean id="findSql" class="java.lang.String">
+        <constructor-arg>
+            <value>
+            	select
+            		b.bill_id,
+            		bs.display_name,
+            		b.invoice_number,
+            		b.bill_date,
+            		b.is_bill,
+            		bs.due_date,
+            		b.flex1,  b.flex2,  b.flex3,  b.flex4,  b.flex5,
+            		b.flex6,  b.flex7,  b.flex8,  b.flex9,  b.flex10,
+            		b.flex11, b.flex12, b.flex13, b.flex14, b.flex15,
+            		b.flex16, b.flex17, b.flex18, b.flex19, b.flex20
+            	from
+            		bill_file_meta_data bfmd, bill b, bill_summary bs 
+            	where
+            		bfmd.status       = 'PUBLISHED' and
+            		bfmd.bill_file_id = b.bill_file_id and
+            		b.bill_id         = bs.bill_id and
+            		b.bill_date       &gt;= :startDate and
+            		b.bill_date       &lt;= :endDate
+            		@accounts@
+            		@criteria@
+            		@sort@	
+            </value>
+        </constructor-arg>   
+    </bean>        
+    <bean id="findCountSql" class="java.lang.String">
+        <constructor-arg>
+            <value>
+            	select
+            		count(*)
+            	from
+            		bill_file_meta_data bfmd, bill b, bill_summary bs 
+            	where
+            		bfmd.status       = 'PUBLISHED' and
+            		bfmd.bill_file_id = b.bill_file_id and
+            		b.bill_id         = bs.bill_id and
+            		b.bill_date       &gt;= :startDate and
+            		b.bill_date       &lt;= :endDate
+            		@accounts@
+            		@criteria@
+            	
+            </value>
+        </constructor-arg>   
+    </bean>        
+    <bean id="findDao" class="com.sorrisotech.svcs.documents.service.dao.FindDao">
+    	<property name="database" value="${database}"/>
+    </bean>
+    
+	<bean id="accountOverviewSql" class="java.lang.String">
+        <constructor-arg>
+            <value>
+				with my as (
+				    select 
+				        ta.id as aid,
+				        ta.account_number as i_acc,
+				        ta.account_number_display as e_acc,
+				        ta.bill_group as pay,
+				        b.bill_date,
+				        b.is_bill
+				    from 
+				        prof_company_user pcu,
+				        prof_company_account pca,
+				        tm_account ta,
+				        bill b,
+				        bill_file_meta_data bfmd
+				    where
+				        pcu.userid = :user AND
+				        bfmd.status = 'PUBLISHED' AND
+				        pcu.companyid = pca.company_id AND 
+				        pca.account_id = ta.id AND 
+				        ta.account_number = b.account AND
+				        ta.bill_group = bfmd.payment_group AND
+				        b.bill_file_id = bfmd.bill_file_id
+				) select accounts.i_acc, accounts.e_acc, accounts.pay, latest_bill, bill_count, latest_doc, doc_count from
+				(select distinct aid, i_acc, e_acc, pay from my) accounts
+				left join (select aid, max(bill_date)  as latest_bill  from my where is_bill='Y' group by aid) bill on accounts.aid = bill.aid
+				left join (select aid, bill_date, count(*) as bill_count from my where is_bill='Y' group by aid, bill_date) bills on accounts.aid = bills.aid and latest_bill = bills.bill_date 
+				left join (select aid, max(bill_date) as latest_doc from my where is_bill='N' group by aid) doc on accounts.aid = doc.aid
+				left join (select aid, bill_date, count(*) as doc_count from my where is_bill='N' group by aid, bill_date) docs on accounts.aid = docs.aid and latest_doc = docs.bill_date
+				ORDER BY i_acc ASC
+            </value>
+        </constructor-arg>   
+    </bean>    
+    <bean id="accountOverviewDao" class="com.sorrisotech.svcs.documents.service.dao.AccountOverviewDao">
+    </bean>
+</beans>
