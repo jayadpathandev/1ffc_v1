@@ -430,14 +430,13 @@
             </classpath>
         </javac>
 
-		<copy todir="${output.dir}/apps/user/classes" file="1ffc - user/src/app-config.properties" overwrite="true"/>
-        <copy todir="${output.dir}/apps/user/classes/">
+        <copy todir="${output.dir}/apps/user/classes/" overwrite="true">
             <fileset dir="1ffc - user/src">
+                <exclude name="*.app"/>
+                <exclude name="*.lib"/>
                 <exclude name="*.uc"/>
-                <exclude name="app-config.properties"/>
                 <exclude name="**/*.java"/>
                 <exclude name="logback.xml"/>
-                <exclude name="user.app"/>
             </fileset>
             <fileset dir="${mod.package.dir}/user/resources"/>
         </copy>
