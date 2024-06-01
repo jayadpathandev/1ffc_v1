@@ -110,7 +110,7 @@
 		not. So yeah... if for some reason, .now can't convert to a comparison string directly.. same date but keeps time.
 
 		The test returns 0(false) if due date is is today or in the future, 1(true) if we are passed the due date -->
-<#assign bPastDueDate = bill.dueDate?date < .now?string["MM/dd/yyyy"]?date />
+<#assign bPastDueDate = status.dueDate?date < .now?string["MM/dd/yyyy"]?date />
 <#assign bBillHasOverdue = bill.isBillOverdue>
 
 <#--  ** bAccountCredit is used to turn off messages associated with future payments
@@ -121,8 +121,8 @@
 	<#assign bAccountCredit = true>
 </#if>
 
-<#--  ** bill.dueDate is the due date for this bill -->
-<#assign dDueDate = bill.dueDate?date>		<#--  we use this everywhere so make it a variable -->
+<#--  ** status.dueDate is the due date for this bill -->
+<#assign dDueDate = status.dueDate?date>		<#--  we use this everywhere so make it a variable -->
 
 <#--  ** status.accountBalance is the principal remaining based on latest status update -->
 <#assign nLoanAmount = 0>
@@ -199,7 +199,7 @@
 		</tr>
 		<tr>
 			<td><span class="fw-bold">Due Date:</span></td>
-			<td><span class="fw-bold">${bill.dueDate?date}</span></td>
+			<td><span class="fw-bold">${status.dueDate?date}</span></td>
 		</tr>
 		<tr>
 			<td><span class="fw-bold">Original Loan Amount:</span></td>

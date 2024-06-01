@@ -1,7 +1,7 @@
 package com.sorrisotech.svcs.accountstatus.dao;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
+
 
 import com.sorrisotech.svcs.accountstatus.cache.EnumConst.AcctStatus;
 import com.sorrisotech.svcs.accountstatus.cache.EnumConst.AchEnabled;
@@ -57,6 +57,8 @@ public class AccountStatusElement {
 	private 	BigDecimal		m_dDebitConvenienceFee = null;
 	private 	BigDecimal		m_dAccountBalance = null;
 	private 	BigDecimal		m_dLastTimeUpdated = null;
+	private 	BigDecimal		m_dPaymentDueDate = null;
+	private 	BigDecimal		m_dMinimumPaymentAmount = null;
 	
 	/**
 	 * Used by slf4J to log the contents of this object.
@@ -81,7 +83,7 @@ public class AccountStatusElement {
 					"    AutomaticPaymentStats - " + m_AutoPmtStatus.toString() + "\n" +
 					"    PortalEligible - " + m_bPortalEligible.toString() + "\n" +
 					"    ContactPrefsStats - " + m_ContPrefStatus.toString() + "\n" +
-					"    MaxPaymentAcount - " + m_dMaxPaymentAmount.toString() + "\n" +
+					"    MaxPaymentAmount - " + m_dMaxPaymentAmount.toString() + "\n" +
 					"    CurrentAmtDue - " + m_dCurrentAmtDue.toString() + "\n" +
 					"    DebitConvenienceFee - " + m_dDebitConvenienceFee.toString() + "\n" +
 					"    MostRecentUpdate - " + m_iMostRecentUpdate.toString() + "\n" +
@@ -90,7 +92,10 @@ public class AccountStatusElement {
 					"    CurrentAmountDue - " + m_dCurrentAmtDue.toString() + "\n" +
 					"    DebitConvenienceFee - " + m_dDebitConvenienceFee.toString() + "\n" +
 					"    AccountBalance - " + m_dAccountBalance.toString() + "\n" +
-					"    TimeLastUpdated - " + m_dLastTimeUpdated.toString() + "\n" );
+					"    TimeLastUpdated - " + m_dLastTimeUpdated.toString() + "\n"  +
+					" 	 Due_Date - " + m_dPaymentDueDate.toString() + "\n" +
+					"    MinimumPaymentAmount - " + m_dMinimumPaymentAmount.toString() + "\n" 
+					);
 	}
 	
 	public String getStatusGroupId() {
@@ -275,5 +280,20 @@ public class AccountStatusElement {
 	public void setLastUpdate(final BigDecimal cLastUpdate) {
 		m_dLastTimeUpdated = cLastUpdate;
 	}
-
+	
+	public void setPaymentDueDate(final BigDecimal cdPaymentDueDate) {
+		m_dPaymentDueDate = cdPaymentDueDate;
+	}
+	
+	public BigDecimal getPaymentDueDate() {
+		return m_dPaymentDueDate;
+	}
+	
+	public void setMinimumPaymentDue(final BigDecimal cdMinimumPaymentDue) {
+		m_dMinimumPaymentAmount = cdMinimumPaymentDue;
+	}
+	
+	public BigDecimal getMinimumPaymentDue() {
+			return m_dMinimumPaymentAmount;
+	}
 }

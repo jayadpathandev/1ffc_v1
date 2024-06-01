@@ -189,7 +189,7 @@ define service AccountStatus(com.sorrisotech.app.serviceapi.uc.UcRequestClient) 
 		// ----------------------------------------------------------------
 		// -- maximum the user can pay against this account at this time.
 		number maximumPaymentAmount
-
+		
 		// ----------------------------------------------------------------
 		// -- current amount due for this account, updated daily				
 		number currentAmountDue
@@ -205,6 +205,11 @@ define service AccountStatus(com.sorrisotech.app.serviceapi.uc.UcRequestClient) 
 		// -- convenience fee for this account no convenience fee if 0
 		//				
 		number debitConvenienceFeeAmt
+		
+		//-----------------------------------------------------------------
+		// -- updated payment due date.  Could be newer than what's 
+		//		provided in the bill feed --
+		number paymentDueDate
 		
 		// ----------------------------------------------------------------
 		// -- date status was received for this account --

@@ -26,7 +26,7 @@ import com.sorrisotech.svcs.accountstatus.cache.EnumConst.ContPrefsStats;
  * @version 22-Jan-2024 jak Added new fields current amount due and convenience fee
  * @version 01-Feb-2024 jak	Added account balance
  * @version 17-Mar-2024 jak Added getMonthlyPayment
- * @version 03-May-2024 jak	Added getLastUpdate
+ * @version 03-May-2024 jak	Added getLastUpdate getMinPayementAmount
  */
 public interface IUserStatusCacheItem {
 	
@@ -260,4 +260,16 @@ public interface IUserStatusCacheItem {
 	 * @throws AccountStatusException
 	 */
 	abstract public BigDecimal getLastUpdate() throws AccountStatusException;
+	
+	/**
+	 * Returns the current payment due date.  This may be further out than what's shown on the bill
+	 * if the customer pays ahead.
+	 * @param cszPaymentGroup
+	 * @param cszAccountIdentifier
+	 * @return BigDecimal as YYYYMMDD
+	 * @throws AccountStatusException
+	 */
+	abstract public BigDecimal getPaymentDueDate(String cszPaymentGroup, String cszAccountIdentifier) throws AccountStatusException;
+
+
 }

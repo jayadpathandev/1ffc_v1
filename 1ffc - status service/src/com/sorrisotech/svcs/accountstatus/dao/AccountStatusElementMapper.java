@@ -24,6 +24,7 @@ import com.sorrisotech.svcs.accountstatus.cache.EnumConst.ViewAcct;
  * @since - 09-Oct-2023
  * @version - 22-Jan-2024  jak added current amount due and convenience fee
  * @version - 1-Feb-2024   jak added account_balance
+ * @version - 30-May-2024  jak added payment due date
  */
 public class AccountStatusElementMapper implements RowMapper<AccountStatusElement>{
 	
@@ -39,6 +40,7 @@ public class AccountStatusElementMapper implements RowMapper<AccountStatusElemen
 		lAcctStats.setPaymentGroupId(arg0.getString("payment_group"));  
 		lAcctStats.setCustomerId(arg0.getString("customer_id"));		
 		lAcctStats.setAccountId(arg0.getString("account_number"));		
+		lAcctStats.setPaymentDueDate(getSafeBigDecimal(arg0.getString("due_date"), "due_date", lAcctStats));
 		
 		LOG.debug("mapRow for status group {}, customer id {}, account number {}.",
 				lAcctStats.getStatusGroupId(), lAcctStats.getCustomerId(), lAcctStats.getAccountId());
@@ -68,6 +70,7 @@ public class AccountStatusElementMapper implements RowMapper<AccountStatusElemen
 		lAcctStats.setPortalEligible(getSafeBooleanDbValue(arg0.getString("eligible_for_portal"), true, "eligible_for_portal", lAcctStats));
 		lAcctStats.setAutoPaymentStatus(getSafeAutoPaymentStatus(arg0.getString("automatic_payment_status"), lAcctStats));
 		lAcctStats.setMaxPaymentAmount(getSafeBigDecimal(arg0.getString("maximum_payment_amount"), "maximum_payment_amount", lAcctStats));
+		lAcctStats.setMinimumPaymentDue(getSafeBigDecimal(arg0.getString("minimum_payment_amount"), "minimum_payment_amount", lAcctStats));
 		lAcctStats.setContactPrefsStatus(getSafeContactPrefStatus(arg0.getString("contact_preferences_status"), lAcctStats));
 		lAcctStats.setCurrentAmountDue(getSafeBigDecimal(arg0.getString("current_amount_due"),"current_amount_due",lAcctStats));
 		lAcctStats.setDebitConvenienceFee(getSafeBigDecimal(arg0.getString("debit_convenience_fee"),"debit_convenience_fee",lAcctStats));

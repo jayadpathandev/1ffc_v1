@@ -22,6 +22,7 @@ import freemarker.ext.dom.NodeModel;
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -199,7 +200,15 @@ public class UcFtlDisplay implements IExternalReuse {
 			return true;
 		} // -- end of putString
 		
-		boolean putDateDbAsLocalizedString (final String cszGroupName, final String cszItemName, final String cszObject) {
+		/**
+		 * Puts a time variable (date plus time) into the template as a date object
+		 * 
+		 * @param cszGroupName
+		 * @param cszItemName
+		 * @param cszObject
+		 * @return
+		 */
+		boolean putTimeDbFromString (final String cszGroupName, final String cszItemName, final String cszObject) {
 			
 			Boolean rVal = false;
 			try {
@@ -208,14 +217,40 @@ public class UcFtlDisplay implements IExternalReuse {
 				put (cszGroupName, cszItemName, lDate);
 				rVal = true;
 			} catch (NumberFormatException e) {
-				m_cLog.error("UcFtlDisplay:FtlTemplate:putDateDbAsLocalizedString -- invalid number format for " + 
+				m_cLog.error("UcFtlDisplay:FtlTemplate:putTimeDbFromString -- invalid number format for " + 
 						"template id {}, template name {}, type specification {}, input string {}.", 
 						m_TemplateId.toString(), m_szTemplateName, "dateDb", cszObject);
-				m_cLog.error("UcFtlDisplay:FtlTemplate:putDateDbAsLocalizedString", e);
+				m_cLog.error("UcFtlDisplay:FtlTemplate:putTimeDbFromString", e);
 			}
 			
 			return rVal;
-		} // -- end of putDateDbAsLocalizedString
+		} // -- end of putTimeDbFromString
+
+		/**
+		 * puts the date formatted as YYYYMMDD into a date object and adds that into template
+		 * 
+		 * @param cszGroupName
+		 * @param cszItemName
+		 * @param cszObject
+		 * @return
+		 */
+		boolean putDateDb (final String cszGroupName, final String cszItemName, final String cszObject) {
+			
+			Boolean rVal = false;
+			SimpleDateFormat lDateFormat = new SimpleDateFormat("yyyyMMdd");
+			try {
+				Date lDate = lDateFormat.parse(cszObject);
+				put (cszGroupName, cszItemName, lDate);
+				rVal = true;
+			} catch (ParseException e) {
+				m_cLog.error("UcFtlDisplay:FtlTemplate:putDateDb -- invalid date format for " + 
+						"template id {}, template name {}, type specification {}, input string {}.", 
+						m_TemplateId.toString(), m_szTemplateName, "dateDb", cszObject);
+				m_cLog.error("UcFtlDisplay:FtlTemplate:putDateDb", e);
+			}
+			
+			return rVal;
+		} // -- end of putDateDb
 		
 		/**
 		 * Takes a number as a string, validates that its a number, and then places it in the template.
@@ -520,8 +555,11 @@ public class UcFtlDisplay implements IExternalReuse {
 			case "currency":
 				lbSuccess = lTemplate.putCurrencyString(cszItemGroup, cszItemName, cszItemValue);
 				break;
+			case "timeDb":
+				lbSuccess = lTemplate.putTimeDbFromString(cszItemGroup, cszItemName, cszItemValue);
+				break;
 			case "dateDb":
-				lbSuccess = lTemplate.putDateDbAsLocalizedString(cszItemGroup, cszItemName, cszItemValue);
+				lbSuccess = lTemplate.putDateDb(cszItemGroup, cszItemName, cszItemValue);
 				break;
 			case "boolean":
 				lbSuccess = lTemplate.putBoolean(cszItemGroup, cszItemName, cszItemValue);

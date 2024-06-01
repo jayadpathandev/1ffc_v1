@@ -271,7 +271,7 @@ public class UserStatusCacheItem implements IUserStatusCacheItem, IUserStatusIte
 		
 		MinimumPaymentData rData = null;
 		PayEnabled ePayStatus = getPaymentEnabled(cszPaymentGroup,cszAcctIdentifier);
-		BigDecimal dMinPayment = getStatusElement(cszPaymentGroup, cszAcctIdentifier).getCurrentAmountDue();
+		BigDecimal dMinPayment = getStatusElement(cszPaymentGroup, cszAcctIdentifier).getMinimumPaymentDue();
 		
 		switch (ePayStatus) {
 		case enabled: 
@@ -387,6 +387,14 @@ public class UserStatusCacheItem implements IUserStatusCacheItem, IUserStatusIte
 		}
 		return ldReturnValue;
 	}
-	
+
+	@Override
+	public BigDecimal getPaymentDueDate(String cszPaymentGroup, String cszAccountIdentifier) throws AccountStatusException {
+		// TODO Auto-generated method stub
+		AccountStatusElement lStatusElement = getStatusElement(cszPaymentGroup, cszAccountIdentifier);
+		BigDecimal ldPaymentDueDate = lStatusElement.getPaymentDueDate();
+		return ldPaymentDueDate;
+	}
+
 	
 }

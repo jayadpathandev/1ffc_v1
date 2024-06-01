@@ -31,9 +31,12 @@ import com.sorrisotech.svcs.serviceapi.api.ServiceAPIErrorCode;
  *  		<li><b>currentAmountDue</b> - current amount due on this account
  *  		<li><b>debitConvenienceFeeAmt</b> - convenience fee for debit card transactions
  *  		<li><b>statusDate</b> - date this status was updated
+ *  		<li><b>paymentDueDate</b> -- due date for next payment (may not agree with the bill)
  *  
  *  @version 22-Jan-2024 jak	Added current amount due and convenience fee
  *  @version 01-Feb-2024 jak	Added account balance
+ *  @version 30-May-2024 jak	Added payment due date
+ *  
  *  @since 24-Sep-2023
  *  @author John A. Kowalonek 
  */
@@ -71,6 +74,7 @@ public class GetStatus extends GetStatusBase {
 				request.set(IApiAccountStatus.GetStatus.debitConvenienceFeeAmt, cacheItem.getDebitConvenienceFee(sPaymentGroup, sAccount));
 				request.set(IApiAccountStatus.GetStatus.statusDate, cacheItem.getMostRecentUpdate(sPaymentGroup, sAccount).toString());
 				request.set(IApiAccountStatus.GetStatus.accountBalance, cacheItem.getAccountBalance(sPaymentGroup, sAccount));
+				request.set(IApiAccountStatus.GetStatus.paymentDueDate, cacheItem.getPaymentDueDate(sPaymentGroup, sAccount));
 				rVal = ServiceAPIErrorCode.Success;
 			} catch (AccountStatusException e) {
 				LOG.error("GetStatus:processInternal -- failed to get status for user {}, group {}, acct {}",

@@ -133,7 +133,7 @@ useCase accountSummaryChild [
     
     native string maxAge =			 		AppConfig.get("recent.number.of.months", "3")
     native string sBillDate =		 		Format.formatDateNumeric(srBillOverview.docDate)
-    native string sBillDueDateDisplay = 	Format.formatDateNumeric(srBillOverview.dueDate)
+    native string sBillDueDateDisplay = 	Format.formatDateNumeric(srGetStatusResult.paymentDueDate)
 	native string sToday  =					FFCCAccountAction.getTodaysDate()
 	
 	// -- returns a current balance calculated based on either bill or status (whichever is newer) less
@@ -162,19 +162,8 @@ useCase accountSummaryChild [
 	/* min and max pay */
 	// -- for now, system takes the max due from where 1st Franklin files placed
 	//		it. It will eventually be take from status feed and need to change at that time --
-    native string sFlexFieldForMax = "16"
     native string sErrorValueReturned = " --"  
     
-	// -- maximum payment amount
-    volatile native string sLocalBillMaxPay = 
-    		FlexFieldInformation.getFlexFieldRaw(
- 			sUserId, 						  // -- user id
-			sAccountInternal,		 		  // -- account number
-			sLatestBillDate, 		  // -- bill date
-			sPayGroup,		  // -- payment group
-			sFlexFieldForMax,				  // -- flex field number
-			sErrorValueReturned )			  // -- what returned if error
-	
 	// -- used in setting the sMinDueEdit variable --		
  	volatile native string sMinimumDue = 
  			CurrentBalanceHelper.getTrueMinimumDueRaw (
@@ -185,29 +174,28 @@ useCase accountSummaryChild [
 	// -- use din setting the sMaxDueEdit variable --
 	volatile native string sMaximumPay = 
 			CurrentBalanceHelper.getTrueMaximumPayRaw (
-				sPayGroup, 	// -- payment group
-				sAccountInternal,	// -- account
-				sLocalAccountBillDate,			// -- published date of bill
-				sLocalBillMaxPay
+				sPayGroup, 								// -- payment group
+				sAccountInternal,						// -- account
+				srGetStatusResult.statusDate,			// -- status date
+				srGetStatusResult.maximumPaymentAmount	// -- pulled from status now
 			)
 
-	volatile native string sCurrentBalance
-			
 	// -- sets the minimum due used in display on the screen --
   	volatile native string sMinimumDueDisplay  = 
  			CurrentBalanceHelper.getTrueMinimumDueFormattedAsCurrency (
 				sPayGroup, 	// -- payment group
-				sMinimumDue,						// -- minimum due from status or bill
+				srGetMinimumResult.sAmountRequired,						// -- minimum due from status or bill
 				sCurrentBalanceEdit)			// -- current balance calculated based on bill/status and payments
 				
 	// -- sets the maximum payment amount used in display on screen --
 	volatile native string sMaximumDueDisplay  = 
 			CurrentBalanceHelper.getTrueMaximumPayFormattedAsCurrency (
-				sPayGroup, 						// -- payment group
-				sAccountInternal,				// -- account
-				sLocalAccountBillDate,			// -- published date of bill
-				sLocalBillMaxPay)				// -- amount in bill
-							
+				sPayGroup, 								// -- payment group
+				sAccountInternal,						// -- account
+				srGetStatusResult.statusDate,			// -- status date
+				srGetStatusResult.maximumPaymentAmount	// -- pulled from status now
+			)
+										
 	volatile native string sCurrentBalanceEdit =
 			CurrentBalanceHelper.getCurrentBalanceRaw (
 				sPayGroup, 		// -- payment group
@@ -284,7 +272,7 @@ useCase accountSummaryChild [
 	 * 		Franklin.
 	 */ 
 	action getAccountStatus [
-		sLocalAccountStatus = "enabled"	// initialize status variable
+		sLocalAccountStatus = "newAccount"	// initialize status variable
 		sLocalCreatePaymentStatus = "enabled" // initialize create payment status variable
 		srGetStatusParams.user = sUserId
 		srGetStatusParams.paymentGroup = sPayGroup
@@ -452,7 +440,7 @@ useCase accountSummaryChild [
  	  */
  	 action isThereALatestBill [
  	 	if "0" == sLatestBillDate then
- 	 		IsActiveNoBill
+ 	 		noBillSwitchOnAcctStatus
  	 	else
  	 		isTheBillTooOld
  	 ]
@@ -464,22 +452,35 @@ useCase accountSummaryChild [
  	  */
  	 action isTheBillTooOld [
  	 	if "true" == sOlderThanXMonths then
- 	 		IsActiveNoBill
+ 	 		noBillSwitchOnAcctStatus
  	 	else
- 	 		getBillOverview
+ 	 		hasBillSwitchOnAcctStatus
  	 ]
  	 
  	 /**
- 	  * 12a. System determines if the account is active and there are no recent bills.
- 	  * 		This sets a special state.  Other states are automatic.
+ 	  * 12a. System branches based on account status, given there is no bill available.
  	  */
- 	 action IsActiveNoBill [
- 	 	if "activeAccount" == sLocalAccountStatus then 
- 	 		setActiveNoBill
- 	 	else
- 	 		setPaymentCommonNoBill
+ 	 action noBillSwitchOnAcctStatus [
+ 	 	switch sLocalAccountStatus [
+ 	 		case activeAccount 	setActiveNoBill
+ 	 		case newAccount 	setPaymentCommonNoBill
+ 	 		case closedAccount	setPaymentCommonNoBill
+ 	 		default				setPaymentCommonNoBill
+ 	 	]
  	 ]
- 	 
+
+	 /**
+ 	  * 12a. System branches based on account status, given an available bill.
+ 	  */
+ 	 action hasBillSwitchOnAcctStatus [
+ 	 	switch sLocalAccountStatus [
+ 	 		case activeAccount 	getBillOverview
+ 	 		case newAccount 	setNewAccountActive
+ 	 		case closedAccount	setPaymentCommonNoBill
+ 	 		default				setPaymentCommonNoBill
+ 	 	]
+ 	 ]
+
  	 /**
  	  * 13a. System sets status to activeNoBill (a "virtual" account status) to drive the 
  	  * 		message screen differently than a standard account status. 
@@ -487,6 +488,16 @@ useCase accountSummaryChild [
  	 action setActiveNoBill [
  	 	sLocalAccountStatus = "activeNoBill"
  	 	goto(setPaymentCommonNoBill)
+ 	 ]
+ 	 
+ 	 /**
+ 	  *  13b. System transitions a new account to active because a bill has arrived but the
+ 	  *			status has not yet been updated.
+ 	  */
+ 	 action setNewAccountActive [
+ 	 	sLocalAccountStatus = "activeAccount"
+ 	 	goto(getBillOverview)
+ 	 	
  	 ]
 	
 	/**
@@ -512,7 +523,7 @@ useCase accountSummaryChild [
  	action howManyDocs [
 		sBillId = srBillOverview.docNumber
 		sBillOverviewResult = srBillOverview.result
-     	sBillOverviewDueDate = srBillOverview.dueDate
+     	sBillOverviewDueDate = srGetStatusResult.paymentDueDate
      	sDocBalanceRaw = srBillOverview.docAmount
      	sTotalBalanceRaw = srBillOverview.totalDue
      	sDocLocation = srBillOverview.docLocation
@@ -922,7 +933,7 @@ useCase accountSummaryChild [
 					// -- message for a new account --
 					display sMessageNewAccount [
 	            		class: "st-dashboard-summary-value text-center"
-	            		logic: [if "newAccount" != srGetStatusResult.accountStatus then "remove"]
+	            		logic: [if "newAccount" != sLocalAccountStatus then "remove"]
 					]
 					
 					// -- message for a closed account --
