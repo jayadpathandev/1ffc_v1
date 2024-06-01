@@ -238,15 +238,20 @@ public class UcFtlDisplay implements IExternalReuse {
 			
 			Boolean rVal = false;
 			SimpleDateFormat lDateFormat = new SimpleDateFormat("yyyyMMdd");
+			
 			try {
 				Date lDate = lDateFormat.parse(cszObject);
 				put (cszGroupName, cszItemName, lDate);
 				rVal = true;
 			} catch (ParseException e) {
-				m_cLog.error("UcFtlDisplay:FtlTemplate:putDateDb -- invalid date format for " + 
+				m_cLog.debug("UcFtlDisplay:FtlTemplate:putDateDb -- invalid date format for " + 
 						"template id {}, template name {}, type specification {}, input string {}.", 
 						m_TemplateId.toString(), m_szTemplateName, "dateDb", cszObject);
-				m_cLog.error("UcFtlDisplay:FtlTemplate:putDateDb", e);
+				try {
+					put (cszGroupName, cszItemName, lDateFormat.parse("19700101"));
+					rVal = true;
+				} catch (ParseException e1) {
+				}
 			}
 			
 			return rVal;
