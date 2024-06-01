@@ -258,21 +258,28 @@ useCase accountOverview [
 	//		need to pay at least the minimumDue when they are in arrears. --
 	
     number        previousAmt  = Math.subtract(srBillOverviewResult.totalDue, srBillOverviewResult.docAmount)                
+    native string sBillLocalDate
+    native string sBillLocalAmountDue
+    native string sStatusLocalDate
+    native string sStatusLocalAmountDue
+
     volatile native string sCurrentBalance = CurrentBalanceHelper.getCurrentBalanceRaw(
-    									sPayGroup,											// -- payment group
-										sAccount,											// -- internal account
-										srBillOverviewResult.docDate,						// -- most recent bill date
-										srBillOverviewResult.totalDue,						// -- bill amount due
-										srGetStatusResult.statusDate,						// -- most recent status date
-										srGetStatusResult.currentAmountDue	)				// -- status amount due
+    									sPayGroup,							// -- payment group
+										sAccount,							// -- internal account
+										sBillLocalDate,						// -- most recent bill date
+										sBillLocalAmountDue,				// -- bill amount due
+										sStatusLocalDate,					// -- most recent status date
+										sStatusLocalAmountDue	)			// -- status amount due
     
+
+   
    volatile native string bIsAccountCurrent = CurrentBalanceHelper.isAccountCurrent(
-    									sPayGroup,											// -- payment group
-										sAccount,											// -- internal account
-										srBillOverviewResult.docDate,						// -- most recent bill date
-										srBillOverviewResult.totalDue,						// -- bill amount due
-										srGetStatusResult.statusDate,						// -- most recent status date
-										srGetStatusResult.currentAmountDue	)				// -- status amount due
+    									sPayGroup,							// -- payment group
+										sAccount,							// -- internal account
+										sBillLocalDate,						// -- most recent bill date
+										sBillLocalAmountDue,				// -- bill amount due
+										sStatusLocalDate,					// -- most recent status date
+										sStatusLocalAmountDue	)			// -- status amount due
     
     
     native string sLocalAccountStatus = "enabled" 						// -- this is work around to a "defect?" in persona.  API return structures appear to be
@@ -324,6 +331,8 @@ useCase accountOverview [
  	 */
  	action assignlocalStatusVariable [
  		sLocalAccountStatus = srGetStatusResult.accountStatus
+ 		sStatusLocalDate = srGetStatusResult.statusDate
+ 		sStatusLocalAmountDue = srGetStatusResult.currentAmountDue
  		goto (switchOnViewStatus)
  	]
  	
@@ -345,6 +354,7 @@ useCase accountOverview [
  		switch srGetStatusResult.accountStatus [
  			case "activeAccount"	checkActiveAccountNoBills
  			case "newAccount" 		checkForTransition
+ 			case "closedAccount"	setPaymentDisabledAndNoBillTemplate
  			default					setNoBillTemplate
  		]
  	]
@@ -453,6 +463,17 @@ useCase accountOverview [
 		
 	]
 	
+	/**
+	 * A13a The account is closed, so turn off payments and set the no bill 
+	 * 			template.
+	 */
+	action setPaymentDisabledAndNoBillTemplate [
+ 		sActiveTemplate = TemplateIdNoBills
+		bLocalPaymentEnabled = 'false'
+		bLocalAutomaticPaymentEnabled = 'false'
+		goto (setStatusGroupVariables)
+	]
+	
  	/**
  	 *	A14. System assigns the status information determined above to the parameters
  	 *			 sent down 	to the currently active bill overview template.
@@ -470,6 +491,7 @@ useCase accountOverview [
 		FtlTemplate.setItemValue(sActiveTemplate, sStatusGrp, "achEnabled",     "string", srGetStatusResult.achEnabled)
 		FtlTemplate.setItemValue(sActiveTemplate, sStatusGrp, "viewAccount",    "string", srGetStatusResult.viewAccount)
 		FtlTemplate.setItemValue(sActiveTemplate, sStatusGrp, "accountBalance", "number", srGetStatusResult.accountBalance)
+		FtlTemplate.setItemValue(sActiveTemplate, sStatusGrp, "dueDate", "dateDb", srGetStatusResult.paymentDueDate)
 		FtlTemplate.setItemValue(sActiveTemplate, sRootGrp,   "jumpToOffset", "string", AccountOffset)
 
 		// building edit nickname popin url
@@ -535,6 +557,8 @@ useCase accountOverview [
 	 *				this action is a no-op.
 	 */
 	action calculateCurrentBalanceFor1stFranklin [
+		sBillLocalDate = srBillOverviewResult.docDate
+    	sBillLocalAmountDue = srBillOverviewResult.totalDue
 		goto(getScheduledPmtInfo)
 	]
 
@@ -563,7 +587,7 @@ useCase accountOverview [
 		srGetSchedPmtSummaryParam.USER_ID = sUserId
 		srGetSchedPmtSummaryParam.ACCOUNT_ID = sAccount
 		srGetSchedPmtSummaryParam.PAYMENT_GROUP = sPayGroup
-		srGetSchedPmtSummaryParam.PMT_DUEDATE = srBillOverviewResult.dueDate
+		srGetSchedPmtSummaryParam.PMT_DUEDATE = srGetStatusResult.paymentDueDate
 		switch apiCall Payment.GetScheduledPaymentSummaryForAccount(srGetSchedPmtSummaryParam,
 																srGetSchedPmtSummaryResult,
 																srGetSchedPmtSummaryStatus) [
@@ -577,10 +601,10 @@ useCase accountOverview [
 	 */
 	action storeScheduledPmtVariables [
 		FtlTemplate.setItemValue(sActiveTemplate, sScheduledPmtGrp, "oneTimePmtCount", "number", srGetSchedPmtSummaryResult.ONETIMEPMT_COUNT)
-		FtlTemplate.setItemValue(sActiveTemplate, sScheduledPmtGrp, "oneTimePmtDate", "dateDb", srGetSchedPmtSummaryResult.ONETIMEPMT_DATE)
+		FtlTemplate.setItemValue(sActiveTemplate, sScheduledPmtGrp, "oneTimePmtDate", "timeDb", srGetSchedPmtSummaryResult.ONETIMEPMT_DATE)
 		FtlTemplate.setItemValue(sActiveTemplate, sScheduledPmtGrp, "oneTimePmtTotalAmt", "number", srGetSchedPmtSummaryResult.ONETIMEPMT_TOTALAMT)
 		FtlTemplate.setItemValue(sActiveTemplate, sScheduledPmtGrp, "automaticPmtCount", "number", srGetSchedPmtSummaryResult.AUTOMATICPMT_COUNT)
-		FtlTemplate.setItemValue(sActiveTemplate, sScheduledPmtGrp, "automaticPmtDate", "dateDb", srGetSchedPmtSummaryResult.AUTOMATICPMT_DATE)
+		FtlTemplate.setItemValue(sActiveTemplate, sScheduledPmtGrp, "automaticPmtDate", "timeDb", srGetSchedPmtSummaryResult.AUTOMATICPMT_DATE)
 		FtlTemplate.setItemValue(sActiveTemplate, sScheduledPmtGrp, "automaticPmtTotalAmt", "number", srGetSchedPmtSummaryResult.AUTOMATICPMT_TOTALAMT)
 		FtlTemplate.setItemValue(sActiveTemplate, sScheduledPmtGrp, "scheduledPmtTotalAmt", "number", srGetSchedPmtSummaryResult.SCHEDULEDPMT_TOTALAMT)
 		FtlTemplate.setItemValue(sActiveTemplate, sScheduledPmtGrp, "hasAutomaticPmtRule", "boolean", sHasAutomaticPaymentRule)
