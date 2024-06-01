@@ -76,7 +76,7 @@
 						<#case "newAccount">
 							<#--  All links disabled -->
 							<a class="me-4 disabled pe-none opacity-50" aria-disabled="true">View statement</a>
-							<a class="me-4 text-nowrap disabled pe-none opacity-50" aria-disabled="true" >Transaction History</a>
+							<#--  <a class="me-4 text-nowrap disabled pe-none opacity-50" aria-disabled="true" >Transaction History</a> -->
 							<#--  Automatic (recurring) payments enable/disable control driven by status, currency of account, and if there's already
 											and automatic payment rule set  -->
 							<#if status.bAutoPayLinkEnabled>
@@ -89,7 +89,7 @@
 							<#break>
 						<#case "activeAccount">
 							<a class="me-4 disabled pe-none opacity-50" aria-disabled="true">View statement</a>
-							<a class="me-4 text-nowrap" href="#" st-pop-in="fffcViewTransactions?offset=${jumpToOffset}">Transaction History</a>
+							<#--  <a class="me-4 text-nowrap" href="#" st-pop-in="fffcViewTransactions?offset=${jumpToOffset}">Transaction History</a> -->
 								<#--  Automatic (recurring) payments enable/disable control driven by status, currency of account, and if there's already
 											and automatic payment rule set  -->
 							<#if status.bAutoPayLinkEnabled>
@@ -102,8 +102,8 @@
 							<#break>
 						<#case "closedAccount">
 							<#-- Other links enabled, payment link disabled -->
-							<a class="me-4 disabled pe-none opacity-50" aria-disabled="true">View statement</a>
-							<a class="me-4 text-nowrap" href="#" st-pop-in="fffcViewTransactions?offset=${jumpToOffset}">Transaction History</a>
+							<#-- <a class="me-4 disabled pe-none opacity-50" aria-disabled="true">View statement</a>
+							<a class="me-4 text-nowrap" href="#" st-pop-in="fffcViewTransactions?offset=${jumpToOffset}">Transaction History</a> -->
 							<a class="text-nowrap disabled pe-none opacity-50" aria-disabled="true">Set&nbsp;up&nbsp;recurring&nbsp;payment</a>				
 							<#break>
 						<#case "unknown">
