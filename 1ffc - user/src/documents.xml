@@ -105,7 +105,7 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 			        AND BILL.ACCOUNT IN (@@ACCOUNTS@@)
 			        AND BILL_FILE_META_DATA.PAYMENT_GROUP = :billgroup
                     AND BILL.BILL_DATE BETWEEN :fromDate AND :toDate
-                    AND upper(flex3) not like 'I'
+                    AND (flex3 is null or flex3='P')
                     -- additional optional column filters
                     @@FILTERS@@
 			    ORDER BY 
