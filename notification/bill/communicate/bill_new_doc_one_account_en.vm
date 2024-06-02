@@ -1,7 +1,6 @@
 { 
 	"firstName" : "$firstName",
 	"lastName" : "$lastName",
-	"accountName": "$accountName",
 	"accountNumber" : "$accountNumber",
 	"billDate" : "$date.format('MM/dd/yyyy', $date.toDate('yyyyMMdd', $billDate))",
 	"billAmount" : "$currencyTool.format($currency, $billAmount)",
