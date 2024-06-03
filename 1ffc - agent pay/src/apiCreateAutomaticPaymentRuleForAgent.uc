@@ -361,7 +361,7 @@ useCase apiCreateAutomaticPaymentRuleForAgent
 		ApiPay.userid(historyRequest.USER_ID)
 		
     	historyRequest.AUTOMATIC_ID  = createResponse.AUTOMATIC_ID
-    	historyRequest.CONFIG_CHANGE = "Automatic payment created."
+    	historyRequest.CONFIG_CHANGE = "Recurring payment created."
 		
 		switch apiCall Payment.SetAutomaticPaymentHistory(historyRequest, status) [
             default actionSuccessResponse
