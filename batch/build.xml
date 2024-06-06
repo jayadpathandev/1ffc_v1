@@ -13,12 +13,12 @@
          # Package the xfer job.
          ################################################################## -->
 	<target name="package" depends="-init">
-		<mkdir dir="${output.dir}/batch/1ffc_file_available"/>
+		<mkdir dir="${output.dir}/batch/"/>
 
-        <copy todir="${output.dir}/batch/1ffc_file_available">
+        <copy todir="${output.dir}/batch/e">
             <fileset dir=".">
-				<include name="config.properties"/>
-				<include name="FileAvailable.sh"/>
+				<exclude name="1ffc_file_available.xml"/>
+				<exclude name="build.xml"/>
 			</fileset>
         </copy>
 
