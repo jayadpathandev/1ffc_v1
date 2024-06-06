@@ -276,15 +276,51 @@ useCase apiMakeOneTimePaymentForAgent
 		ApiPay.walletToken         (makeRequest.TOKEN)
 		
 		switch apiCall Payment.MakePayment(makeRequest, makeResult, status) [
-			case apiSuccess actionMakeSuccess
+			case apiSuccess checkMakePaymentSubmit
 			default         actionPayFailure
 		]		
 	]
-
- 	/*************************
-	 * 9b. Record the successful transaction.
+	
+	/*************************
+	 * 9b. This action checks the batch payment submit success (Status-Code: "44")
 	 */
-	action actionMakeSuccess [
+	action checkMakePaymentSubmit [
+		if  makeResult.RESPONSE_CODE == "44" then
+			actionPaymentHistoryBatchSubmitSuccess
+		else
+			actionUpdatePaymentHistorySuccess
+	]
+	
+	/*************************
+	 * 9c. Insert a payment history record for batch submit success response. 
+	 */
+	action actionPaymentHistoryBatchSubmitSuccess [
+		sStatus  = "processing"
+		sTransId = makeResult.ONLINE_TRANS_ID
+		
+    	logRequest.TRANSACTION_ID  = sPayId
+		logRequest.ONLINE_TRANS_ID = sPayId
+		logRequest.PAY_CHANNEL     = "online"
+		logRequest.PAY_STATUS      = "processing"
+
+		MakePayment.accountJson(logRequest.GROUPING_JSON)
+		MakePayment.payDate    (logRequest.PAY_DATE)
+		MakePayment.totalAmount(logRequest.PAY_AMT)
+
+		ApiPay.payGroup            (logRequest.PMT_PROVIDER_ID)
+		ApiPay.walletFrom          (logRequest.PAY_FROM_ACCOUNT)
+		ApiPay.userid              (logRequest.USER_ID)
+		
+		switch apiCall Payment.StartPaymentTransaction(logRequest, status) [
+            case apiSuccess actionSuccessResponse
+            default         actionSuccessResponse
+        ]	
+	]
+	
+	/*************************
+	 * 9d. Insert a payment history record for success response.
+	 */
+	action actionUpdatePaymentHistorySuccess [
 		sStatus  = "posted"
 		sTransId = makeResult.ONLINE_TRANS_ID
 		
@@ -370,7 +406,7 @@ useCase apiMakeOneTimePaymentForAgent
 		logRequest.PAY_CHANNEL     = "online"
 		logRequest.PAY_STATUS      = "failed"
 
-		MakePayment.makePaymentJson(logRequest.GROUPING_JSON)
+		MakePayment.accountJson(logRequest.GROUPING_JSON)
 		MakePayment.payDate   (logRequest.PAY_DATE)
 		MakePayment.amount    (logRequest.PAY_AMT)		
 
