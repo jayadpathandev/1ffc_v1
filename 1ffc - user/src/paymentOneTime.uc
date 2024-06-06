@@ -2418,7 +2418,7 @@ useCase paymentOneTime [
  		SurchargeSession.emptyMap()
  		
 		sNtfParams = "transactionId=" + transactionId + "|" + 
-					 "sourceName=" + sPayDataSourceAccount + "|" +
+					 "sourceName=" + sPayDataSourceName + "|" +
 		             "amount=" + sTotalPayAmt + "|" +
 					 "sourceType=" + sPaymentMethodType + "|" + 
 					 "surchargeFlag=" + surchargeFlag + "|" + 
