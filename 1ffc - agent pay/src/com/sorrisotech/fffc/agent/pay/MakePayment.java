@@ -14,6 +14,7 @@ import com.sorrisotech.fffc.agent.pay.PaySession.PayStatus;
 import com.sorrisotech.svcs.itfc.data.IStringData;
 import com.sorrisotech.svcs.itfc.data.IUserData;
 import com.sorrisotech.svcs.itfc.exceptions.MargaritaDataException;
+import com.sorrisotech.utils.AppConfig;
 
 public class MakePayment {
 
@@ -36,6 +37,7 @@ public class MakePayment {
 
 		//---------------------------------------------------------------------
 		final var today = Calendar.getInstance();
+        final int szOffset = Integer.parseInt(AppConfig.get("application.system.time.offeset"));
 				
 		if (date.equalsIgnoreCase("today")) {
 			mDate = (Calendar) today.clone();
@@ -50,6 +52,8 @@ public class MakePayment {
 				return "invalid_date";
 			}
 		}
+		mDate.add(Calendar.HOUR_OF_DAY, szOffset);
+
 		//---------------------------------------------------------------------
 		final var toLong   = new SimpleDateFormat("yyyyMMdd");
 		final var todayNum = Long.parseLong(toLong.format(today.getTime()));

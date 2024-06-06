@@ -25,17 +25,20 @@ package com.sorrisotech.fffc.user;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sorrisotech.app.common.utils.I18n;
+import com.sorrisotech.common.DateFormat;
 import com.sorrisotech.svcs.external.IServiceLocator2;
 import com.sorrisotech.svcs.itfc.data.IListData;
 import com.sorrisotech.svcs.itfc.data.IUserData;
 import com.sorrisotech.svcs.payment.model.PaymentWalletFields;
 import com.sorrisotech.uc.payment.UcPaymentAction;
+import com.sorrisotech.utils.AppConfig;
 
 /******************************************************************************
  * This class deals with the payment transactions.
@@ -154,4 +157,35 @@ public class FffcPaymentAction extends UcPaymentAction {
 
 		return szResult;
 	}
+	
+	
+	/**************************************************************************
+	 * Checks payment date is today or a future date.
+	 * 
+	 * @param szPayDate Payment date
+	 * 
+	 * @return "today" if the pay date is today. "future" if the pay date is a
+	 *         future date. "error" if an error has occurred.
+	 */
+	@Override
+	public String checkPayDate(final String szPayDate) {
+		String szResult = "today";
+		
+		try {
+			Calendar cPayDate = DateFormat.parse(szPayDate);
+			
+			int szOffset = Integer.parseInt(AppConfig.get("application.system.time.offeset"));
+			
+			cPayDate.add(Calendar.HOUR_OF_DAY, szOffset);
+			
+			if (cPayDate.after(Calendar.getInstance())) {
+				szResult = "future";
+			}
+		} catch (Exception e) {
+			m_cLog.error("FffcPaymentAction.....checkPayDate()...An exception was thrown", e);
+			szResult = "error";
+		}
+		return szResult;
+	}
+	
 }
