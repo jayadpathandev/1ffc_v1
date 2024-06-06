@@ -543,6 +543,13 @@
 
         </propertyfile>
 
+		<propertyfile file="${output.dir}/apps/user/classes/payment/payment_config.properties">
+            <entry key="pmt.microbilt.auth.url" value="${pmt.microbilt.auth.url}"/>
+            <entry key="pmt.microbilt.validation.url" value="${pmt.microbilt.validation.url}"/>
+			<entry key="pmt.microbilt.client.id" value="${pmt.microbilt.client.id}"/>
+			<entry key="pmt.microbilt.client.secret" value="${pmt.microbilt.client.secret}"/>
+        </propertyfile>
+
         <ant dir="notification" inheritAll="false" inheritRefs="false">
 			<property name="zip.output.dir" value="${output.dir}/apps/admin/linked-root/config/"/>
 			<property name="login.url"      value="${b2c.login}"/>
@@ -612,6 +619,13 @@
             <entry key="kinective.esign.partner.id" value="${kinective.esign.partner.id}"/>
             <entry key="kinective.esign.api.key" value="${kinective.esign.api.key}"/>
 
+        </propertyfile>
+
+		<propertyfile file="${output.dir}/apps/user/classes/payment/payment_config.properties">
+            <entry key="pmt.microbilt.auth.url" value="${pmt.microbilt.auth.url}"/>
+            <entry key="pmt.microbilt.validation.url" value="${pmt.microbilt.validation.url}"/>
+			<entry key="pmt.microbilt.client.id" value="${pmt.microbilt.client.id}"/>
+			<entry key="pmt.microbilt.client.secret" value="${pmt.microbilt.client.secret}"/>
         </propertyfile>
 
         <ant dir="notification" inheritAll="false" inheritRefs="false">
@@ -685,6 +699,13 @@
 
         </propertyfile>
 
+		<propertyfile file="${output.dir}/apps/user/classes/payment/payment_config.properties">
+            <entry key="pmt.microbilt.auth.url" value="${pmt.microbilt.auth.url}"/>
+            <entry key="pmt.microbilt.validation.url" value="${pmt.microbilt.validation.url}"/>
+			<entry key="pmt.microbilt.client.id" value="${pmt.microbilt.client.id}"/>
+			<entry key="pmt.microbilt.client.secret" value="${pmt.microbilt.client.secret}"/>
+        </propertyfile>
+
         <ant dir="notification" inheritAll="false" inheritRefs="false">
 			<property name="zip.output.dir" value="${output.dir}/apps/admin/linked-root/config/"/>
 			<property name="login.url"      value="${b2c.login}"/>
@@ -723,6 +744,88 @@
         <zip destfile="${output.dir}/jobs_training.zip" basedir="${output.dir}/batch"/>
     </target>
 
+    <target name="package.app.prod" depends="-init">
+        <loadproperties srcFile="prod.properties"/>
+
+		<propertyfile file="${output.dir}/apps/auth/classes/app-config.properties">
+            <entry key="nls.api.client.id" value="${nls.api.client.id}"/>
+            <entry key="nls.api.client.secret" value="${nls.api.client.secret}"/>
+			<entry key="nls.api.base.url" value="${nls.api.base.url}"/>
+			<entry key="nls.api.version" value="${nls.api.version}"/>
+        </propertyfile>
+
+		<propertyfile file="${output.dir}/apps/admin/classes/app-config.properties">
+            <entry key="nls.api.client.id" value="${nls.api.client.id}"/>
+            <entry key="nls.api.client.secret" value="${nls.api.client.secret}"/>
+			<entry key="nls.api.base.url" value="${nls.api.base.url}"/>
+			<entry key="nls.api.version" value="${nls.api.version}"/>
+        </propertyfile>
+
+		<propertyfile file="${output.dir}/apps/user/classes/app-config.properties">
+
+            <entry key="nls.api.client.id" value="${nls.api.client.id}"/>
+            <entry key="nls.api.client.secret" value="${nls.api.client.secret}"/>
+			<entry key="nls.api.base.url" value="${nls.api.base.url}"/>
+			<entry key="nls.api.version" value="${nls.api.version}"/>
+
+            <entry key="kinective.esign.base.url" value="${kinective.esign.base.url}"/>
+            <entry key="kinective.esign.host.fiid" value="${kinective.esign.host.fiid}"/>
+            <entry key="kinective.esign.user.id=" value="${kinective.esign.user.id}"/>
+            <entry key="kinective.esign.business.app.user.id" value="${kinective.esign.business.app.user.id}"/>
+            <entry key="kinective.esign.partner.id" value="${kinective.esign.partner.id}"/>
+            <entry key="kinective.esign.api.key" value="${kinective.esign.api.key}"/>
+
+        </propertyfile>
+
+		<propertyfile file="${output.dir}/apps/user/classes/payment/payment_config.properties">
+            <entry key="pmt.microbilt.auth.url" value="${pmt.microbilt.auth.url}"/>
+            <entry key="pmt.microbilt.validation.url" value="${pmt.microbilt.validation.url}"/>
+			<entry key="pmt.microbilt.client.id" value="${pmt.microbilt.client.id}"/>
+			<entry key="pmt.microbilt.client.secret" value="${pmt.microbilt.client.secret}"/>
+        </propertyfile>
+
+        <ant dir="notification" inheritAll="false" inheritRefs="false">
+			<property name="zip.output.dir" value="${output.dir}/apps/admin/linked-root/config/"/>
+			<property name="login.url"      value="${b2c.login}"/>
+        </ant>
+
+        <propertyfile file="${output.dir}/apps/extdoc/drivers/nls/nls.properties">
+			<entry key="nls.api.base.url" value="${nls.api.base.url}"/>
+			<entry key="nls.api.version" value="${nls.api.version}"/>
+            <entry key="nls.api.client.id" value="${nls.api.client.id}"/>
+            <entry key="nls.api.client.secret" value="${nls.api.client.secret}"/>
+        </propertyfile>
+
+        <propertyfile file="${output.dir}/batch/notify_iq/resources/notification/notification.properties">
+            <entry key="email.transport" value="communicate"/>
+            <entry key="precisely.campaign.name" value="${precisely.campaign.name}"/>
+            <entry key="precisely.sender.email" value="${precisely.sender.email}"/>
+            <entry key="precisely.sender.name" value="${precisely.sender.name}"/>
+            <entry key="precisely.replyto.email" value="${precisely.replyto.email}"/>
+            <entry key="precisely.client.id" value="${precisely.client.id}"/>
+            <entry key="precisely.secret" value="${precisely.secret}"/>
+            <entry key="precisely.customer.id" value="${precisely.customer.id}"/>
+            <entry key="precisely.vault.endpoint" value="${precisely.vault.endpoint}/campaigns/{campaign_name}/transactional"/>
+        </propertyfile>
+        <propertyfile file="${output.dir}/batch/notify_dq/resources/notification/notification.properties">
+            <entry key="email.transport" value="communicate"/>
+            <entry key="precisely.campaign.name" value="${precisely.campaign.name}"/>
+            <entry key="precisely.sender.email" value="${precisely.sender.email}"/>
+            <entry key="precisely.sender.name" value="${precisely.sender.name}"/>
+            <entry key="precisely.replyto.email" value="${precisely.replyto.email}"/>
+            <entry key="precisely.client.id" value="${precisely.client.id}"/>
+            <entry key="precisely.secret" value="${precisely.secret}"/>
+            <entry key="precisely.vault.endpoint" value="${precisely.vault.endpoint}/campaigns/{campaign_name}/transactional"/>
+        </propertyfile>
+
+        <mkdir dir="${output.dir}/batch/payment_ach/resources"/>
+        <copy file="${ach.encrypt.key}"  tofile="${output.dir}/batch/payment_ach/resources/encrypt.public.asc"/>
+        <copy file="${ach.transfer.key}" tofile="${output.dir}/batch/payment_ach/resources/private.rsa"/>
+
+        <zip destfile="${output.dir}/1ffc_prod.zip" basedir="${output.dir}/apps"/>
+        <zip destfile="${output.dir}/jobs_prod.zip" basedir="${output.dir}/batch"/>
+    </target>
+
     <target name="package" depends="-init, build.admin, build.auth, build.user, build.extdoc, package-libraries, package-communicate">
         <delete file="${output.dir}/package.zip"/>
 
@@ -731,6 +834,7 @@
         <antcall target="package.app.qa"/>
         <antcall target="package.app.uat"/>
         <antcall target="package.app.training"/>
+        <antcall target="package.app.prod"/>
 
         <copy file="license" tofile="${output.dir}/1ffc.license"/>
         <zip destfile="${output.dir}/1ffc_jenkins.zip" basedir="${output.dir}/jenkins"/>
