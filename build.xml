@@ -134,6 +134,15 @@
     	<!-- Create the cofiguration. -->
         <mkdir dir="${output.dir}/apps/extdoc/drivers/billstreams"/>
         <echo file="${output.dir}/apps/extdoc/drivers/billstreams/1FFCBILLS.properties">drivername=nls</echo>
+
+    	<!-- Copy the vault driver -->
+        <mkdir dir="${output.dir}/apps/extdoc/drivers/vault"/>
+        <copy todir="${output.dir}/apps/extdoc/drivers/vault">
+            <fileset dir="${dss.dir}/extdoc/vault"/>
+        </copy>
+        <mkdir dir="${output.dir}/apps/extdoc/drivers/billstreams"/>
+        <echo file="${output.dir}/apps/extdoc/drivers/billstreams/VAULT_1FFCBills.properties">drivername=vault</echo>
+
     </target>
 
     <target name="-build.admin.uc" depends="-init, package-libraries">
@@ -584,6 +593,24 @@
             <entry key="precisely.vault.endpoint" value="${precisely.vault.endpoint}/campaigns/{campaign_name}/transactional"/>
         </propertyfile>
 
+        <mkdir dir="${output.dir}/batch/payment_ach/resources"/>
+        <copy file="${ach.encrypt.key}"  tofile="${output.dir}/batch/payment_ach/resources/encrypt.public.asc"/>
+        <copy file="${ach.transfer.key}" tofile="${output.dir}/batch/payment_ach/resources/private.rsa"/>
+        <propertyfile file="${output.dir}/batch/payment_ach/resources/payment_ach_custom.properties">
+            <entry key="encrypt.key" value="encrypt.public.asc"/>
+            <entry key="encrypt.recipient" value="joshua.gentry@sorrisotech.com"/>
+            <entry key="transfer.host" value="server1.sorrisoqa.com"/>
+            <entry key="transfer.port" value="22"/>
+            <entry key="transfer.user" value="sorriso"/>
+            <entry key="transfer.dir" value="/home/sorriso/test"/>
+            <entry key="transfer.key" value="private.rsa"/>
+        </propertyfile>
+
+        <propertyfile file="${output.dir}/apps/extdoc/drivers/vault/vault.properties">
+            <entry key="server.address" value="${vault.server}"/>
+            <entry key="server.port" value="7001"/>
+        </propertyfile>
+
         <zip destfile="${output.dir}/1ffc_qa.zip" basedir="${output.dir}/apps"/>
         <zip destfile="${output.dir}/jobs_qa.zip" basedir="${output.dir}/batch"/>
     </target>
@@ -662,6 +689,11 @@
             <entry key="precisely.vault.endpoint" value="${precisely.vault.endpoint}/campaigns/{campaign_name}/transactional"/>
         </propertyfile>
 
+        <propertyfile file="${output.dir}/apps/extdoc/drivers/vault/vault.properties">
+            <entry key="server.address" value="${vault.server}"/>
+            <entry key="server.port" value="7001"/>
+        </propertyfile>
+
         <zip destfile="${output.dir}/1ffc_uat.zip" basedir="${output.dir}/apps"/>
         <zip destfile="${output.dir}/jobs_uat.zip" basedir="${output.dir}/batch"/>
     </target>
@@ -738,6 +770,11 @@
             <entry key="precisely.client.id" value="${precisely.client.id}"/>
             <entry key="precisely.secret" value="${precisely.secret}"/>
             <entry key="precisely.vault.endpoint" value="${precisely.vault.endpoint}/campaigns/{campaign_name}/transactional"/>
+        </propertyfile>
+
+        <propertyfile file="${output.dir}/apps/extdoc/drivers/vault/vault.properties">
+            <entry key="server.address" value="${vault.server}"/>
+            <entry key="server.port" value="7001"/>
         </propertyfile>
 
         <zip destfile="${output.dir}/1ffc_training.zip" basedir="${output.dir}/apps"/>
@@ -821,6 +858,20 @@
         <mkdir dir="${output.dir}/batch/payment_ach/resources"/>
         <copy file="${ach.encrypt.key}"  tofile="${output.dir}/batch/payment_ach/resources/encrypt.public.asc"/>
         <copy file="${ach.transfer.key}" tofile="${output.dir}/batch/payment_ach/resources/private.rsa"/>
+        <propertyfile file="${output.dir}/batch/payment_ach/resources/payment_ach_custom.properties">
+            <entry key="encrypt.key" value="encrypt.public.asc"/>
+            <entry key="encrypt.recipient" value="it-mftalerts@southstatebank.com"/>
+            <entry key="transfer.host" value="mft.southstatebank.com"/>
+            <entry key="transfer.port" value="22"/>
+            <entry key="transfer.user" value="1FFSorriso"/>
+            <entry key="transfer.dir" value="."/>
+            <entry key="transfer.key" value="private.rsa"/>
+        </propertyfile>
+
+        <propertyfile file="${output.dir}/apps/extdoc/drivers/vault/vault.properties">
+            <entry key="server.address" value="${vault.server}"/>
+            <entry key="server.port" value="7001"/>
+        </propertyfile>
 
         <zip destfile="${output.dir}/1ffc_prod.zip" basedir="${output.dir}/apps"/>
         <zip destfile="${output.dir}/jobs_prod.zip" basedir="${output.dir}/batch"/>
