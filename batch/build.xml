@@ -15,7 +15,7 @@
 	<target name="package" depends="-init">
 		<mkdir dir="${output.dir}/batch/"/>
 
-        <copy todir="${output.dir}/batch/e">
+        <copy todir="${output.dir}/batch/">
             <fileset dir=".">
 				<exclude name="1ffc_file_available.xml"/>
 				<exclude name="build.xml"/>
