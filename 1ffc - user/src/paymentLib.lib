@@ -24,7 +24,6 @@ library paymentLib [
         paymentSurChargeInterPay
         paymentSurchargeGetIIN
         paymentAutomaticMessages
-        paymentConvenienceFee
     ]       
     
     features [

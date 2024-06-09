@@ -67,9 +67,7 @@ application [
 		fffcTransactionHistory 
 		fffcContactPreferencesApi
 		fffcEditDisplayAccount
-		
-		paymentContractedAmount
-		
+				
 		statusTest
 		testFtlTemplating
  	]
