@@ -594,8 +594,8 @@
         </propertyfile>
 
         <mkdir dir="${output.dir}/batch/payment_ach/resources"/>
-        <copy file="${ach.encrypt.key}"  tofile="${output.dir}/batch/payment_ach/encrypt.public.asc"/>
-        <copy file="${ach.transfer.key}" tofile="${output.dir}/batch/payment_ach/private.rsa"/>
+        <copy file="${ach.encrypt.key}"  tofile="${output.dir}/batch/payment_ach/encrypt.public.asc" overwrite="true"/>
+        <copy file="${ach.transfer.key}" tofile="${output.dir}/batch/payment_ach/private.rsa" overwrite="true"/>
         <propertyfile file="${output.dir}/batch/payment_ach/resources/payment_ach_custom.properties">
             <entry key="encrypt.key" value="encrypt.public.asc"/>
             <entry key="encrypt.recipient" value="joshua.gentry@sorrisotech.com"/>
@@ -856,8 +856,8 @@
         </propertyfile>
 
         <mkdir dir="${output.dir}/batch/payment_ach/resources"/>
-        <copy file="${ach.encrypt.key}"  tofile="${output.dir}/batch/payment_ach/encrypt.public.asc"/>
-        <copy file="${ach.transfer.key}" tofile="${output.dir}/batch/payment_ach/private.rsa"/>
+        <copy file="${ach.encrypt.key}"  tofile="${output.dir}/batch/payment_ach/encrypt.public.asc" overwrite="true"/>
+        <copy file="${ach.transfer.key}" tofile="${output.dir}/batch/payment_ach/private.rsa" overwrite="true"/>
         <propertyfile file="${output.dir}/batch/payment_ach/resources/payment_ach_custom.properties">
             <entry key="encrypt.key" value="encrypt.public.asc"/>
             <entry key="encrypt.recipient" value="it-mftalerts@southstatebank.com"/>
