@@ -878,6 +878,9 @@
     </target>
 
     <target name="package" depends="-init, build.admin, build.auth, build.user, build.extdoc, package-libraries, package-communicate">
+    </target>
+
+    <target name="release" depends="package">
         <delete file="${output.dir}/package.zip"/>
 
         <ant dir="ui" target="qa"/>
