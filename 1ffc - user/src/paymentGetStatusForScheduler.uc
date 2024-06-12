@@ -30,7 +30,7 @@ useCase paymentGetStatusForScheduler [
     startAt validateToken
     
     /* */
-	shortcut getMonthlyContractedAmount(validateUserId) [
+	shortcut getStatusForScheduler(validateUserId) [
     	securityToken,
     	userIdentifier,
         payGroup,
