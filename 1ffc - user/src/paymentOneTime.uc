@@ -484,11 +484,9 @@ useCase paymentOneTime [
 	
     native string sAppUrl           = AppConfig.get("user.app.url")
     native string sAppUsecase       = "paymentOneTime"
-    native string sPaymentUrl		= AppConfig.get("epayment.url")
-    native string sTransactionIdUrl = ""
     persistent native string responseCode      = ""
     persistent native string responseMessage   = ""
-    persistent input transactionId             = TransactionIdGen.getTransactionId(sTransactionIdUrl)
+    persistent input transactionId             = TransactionIdGen.getTransactionId()
     input token						= ""    
    
     native string methodNickName			= ""
@@ -559,7 +557,6 @@ useCase paymentOneTime [
 	action getWallet [		
 	    
 		fPayDate.aDate = sTodaysDate				
-		sTransactionIdUrl = sPaymentUrl + "generateTransactionId"
 		sAutomaticPaymentShortcut = sAppUrl + "startAutomaticPayment"
 		switch UcPaymentAction.getWalletItems(sUserId, token, dWalletItems) [
 			case "success" getBalance
