@@ -4,7 +4,6 @@ useCase apiMakeOneTimePaymentForAgent
 	shortcut makeOneTimePaymentForAgent(init)
 
 	importJava ApiPay(com.sorrisotech.fffc.agent.pay.ApiPay)
-    importJava AppConfig(com.sorrisotech.utils.AppConfig)
 	importJava Config(com.sorrisotech.utils.AppConfig)
 	importJava JsonRequest(com.sorrisotech.app.common.JsonRequest)
 	importJava JsonResponse(com.sorrisotech.app.common.JsonResponse)
@@ -14,9 +13,7 @@ useCase apiMakeOneTimePaymentForAgent
 
 	native string sServiceUserName  = Config.get("service.api.username")
     native string sServiceNameSpace = Config.get("service.api.namespace")
-    native string sPaymentUrl		= AppConfig.get("epayment.url")
-	native string sTransactionIdUrl
-	native string sPayId            = TransactionIdGen.getTransactionId(sTransactionIdUrl)
+	native string sPayId            = TransactionIdGen.getTransactionId()
 	
 	native string sSecurityToken = JsonRequest.value("securityToken")
 	native string sTransactionId = JsonRequest.value("transactionId")
@@ -59,7 +56,6 @@ useCase apiMakeOneTimePaymentForAgent
 	 * 1. Parse the JSON request.
 	 */
     action init[
-    	sTransactionIdUrl = sPaymentUrl + "generateTransactionId"
     	
     	sErrorStatus = "400"
     	sErrorDesc   = "Cannot parse JSON request."
