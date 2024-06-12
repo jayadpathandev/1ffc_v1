@@ -866,6 +866,8 @@
             <entry key="transfer.user" value="1FFSorriso"/>
             <entry key="transfer.dir" value="."/>
             <entry key="transfer.key" value="private.rsa"/>
+            <entry key="offset.routing.number" value="${offset.routing.number}"/>
+            <entry key="offset.account.number" value="${offset.account.number}"/>
         </propertyfile>
 
         <propertyfile file="${output.dir}/apps/extdoc/drivers/vault/vault.properties">
