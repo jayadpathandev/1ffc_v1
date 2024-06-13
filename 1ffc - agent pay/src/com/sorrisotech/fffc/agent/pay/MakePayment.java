@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Calendar;
 
 import org.slf4j.Logger;
@@ -37,7 +39,6 @@ public class MakePayment {
 
 		//---------------------------------------------------------------------
 		final var today = Calendar.getInstance();
-        final int szOffset = Integer.parseInt(AppConfig.get("application.system.time.offeset"));
 				
 		if (date.equalsIgnoreCase("today")) {
 			mDate = (Calendar) today.clone();
@@ -52,7 +53,13 @@ public class MakePayment {
 				return "invalid_date";
 			}
 		}
-		mDate.add(Calendar.HOUR_OF_DAY, szOffset);
+		
+		// Getting the current date-time in the specified application locale ZoneId
+		ZonedDateTime nowInApplicationTimeZone = ZonedDateTime
+		        .now(ZoneId.of(AppConfig.get("application.locale.time.zone.id")));
+		
+		// Adjusting mDate by using the offset difference
+		mDate.add(Calendar.SECOND, nowInApplicationTimeZone.getOffset().getTotalSeconds());
 
 		//---------------------------------------------------------------------
 		final var toLong   = new SimpleDateFormat("yyyyMMdd");

@@ -23,6 +23,8 @@
  */
 package com.sorrisotech.fffc.user;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -174,9 +176,12 @@ public class FffcPaymentAction extends UcPaymentAction {
 		try {
 			Calendar cPayDate = DateFormat.parse(szPayDate);
 			
-			int szOffset = Integer.parseInt(AppConfig.get("application.system.time.offeset"));
+			// Getting the current date-time in the specified application locale ZoneId
+			ZonedDateTime nowInApplicationTimeZone = ZonedDateTime
+			        .now(ZoneId.of(AppConfig.get("application.locale.time.zone.id")));
 			
-			cPayDate.add(Calendar.HOUR_OF_DAY, szOffset);
+			// Adjusting cPayDate by using the offset difference
+            cPayDate.add(Calendar.SECOND, nowInApplicationTimeZone.getOffset().getTotalSeconds());
 			
 			if (cPayDate.after(Calendar.getInstance())) {
 				szResult = "future";
