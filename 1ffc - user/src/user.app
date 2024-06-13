@@ -67,7 +67,9 @@ application [
 		fffcTransactionHistory 
 		fffcContactPreferencesApi
 		fffcEditDisplayAccount
-				
+		
+		paymentGetStatusForScheduler
+		
 		statusTest
 		testFtlTemplating
  	]
