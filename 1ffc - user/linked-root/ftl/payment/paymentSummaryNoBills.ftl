@@ -60,7 +60,7 @@
 	</#if>
 
 	<div class="row">
-		<div class="col-10">
+		<div class="col-7 col-sm-8 col-md-9 col-lg-10">
 			<div class="mb-2">
 				<span class="fw-bold">Account number:</span> <span class="fw-bold">${nickname.displayAccount}&nbsp</span>
 				<#if nickname.url?? && (nickname.url?length > 0)>
@@ -113,7 +113,7 @@
 				</#if>
 			</div>
 		</div>
-		<div class="col-2">
+		<div class="col-5 col-sm-4 col-md-3 col-lg-2">
 			<a class="btn btn-primary <#if !status.bPayEnabled>disabled</#if>" href="overviewJumpToPayment?offset=${jumpToOffset}" 
 										<#if !status.bPayEnabled>disabled="true"</#if>>PAY THIS BILL</a>
 		</div>

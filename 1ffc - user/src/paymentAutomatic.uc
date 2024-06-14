@@ -668,12 +668,12 @@ useCase paymentAutomatic [
 			    	    	class: "row st-padding-bottom"
 			    	    	
 			    	    	h4 automaticPaymentHeader [
-								class: "col-md-6"
+								class: "col-12 col-md-6"
 								display sAutomaticPaymentHeader 
 							]
 							
 							div automaticHeaderButton [
-								class: "col-md-6"
+								class: "col-12 col-md-6"
 								
 								logic: [
 									if sWalletCount == "0" then "remove"
@@ -682,7 +682,7 @@ useCase paymentAutomatic [
 								]
 								
 				    	    	navigation createAutomaticPaymentLink(termsAndConditions, "{CREATE NEW RECURRING PAYMENT}") [
-					                class: "btn btn-primary float-end"
+					                class: "btn btn-primary float-md-end"
 					                type: "popin"
 					                attr_st-pop-in-size: "lg"
 					                attr_tabindex: "1"

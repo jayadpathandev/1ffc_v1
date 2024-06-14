@@ -855,7 +855,7 @@ useCase accountSummaryChild [
        div summary [
             class: "row st-dashboard-summary"
             div info [
-            	class: "col-8 col-sm-9 col-lg-10 row"
+            	class: "col-12 col-lg-10 row"
 
 	            div accountCol [
 	            	class: "col-12 col-lg-3 st-summary-account"	   
@@ -884,7 +884,7 @@ useCase accountSummaryChild [
 	            ]
 	            
 	            div loanState [
-	            	class: "row col-12 col-lg-3 st-summary-loan-state text-lg-center"
+	            	class: "row col-12 col-md-4 col-lg-3 st-summary-loan-state text-md-center"
 					logic: [ if "activeAccount" != sLocalAccountStatus then "remove"]
 	            	display sBillAccountBalanceDisplayed [  // -- this is the current account balance
 	            											//		from the status feed so can change "daily" --
@@ -897,7 +897,7 @@ useCase accountSummaryChild [
 	            ]
 				    
 				div payDate [
-					class: "row col-12 col-lg-3 st-summary-date text-lg-center"
+					class: "row col-12 col-md-4 col-lg-3 st-summary-date text-md-center"
 					logic: [ if "activeAccount" != sLocalAccountStatus then "remove"]
 
 					display sBillDueDateDisplay [ // -- this is the due date for this bill
@@ -911,7 +911,7 @@ useCase accountSummaryChild [
 				]        
 	
 				div payAmount [
-					class: "row col-12 col-lg-3 st-summary-amount text-lg-center"
+					class: "row col-12 col-md-4 col-lg-3 st-summary-amount text-md-center "
 					logic: [ if "activeAccount" != sLocalAccountStatus then "remove"]
 
 	                display  sBillAmountDueDisplay [  // -- this changes when payments are made.. 
@@ -926,7 +926,7 @@ useCase accountSummaryChild [
 				// -- messages only, no data for accounts. Shows a message based on the account status
 				//		including a couple of status values that are set ONLY inside this use case. -- 
 				div showMessage [
-					class: "row col-8 col-lg-8 st-summary-amount text lg-center"
+					class: "col-12 col-lg-9 st-summary-amount text-center mt-3 mt-lg-0"
 					
 					logic: [ if "activeAccount" == sLocalAccountStatus then "remove"]
 					
@@ -963,7 +963,7 @@ useCase accountSummaryChild [
 			// -- we need two payNow buttons because the "disabled" logic doesn't
 			//		seem to work on buttons right now --      
 			div payNow [
-				class: "col-4 col-sm-3 col-lg-2 st-summary-pay-now float-end"
+				class: "col-12 col-sm-6 col-md-3 col-lg-2 pt-4 pt-md-4 st-summary-pay-now text-lg-end"
  
 				logic: [ 
 					if sPaymentButtonOn == "false" then "remove"

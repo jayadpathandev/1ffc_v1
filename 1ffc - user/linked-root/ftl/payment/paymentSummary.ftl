@@ -219,7 +219,7 @@
 <#-- ************END OF THE ITEMS BELOW ARE TURNED ON WHEN YOU SET debug=true  ****************-->
 
 	<div class="row">
-		<div class="col-10">
+		<div class="col-7 col-sm-8 col-md-9 col-lg-10">
 			<div class="mb-2">
 				<span class="fw-bold">Account number:</span> <span class="fw-bold">${nickname.displayAccount}&nbsp</span>
 				<#if nickname.url?? && (nickname.url?length > 0)>
@@ -257,7 +257,7 @@
 				</#if>
 			</div>
 		</div>
-		<div class="col-2">
+		<div class="col-5 col-sm-4 col-md-3 col-lg-2">
 			<a class="btn btn-primary <#if !status.bPayEnabled>disabled</#if>" href="overviewJumpToPayment?offset=${jumpToOffset}" 
 										<#if !status.bPayEnabled>disabled="true"</#if>>PAY THIS BILL</a>
 		</div>
@@ -429,41 +429,59 @@
 		</#switch> <#-- status.payEnabled -->
 		
 		<h2 class="mt-3 pt-3 border-top border-dark row">
-			<div class="col fw-bold">
-				${formatUtils.formatAmount(nLoanAmount)} <!--  statement loan balance -->
-			</div>
-			<div class="col fw-bold text-center">
-				${dDueDate?date}
-			</div>
-			<div class="col">
-				<span class="float-end fw-bold">${formatUtils.formatAmount(nAmountDue)}</span>
+			<!-- First Row for large screens -->
+       		<div class="row d-none d-md-flex">
+				<div class="col-12 col-md-4 fw-bold">
+					${formatUtils.formatAmount(nLoanAmount)} <!--  statement loan balance -->
+				</div>
+				<div class="col-12 col-md-4 fw-bold text-center">
+					${dDueDate?date}
+				</div>
+				<div class="col-12 col-md-4">
+					<span class="float-md-end fw-bold">${formatUtils.formatAmount(nAmountDue)}</span>
+				</div>
 			</div>
 		</h2>
-		
-		<div class="row">
-			<div class="col">
-				Current loan balance<sup>*</sup>
-			</div>
-			<div class="col text-center">
-				Payment due date
-			</div>
-			<div class="col">
-				<span class="ms-2 text-info float-end" data-bs-toggle="tooltip" data-bs-placement="right"
-				    data-bs-trigger="hover focus" title=""
-				    data-bs-original-title="May include late fees, past due payments, and other charges."
-				    aria-label="May include late fees, past due payments, and other charges.">
-				    Amount due
-				    <span sorriso="icon-info">
-				        <svg aria-hidden="true" role="img" class="octicon octicon-info" viewBox="0 0 16 16"
-				            width="16" height="16" fill="currentColor"
-				            style="display: inline-block; user-select: none; vertical-align: text-bottom; overflow: visible;">
-				            <path fill-rule="evenodd"
-				                d="M8 1.5a6.5 6.5 0 100 13 6.5 6.5 0 000-13zM0 8a8 8 0 1116 0A8 8 0 010 8zm6.5-.25A.75.75 0 017.25 7h1a.75.75 0 01.75.75v2.75h.25a.75.75 0 010 1.5h-2a.75.75 0 010-1.5h.25v-2h-.25a.75.75 0 01-.75-.75zM8 6a1 1 0 100-2 1 1 0 000 2z"></path>
-				        </svg>
-				    </span>
-				</span>
+		<div class="row d-none d-md-flex mt-2">
+			<div class="row">
+				<div class="col-md-4">
+					Current loan balance<sup>*</sup>
+				</div>
+				<div class="col-md-4 text-center">
+					Monthly payment due date
+				</div>
+				<div class="col-md-4 ">
+					<span class="float-md-end">Current amount due</span>
+				</div>
 			</div>
 		</div>
+		
+			<!-- Rows for small screens -->
+        	<div class="row d-md-none">
+            	<div class="col-auto">
+                	Current loan balance<sup>*</sup>:
+            	</div>
+            	<div class="col-auto fw-bold">
+                	${formatUtils.formatAmount(nLoanAmount)} <!-- statement loan balance -->
+            	</div>
+        	</div>
+        	<div class="row d-md-none mt-2">
+            	<div class="col-auto ">
+                	Monthly payment due date:
+            	</div>
+            	<div class="col-auto fw-bold">
+                	${dDueDate?date}
+            	</div>
+        	</div>
+        	<div class="row d-md-none mt-2">
+            	<div class="col-auto">
+                	Current amount due:
+            	</div>
+           	 	<div class="col-auto">
+         	       <span class="fw-bold">${formatUtils.formatAmount(nAmountDue)}</span>
+         	   	</div>
+        	</div>
+		
 		<div class"mt-5 row">
 			<div class="col mt-3 text-start">
 				<sup>*</sup>Please note. Your current loan balance is not your loan payoff amount. Please contact your branch to learn more.
