@@ -129,30 +129,34 @@ xsltFragment editDisplayAccountPopin [
            ]
         ]
         
-        div nicknameUpdateRemoveAndCancel [
-        	class: "modal-footer"
-        	attr_style: "flex-wrap: nowrap"
+        div footer [
+        	class: "st-payment-wallet-buttons"
         	
-            navigation save (hasChanges, "{Update}") [
-            	type: "save"
-                class: "btn btn-primary"
-                attr_tabindex: "8"
-                require: [
-                	fUserDisplayAccountNickName
-                ]
-            ]
-                   
-            navigation update (removeNicknameNls, "{Remove}") [
-            	type: "save"
-                class: "btn btn-primary"
-                attr_tabindex: "9"
-            ]
-            
-			navigation cancel (init, "{Cancel}") [
-				type: "cancel"
-				class: "btn btn-secondary"
-				attr_tabindex: "10"
-			]
+        	div nicknameUpdateRemoveAndCancel [
+
+        		class: "d-flex flex-column flex-sm-row gap-2"
+        		
+		        navigation save (hasChanges, "{Update}") [
+		        	type: "save"
+		            class: "btn btn-primary flex-grow-1"
+		            attr_tabindex: "8"
+		            require: [
+		            	fUserDisplayAccountNickName
+		            ]
+		        ]
+		               
+		        navigation update (removeNicknameNls, "{Remove}") [
+		        	type: "save"
+		            class: "btn btn-primary flex-grow-1"
+		            attr_tabindex: "9"
+		        ]
+		        
+				navigation cancel (init, "{Cancel}") [
+					type: "cancel"
+					class: "btn btn-secondary flex-grow-1"
+					attr_tabindex: "10"
+				]
+        	]
         ]
     ]
 ]

@@ -1023,7 +1023,7 @@ useCase paymentOneTime [
 						class: "row st-margin-left45"
 						
 						div paymentSummaryCol1 [
-							class: "col-12 col-sm-6 col-lg-2"
+							class: "col-12 col-sm-6 col-md-2 col-lg-2"
 							
 							div accountIdLabelRow [
 								class: "row st-payment-onetime-header-row"
@@ -1056,7 +1056,7 @@ useCase paymentOneTime [
 						]
 						
 						div paymentSummaryCol2 [
-							class: "col-12 col-sm-6 col-lg-4"
+							class: "col-12 col-sm-6 col-md-4 col-lg-4"
 							
 							div payDateLabelRow [
 								class: "row st-payment-onetime-header-row"
@@ -1071,7 +1071,7 @@ useCase paymentOneTime [
 								class: "row st-payment-onetime-border-top"
 								
 								div payDateField [
-									class: "col-md-12"
+									class: "col-8 col-sm-12 col-md-12 col-lg-12"
 									display fPayDate [
 									    control_attr_tabindex: "1"
 									    readonly: "true"
@@ -1081,7 +1081,7 @@ useCase paymentOneTime [
 						]
 						
 						div paymentSummaryCol3 [
-							class: "col-6 col-lg-3"
+							class: "col-12 col-sm-6 col-md-3 col-lg-3"
 							
 							div payAmountLabelRow [
 								class: "row st-payment-onetime-header-row"
@@ -1097,7 +1097,7 @@ useCase paymentOneTime [
 								class: "row st-payment-onetime-border-top"
 								
 								div payAmountField [
-									class: "col-md-12"
+									class: "col-8 col-sm-12 col-md-12 col-lg-12"
 									
 									display dPayAmount [
 									    control_attr_tabindex: "2"  
@@ -1126,7 +1126,7 @@ useCase paymentOneTime [
 						]
 						
 						div paymentSummaryCol4 [
-							class: "col-6 col-lg-3"
+							class: "col-12 col-sm-6 col-md-3 col-lg-3"
 							
 							div otherAmountLabelRow [
 								class: "row st-payment-onetime-header-row"
@@ -1146,7 +1146,7 @@ useCase paymentOneTime [
 								class: "row st-payment-onetime-border-top"
 								
 								div otherAmountField [
-									class: "col-md-12"
+									class: "col-8 col-sm-12 col-md-12 col-lg-12"
 									display fOtherAmount [
 										class: "visually-hidden"
 									    control_attr_tabindex: "3"
@@ -1194,7 +1194,7 @@ useCase paymentOneTime [
 			    	class: "st-border-bottom visually-hidden"
 			    		
 			    	div paymentSummaryCompleteHeaderRow [
-			    		class: "row"
+			    		class: "row st-padding-bottom"
 			    		
 						h4 paymentSummaryCompleteHeaderCol [
 							class: "col-md-12 st-payment-step-complete"
@@ -1213,7 +1213,7 @@ useCase paymentOneTime [
 						class: "row st-margin-left45"
 						
 						div paymentSummaryCompleteCol1 [
-							class: "col-md-3"
+							class: "col-sm-6 col-md-3 col-lg-3"
 							
 							div accountIdCompleteLabelRow [
 								class: "row"
@@ -1246,7 +1246,7 @@ useCase paymentOneTime [
 	
 						/*-- Payment Date --*/
 						div paymentSummaryCompleteCol2 [
-							class: "col-md-3"
+							class: "col-sm-6 col-md-3 col-lg-3"
 							
 							div paymentDateCompleteLabelRow [
 								class: "row"
@@ -1269,13 +1269,13 @@ useCase paymentOneTime [
 						
 						/*-- Amount to Pay --*/
 						div paymentSummaryCompleteCol3 [
-							class: "col-md-2"
+							class: "col-sm-4 col-md-3 col-lg-2"
 							
 							div otherAmountCompleteLabelRow [
 								class: "row"
 								
 								div otherAmountCompleteLabel [
-									class: "col-md-12 text-end"
+									class: "col-md-12"
 									display sOtherAmountCompleteLabel
 								]
 							]
@@ -1284,7 +1284,7 @@ useCase paymentOneTime [
 								class: "row st-payment-onetime-bold-font"
 								
 								h4 otherAmountComplete [
-									class: "col-md-12 text-end"
+									class: "col-md-12"
 									display sAmountComplete
 							    ]
 							]
@@ -1292,7 +1292,7 @@ useCase paymentOneTime [
 						
 						/*-- Payment Surcharge --*/
 						div paymentSummaryCompleteCol4 [
-							class: "col-md-2"   
+							class: "col-sm-4 col-md-3 col-lg-2"   
 							
 							logic: [ if surchargeFlag != "true" then "remove" ]
 							
@@ -1300,7 +1300,7 @@ useCase paymentOneTime [
 								class: "row"
 																
 								div paymentSurChargeCompleteLabel [
-									class: "col-md-12 text-end"
+									class: "col-md-12"
 									display sPaymentConvenienceFeeLabel
 								]
 							]
@@ -1309,7 +1309,7 @@ useCase paymentOneTime [
 								class: "row st-payment-onetime-bold-font"
 								
 							    h4 amountSurCharge [
-									class: "col_md-12 text-end"
+									class: "col_md-12"
 									display sSurchargeAmountComplete
 								]
 							]
@@ -1317,7 +1317,7 @@ useCase paymentOneTime [
 
 						/*-- Total amount --*/
 						div paymentSummaryCompleteCol5 [
-							class: "col-md-2"  
+							class: "col-sm-4 col-md-3 col-lg-2"  
 							
 							logic: [ if surchargeFlag != "true" then "remove" ]
 							
@@ -1325,7 +1325,7 @@ useCase paymentOneTime [
 								class: "row"
 								
 								div paymentTotalAmountCompleteLabel [
-									class: "col-md-12 text-end"
+									class: "col-md-12"
 									display sPaymentTotalAmountLabel
 								]
 							]
@@ -1334,7 +1334,7 @@ useCase paymentOneTime [
 								class: "row st-payment-onetime-bold-font"
 								
 							    h4 totalAmount [
-									class: "col_md-12 text-end"
+									class: "col_md-12"
 									display sTotalAmountComplete
 								]
 							]
@@ -1347,10 +1347,10 @@ useCase paymentOneTime [
 			     * Step 2 - Payment method
 			     ***************************************************************/
 		        div paymentMethod [
-	        		class: "st-payment-padding-bottom visually-hidden"
+	        		class: "visually-hidden"
 	        		
 			    	div paymentMethodHeaderRow [
-			    		class: "row"
+			    		class: "row st-padding-bottom"
 			    		
 						h4 paymentMethodHeaderCol [
 							class: "col-md-12"
@@ -1366,14 +1366,14 @@ useCase paymentOneTime [
 					]
 	        		
 	        		div paymentMethodButtonsRow [
-	        			class: "row st-padding-bottom st-margin-left45"
+	        			class: "row st-padding-bottom"
 
 	    	    		logic: [
 							if sNumSources >= sMaxSources then "visually-hidden"
 						]
 	        			
 		                div paymentMethodButtonsCol1 [		                	
-		                	class: "col st-payment-method-buttons"
+		                	class: "col-12 col-sm-4 col-md-4 col-lg-4 st-payment-method-buttons st-padding-bottom"
 		                	
 		              	    navigation chooseExistingMethod(OneTimePaymentScreen, "{Use Existing Payment Method}") [
 			                     class: "btn btn-primary "
@@ -1381,7 +1381,7 @@ useCase paymentOneTime [
 		              	]
 		              	
 		              	div paymentMethodButtonsNotMaxed [
-		              		class: "col st-payment-method-buttons"
+		              		class: "col-6 col-sm-4 col-md-4 col-lg-4 st-payment-method-buttons st-padding-bottom"
 		              		
 		    	    		logic: [
 								if sPaymentSourceBankEnabled == "false" then "remove"
@@ -1402,7 +1402,7 @@ useCase paymentOneTime [
 				        ]
 			              	
 		              	div paymentMethodButtonsCol3 [
-		              		class: "col"
+		              		class: "col-6 col-sm-4 col-md-4 col-lg-4 st-payment-method-buttons st-padding-bottom"
 		
 		    	    		logic: [
 								if sPaymentSourceDebitEnabled == "false" then "remove"
@@ -1479,20 +1479,20 @@ useCase paymentOneTime [
 					
 					div walletRow [
 													
-						class: "row st-margin-left45"
+						class: "row"
 						
 						div walletChoice [
-							class: "col-12 col-lg-6"
+							class: "st-padding-bottom"
 												
 							div walletCol [
 								class: "row st-pay-methods-dropdown"
 								
 								display dWalletItems [
-									class: "col-9 col-md-6 col-lg-9 col-xl-6"
+									class: "col-8 col-sm-8 col-md-6 col-lg-4"
 								]
 								
 								div sPaySourceEditDiv [
-									class: "col-3 st-pay-method-edit st-edit"
+									class: "col-2 col-sm-2 col-md-2 col-lg-2 st-pay-method-edit st-edit"
 									
 									display sPaySourceEdit
 								]
@@ -1531,7 +1531,7 @@ useCase paymentOneTime [
 			     * Step 2A - Payment method complete
 			     ***************************************************************/
 		        div paymentMethodComplete [
-	        		class: "st-border-bottom visually-hidden"
+	        		class: "visually-hidden"
 	        		
 			    	div paymentMethodCompleteHeaderRow [
 			    		class: "row"

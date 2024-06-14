@@ -470,7 +470,7 @@ useCase paymentUpdateAutomaticPayment [
     		class: "col-md-12 st-payment-template-border st-scheduled-payment"
 			
 	   		h4 headerUpdate [
-					class: "col-md-12 st-payment-onetime-header"
+					class: "col-md-12 st-padding-bottom"
 					logic: [
 						if sSelectedAutomaticId  == "" then "hide"
 					]
@@ -478,7 +478,7 @@ useCase paymentUpdateAutomaticPayment [
 			]
 			
 	   		h4 headerCreate [
-					class: "col-md-12 st-payment-onetime-header"
+					class: "col-md-12 st-padding-bottom"
 					logic: [
 						if sSelectedAutomaticId  != "" then "hide"
 					]
@@ -496,28 +496,28 @@ useCase paymentUpdateAutomaticPayment [
 		    		class: "row"
 		    		
 		    		div step1_container_content [
-		    			class: "col-md-12 st-border-bottom ng-scope"
+		    			class: "st-border-bottom ng-scope"
 		    			
 		    			div step1_container_fill [
 		    				class: "row"
 		    				
 		    				// error message for msgAutoPmtScheduled  
 		    				div step1_msgAutoPmtScheduled [
-		    					class: "col-md-12 alert alert-warning st-auto-scheduled-warning"
+		    					class: "alert alert-warning st-auto-scheduled-warning"
 		    					logic: [
 							         if sFuturePaymentsFound  == "false" then "remove"
 							    ]
 							    
 							    div step1_msgAutoPmtScheduled_content [
-							    	class: "row"
+							    	class: "row st-padding-bottom"
 							    	
 							    	h4 step1_msgAutoPmtScheduled [
-							    		class: "col-md-12"							    		
+							    		class: "col-sm-12 col-md-12 col-lg-12"							    		
 							    		display msgAutoPmtScheduled.sTitle
 							    	]
 							    	
 							    	div step1_msgAutoPmtScheduledCreate [
-							    		class: "col-md-12"
+							    		class: "col-sm-12 col-md-12 col-lg-12"
 										logic: [
 											if sSelectedAutomaticId  != "" then "hide"
 										]							    		
@@ -525,7 +525,7 @@ useCase paymentUpdateAutomaticPayment [
 							        ]
 							        
 							        div step1_msgAutoPmtScheduledEdit [
-							    		class: "col-md-12"
+							    		class: "col-sm-12 col-md-12 col-lg-12"
 							    		logic: [
 											if sSelectedAutomaticId  == "" then "hide"
 										]
@@ -536,7 +536,7 @@ useCase paymentUpdateAutomaticPayment [
 		    				
 		    				// error message msgAutoNote
 		    				div step1_msgAutoNote [
-		    					class: "col-md-12 alert alert-info st-auto-scheduled-warning" 
+		    					class: "col-sm-12 col-md-12 col-lg-12 alert alert-info st-auto-scheduled-warning" 
 		    					logic: [
 		    						if scheduleFoundWithAccount == "false"   then "remove"
 		    					]
@@ -545,12 +545,12 @@ useCase paymentUpdateAutomaticPayment [
 		    						class : "row"
 		    						
 		    						h4 step1_msgAutoNote_title [
-		    						   class: "col-md-12"
+		    						   class: "col-sm-12 col-md-12 col-lg-12"
 		    						   display msgAutoNote.sTitle
 		    						]
 		    						
 		    						div step1_msgAutoAccAlreadyFound_body [
-		    							class: "col-md-12"
+		    							class: "col-sm-12 col-md-12 col-lg-12"
 		    							display msgAutoAccAlreadyFound.sBody
 		    						]		    						
 		    					]	
@@ -570,7 +570,7 @@ useCase paymentUpdateAutomaticPayment [
 					class: "row"
 					
 					div step2_containerCol [
-						class: "col-md-12 st-border-bottom ng-scope"
+						class: "st-border-bottom ng-scope"
 						
 						div step2_header [
 							class: "row"
@@ -586,15 +586,14 @@ useCase paymentUpdateAutomaticPayment [
 						]
 					
 						div step2_payMethod [
-							class: "row st-margin-left45"			
+							class: "row st-margin-left45 st-padding-bottom"			
 											
 							div step2_payMethod_help[
-								class:"col-md-12 st-light-label st-padding-bottom"
+								class:"st-light-label"
 								display sPaymentMethodHeaderHelp
 							] 	
 							
 							div payUsing [
-							class: "col-md-12 st-padding-bottom"
 							display dWalletItems [
 								class: "st-field-wide"
 								control_attr_tabindex: "11"			
@@ -606,11 +605,11 @@ useCase paymentUpdateAutomaticPayment [
 						]
 	
 						div paymentSurchargeColumn [
-							class: "col-md-10 st-margin-left45 visually-hidden" 
+							class: "col-sm-12 col-md-10 col-lg-10 st-margin-left45 visually-hidden" 
 							ng-show: "form['surchargeEnabled']=='true'"
 												
 							div paymentSurchargeMessage [
-								class: "col-md-12 alert alert-warning st-padding-bottom"
+								class: "col-sm-12 col-md-12 col-lg-12 alert alert-warning st-padding-bottom"
 								display sSurchargeNotice
 							]
 						]
@@ -640,13 +639,13 @@ useCase paymentUpdateAutomaticPayment [
 					class: "row"
 					
 					div step3_config_content [
-						class: "col-md-12 ng-scope st-update-automatic-payment"
+						class: "col-sm-12 col-md-12 col-lg-12 ng-scope st-update-automatic-payment"
 						
 						div step3_config_sAutomaticConfigHeader [
-							class: "row"
+							class: "row st-padding-bottom"
 							
 						   		h4 configHeader [
-									class: "col-md-12"
+									class: "col-sm-12 col-md-12 col-lg-12"
 									display sMsgNumber3 [
 										class: "st-payment-step-number "
 									]
@@ -657,9 +656,9 @@ useCase paymentUpdateAutomaticPayment [
 						 ]
 						 
 						 div eftRecurringAlertMessage [
-							class: "col-md-10 st-margin-left45"
+							class: "col-12 col-sm-12 col-md-10 col-lg-10 st-margin-left45"
 							div recurringAlertMessage [
-								class: "col-md-12 alert alert-warning st-padding-bottom"
+								class: "col-sm-12 col-md-12 col-lg-12 alert alert-warning st-padding-bottom"
 								display sEftRecurringAlertMessage
 							]
 						]
@@ -668,23 +667,20 @@ useCase paymentUpdateAutomaticPayment [
 						 	 class: "row st-margin-left45"		
 										    
 							 div formCol1 [
-								 class: "col-lg-4 st-padding-top"
+								 class: "col-sm-10 col-md-8 col-lg-4 st-padding-top"
 								
 								 div scheduleTrigger [
-									 class: "col-md-12"
 									
 									 h4 scheduleTriggerHeader [
-										class: "col-md-12"
 										display sScheduleTriggerHeader
 									 ]
 									
 									 div scheduleTriggerHeaderHelp [
-										 class: "col-md-12 st-light-label st-padding-bottom"
+										 class: "st-light-label st-padding-bottom"
 										 display sScheduleTriggerHeaderHelp
 									 ]
 									
 									 div payInvoices [
-										 class: "col-md-12 st-field-narrow"
 										 display fPayInvoices [
 											control_attr_tabindex: "10"
 											control_attr_autofocus: ""
@@ -692,7 +688,6 @@ useCase paymentUpdateAutomaticPayment [
 									 ]
 									
 									 div payAmount2 [
-										 class: "col-md-12"
 										 logic: [
 											if srGetComm.RSP_CURBALTYPE == "F" then "remove"												
 										 ]
