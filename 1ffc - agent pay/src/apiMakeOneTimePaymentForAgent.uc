@@ -327,7 +327,7 @@ useCase apiMakeOneTimePaymentForAgent
 
 		MakePayment.accountJson(logRequest.GROUPING_JSON)
 		MakePayment.payDate    (logRequest.PAY_DATE)
-		MakePayment.totalAmount(logRequest.PAY_AMT)
+		MakePayment.payAmount	(logRequest.PAY_AMT)
 
 		ApiPay.payGroup            (logRequest.PMT_PROVIDER_ID)
 		ApiPay.walletFrom          (logRequest.PAY_FROM_ACCOUNT)
@@ -350,7 +350,7 @@ useCase apiMakeOneTimePaymentForAgent
 		schedRequest.PAY_STATUS      = "scheduled"		
 			
 		MakePayment.accountJson(schedRequest.GROUPING_JSON)
-		MakePayment.totalAmount(schedRequest.PAY_AMT)
+		MakePayment.payAmount(schedRequest.PAY_AMT)
 		MakePayment.payDate    (schedRequest.PAY_DATE)
 
 		ApiPay.walletToken         (schedRequest.SOURCE_ID)

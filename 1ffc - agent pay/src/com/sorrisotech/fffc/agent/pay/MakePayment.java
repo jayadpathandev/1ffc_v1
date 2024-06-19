@@ -184,5 +184,15 @@ public class MakePayment {
 		} catch (Throwable e) {
 			LOG.error("Internal error", e);
 		}
-	}	
+	}
+
+	// *************************************************************************
+	public void payAmount(final IStringData value) throws MargaritaDataException {
+		if (mAmount == null)
+			throw new RuntimeException("No amount set.");
+
+		final var df = new DecimalFormat("###.00");
+
+		value.putValue(df.format(mAmount));
+	}
 }
