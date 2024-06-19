@@ -392,8 +392,9 @@ useCase paymentHistory [
         "" => string  sPayChanPartner = "Partner"
         "" => string  sPayChanCheck   = "Check" 
         "" => string  sPayChanMail    = "Mail"
+        "" => string  sPayChanBranch  = "Branch"
         "" => string  sPayChanOther   = "Other"
-        
+       
         "" => string iPayStatusPosted = ""
         "" => string iPayStatusFailed = ""
         "" => string iPayStatusProcessing = ""
@@ -490,10 +491,14 @@ useCase paymentHistory [
 		            ^class: 'pay-chan-mail'
 		            ^class: sPayChannel
 		        ]
+		        sPayChanBranch: [
+		            ^class: 'pay-chan-branch'
+		            ^class: sPayChannel
+		        ]
 		        sPayChanOther: [
 		            ^class: 'pay-chan-other'
 		            ^class: sPayChannel
-		        ]		        
+		        ]		       
 		    ]
 		]
                       

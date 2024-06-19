@@ -1473,7 +1473,8 @@ tbody .payment-history-channel span {
 .payment-history-channel .pay-chan-phone.phone,
 .payment-history-channel .pay-chan-partner.partner,
 .payment-history-channel .pay-chan-check.check,
-.payment-history-channel .pay-chan-mail.mail, 
+.payment-history-channel .pay-chan-mail.mail,
+.payment-history-channel .pay-chan-branch.branch, 
 .payment-history-channel .pay-chan-other.other {
     display: inline;
     margin-left: 30px;
@@ -1530,6 +1531,12 @@ tbody .payment-history-channel span {
 	/* background-position: -676px -49px; */
 }
 
+.payment-history-channel .st-payment-channel-icon.pay-chan-branch.branch:before {
+	/* background-position: -624px -49px; */
+	background-position: -750px -49px;
+	/* background-position: -676px -49px; */
+	margin-left: 0;
+}
 .payment-history-channel .st-payment-channel-icon.pay-chan-other.other:before {
 	/* background-position: -959px -49px; */
 	background-position: -982px -49px;
@@ -2171,10 +2178,3 @@ th button.btn.btn-sm {
     background-color: #F9F5EE; 
     border-radius: 5px; 
 }
-
-
-#fffcEditDisplayAccount_nicknameUpdateRemoveAndCancel {
-    margin-top: 10px; 
-}
-
-
