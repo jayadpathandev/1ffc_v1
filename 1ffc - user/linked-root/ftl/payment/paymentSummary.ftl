@@ -286,7 +286,7 @@
 						<#break> <#--  nothing to show here! -->
 					<#case "disabledNSF"> <#-- This message shows when ach is disabled along with other payment and bill messages -->
 						<div class="text-center mt-3 border border-2 rounded-pill border-danger p-3">
-							Payments made using your bank account number have failed several times, so direct debit (ACH)
+							Payments made directly through your bank account have failed several times, so direct debit (ACH)
 							is disabled and any associated scheduled and recurring payments are cancelled. Contact your
 							local branch to resolve this. You can pay by debit card if there are sufficient funds
 							in your bank account.
