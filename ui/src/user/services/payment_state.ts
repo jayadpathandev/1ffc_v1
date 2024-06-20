@@ -382,15 +382,15 @@ export class PaymentState {
 
             $.ajax('getConvenienceFee', {
                 type        : 'POST',
-                data        : {
-                    pay_group          : bill.paymentGroup,
-                    pay_account_number  : bill.number
-                },
-                processData : true
+                contentType : 'application/json',
+                data        : JSON.stringify({
+                    paymentGroup    : bill.paymentGroup,
+                    accountNumber   : bill.number
+                })
             }).done ((response) => {
 
                 if (wallet.version == this.wallet.version && bill.paymentAmount == amount) {
-                    bill.surchargeAmt = Number(response.convenienceFeeAmount) * 100 ;
+                    bill.surchargeAmt = Number(response.convenienceFee) * 100 ;
                     bill.totalPayAmt  = amount + bill.surchargeAmt;
                 }
 
