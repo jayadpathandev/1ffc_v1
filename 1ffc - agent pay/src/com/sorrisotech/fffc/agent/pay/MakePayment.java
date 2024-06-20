@@ -38,8 +38,15 @@ public class MakePayment {
 		final PaySession current = data.getJavaObj(ApiPay.class).current();
 
 		//---------------------------------------------------------------------
-		final var today = Calendar.getInstance();
-				
+		var today = Calendar.getInstance();
+
+		// Getting the current date-time in the specified application locale ZoneId
+		ZonedDateTime nowInApplicationTimeZone = ZonedDateTime
+				.now(ZoneId.of(AppConfig.get("application.locale.time.zone.id")));
+
+		// Adjusting today by using the offset difference
+		today.add(Calendar.SECOND, nowInApplicationTimeZone.getOffset().getTotalSeconds());
+		
 		if (date.equalsIgnoreCase("today")) {
 			mDate = (Calendar) today.clone();
 		} else {
@@ -53,13 +60,6 @@ public class MakePayment {
 				return "invalid_date";
 			}
 		}
-		
-		// Getting the current date-time in the specified application locale ZoneId
-		ZonedDateTime nowInApplicationTimeZone = ZonedDateTime
-		        .now(ZoneId.of(AppConfig.get("application.locale.time.zone.id")));
-		
-		// Adjusting mDate by using the offset difference
-		mDate.add(Calendar.SECOND, nowInApplicationTimeZone.getOffset().getTotalSeconds());
 
 		//---------------------------------------------------------------------
 		final var toLong   = new SimpleDateFormat("yyyyMMdd");
