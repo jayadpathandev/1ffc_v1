@@ -68,6 +68,7 @@ application [
 		fffcContactPreferencesApi
 		fffcEditDisplayAccount
 		
+		paymentConvenienceFee
 		paymentGetStatusForScheduler
 		
 		statusTest
