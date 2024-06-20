@@ -382,7 +382,7 @@
 						<#--  HANDLE GOOD OLD BILL THAT'S NOT LATE AND DOESN'T CONTAIN ANY OVERDUE AMOUNT -->
 						<#else> 
 							<div class="text-center mt-3 border border-2 rounded-pill border-info p-3">
-								Your payment of 
+								Your next payment of 
 								<span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nAmountDue)}</span>
 								is due on <span class="fw-bold text-decoration-underline">${dDueDate?date}</span>. 
 							</div>
