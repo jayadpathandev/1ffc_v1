@@ -179,7 +179,7 @@ function wallet_iframe() {
     }
 
     function receiveCrossOriginMessage(event : MessageEvent) {
-		var iframe=$('div.st-payment-iframe').find('iframe');
+		const iframe=$('div.st-payment-iframe').find('iframe');
         iframe.attr('height', event.data + 'px').css('height', event.data + 'px');
 	}
 

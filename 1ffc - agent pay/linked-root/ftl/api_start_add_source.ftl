@@ -113,7 +113,14 @@
 				window.handleAddSourceSuccessResponseCallback = function(data) { success(data); }
 				window.handleAddSourceErrorResponseCallback = function(data) { failure(data); }
 				window.handleErrorResponseCallback = function() { failure(); }
-				window.handleCancelResponseCallback = function() { cancel(); }						
+				window.handleCancelResponseCallback = function() { cancel(); }
+			    
+				function receiveCrossOriginMessage(event) {
+					const iframe=$('div.apipay').find('iframe');
+			        iframe.attr('height', event.data + 'px').css('height', event.data + 'px');
+				}
+			
+				window.addEventListener("message", receiveCrossOriginMessage, false);					
 			});
 		</script>
 	</body>
