@@ -37,6 +37,7 @@ import com.sorrisotech.app.common.utils.I18n;
 import com.sorrisotech.common.DateFormat;
 import com.sorrisotech.svcs.external.IServiceLocator2;
 import com.sorrisotech.svcs.itfc.data.IListData;
+import com.sorrisotech.svcs.itfc.data.IStringData;
 import com.sorrisotech.svcs.itfc.data.IUserData;
 import com.sorrisotech.svcs.payment.model.PaymentWalletFields;
 import com.sorrisotech.uc.payment.UcPaymentAction;
@@ -176,14 +177,15 @@ public class FffcPaymentAction extends UcPaymentAction {
 		try {
 			Calendar cPayDate = DateFormat.parse(szPayDate);
 			
+			var cCal = Calendar.getInstance();
+	        
 			// Getting the current date-time in the specified application locale ZoneId
-			ZonedDateTime nowInApplicationTimeZone = ZonedDateTime
+			var nowInApplicationTimeZone = ZonedDateTime
 			        .now(ZoneId.of(AppConfig.get("application.locale.time.zone.id")));
 			
 			// Adjusting cPayDate by using the offset difference
-            cPayDate.add(Calendar.SECOND, nowInApplicationTimeZone.getOffset().getTotalSeconds());
-			
-			if (cPayDate.after(Calendar.getInstance())) {
+			cCal.add(Calendar.SECOND, nowInApplicationTimeZone.getOffset().getTotalSeconds());
+			if (cPayDate.after(cCal)) {
 				szResult = "future";
 			}
 		} catch (Exception e) {
@@ -193,4 +195,22 @@ public class FffcPaymentAction extends UcPaymentAction {
 		return szResult;
 	}
 	
+	/**********************************************************************************************
+	 * Method to get today's date with time-zone offset.
+	 *  
+	 * @return szResult Today's date
+	 */
+	public static String getTodaysDateWithTimeZoneOffset() {
+		
+		var cCal = Calendar.getInstance();
+		
+		// Getting the current date-time in the specified application locale ZoneId
+		var nowInApplicationTimeZone = ZonedDateTime
+		        .now(ZoneId.of(AppConfig.get("application.locale.time.zone.id")));
+		
+		// Adjusting cPayDate by using the offset difference
+		cCal.add(Calendar.SECOND, nowInApplicationTimeZone.getOffset().getTotalSeconds());
+		
+		return DateFormat.internal(cCal);
+	}
 }

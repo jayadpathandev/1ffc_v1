@@ -512,7 +512,9 @@ class IsAmount extends ValidatorBase {
 function payment_summary() {
     //-------------------------------------------------------------------------
     const dateWindow = parseInt($('.st-date-window').text() as string);
-    const dateMin    = new Date();
+    const timeZoneIdElement = document.getElementById('paymentOneTime_timeZoneId');
+    const timeZoneId = timeZoneIdElement?.textContent || timeZoneIdElement?.innerText; 
+    const dateMin = new Date(new Date().toLocaleString("en-US", {timeZone: timeZoneId}));
     const dateMax    = new Date(dateMin.getTime() + dateWindow * 24 * 60 * 60 * 1000);
 
     $('#paymentOneTime_fPayDate\\.aDate_display').datepicker(

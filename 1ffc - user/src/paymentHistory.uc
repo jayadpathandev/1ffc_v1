@@ -40,7 +40,8 @@ useCase paymentHistory [
     importJava UcPaymentAction(com.sorrisotech.uc.payment.UcPaymentAction) 
     importJava LocalizedFormat(com.sorrisotech.common.LocalizedFormat)
     importJava FffcAccountAction(com.sorrisotech.fffc.account.FffcAccountAction)
-    importJava CurrentBalanceHelper (com.sorrisotech.fffc.payment.BalanceHelper)	
+    importJava CurrentBalanceHelper (com.sorrisotech.fffc.payment.BalanceHelper)
+    importJava AppConfig(com.sorrisotech.utils.AppConfig)	
     
     import billCommon.sPayAccountInternal
     import billCommon.sPayGroup     
@@ -163,6 +164,8 @@ useCase paymentHistory [
 		// -- handling impersonation --
  	import utilImpersonationActive.sImpersonationActive
  	native string bImpersonateActive
+ 	
+ 	native string timeZoneId = AppConfig.get("application.locale.time.zone.id")
 	
 		
 	serviceStatus ssStatus
@@ -1427,6 +1430,10 @@ useCase paymentHistory [
 								h4 estimatedDate [
 									class: "col-md-4"
 									display fPayDate
+									
+									display timeZoneId [
+										class: "st-space visually-hidden"
+									]
 								]
 							]
 		    			]
