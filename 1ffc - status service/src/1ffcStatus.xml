@@ -2,7 +2,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xmlns:context="http://www.springframework.org/schema/context"
-xsi:schemaLocation="http://www.springframework.org/schema/beans 
+xsi:schemaLocation="http://www.springframework.org/schema/beans
 http://www.springframework.org/schema/beans/spring-beans.xsd
 http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
 
@@ -10,105 +10,89 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
     <!-- ********      Import the Database Pool Bean                   *********** -->
     <!-- ************************************************************************* -->
     <context:annotation-config />
-    
-    <import resource="classpath:/db/common_config.xml"/>   
-    
-    <!--  ************************************************************************ --> 
-    <!--  ****** Import the SQL Statement 									****** --> 
-    <!--  ************************************************************************ --> 
-    
+
+    <import resource="classpath:/db/common_config.xml"/>
+
+    <!--  ************************************************************************ -->
+    <!--  ****** Import the SQL Statement 									****** -->
+    <!--  ************************************************************************ -->
+
 	<bean id="getUserAccountsStatusSql" class="java.lang.String">
         <constructor-arg>
             <value>
-				WITH accountlist AS -- First, get the list of accounts for this user
-					( SELECT
-						tm_account.account_number,
-						concat ('STATUS_', tm_account.bill_group) as status_group,	
-						tm_account.bill_group as payment_group,
-						tm_account.company_id as customer_id
-					FROM
-						prof_company_account,
-						prof_company_user,
-						tm_account
-					WHERE
-						prof_company_user.userid =  CAST(:user_id AS DECIMAL)   -- user id that's passed in
-						AND prof_company_user.companyid = prof_company_account.company_id
-						AND  tm_account.id = prof_company_account.account_id )
-				SELECT -- second, construct all the status we need for those accounts
-					accountlist.status_group,
-					accountList.payment_group,
-					accountlist.account_number,
-					accountlist.customer_id,
-					status_summary.final_bill,
-					status_summary.account_closed,
-					status_summary.payment_disabled,
-					status_summary.bill_amount AS account_balance,
-					status_summary.due_date AS due_date,
-					status_summary.minimum_due as minimum_payment_amount,
-					status_info.flex6 AS payment_disabled_reason,
-					status_info.flex7 AS ach_disabled_reason,
-					status_info.flex8 AS portal_access_disabled_reason,
-					status_info.flex9 AS original_loan_amount,
-					status_info.self_reg3 AS monthly_payment_amount,
-					status_info.flex10 AS total_num_payments,
-					status_info.flex11 AS num_payments_remaining,
-					status_info.flex12 AS billing_periodicity,
-					status_info.flex13 AS nickname,	
-					status_info.flex14 AS eligible_for_portal,
-					status_info.flex15 AS automatic_payment_status,
-					status_info.flex16 AS maximum_payment_amount,
-					status_info.flex17 AS contact_preferences_status,
-					status_info.flex18 AS current_amount_due,
-					status_info.flex19 AS debit_convenience_fee,
-					bfmd.status_update_date AS last_updated,
-					MAX(status_info.bill_date) as most_recent -- only take the most recent for acct
-				FROM
-					bill status_info,
-					bill_summary status_summary,
-					bill_file_meta_data bfmd,
-					accountlist
-				WHERE
-					bfmd.status in ('PUBLISHED','MERGED') 				       -- look only at properly published files
-					AND bfmd.payment_group = accountlist.status_group 	 -- make sure we get the correct payment group
-					AND status_info.bill_file_id = bfmd.bill_file_id     -- look only at bills in those published files
-					AND status_info.account = accountList.account_number -- and account number matches the user’s accts
-					AND status_info.bill_id = status_summary.bill_id		 -- and bill summary tables are same id
-				GROUP BY
-					accountlist.status_group,
-					accountList.payment_group,
-					accountlist.account_number,
-					accountlist.customer_id,
-					status_summary.final_bill,
-					status_summary.account_closed,
-					status_summary.payment_disabled,
-					payment_disabled_reason,
-					ach_disabled_reason,
-					portal_access_disabled_reason,
-					original_loan_amount,
-					account_balance,
-					due_date,
-					minimum_payment_amount,
-					monthly_payment_amount,
-					billing_periodicity,
-					nickname,
-					total_num_payments,
-					num_payments_remaining,
-					eligible_for_portal,
-					automatic_payment_status,
-					maximum_payment_amount,
-					contact_preferences_status,
-					current_amount_due,
-					debit_convenience_fee,
-					last_updated
-   
+WITH accountlist AS -- First, get the list of accounts for this user
+	( SELECT
+		tm_account.account_number,
+		concat ('STATUS_', tm_account.bill_group) as status_group,
+		tm_account.bill_group as payment_group,
+		tm_account.company_id as customer_id,
+		max(bill_file_meta_data.status_update_date) as last_status_date
+	FROM
+		prof_company_account,
+		prof_company_user,
+		tm_account,
+                bill,
+		bill_file_meta_data
+	WHERE
+		prof_company_user.userid =  CAST(:user_id AS DECIMAL)   -- user id that's passed in
+		AND prof_company_user.companyid = prof_company_account.company_id
+		AND  tm_account.id = prof_company_account.account_id
+		AND bill_file_meta_data.status in ('PUBLISHED','MERGED')
+		AND bill_file_meta_data.payment_group = concat ('STATUS_', tm_account.bill_group)
+		AND bill_file_meta_data.bill_file_id = bill.bill_file_id
+		AND bill.account = tm_account.account_number
+	GROUP BY
+		account_number,
+		bill_group,
+		payment_group,
+		customer_id )
+SELECT -- second, construct all the status we need for those accounts
+	accountlist.status_group,
+	accountList.payment_group,
+	accountlist.account_number,
+	accountlist.customer_id,
+	status_summary.final_bill,
+	status_summary.account_closed,
+	status_summary.payment_disabled,
+	status_summary.bill_amount AS account_balance,
+	status_summary.due_date AS due_date,
+	status_summary.minimum_due as minimum_payment_amount,
+	status_info.flex6 AS payment_disabled_reason,
+	status_info.flex7 AS ach_disabled_reason,
+	status_info.flex8 AS portal_access_disabled_reason,
+	status_info.flex9 AS original_loan_amount,
+	status_info.self_reg3 AS monthly_payment_amount,
+	status_info.flex10 AS total_num_payments,
+	status_info.flex11 AS num_payments_remaining,
+	status_info.flex12 AS billing_periodicity,
+	status_info.flex13 AS nickname,
+	status_info.flex14 AS eligible_for_portal,
+	status_info.flex15 AS automatic_payment_status,
+	status_info.flex16 AS maximum_payment_amount,
+	status_info.flex17 AS contact_preferences_status,
+	status_info.flex18 AS current_amount_due,
+	status_info.flex19 AS debit_convenience_fee,
+	bfmd.status_update_date AS last_updated,
+	status_info.bill_date as most_recent
+FROM
+	bill status_info,
+	bill_summary status_summary,
+	bill_file_meta_data bfmd,
+	accountlist
+WHERE
+	bfmd.status_update_date = accountlist.last_status_date
+	AND bfmd.payment_group = accountlist.status_group 	 -- make sure we get the correct payment group
+	AND status_info.bill_file_id = bfmd.bill_file_id     -- look only at bills in those published files
+	AND status_info.account = accountList.account_number -- and account number matches the user’s accts
+	AND status_info.bill_id = status_summary.bill_id		 -- and bill summary tables are same id
 			</value>
-        </constructor-arg>   
-    </bean>  
+        </constructor-arg>
+    </bean>
     	<bean id="getAccountsForRegistrationSql" class="java.lang.String">
         <constructor-arg>
             <value>
-				WITH org AS 
-				( 
+				WITH org AS
+				(
 				  SELECT
 					org.org_id as idValue
 				  FROM
@@ -143,7 +127,7 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 					AND status_info.account = tm.account_number  -- match on account number
 
 			</value>
-        </constructor-arg>   
+        </constructor-arg>
       </bean>
       <bean id="getEligibleRegisteredAccountsForUserSql" class="java.lang.String">
         <constructor-arg>
@@ -159,70 +143,70 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 				WHERE
 					cmpny.userid = CAST(:userId as DECIMAL)
 					AND cmpny.companyid = tm.company_id
-					AND bfmd.status in ('PUBLISHED','MERGED')   
+					AND bfmd.status in ('PUBLISHED','MERGED')
 					AND bfmd.payment_group = :statusGroup
   					AND bill.bill_file_id = bfmd.bill_file_id
 					AND tm.account_number = bill.account
-					AND tm.end_date IS NULL  
+					AND tm.end_date IS NULL
 					-- should include start date but can't cast date to numeric
 					AND bill.flex14 = 'true'
           </value>
         </constructor-arg>
-      </bean>    
+      </bean>
     	<bean id="accountNumbersFromOrgId" class="java.lang.String">
         <constructor-arg>
             <value>select account_number from tm_account where org_id = :org_id and end_date is null and bill_group != :ignore_group</value>
-        </constructor-arg>   
-    </bean> 
-    <bean id="tmInsertAccountDetailsSQL" class = "java.lang.String">   
+        </constructor-arg>
+    </bean>
+    <bean id="tmInsertAccountDetailsSQL" class = "java.lang.String">
 		<constructor-arg>
        	<value>
-            	INSERT INTO tm_account 
-	            ( 
-	                        id, 
-	                        account_number, 
-	                        account_number_display, 
-	                        start_date, 
+            	INSERT INTO tm_account
+	            (
+	                        id,
+	                        account_number,
+	                        account_number_display,
+	                        start_date,
 	                        account_name,
-	                        bill_group, 
-	                        biller_id, 
-	                        org_id 
-	            ) 
-	            VALUES 
-	            ( 
-	                        :idVal, 
-	                        :accountNumVal, 
-	                        :accountDisplayVal, 
-	                        :startDateVal, 
-	                        :accountNameVal, 
-	                        :payGroupVal, 
-	                        :billerIdVal, 
-	                        :orgIdVal 
+	                        bill_group,
+	                        biller_id,
+	                        org_id
+	            )
+	            VALUES
+	            (
+	                        :idVal,
+	                        :accountNumVal,
+	                        :accountDisplayVal,
+	                        :startDateVal,
+	                        :accountNameVal,
+	                        :payGroupVal,
+	                        :billerIdVal,
+	                        :orgIdVal
 	            )
             </value>
           </constructor-arg>
-    </bean>	
+    </bean>
     <bean id="accountSequenceSql.mysql" class="java.lang.String">
         <constructor-arg>
             <value>
                 SELECT SWF_nextval('tm_account_seq') FROM dual
             </value>
-        </constructor-arg>        
-    </bean> 
+        </constructor-arg>
+    </bean>
     <bean id="accountSequenceSql.oracle" class="java.lang.String">
         <constructor-arg>
             <value>
                 SELECT tm_account_seq.nextval FROM dual
             </value>
-        </constructor-arg>        
-    </bean>           
+        </constructor-arg>
+    </bean>
     <bean id="accountSequenceSql.postgres" class="java.lang.String">
         <constructor-arg>
             <value>
                 SELECT nextval('tm_account_seq') FROM dual
             </value>
-        </constructor-arg>        
-    </bean>      
+        </constructor-arg>
+    </bean>
     <bean id="userAccountsStatusDao" class="com.sorrisotech.svcs.accountstatus.dao.AccountStatusDaoImpl">
     </bean>
     <bean id="accountsForRegistrationDao" class = "com.sorrisotech.svcs.accountstatus.dao.AccountsForRegistrationDaoImpl">
@@ -238,5 +222,5 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
     <bean name="accountSequenceSql" class = "java.lang.String">
     	<constructor-arg ref="accountSequenceSql.${database}"/>
     </bean>
- 
+
 </beans>
