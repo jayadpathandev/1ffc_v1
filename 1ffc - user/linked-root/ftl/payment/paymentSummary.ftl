@@ -396,7 +396,7 @@
 					<#if !bBillHasOverdue>
 						<#--  last payment with no overdue amount -->
 						<div class="text-center mt-3 border border-2 rounded-pill border-info p-3">
-							Contratulations! Your final payment of 
+							Congratulations! Your final payment of 
 							<span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nAmountDue)}</span>
 							is due on <span class="fw-bold text-decoration-underline">${dDueDate?date}</span>. Visit your local
 							branch to make this payment and close your account.
@@ -404,11 +404,11 @@
 					<#else>
 					<#--  last payment with an overdue amount -->
 						<div class="text-center mt-3 border border-2 rounded-pill border-danger p-3">
-							Contratulations! Your final payment of 
+							Congratulations! Your final payment of 
 							<span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nAmountDue)}</span>
 							is due on <span class="fw-bold text-decoration-underline">${dDueDate?date}</span> and includes an
 							overdue amount of <span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nAmountOverdue)}</span>.
-							Visit your local branch to make this payment, close your account, and avoid addiitonal charges.
+							Visit your local branch to make this payment, close your account, and avoid additional charges.
 						</div>
 					</#if>
 				<#else>
