@@ -389,12 +389,13 @@ useCase paymentOneTime [
     native string sPaymentDate
     persistent native string sAutoScheduledFlag = UcPaymentAction.getAutoScheduledFlag(sUserId, sPayAccountInternal)
     persistent native string sPmtScheduledFlag = UcPaymentAction.getPaymentScheduledFlag(sUserId,sPayAccountInternal,sBillId,"onetime")
-    native string sTodaysDate = UcPaymentAction.getTodaysDate()
+    native string sTodaysDate = UcPaymentAction.getTodaysDateWithTimeZoneOffset()
     native string surchargeFlag = UcPaymentAction.getSurchargeStatus()
     native string sFlexfield = UcPaymentAction.getFlexField()
     native string sBillingType = UcPaymentAction.getBillingBalanceType()
     
     native string flexDefinition = AppConfig.get("1ffc.flex.definition")
+    native string timeZoneId = AppConfig.get("application.locale.time.zone.id")
     
     persistent native string source_type       = ""
     
@@ -1075,6 +1076,10 @@ useCase paymentOneTime [
 									display fPayDate [
 									    control_attr_tabindex: "1"
 									    readonly: "true"
+									]
+									
+									display timeZoneId [
+										class: "st-space visually-hidden"
 									]
 								]
 							]
