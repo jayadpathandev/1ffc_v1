@@ -298,7 +298,7 @@
 						<div class="text-center mt-3 border border-2 rounded-pill border-danger p-3">
 							You are not authorized to make payments via direct debit (ACH) and any associated scheduled 
 							and recurring payments are cancelled. Contact your local branch to resolve this. You can pay by 
-							debit card if there are sufficient funds in your bank account.
+							debit card if there are sufficient funds in your account.
 						</div>
 						<#break>
 				</#switch>
