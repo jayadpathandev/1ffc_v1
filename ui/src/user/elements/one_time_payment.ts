@@ -513,7 +513,7 @@ function payment_summary() {
     //-------------------------------------------------------------------------
     const dateWindow = parseInt($('.st-date-window').text() as string);
     const timeZoneIdElement = document.getElementById('paymentOneTime_timeZoneId');
-    const timeZoneId = timeZoneIdElement?.textContent || timeZoneIdElement?.innerText; 
+    const timeZoneId = timeZoneIdElement?.textContent?.trim() || timeZoneIdElement?.innerText.trim() || 'UTC';       
     const dateMin = new Date(new Date().toLocaleString("en-US", {timeZone: timeZoneId}));
     const dateMax    = new Date(dateMin.getTime() + dateWindow * 24 * 60 * 60 * 1000);
 
@@ -977,7 +977,9 @@ function payment_submit() {
                 step(undefined);
                 $.ajax('unsetBillsForPayment');
 
-                const now = new Date();
+                const timeZoneIdElement = document.getElementById('paymentOneTime_timeZoneId');
+                const timeZoneId = timeZoneIdElement?.textContent?.trim() || timeZoneIdElement?.innerText.trim() || 'UTC';       
+                const now = new Date(new Date().toLocaleString("en-US", {timeZone: timeZoneId}));
                 FormatService.date_text(
                     now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate(),
                     (date) => $('[id="paymentOneTime_sPaymentRequestReceived"]').text(date)

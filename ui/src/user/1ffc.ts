@@ -65,7 +65,7 @@ function edit_payment_date(parent : HTMLElement) {
     if (elements.length > 0) {
         const dateWindow = parseInt($('.st-date-window').text() as string);
         const timeZoneIdElement = document.getElementById('paymentHistory_timeZoneId');
-        const timeZoneId = timeZoneIdElement?.textContent || timeZoneIdElement?.innerText; 
+        const timeZoneId = timeZoneIdElement?.textContent?.trim() || timeZoneIdElement?.innerText.trim() || 'UTC'; 
         const dateNow = new Date(new Date().toLocaleString("en-US", {timeZone: timeZoneId}));
         const dateMin    = new Date(dateNow.getTime() + 24 * 60 * 60 * 1000);
         const dateMax    = new Date(dateNow.getTime() + dateWindow * 24 * 60 * 60 * 1000);
