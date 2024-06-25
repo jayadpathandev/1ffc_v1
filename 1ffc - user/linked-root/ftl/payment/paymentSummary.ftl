@@ -289,7 +289,7 @@
 							Payments made directly through your bank account have failed several times, so direct debit (ACH)
 							is disabled and any associated scheduled and recurring payments are cancelled. Contact your
 							local branch to resolve this. You can pay by debit card if there are sufficient funds
-							in your bank account.
+							in your account.
 						</div>
 						<#break>
 					<#case "disabledStopACH">
