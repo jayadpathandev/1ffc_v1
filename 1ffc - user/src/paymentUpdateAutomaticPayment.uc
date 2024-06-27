@@ -47,6 +47,7 @@ useCase paymentUpdateAutomaticPayment [
 	importJava EsignHelper(com.sorrisotech.fffc.user.EsignHelper)
 	importJava UcProfileAction(com.sorrisotech.app.profile.UcProfileAction)
 	importJava Spinner(com.sorrisotech.app.utils.Spinner)
+	importJava Modal(com.sorrisotech.fffc.payment.ModalUtils)
 	importJava DisplayAccountMasked(com.sorrisotech.fffc.account.DisplayAccountMasked)
 			
     import validation.dateValidation
@@ -76,6 +77,9 @@ useCase paymentUpdateAutomaticPayment [
 //    string sPayAmountHeaderHelp       = "{Select how much you want to pay.}"
     string sPaymentMethodHeader       = "{Payment method}"
     string sPaymentMethodHeaderHelp   = "{Choose the payment method for this recurring payment}"
+    string sDateValidationModalId	  = "recurringPaymentDateValidationModal"
+    string sDateValidationModalTitle  = "Monthly payment amount"
+    string sDateValidationModalBody	  = "Choosing this day will result in an initial payment on the <b>{dueDate}</b> to ensure you do not miss a payment. Subsequent payments will occur on the <b>{currentDay}</b> of each month."
     string sSelectedAutomaticId	      = ""
     string sGroupJson				  = ""	
     volatile string sSafeGroupJson	  =  FffcAccountAction.escapeGroupingJson(sGroupJson, sUserId)
@@ -260,6 +264,7 @@ useCase paymentUpdateAutomaticPayment [
     string sEsignIframeHeader = "{Sign the document}"
     string sDeclinePromptText = "{Are you sure you want to close and not sign the EFT form?}"
     tag hSpinner = Spinner.getSpinnerTemplate("pageSpinner.ftl", "pageSpinner", sorrisoLanguage, sorrisoCountry)
+    tag tModal = Modal.getModalTemplate("modal.ftl", sPayGroup, sDateValidationModalId, sDateValidationModalTitle, sDateValidationModalBody, sorrisoLanguage, sorrisoCountry)
     
     structure(message) oMsgRetrieveContactDetailsError [
         string(title) sTitle = "{Something wrong happened}"
@@ -465,6 +470,7 @@ useCase paymentUpdateAutomaticPayment [
     /* 3. 8. Show the update automatic payment screen. */
     xsltScreen updateAutomaticPaymentScreen("{Payment}") [
     	display hSpinner
+    	display tModal
     	
     	div editScheduleContainer [
     		class: "col-md-12 st-payment-template-border st-scheduled-payment"
