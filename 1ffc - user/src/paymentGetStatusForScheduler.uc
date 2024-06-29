@@ -11,6 +11,8 @@ useCase paymentGetStatusForScheduler [
     *                     
     *   Major Versions:
     * 		1.1 2024-June-09	jak		Expanded result for update to payment scheduler rules
+    * 		2024-June-28		jak		Added test for payment status so we can correctly run scheduled payments
+    * 										Also did some minor "touch-ups" in naming and comments
     *        
     */
 
@@ -54,6 +56,7 @@ useCase paymentGetStatusForScheduler [
 	native string cszAccountCanAutoPay = "accountCanAutoPay"
 	native string cszAccountCanUseBankPay = "accountCanUseBankPay"
 	native string cszPaymentDueDate = "paymentDueDate"
+	native string cszAccountCanSchedPay = "accountCanSchedPay"
 	native string cszSecurityTokenValue = "f4f1a3fb-5b06-45e2-b668-85991cb53a49"
 
 	native string retMnthlyContractedAmount 	= ""
@@ -62,6 +65,7 @@ useCase paymentGetStatusForScheduler [
 	native string retAccountCanAutoPay			= ""
 	native string retAccountCanUseBankPay		= ""
 	native string retPaymentDueDate				= ""
+	native string retAccountCanSchedPay			= ""
 
 	/*
 	 * Response codes:
@@ -147,7 +151,7 @@ useCase paymentGetStatusForScheduler [
 		
 		switch apiCall AccountStatus.GetStatus(spGetAccountStatusParams, srGetAccountStatusResult, srGetAccountStatusStatus) [
 			case apiSuccess getStatusSuccess
-			default contractedAmountErrorResponse
+			default getStatusForSchedulerErrorResponse
 		]
 	]
 	
@@ -160,6 +164,7 @@ useCase paymentGetStatusForScheduler [
 		retAccountCanAutoPay = srGetAccountStatusResult.automaticPaymentStatus
 		retAccountCanUseBankPay	= srGetAccountStatusResult.achEnabled
 		retPaymentDueDate	= srGetAccountStatusResult.paymentDueDate
+		retAccountCanSchedPay = srGetAccountStatusResult.paymentEnabled
 		
 		goto (getCanAutoPay)
 	]
@@ -191,7 +196,7 @@ useCase paymentGetStatusForScheduler [
 		retAccountCanUseBankPay = "false"
 		switch srGetAccountStatusResult.achEnabled [
 			case "enabled" 	setBankPayTrue
-			default 		fetchMonthlyContractedAmount
+			default 		getCanSchedPay
 		]
 	]
 	
@@ -200,11 +205,30 @@ useCase paymentGetStatusForScheduler [
 	 */
 	action setBankPayTrue [
 		retAccountCanUseBankPay = "true"
+		goto (getCanSchedPay)
+	]
+	
+	/**
+	 * 11. system sees if account can make scheduled payments
+	 */
+	action getCanSchedPay [
+		retAccountCanSchedPay = "false"
+		switch srGetAccountStatusResult.paymentEnabled [
+			case "enabled" setSchedPayTrue
+			default fetchMonthlyContractedAmount
+		]
+	]
+	
+	/**
+	 * 12. system sets can scheduled pay result true.
+	 */
+	action setSchedPayTrue [
+		retAccountCanSchedPay = "true"
 		goto (fetchMonthlyContractedAmount)
 	]
 	
 	/**
-	 * 11. system retrieves monthly contracted amount.
+	 * 13. system retrieves monthly contracted amount.
 	 */
 	action fetchMonthlyContractedAmount[
 		spGetContractedPaymentParams.account = accountId
@@ -213,12 +237,12 @@ useCase paymentGetStatusForScheduler [
 		
 		switch apiCall AccountStatus.GetContractualMonthlyPaymentAmount(spGetContractedPaymentParams, srGetContractedPaymentResult, srGetContractedPaymentStatus) [
 			case apiSuccess monthlyContractedAmountResponse
-			default contractedAmountErrorResponse
+			default getStatusForSchedulerErrorResponse
 		]
 	]
 	
 	/**
-	 * 12. system assigns monthly contracted amount to value for return
+	 * 14. system assigns monthly contracted amount to value for return
 	 */
 	action monthlyContractedAmountResponse [
 		retMnthlyContractedAmount = srGetContractedPaymentResult.monthlyPaymentAmount
@@ -229,9 +253,9 @@ useCase paymentGetStatusForScheduler [
 	]
 	
 	/**
-	 * 13. Return a processing error, usually Status API Call.
+	 * 15. Return a processing error, usually Status API Call.
 	 */
-	action contractedAmountErrorResponse [
+	action getStatusForSchedulerErrorResponse [
 		retMnthlyContractedAmount = "0"
 		resultCode = generalError
 		httpStatus = statusFailure
@@ -240,7 +264,7 @@ useCase paymentGetStatusForScheduler [
     ]
 	
 	/**
-	 * 14. return validation error.  Something is wrong in the request.
+	 * 16. return validation error.  Something is wrong in the request.
 	 */
 	action validationError [
 		resultCode = invalidInput
@@ -251,7 +275,7 @@ useCase paymentGetStatusForScheduler [
 	]
 	
 	/**
-	 * 15. package up valid response and return it.
+	 * 17. package up valid response and return it.
 	 */
 	action returnResponse [
 		
@@ -262,6 +286,7 @@ useCase paymentGetStatusForScheduler [
 		JsonResponse.setString(cszDebitFeeAmt, retDebitFeeAmt)
 		JsonResponse.setString(cszMaxPaymentAmt, retMaxPaymentAmt)
 		JsonResponse.setString(cszAccountCanAutoPay, retAccountCanAutoPay)
+		JsonResponse.setString(cszAccountCanSchedPay, retAccountCanSchedPay)
 		JsonResponse.setString(cszAccountCanUseBankPay, retAccountCanUseBankPay)
 		JsonResponse.setString(cszPaymentDueDate, retPaymentDueDate)
 		
