@@ -219,14 +219,15 @@ public class BalanceHelper extends FffcBalance {
 		}
 	}
 	
-	public String getTotalSchedulePmtBeofreDueDate(String szUserId, String szDate, String internalAccountNumber) {
-		BigDecimal amount = getTotalScheduledPayment(szUserId, szDate, internalAccountNumber);
-		return amount.setScale(2, RoundingMode.HALF_UP).toString();
+	public String getTotalSchedulePmtBeofreDueDate(String currentDue, String szUserId, String szDate, String internalAccountNumber) {
+		BigDecimal totalScheduledAmount = getTotalScheduledPayment(szUserId, szDate, internalAccountNumber);
+		BigDecimal remainingAmount = new BigDecimal(currentDue).subtract(totalScheduledAmount);
+		return remainingAmount.setScale(2, RoundingMode.HALF_UP).toString();
 	}
 	
-	public String isRemaingDue(String currentDueEdit, String szUserId, String szDate, String internalAccountNumber) {
-		BigDecimal totalScheduled = getTotalScheduledPayment(szUserId, szDate, internalAccountNumber);
-		BigDecimal remainingAmount = new BigDecimal(currentDueEdit).subtract(totalScheduled);
+	public String isRemaingDue(String currentDue, String szUserId, String szDate, String internalAccountNumber) {
+		BigDecimal totalScheduledAmount = getTotalScheduledPayment(szUserId, szDate, internalAccountNumber);
+		BigDecimal remainingAmount = new BigDecimal(currentDue).subtract(totalScheduledAmount);
 		
 		if (remainingAmount.compareTo(BigDecimal.ZERO) > 0) {
 			return "true";
