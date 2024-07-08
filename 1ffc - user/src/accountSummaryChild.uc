@@ -143,6 +143,7 @@ useCase accountSummaryChild [
 	
 	volatile native string sRemainingDueAmount = 
 			CurrentBalanceHelper.getTotalSchedulePmtBeofreDueDate (
+				sBillAmountDue,
 				sUserId,
 				sBillDueDate,
 				sAccountInternal

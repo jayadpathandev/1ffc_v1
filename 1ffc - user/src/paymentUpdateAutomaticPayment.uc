@@ -69,6 +69,7 @@ useCase paymentUpdateAutomaticPayment [
     import accountSummaryChild.sBillAmountDue
     import accountSummaryChild.sBillDueDate
     import accountSummaryChild.sBillDueRemainingFlag
+    import accountSummaryChild.sBillDueRemainingAmount
     import paymentCommon.sBillId
     
 	native string sFormat = LocalizedFormat.toJsonString()
@@ -153,7 +154,7 @@ useCase paymentUpdateAutomaticPayment [
 				+ "[p]Choose [b]Create recurring only[/b] -  to create the recurring payment, you will be responsible for ensuring you may the current balance on or before your due date.[/p][br]"
 				+ "[p]Choose [b]Continue[/b] - to schedule a payment amount of [b]<3>[/b] on [b]<4>[/b] and then create the recurring payment.[/p]}"
 	
-	native string sAmount = EsignHelper.formatAmount(sPayGroup, sBillAmountDue)
+	native string sAmount = EsignHelper.formatAmount(sPayGroup, sBillDueRemainingAmount)
 	native string sDueDate = EsignHelper.formatDate(sBillDueDate, "yyyyMMdd", "MMMM dd, yyyy")
 	native string sformattedDueDate = EsignHelper.formatDate(sBillDueDate, "yyyyMMdd", "yyyy-MM-dd")
 	volatile string sPaymentDateWarningLabel = I18n.translate ("paymentUpdateAutomaticPayment_sPaymentDateWarningText", sDueDate, sAmount, sAmount, sDueDate)
@@ -1189,7 +1190,7 @@ useCase paymentUpdateAutomaticPayment [
 	]
 	
 	action setPaymentDetails [
-		sPayAmount = sBillAmountDue
+		sPayAmount = sBillDueRemainingAmount
 		goto(checkSurcharge)
 	]
 	
