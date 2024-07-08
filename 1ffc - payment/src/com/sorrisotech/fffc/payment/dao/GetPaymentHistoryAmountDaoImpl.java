@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 
@@ -52,6 +53,13 @@ public class GetPaymentHistoryAmountDaoImpl implements IGetPaymentHistoryAmountD
 	
 	/**********************************************************************************************
      * Query is the query to get the payment history sum
+     */	
+	@Autowired
+	@Qualifier("getTotalScheduledPaymentBeforeDateSQL")  
+	private String m_GetTotalScheduledPaymentBeforeDate;
+	
+	/**********************************************************************************************
+     * Query is the query to get the total scheduled amount before date
      */	
 	@Autowired
 	@Qualifier("getHistoryForAccountSinceDateSQL")  
@@ -106,6 +114,30 @@ public class GetPaymentHistoryAmountDaoImpl implements IGetPaymentHistoryAmountD
 		BigDecimal lRval = mDao.getPaymentHistoryAmountForAccountInternal(cszPaymentGroup, cszInternalAccount, cszStartDate);
 			
 		return lRval;
+	}
+
+	@Override
+	public BigDecimal getTotalScheduledPaymentBeforeBillDue(String cszUserId, String cszBillDueDate,
+			String cszInternalAccountNumber) {
+		return mDao.getTotalScheduledPaymentForAccount(cszUserId, cszBillDueDate, cszInternalAccountNumber);
+	}
+	
+	private BigDecimal getTotalScheduledPaymentForAccount(String cszUserId, String cszBillDueDate,
+			String cszInternalAccountNumber) {
+		
+		MapSqlParameterSource paramMap = new MapSqlParameterSource();
+        paramMap.addValue("userId", cszUserId);
+        paramMap.addValue("internalAccountNumber", cszInternalAccountNumber);
+        paramMap.addValue("compareDate", cszBillDueDate);
+        String result = null;
+        
+        try {        	
+        	result = mJdbc.queryForObject(m_GetTotalScheduledPaymentBeforeDate, paramMap, String.class);
+        } catch (Exception e) {
+			LOG.error("getTotalScheduledPaymentBeforeBillDue -- Exception thrown for query", e);
+		}
+        
+		return new BigDecimal(result);
 	}
 
 }

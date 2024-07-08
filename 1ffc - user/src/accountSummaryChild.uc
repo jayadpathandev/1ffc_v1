@@ -136,6 +136,26 @@ useCase accountSummaryChild [
     native string sBillDueDateDisplay = 	Format.formatDateNumeric(srGetStatusResult.paymentDueDate)
 	native string sToday  =					FFCCAccountAction.getTodaysDate()
 	
+	persistent native string sBillAmountDue = ""
+	persistent native string sBillDueDate = ""
+	persistent native string sBillDueRemainingFlag = ""
+	persistent native string sBillDueRemainingAmount = ""
+	
+	volatile native string sRemainingDueAmount = 
+			CurrentBalanceHelper.getTotalSchedulePmtBeofreDueDate (
+				sUserId,
+				sBillDueDate,
+				sAccountInternal
+			)
+	
+	volatile native string sRemainingDueFlag = 
+			CurrentBalanceHelper.isRemaingDue (
+				sBillAmountDue,
+				sUserId,
+				sBillDueDate,
+				sAccountInternal
+			)
+	
 	// -- returns a current balance calculated based on either bill or status (whichever is newer) less
 	//		payments since that last bill or status date (date inclusive) --
 	volatile string sBillAmountDueDisplay = 
@@ -295,7 +315,13 @@ useCase accountSummaryChild [
  	 	sLocalAccountStatus = srGetStatusResult.accountStatus
  	 	sLocalAccountStatusDate = srGetStatusResult.statusDate
  	 	sLocalAccountStatusAmount = srGetStatusResult.currentAmountDue
-		evalActors()
+ 	 	
+ 	 	sBillAmountDue = sCurrentBalanceEdit
+ 	 	sBillDueDate = srGetStatusResult.paymentDueDate
+ 	 	sBillDueRemainingAmount = sRemainingDueAmount
+ 	 	sBillDueRemainingFlag = sRemainingDueFlag
+
+ 	 	evalActors()
  	 	if "enabled" == srGetStatusResult.viewAccount then
  	 		getPaymentEnabled
  	 	else 

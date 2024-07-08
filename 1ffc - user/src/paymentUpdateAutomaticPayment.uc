@@ -47,8 +47,10 @@ useCase paymentUpdateAutomaticPayment [
 	importJava EsignHelper(com.sorrisotech.fffc.user.EsignHelper)
 	importJava UcProfileAction(com.sorrisotech.app.profile.UcProfileAction)
 	importJava Spinner(com.sorrisotech.app.utils.Spinner)
-	importJava Modal(com.sorrisotech.fffc.payment.ModalUtils)
 	importJava DisplayAccountMasked(com.sorrisotech.fffc.account.DisplayAccountMasked)
+	importJava CurrentBalanceHelper (com.sorrisotech.fffc.payment.BalanceHelper)
+	importJava TransactionIdGen(com.sorrisotech.svcs.payment.util.RequestTransactionIdUtil)
+	importJava PaymentAuditIterator(com.sorrisotech.uc.payment.PaymentAuditIterator)
 			
     import validation.dateValidation
 		
@@ -64,6 +66,10 @@ useCase paymentUpdateAutomaticPayment [
     import apiPayment.setAutomaticPayment
     import apiPayment.getAutomaticPaymentByAccount
     import apiPayment.setAutomaticPaymentHistory
+    import accountSummaryChild.sBillAmountDue
+    import accountSummaryChild.sBillDueDate
+    import accountSummaryChild.sBillDueRemainingFlag
+    import paymentCommon.sBillId
     
 	native string sFormat = LocalizedFormat.toJsonString()
     
@@ -136,7 +142,55 @@ useCase paymentUpdateAutomaticPayment [
 	volatile string sExpiryDateStatement   = EsignHelper.getExpiryDateStatement(fPayEffective.aDate)
 	volatile string sFormattedDate = EsignHelper.formatEftDate(fPayInvoices.aDate)
 	volatile string sPayDay = EsignHelper.getDayFromDate(fPayInvoices.aDate)
-       
+	
+	// This could be 'schedule' or 'continue'
+	native string sMonthlyAmountChoice = ""
+	native string spaymentWarningPopInHeader = "Monthly payment amount"
+	volatile string sSelectedDateIsAfterDueDate = EsignHelper.dateIsGreater(fPayInvoices.aDate, sBillDueDate)
+	
+	static sPaymentDateWarningText = "{[p]You are scheduling an automatic payment for a date that happens after your current due date of [b]<1>[/b]. Accounting for any scheduled payments, you’ll need to make a payment of [b]<2>[/b] before your current due date to ensure your account remains current.[/p][br]"
+				+ "[p]Choose [b]Cancel[/b] - to exit without creating a recurring payment.[/p][br]"
+				+ "[p]Choose [b]Create recurring only[/b] -  to create the recurring payment, you will be responsible for ensuring you may the current balance on or before your due date.[/p][br]"
+				+ "[p]Choose [b]Continue[/b] - to schedule a payment amount of [b]<3>[/b] on [b]<4>[/b] and then create the recurring payment.[/p]}"
+	
+	native string sAmount = EsignHelper.formatAmount(sPayGroup, sBillAmountDue)
+	native string sDueDate = EsignHelper.formatDate(sBillDueDate, "yyyyMMdd", "MMMM dd, yyyy")
+	native string sformattedDueDate = EsignHelper.formatDate(sBillDueDate, "yyyyMMdd", "yyyy-MM-dd")
+	volatile string sPaymentDateWarningLabel = I18n.translate ("paymentUpdateAutomaticPayment_sPaymentDateWarningText", sDueDate, sAmount, sAmount, sDueDate)
+	
+	native string sPaymentMethodNickName = ""
+	native string sPaymentMethodType = ""
+	native string sPaymentMethodAccount = ""
+	native string sSourceExpiry = ""
+	
+	native string sPayAmount = ""
+	native string sPaySurchargeAmount = "0.00"
+	native string sPayTotalAmount = ""
+	native string transactionId             = TransactionIdGen.getTransactionId()
+	
+	volatile native string szValidConvenienceFee = CurrentBalanceHelper.isValidConvenienceFee (surchargeResult.convenienceFeeAmt)
+	volatile native string sAuditIteratorHasNext = PaymentAuditIterator.hasNext()
+	volatile native string sAuditIteratorNext = PaymentAuditIterator.next()
+	volatile native string sTotalAmount = CurrentBalanceHelper.addAmount(sPayAmount, sPaySurchargeAmount)
+	
+	volatile string sGroupingJson = 
+		CurrentBalanceHelper.createGrouingJson(
+            sformattedDueDate,
+            dWalletItems,
+            sPayAccountInternal,
+            sPayAccountExternal,
+            sBillId,
+            sUserId,
+            sPayAmount,
+            sPaySurchargeAmount,
+            sPayTotalAmount,
+            sPaymentMethodAccount,
+            sPaymentMethodType,
+            sPaymentMethodNickName,
+            sSourceExpiry,
+            sPayGroup
+       )
+    
     field fPayInvoices [
         string(label) sLabel = "{Pay statements *}"        
 //        radioSet(control) rInput = option1 [        
@@ -244,6 +298,12 @@ useCase paymentUpdateAutomaticPayment [
 	serviceParam (AccountStatus.GetContractualMonthlyPaymentAmount) spGetContractedPaymentParams
 	serviceResult (AccountStatus.GetContractualMonthlyPaymentAmount) srGetContractedPaymentResult
 	
+	serviceParam(Payment.SetScheduledPayment) srSetScheduledParam
+	serviceResult(Payment.SetScheduledPayment) srSetScheduledResult
+	
+	serviceParam (AccountStatus.GetDebitConvenienceFee) surchargeRequest
+    serviceResult (AccountStatus.GetDebitConvenienceFee) surchargeResult
+	
 	// move over from B2B
     string scheduleFoundWithAccount = "false"
        
@@ -264,7 +324,6 @@ useCase paymentUpdateAutomaticPayment [
     string sEsignIframeHeader = "{Sign the document}"
     string sDeclinePromptText = "{Are you sure you want to close and not sign the EFT form?}"
     tag hSpinner = Spinner.getSpinnerTemplate("pageSpinner.ftl", "pageSpinner", sorrisoLanguage, sorrisoCountry)
-    tag tModal = Modal.getModalTemplate("modal.ftl", sPayGroup, sDateValidationModalId, sDateValidationModalTitle, sDateValidationModalBody, sorrisoLanguage, sorrisoCountry)
     
     structure(message) oMsgRetrieveContactDetailsError [
         string(title) sTitle = "{Something wrong happened}"
@@ -470,7 +529,6 @@ useCase paymentUpdateAutomaticPayment [
     /* 3. 8. Show the update automatic payment screen. */
     xsltScreen updateAutomaticPaymentScreen("{Payment}") [
     	display hSpinner
-    	display tModal
     	
     	div editScheduleContainer [
     		class: "col-md-12 st-payment-template-border st-scheduled-payment"
@@ -832,7 +890,7 @@ useCase paymentUpdateAutomaticPayment [
 			                    class: "btn btn-primary disabled"	
 							]
 							
-							navigation signDocument(getUserDetails, "{SIGN DOCUMENT}") [	
+							navigation signDocument(checkPaymentWarning, "{SIGN DOCUMENT}") [	
 								logic: [if bImpersonateActive == "true" then "remove"]						
 				            	class: "btn btn-primary"	
 				            	type: "popin"
@@ -1009,6 +1067,20 @@ useCase paymentUpdateAutomaticPayment [
 		goto(documentEsignPopIn)
 	]
 	
+	action checkPaymentWarning [
+		if sSelectedDateIsAfterDueDate == "true" then
+			checkCurrentAmountFlag
+		else
+			getUserDetails
+	]
+	
+	action checkCurrentAmountFlag [
+		if sBillDueRemainingFlag == "true" then
+			paymentWarningPopIn
+		else
+			getUserDetails
+	]
+	
 	xsltFragment documentEsignPopIn("{Sign document}") [
 		
 		div esignPopIn [
@@ -1046,6 +1118,193 @@ useCase paymentUpdateAutomaticPayment [
 		
 	]
 	
+	xsltFragment paymentWarningPopIn("{Payment warning}") [
+		
+		div paymentWarning [
+			class: "modal-content"
+			
+			form paymentWarningForm [
+				
+				div paymentWarningHeader [
+		        	class: "modal-header"
+		            h2 heading [
+		            	display spaymentWarningPopInHeader
+		            ]
+			   	]
+			   	
+				div paymentWarningBody [
+		            class: "modal-body"     
+		            
+		            display sPaymentDateWarningLabel [
+		            	attr_style: "height:500px"
+		            ]               
+		        ]
+		        
+		        div paymentWarningButtons [
+		            class: "modal-footer"
+		            
+					navigation continue (warningContinue, "{CONTINUE}") [
+		            	class: "btn btn-primary"
+		            	type: "popin"
+		            	popin_size: "lg"
+		            	popin_backdrop: "static"
+		            	popin_keyboard: "false"
+		            	popin_conditional: "true"
+		            	attr_tabindex: "1" 
+		        	]
+		        	
+		        	navigation createRecurringPayment (warningSchedule, "{CREATE RECURRING ONLY}") [
+		            	class: "btn btn-primary"
+		            	type: "popin"
+		            	popin_size: "lg"
+		            	popin_backdrop: "static"
+		            	popin_keyboard: "false"
+		            	popin_conditional: "true"
+		            	attr_tabindex: "2"
+		        	]
+		        	
+		        	navigation cancelRecurringPayment (gotoPaymentAutomatic, "{CANCEL}") [
+		            	class: "btn btn-secondary"
+		            	attr_tabindex: "3"
+		        	]
+		        ]
+			]
+		]
+	]
+	
+	action getWalletDetails [
+		srGetWalletInfoParam.SOURCE_ID = dWalletItems
+		switch apiCall Payment.GetWalletByToken(srGetWalletInfoParam, srGetWalletInfoResult, ssStatus) [
+		    case apiSuccess setWalletDetails
+		    default setScheduledErrorAudit
+		]  
+	]
+	
+	action setWalletDetails [
+		 sPaymentMethodNickName = srGetWalletInfoResult.SOURCE_NAME
+		 sPaymentMethodType = srGetWalletInfoResult.SOURCE_TYPE
+		 sPaymentMethodAccount = srGetWalletInfoResult.SOURCE_NUM
+		 sSourceExpiry = srGetWalletInfoResult.SOURCE_EXPIRY
+		 goto(setPaymentDetails)
+	]
+	
+	action setPaymentDetails [
+		sPayAmount = sBillAmountDue
+		goto(checkSurcharge)
+	]
+	
+	action checkSurcharge [
+		if surchargeFlag == "true" then
+			checkSourceType
+		else
+			setTotalAmount
+	]
+	
+	action checkSourceType [
+		if sPaymentMethodType == "debit" then
+			getconvenienceFee
+		else
+			setTotalAmount
+	]
+	
+	action getconvenienceFee [
+		surchargeRequest.user = sUserId
+		surchargeRequest.paymentGroup = sPayGroup
+		surchargeRequest.account = sPayAccountInternal
+		
+		switch apiCall AccountStatus.GetDebitConvenienceFee(surchargeRequest, surchargeResult, ssStatus) [
+			case apiSuccess validateConvenienceFee
+			default         setTotalAmount
+		]
+	]
+
+	action validateConvenienceFee [
+		if  szValidConvenienceFee == "true" then 
+			addConvenienceFee
+		else
+			setTotalAmount
+			
+	]
+
+	action addConvenienceFee [
+		sPaySurchargeAmount = surchargeResult.convenienceFeeAmt
+		goto(setTotalAmount)
+	]
+	
+	action setTotalAmount [
+		sPayTotalAmount = sTotalAmount
+		goto(setScheduledPayment)
+	]
+	
+	action setScheduledPayment [
+		srSetScheduledParam.ONLINE_TRANS_ID     = transactionId
+		srSetScheduledParam.GROUPING_JSON       = sGroupingJson
+		srSetScheduledParam.SOURCE_ID           = dWalletItems
+		srSetScheduledParam.PAY_TYPE            = "onetime"
+		srSetScheduledParam.PAY_AMT             = sPayTotalAmount
+		srSetScheduledParam.PAY_DATE            = sformattedDueDate				
+		srSetScheduledParam.PAY_STATUS          = "scheduled"		
+		srSetScheduledParam.USER_ID             = sUserId
+		srSetScheduledParam.SOURCE_DETAILS      = sPaymentMethodNickName + "|" + sPaymentMethodType + "|" + sPaymentMethodAccount
+		
+		switch apiCall Payment.SetScheduledPayment(srSetScheduledParam, srSetScheduledResult, ssStatus) [
+            case apiSuccess setScheduledSuccessAuditCheck
+            default setScheduledErrorAudit
+        ]	
+    ]
+    
+    action setScheduledSuccessAuditCheck [
+		switch sAuditIteratorHasNext [
+			case "true" setScheduledSuccessAudit		
+			default checkMinAmtFlag
+		]
+	]
+	
+	action setScheduledSuccessAudit [
+    	auditLog(audit_payment.scheduled_payment_success) [
+    		primary  : sUserId
+            secondary: sUserId
+    		transactionId
+    		dWalletItems
+    		sPayTotalAmount
+    		sformattedDueDate
+    		sAuditIteratorNext
+    	]
+		
+		goto(setScheduledSuccessAuditCheck)
+	]
+	
+	action setScheduledErrorAuditCheck [
+		switch sAuditIteratorHasNext [
+			case "true" setScheduledErrorAudit		
+			default checkMinAmtFlag
+		]
+	]
+	
+	action setScheduledErrorAudit [
+    	auditLog(audit_payment.scheduled_payment_failure) [
+    		primary  : sUserId
+            secondary: sUserId
+    		transactionId
+    		dWalletItems
+    		sPayTotalAmount
+    		sformattedDueDate
+    		sAuditIteratorNext
+    	]
+		
+		goto(setScheduledErrorAuditCheck)
+	]
+	
+	action warningContinue [
+		sMonthlyAmountChoice = "continue"
+		goto(getUserDetails)
+	]
+	
+	action warningSchedule [
+		sMonthlyAmountChoice = "schedule"
+		goto(getUserDetails)
+	]
+	
 	// Here we will check the status of the esign
 	action checkEsignStatus [
 		srEsignUrlStatusParams.sessionId = srEsignUrlResult.SESSION_ID
@@ -1059,9 +1318,16 @@ useCase paymentUpdateAutomaticPayment [
 	
 	action checkEsignStatusReponse [
 		if srEsignUrlStatusResult.status == "RemoteSessionComplete" then
-			checkMinAmtFlag 
+			checkScheduleDecision 
 		else
 			esignDeclineConfirmation
+	]
+	
+	action checkScheduleDecision [
+		if sMonthlyAmountChoice == "continue" then
+			getWalletDetails
+		else
+			checkMinAmtFlag
 	]
 	
 	xsltFragment esignDeclineConfirmation("{Decline Esign Prompt}") [
@@ -1278,6 +1544,7 @@ useCase paymentUpdateAutomaticPayment [
     action setAutomaticSuccessResponse [
     	 sToken = dWalletItems
     	 sNickName = srGetWalletInfoResult.SOURCE_NAME
+
     	 sDeleteAutomaticMsgFlag  = "false"
     	 sShowNoChangeMsgFlag     = "false"
     	 sErrorAutomaticMsgFlag   = "false" 	

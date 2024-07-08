@@ -28,6 +28,9 @@ function esign_spinner(parent : HTMLElement) {
     const esignPopIn = '#paymentUpdateAutomaticPayment_esignPopIn';
     const spinnerDiv = '[name="pageSpinner"]';
     const paymentAutomaticTable = '#paymentAutomatic_tAutomaticPaymentsTable_container';
+    const paymentWarningPopIn = '#paymentUpdateAutomaticPayment_paymentWarning';
+    const paymentWarningContinueBtn = '#paymentUpdateAutomaticPayment_continue';
+    const paymentWarningCRPBtn = '#paymentUpdateAutomaticPayment_createRecurringPayment';
 
     // If clicked on 'SIGN DOCUMENT' then show the loader
     if ($(parent).find(signDocumentBtn).length > 0) {
@@ -41,11 +44,32 @@ function esign_spinner(parent : HTMLElement) {
         $(spinnerDiv).addClass('visually-hidden');
     }
 
+    // If the paymentWarningPopIn appears then close the loader
+    if ($(parent).find(paymentWarningPopIn).length > 0) {
+        $(spinnerDiv).addClass('visually-hidden');
+    }
+
     // If clicked on 'CREATE RECURRING PAYMENT' button then show the loader
     if ($(parent).find(createRecurringPaymentBtn).length > 0) {
         $(createRecurringPaymentBtn).on('click', () => {
             $(spinnerDiv).removeClass('visually-hidden');
             $(esignPopIn).parent('div').parent('div').remove();
+        });
+    }
+
+    // If clicked on 'CONTINUE' button then show the loader
+    if ($(parent).find(paymentWarningContinueBtn).length > 0) {
+        $(paymentWarningContinueBtn).on('click', () => {
+            $(spinnerDiv).removeClass('visually-hidden');
+            $(paymentWarningPopIn).parent('div').parent('div').remove();
+        });
+    }
+
+    // If clicked on 'CREATE RECURRING ONLY' button then show the loader
+    if ($(parent).find(paymentWarningCRPBtn).length > 0) {
+        $(paymentWarningCRPBtn).on('click', () => {
+            $(spinnerDiv).removeClass('visually-hidden');
+            $(paymentWarningPopIn).parent('div').parent('div').remove();
         });
     }
 

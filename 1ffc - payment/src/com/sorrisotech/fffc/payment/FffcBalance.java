@@ -354,5 +354,10 @@ public class FffcBalance {
 		return ldTrueMaxPayment;
 		
 	}
+	
+	public static BigDecimal getTotalScheduledPayment(String szUserId, String szDate, String internalAccountNumber) {
+		GetPaymentHistoryAmountDaoImpl loPmtHist = new GetPaymentHistoryAmountDaoImpl();
+		return loPmtHist.getTotalScheduledPaymentBeforeBillDue(szUserId, szDate, internalAccountNumber);
+	}
 
 }
