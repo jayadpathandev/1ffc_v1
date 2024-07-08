@@ -1,10 +1,14 @@
 package com.sorrisotech.fffc.payment;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -213,5 +217,123 @@ public class BalanceHelper extends FffcBalance {
 			m_cLog.error("parseDateToOtherFormat() .. unable to parse the date, exception occurred {}", e);
 			return null;
 		}
+	}
+	
+	public String getTotalSchedulePmtBeofreDueDate(String szUserId, String szDate, String internalAccountNumber) {
+		BigDecimal amount = getTotalScheduledPayment(szUserId, szDate, internalAccountNumber);
+		return amount.setScale(2, RoundingMode.HALF_UP).toString();
+	}
+	
+	public String isRemaingDue(String currentDueEdit, String szUserId, String szDate, String internalAccountNumber) {
+		BigDecimal totalScheduled = getTotalScheduledPayment(szUserId, szDate, internalAccountNumber);
+		BigDecimal remainingAmount = new BigDecimal(currentDueEdit).subtract(totalScheduled);
+		
+		if (remainingAmount.compareTo(BigDecimal.ZERO) > 0) {
+			return "true";
+		} else {
+			return "false";
+		}
+	}
+	
+	/**
+	 * Creates grouping JSON string.
+	 * 
+	 * @param payDate
+	 * @param token
+	 * @param internalAccountNumber
+	 * @param displayAccountNumber
+	 * @param documentNumber
+	 * @param userId
+	 * @param amount
+	 * @param surchargeAmount
+	 * @param totalAmount
+	 * @param account
+	 * @param type
+	 * @param nickName
+	 * @param expiry
+	 * @param paymentGroup
+	 * @return json string
+	 */
+	public String createGrouingJson(
+            final String payDate,
+            final String token,
+            final String internalAccountNumber,
+            final String displayAccountNumber,
+            final String documentNumber,
+            final String userId,
+            final String amount,
+            final String surchargeAmount,
+            final String totalAmount,
+            final String account,
+            final String type,
+            final String nickName,
+            final String expiry,
+            final String paymentGroup) {
+
+		 // Create the main payData JSON object
+        JSONObject payData = new JSONObject();
+        
+        try {
+            // Create paymentMethod JSON object
+            JSONObject paymentMethod = new JSONObject();
+            paymentMethod.put("token", token);
+            paymentMethod.put("account", account);
+            paymentMethod.put("type", type);
+            paymentMethod.put("nickName", nickName);
+            paymentMethod.put("expiry", expiry);
+
+            // Create grouping JSON array
+            JSONArray grouping = new JSONArray();
+            JSONObject bill = new JSONObject();
+            bill.put("internalAccountNumber", internalAccountNumber);
+            bill.put("displayAccountNumber", displayAccountNumber);
+            bill.put("documentNumber", documentNumber);
+            bill.put("amount", amount);
+            bill.put("paymentGroup", paymentGroup);
+            bill.put("surcharge", surchargeAmount);
+            bill.put("totalAmount", totalAmount);
+            bill.put("interPayTransactionId", "N/A");
+
+            grouping.put(bill);
+
+            payData.put("payDate", payDate); // Assuming sBillDueDate is defined elsewhere
+            payData.put("paymentGroup", paymentGroup);
+            payData.put("payMethod", paymentMethod);
+            payData.put("grouping", grouping);
+            payData.put("autoScheduledConfirm", true);
+            payData.put("userId", userId); // Adding userId parameter
+
+        } catch (JSONException e) {
+        	m_cLog.error("createGrouingJson() ... exception occurred {}", e);
+        }
+        
+        return payData.toString();
+    }
+	
+	/**
+	 * Adds two amounts string as bigdecimal.
+	 * 
+	 * @param amount1 The first amount
+	 * @param amount2 The second amount
+	 * @return the sum of provided amounts
+	 */
+	public static String addAmount(String amount1, String amount2) {
+		BigDecimal firstAmount = null;
+		BigDecimal secondAmount = null;
+		
+		try {
+			firstAmount = new BigDecimal(amount1).setScale(2, RoundingMode.HALF_UP);
+		} catch(Exception e) {
+			firstAmount = BigDecimal.ZERO;
+		}
+		
+		try {
+			secondAmount = new BigDecimal(amount2).setScale(2, RoundingMode.HALF_UP);
+		} catch(Exception e) {
+			secondAmount = BigDecimal.ZERO;
+		}
+		
+		return firstAmount.add(secondAmount).toString();
+		
 	}
 }

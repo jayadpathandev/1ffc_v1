@@ -30,6 +30,24 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 			</value>
         </constructor-arg>   
     </bean>    
+    
+	 <bean id="getTotalScheduledPaymentBeforeDateSQL" class="java.lang.String">
+	    <constructor-arg>
+	        <!-- SQL query with named parameters -->
+	        <value>
+	            <![CDATA[
+	                SELECT COALESCE(SUM(ps.pay_amt)::text, '0') AS total_scheduled_amount
+	                FROM pmt_schedule ps
+	                JOIN pmt_grouping pg ON ps.online_trans_id = pg.online_trans_id
+	                WHERE ps.pay_status = 'scheduled'
+	                AND ps.user_id = :userId
+	                AND to_char(ps.pay_date, 'YYYYMMDD') <= :compareDate
+	                AND pg.internal_account_number = :internalAccountNumber
+	            ]]>
+	        </value>
+	    </constructor-arg>
+	</bean>  
+    
     <bean id="getHistoryForAccountSinceDateDao" class="com.sorrisotech.fffc.payment.dao.GetPaymentHistoryAmountDaoImpl">
     </bean>
 </beans>

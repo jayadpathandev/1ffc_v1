@@ -20,12 +20,22 @@
  */
 package com.sorrisotech.fffc.user;
 
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sorrisotech.common.LocalizedFormat;
+import com.sorrisotech.svcs.external.IServiceLocator2;
+import com.sorrisotech.svcs.itfc.data.IUserData;
+
 public class EsignHelper {
+	
+	private static final Logger mLog = LoggerFactory.getLogger(EsignHelper.class);
 	
 	public static String getDueDateStatement(String value) {
 		String count = "";
@@ -83,7 +93,98 @@ public class EsignHelper {
             SimpleDateFormat outputFormat = new SimpleDateFormat("dd", Locale.ENGLISH);
             return outputFormat.format(date);
 		} catch( Exception ex) {
+			mLog.error("EsignHelper...getDayFromDate()...exception occured : {}", ex);
 			return null;
 		}
 	}
+	
+	/**
+     * Checks if date1 is after date2.
+     *
+     * @param date1 in format yyyy-MM-dd
+     * @param date2 in format yyyyMMdd
+     * @return "true" if date1 is after date2, "false" otherwise
+     */
+    public static String dateIsGreater(String date1, String date2) {
+        SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat sdf2 = new SimpleDateFormat("yyyyMMdd");
+
+        try {
+            // Parse the input strings into Date objects
+            Date parsedDate1 = sdf1.parse(date1);
+            Date parsedDate2 = sdf2.parse(date2);
+
+            // Compare the Date objects
+            if (parsedDate1.after(parsedDate2)) {
+                return "true";
+            } else {
+                return "false";
+            }
+        } catch (ParseException e) {
+            // Handle the ParseException if the date strings are in incorrect format
+        	mLog.error("EsignHelper...dateIsGreater()...exception occured while parsing : {}", e);
+            return "false"; // Or return an appropriate error indication
+        }
+    }
+    
+    /**
+     * Formats the amount to it's local format.
+     * 
+     * @param locator
+     * @param data
+     * @param cszPayGroup
+     * @param amount
+     * @return
+     */
+    public static String formatAmount(
+    		IServiceLocator2 	locator, 
+			IUserData           data,
+			final String 		cszPayGroup,
+			final String amount) {
+    	String lszRetVal = null;
+    	
+    	try {
+			final LocalizedFormat format = new LocalizedFormat(locator, data.getLocale());
+			
+			final BigDecimal amountInBigDcimal = new BigDecimal(amount);
+			
+			lszRetVal = format.formatAmount(cszPayGroup, amountInBigDcimal);
+			
+		} catch (Exception e) {
+			mLog.error("EsignHelper...formatAmount() - An exception was thrown", e);
+		}
+    	
+    	if (lszRetVal != null) {
+            lszRetVal = "\\" + lszRetVal;
+        }
+
+		return lszRetVal ;
+    }
+    
+    /**
+     * Formats the date string to the desired format.
+     *
+     * @param date          the input date string
+     * @param inputPattern  the format of the input date string (e.g., "yyyy-MM-dd")
+     * @param outputPattern the desired format of the output date string (e.g., "dd/MM/yyyy")
+     * @return formatted date string in the output pattern
+     */
+    public static String formatDate(String date, String inputPattern, String outputPattern) {
+        SimpleDateFormat inputFormat = new SimpleDateFormat(inputPattern);
+        SimpleDateFormat outputFormat = new SimpleDateFormat(outputPattern);
+
+        try {
+            // Parse the input date string into a Date object
+            Date parsedDate = inputFormat.parse(date);
+
+            // Format the parsed Date object into the desired output format
+            String formattedDate = outputFormat.format(parsedDate);
+
+            return formattedDate;
+        } catch (ParseException e) {
+            // Handle the ParseException if the input date string is in incorrect format
+        	mLog.error("EsignHelper...formatAmount() - An exception was thrown", e);
+            return null; // Or return an appropriate error indication
+        }
+    }
 }

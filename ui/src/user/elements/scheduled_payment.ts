@@ -23,7 +23,6 @@
 import $ from 'jquery';
 import 'jquery-ui';
 
-import bootstrap from 'bootstrap';
 import { ElementState } from '../../common/basic/forms/element_state';
 import { ValidatorBase } from '../../common/basic/forms/validator_base';
 import { ValidatorForm } from '../../common/basic/forms/validator_form';
@@ -146,73 +145,15 @@ function pay_amount() {
     $('#paymentUpdateAutomaticPayment_fPayInvoices\\.aDate_display').on('change', function() {
         
         const $signDocumentBtn = $('#paymentUpdateAutomaticPayment_signDocument');
-
         const selectedDateValue = String($(this).val());
-        const payDueDateValue = $('#accountSummaryChild_sBillDueDateDisplay').text();
-    
-        // Check if both dates are valid and parseable
-        if (Date.parse(selectedDateValue) && Date.parse(payDueDateValue)) {
-            const selectedDate = new Date(selectedDateValue);
-            const payDueDate = new Date(payDueDateValue);
-    
-            // Compare dates
-            if (selectedDate > payDueDate) {
-                showWarningModal(selectedDate, payDueDate);
-                // Disable the sign document button
-                $signDocumentBtn.addClass('disabled');
-            } else {
-                // Enable the sign document button
-                $signDocumentBtn.removeClass('disabled');
-            }
-        } 
+
+        if (Date.parse(selectedDateValue)) {
+            // Enable the sign document button
+            $signDocumentBtn.removeClass('disabled');
+        } else {
+            $signDocumentBtn.addClass('disabled');
+        }
     }).trigger('change');
-
-    function showWarningModal(currentDate : Date, dueDate : Date): void {
-        const $elem = $('#recurringPaymentDateValidationModal');
-
-        // Display the modal if element exists
-        if ($elem.length) {
-
-            const formattedCurrentDate = getDayWithOrdinalSuffix(currentDate);
-            const formattedDueDate = dueDate.toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-            });
-            
-            let modalBodyHtml = $elem.find('.modal-body').html();
-            modalBodyHtml = modalBodyHtml.replace('{dueDate}', formattedDueDate)
-                                .replace('{currentDay}', formattedCurrentDate);
-            
-            $elem.find('.modal-body').html(modalBodyHtml);
-
-            const warningModal = bootstrap.Modal.getOrCreateInstance($elem[0], {
-                backdrop: 'static',
-                keyboard: false
-            });
-
-            warningModal?.show();
-
-            $($elem).find('button[data-dismiss="modal"]').on('click', () => {
-                warningModal?.hide();
-            });
-        }
-    }
-
-    function getDayWithOrdinalSuffix(date : Date) : string {
-        const day : number = date.getDate();
-        const suffix : string = getOrdinalSuffix(day);
-        return day + suffix;
-    }
-    
-    function getOrdinalSuffix(day: number) {
-        switch (day) {
-            case 1: return 'st';
-            case 2: return 'nd';
-            case 3: return 'rd';
-            default: return 'th';
-        }
-    }
 
     $('#paymentUpdateAutomaticPayment_fPayInvoices\\.aDate_display').datepicker(
         'option', 'minDate', new Date()

@@ -18,4 +18,8 @@ public interface IGetPaymentHistoryAmountDao {
 												  		  final String cszInternalAccount,
 												  		  final String cszStartDate);
 	
+	public BigDecimal getTotalScheduledPaymentBeforeBillDue(final String cszUserId, 
+															final String cszBillDueDate, 
+															final String cszInternalAccountNumber);
+	
 }
