@@ -290,7 +290,6 @@ useCase paymentWallet [
 
 	// -- handling impersonation --
  	import utilImpersonationActive.sImpersonationActive
- 	native string bImpersonateActive
  
     /*************************
 	* MAIN SUCCESS SCENARIOS
@@ -298,7 +297,6 @@ useCase paymentWallet [
 	
 	/* 1. Get the most recent document. */
 	action init [
-		bImpersonateActive = sImpersonationActive		
 		sUserName = getUserName()
 				
 		 goto(getWallet)         
@@ -506,12 +504,6 @@ useCase paymentWallet [
 	          			            
 		            navigation addNewBankAccount(createBankAccountIframeAction, "{ADD NEW BANK ACCOUNT}") [
 		                class: "btn btn-primary st-bankaccount-button"
-	                	logic: [if bImpersonateActive == "true" then "remove"]
-		            ]
-
-		            navigation addNewBankAccountDisabled(createBankAccountIframeAction, "{NEW BANK DISABLED AGENT}") [
-		                class: "btn btn-primary st-bankaccount-button disabled"
-	                	logic: [if bImpersonateActive != "true" then "remove"]
 		            ]
 		        ]
 	          	
@@ -524,13 +516,7 @@ useCase paymentWallet [
 	
 	          	    navigation addNewDebitCard(createDebitCardIframeAction, "{ADD NEW DEBIT CARD}") [
 	                    class: "btn btn-primary st-debitcard-button"		
- 		                logic: [if bImpersonateActive == "true" then "remove"]
-	          		]
-
-	          	    navigation addNewDebitCardDisabled(createDebitCardIframeAction, "{NEW DEBIT DISABLED AGENT}") [
-	                    class: "btn btn-primary st-debitcard-button disabled"		
- 		                logic: [if bImpersonateActive != "true" then "remove" ]
-	          		]
+ 	          		]
 	          	]
 	          	
 	            div buttonsCol4 [
@@ -542,13 +528,7 @@ useCase paymentWallet [
 	            	
 	          	    navigation addNewPmtSource(createCreditCardIframeAction, "{ADD NEW CREDIT CARD}") [
 	                    class: "btn btn-primary st-creditcard-button"
-	                	logic: [if bImpersonateActive == "true" then "remove"]
 	          		]	
-
-	          	    navigation addNewPmtSourceaDisabled(createDebitCardIframeAction, "{NEW CREDIT DISABLED AGENT}") [
-	                    class: "btn btn-primary st-debitcard-button disabled"		
- 		                logic: [if bImpersonateActive != "true" then "remove" ]
- 		            ]
 	          	]
 	          	
 	          	div buttonsCol5 [
@@ -560,13 +540,7 @@ useCase paymentWallet [
 	          			            
 		            navigation addNewSepaAccount(createSepaAccountIframeAction, "{ADD NEW SEPA ACCOUNT}") [
 		                class: "btn btn-primary st-sepaaccount-button"
-	                	logic: [if bImpersonateActive == "true" then "remove"]
-		            ]
-		            
-	          	    navigation addNewSepaAccountDisabled(createDebitCardIframeAction, "{NEW SEPA DISABLED AGENT}") [
-	                    class: "btn btn-primary st-debitcard-button disabled"		
- 		                logic: [if bImpersonateActive != "true" then "remove" ]
- 		            ]
+		            ]		            
 		        ]
 	          	
 			]
@@ -686,17 +660,8 @@ useCase paymentWallet [
     			navigation yesButton (deleteWallet, "{YES}") [
                 	class: "btn btn-primary"
                 	attr_tabindex: "10"
-                	// -- disabled button shows if agent is impersonating --
-                	logic: [if bImpersonateActive == "true" then "remove"]
             	]
 
-    			navigation yesButtonDisabeld (deleteWallet, "{DISABLED FOR AGENT}") [
-                	class: "btn btn-primary disabled"
-                	attr_tabindex: "10"
-                	// -- this button shows if agent is impersonating --
-                	logic: [if bImpersonateActive != "true" then "remove"]
-            	]
-            	
 				navigation noButton (paymentWalletScreen, "{NO}") [
 					attr_tabindex: "11"
 				] 
