@@ -5,11 +5,3 @@ release.dir   =
 
 base.local.url  = http://localhost:8080/
 base.public.url = https://1ffc.server2.sorrisoqa.com/
-
-precisely.campaign.name=sorriso-api
-precisely.sender.email=info@sorrisotech.com
-precisely.sender.name=Sorriso
-precisely.replyto.email=support@sorrisotech.com
-precisely.client.id=sa246e7.6belnqebt0jgzvfp@communicate.engageone.co
-precisely.secret=SqE.1X<E+oAfV*h^
-precisely.customer.id=sa246e7
