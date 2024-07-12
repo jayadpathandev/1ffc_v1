@@ -1,0 +1,377 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" 
+       xmlns:batch="http://www.springframework.org/schema/batch"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+        
+       	
+    <!-- ********************************************************************************** -->
+	<!-- ******** This file contains bean definitions that are					      ***** -->
+	<!-- ******** required by the 1ffc batch status processor job                     ***** -->
+	<!-- ********************************************************************************** -->
+	
+	
+	<!-- ********************************************************************************** -->
+	<!-- ******** Import common definitions like dataSource, jdbcTemplate,            ***** -->
+	<!-- ******** jobRepository, simpleStep.                                          ***** -->
+	<!-- ********************************************************************************** -->
+	<import resource="classpath:common-context.xml"/>
+	
+	<!-- ******************************************************************* -->
+	<!-- ********  Load properties for the following:             ********** -->
+	<!-- ********         Database connection details             ********** -->
+	<!-- ******************************************************************* -->
+	<bean id="propertyConfigurer" class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
+       <property name="propertySources">
+       <bean class="com.sorrisotech.utils.ConfigFactory">
+            <property name="sources">
+                <list>                    
+                    <bean class="com.sorrisotech.utils.ConfigFile">
+                        <constructor-arg value="false"/>
+                        <constructor-arg value="db/common.properties"/>
+                        <property name="cacheTimeout" value="10"/>
+                    </bean>
+                    <bean class="com.sorrisotech.utils.ConfigFile">
+                        <constructor-arg value="false"/>
+                        <constructor-arg value="common/user_config.properties"/>
+                        <property name="cacheTimeout" value="10"/>
+                    </bean>
+                    <bean class="com.sorrisotech.utils.ConfigFile">
+                        <constructor-arg value="false"/>
+                        <constructor-arg value="common/file_path.properties"/>
+                        <property name="cacheTimeout" value="10"/>
+                    </bean>
+                    <bean class="com.sorrisotech.utils.ConfigFile">
+                        <constructor-arg value="false"/>
+                        <constructor-arg value="statusProcessor.properties"/>
+                        <property name="cacheTimeout" value="10"/>
+                    </bean>
+                    <bean class="com.sorrisotech.utils.ConfigTable">
+                        <property name="jdbc" ref="namedParameterJdbcTemplate"/>
+                        <property name="sql" value="select config_value from db_config where config_key=:name"/>
+	                </bean>                                       
+                    <bean class="com.sorrisotech.utils.ConfigDefine"/>
+                </list>
+            </property>
+        </bean>
+       </property>
+   </bean>
+   
+	
+	<!-- ********************************************************************************** -->
+   	<!-- ***   Batch Job configuration for removing scheduled and recurring payments    *** -->
+   	<!-- ***		    based on latest status feeds									*** -->
+   	<!-- ********************************************************************************** -->
+	<batch:job id="disableFuturePaymentsJob" parent="simpleJob">
+    	<batch:step id="step1" parent="simpleStep">
+    	    <batch:tasklet>
+				<batch:chunk 
+					reader="statusFileReader" 
+					processor="statusProcessor" 
+					writer="statusWriter" 
+					commit-interval="1"/>               
+			</batch:tasklet>
+        	<batch:next on="FAILED" to="sendFailedNotificationStep" />
+            <batch:next on="COMPLETED" to="sendSuccessNotificationStep" />
+            <batch:next on="NOOP" to="sendNoopNotification"/>
+			<batch:listeners>
+				<batch:listener ref="statusWriterListener"/>
+				<batch:listener ref="customStepExecutionListener"/>
+			</batch:listeners>
+        </batch:step>
+        <batch:step id="sendFailedNotificationStep">
+             <batch:tasklet ref="failureNotificationTasklet"/>
+        </batch:step>
+        <batch:step id="sendSuccessNotificationStep">
+            <batch:tasklet ref="successNotificationTasklet"/>
+        </batch:step> 
+        <batch:step id="sendNoopNotification">
+            <batch:tasklet ref="noopNotificationTasklet"/>
+        </batch:step>    
+    </batch:job>
+    
+    <!-- ********************************************************************************** -->
+   	<!-- ***   This writer listener will send email notifications to the user           *** -->
+   	<!-- ********************************************************************************** -->
+	<bean id="statusWriterListener" class="com.sorrisotech.fffc.batch.status.processor.WriterNotificationListener">
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+	
+	<!-- ********************************************************************************** -->
+   	<!-- ***   This step execution listener will update the last updated date value     *** -->
+   	<!-- ********************************************************************************** -->
+	<bean id="customStepExecutionListener" class="com.sorrisotech.fffc.batch.status.processor.DefaultStepExecutionListener">
+		<property name="dataSource" ref="dataSource"/>
+		<property name="upsertLatestStatusUpdateSQL" ref="updateLastUpdatedDateSQL"/>
+		<property name="fetchLatestStatusUpdateSQL" ref="getLatestStatusFileUpdateDateSQL"/>
+    </bean>
+    
+    <bean id="updateLastUpdatedDateSQL" class="java.lang.String">
+    	<constructor-arg>
+    		<value>
+    			<![CDATA[
+	    			INSERT INTO db_config (config_key, config_value) 
+					VALUES ('${last.updated.db.config.key}', :latestUpdateTime) 
+					ON CONFLICT (config_key) 
+					DO UPDATE SET config_value = EXCLUDED.config_value;
+	    		]]>
+    		</value>
+    	</constructor-arg>
+    </bean>
+    
+    <bean id="getLatestStatusFileUpdateDateSQL" class="java.lang.String">
+    	<constructor-arg>
+    		<value>
+    			<![CDATA[
+	    			select
+						TO_CHAR(MAX(status_update_date), 'YYYY-MM-DD HH24:MI:SS.MS')
+					from
+						bill_file_meta_data bfmd
+					where
+						bfmd.status = 'PUBLISHED'
+						and bfmd.payment_group = '${status.pay.group}'
+	    		]]>
+    		</value>
+    	</constructor-arg>
+    </bean>
+    
+	<!-- ********************************************************************************** -->
+    <!-- *** The bean will read the latest imported bill status file id                 *** -->
+    <!-- ********************************************************************************** -->    
+    <bean id="statusFileReader" class="org.springframework.batch.item.database.JdbcCursorItemReader" scope="step">
+	    <property name="dataSource" ref="dataSource"/>
+	    <property name="rowMapper" ref="billFileMetadataMapper"/>
+		<property name="preparedStatementSetter" ref="readerPreparedStatementSetter"/>
+	    <property name="sql" ref="getAllLatestBillStatusFileInfoSQL"/>
+	</bean>
+
+    <bean id="billFileMetadataMapper" class="com.sorrisotech.fffc.batch.status.processor.mapper.BillFileMetadataMapper"/>
+	
+	<bean id="readerPreparedStatementSetter" class="com.sorrisotech.fffc.batch.status.processor.mapper.ReaderPreparedStatementSetter">
+		<property name="paymentGroup" value="${status.pay.group}" />
+	</bean>
+
+	<bean id="getAllLatestBillStatusFileInfoSQL" class="java.lang.String">
+		<constructor-arg>
+			<value>
+	            <![CDATA[
+	                WITH status_update_date_cte AS (
+	                  SELECT
+	                    CASE
+	                      WHEN EXISTS (SELECT 1 FROM db_config WHERE config_key = '${last.updated.db.config.key}')
+	                      THEN (SELECT TO_CHAR(config_value::timestamp, 'YYYY-MM-DD HH24:MI:SS.MS') FROM db_config WHERE config_key = '${last.updated.db.config.key}')
+	                      ELSE '1970-01-01 00:00:00.000' -- Set a default value if not present
+	                    END AS status_update_date
+	                )
+	                SELECT
+	                  bfmd.bill_file_id
+	                FROM
+	                  bill_file_meta_data AS bfmd,
+	                  status_update_date_cte
+	                WHERE
+	                  bfmd.status = 'PUBLISHED'
+	                  AND bfmd.payment_group = ?
+	                  AND TO_CHAR(bfmd.status_update_date, 'YYYY-MM-DD HH24:MI:SS.MS') > status_update_date_cte.status_update_date
+	                ORDER BY
+	                  bfmd.status_update_date ASC;
+	            ]]>
+        </value>
+		</constructor-arg>
+	</bean>
+
+    <!-- ********************************************************************************** -->
+    <!-- *** User row mapper class bean.                                                *** -->
+    <!-- ********************************************************************************** -->
+    <bean id="userRowMapper" class="com.sorrisotech.fffc.batch.status.processor.mapper.RecordMapper"/>  
+    
+    <!-- ********************************************************************************** -->
+    <!-- *** RowMapper implementation for ScheduledPayment                              *** -->
+    <!-- ********************************************************************************** -->  
+    <bean id="scheduledPaymentMapper" class="com.sorrisotech.fffc.batch.status.processor.mapper.ScheduledPaymentMapper"/>
+    
+    <!-- ********************************************************************************** -->
+    <!-- *** RowMapper implementation for RecurringPayment                              *** -->
+    <!-- ********************************************************************************** --> 
+    <bean id="recurringPaymentMapper" class="com.sorrisotech.fffc.batch.status.processor.mapper.RecurringPaymentMapper"/>
+    
+    <!-- ********************************************************************************** -->
+    <!-- *** The status processor will get the latest account state from bill file      *** -->
+    <!-- ********************************************************************************** --> 
+    <bean id="statusProcessor" class="com.sorrisotech.fffc.batch.status.processor.Processor">
+	    <property name="dataSource" ref="dataSource"/>
+	    <property name="getInternalAccNumberFromBillFileId" ref="getAllAccountInfoByBillFileIdSQL"/>
+    </bean>
+    
+    <bean id="getAllAccountInfoByBillFileIdSQL" class="java.lang.String">
+    	<constructor-arg>
+    		<value>
+	    		<![CDATA[
+		    		select
+					 	b.account,
+						case 
+						   when (b.flex6 IS NOT NULL AND b.flex6 NOT IN ('enabled')) THEN 'Y' ELSE 'N'
+						end as payment_disabled,
+						case 
+						   when (b.flex7 IS NOT NULL AND b.flex7 NOT IN ('enabled')) THEN 'Y' ELSE 'N'
+						end as ach_disabled,
+						case 
+						   when (b.flex15 IS NOT NULL AND b.flex15 NOT IN ('eligible', 'enrolled')) THEN 'Y' ELSE 'N'
+						end as recurring_payment_disabled
+					from
+					  bill as b
+					where
+					   -- select only records from current bill file we are processing --
+					   b.bill_file_id = :bill_file_id_processing
+					   -- select only records that can change scheduled or recurring payments --
+					   and (
+					    (b.flex6 IS NOT NULL AND b.flex6 NOT IN ('enabled')) or 
+					    (b.flex7 IS NOT NULL AND b.flex7 NOT IN ('enabled')) or
+					    (b.flex15 IS NOT NULL AND b.flex15 NOT IN ('enrolled', 'eligible'))
+					    )
+	    		]]>
+	    	</value>
+    	</constructor-arg>
+    </bean>
+ 
+    <!-- ********************************************************************************** -->
+    <!-- *** The status writer will delete all the inactive scheduled/recurring payments*** -->
+    <!-- ********************************************************************************** --> 
+ 	<bean id="statusWriter" class="com.sorrisotech.fffc.batch.status.processor.Writer">
+ 		<property name="dataSource" ref="dataSource"/>
+	    <property name="deleteScheduled" ref="deleteScheduledPaymentsByOnlineTransId"/>
+	    <property name="scheduledPaymentMapper" ref="scheduledPaymentMapper"/>
+	    <property name="recurringPaymentMapper" ref="recurringPaymentMapper"/>
+	    <property name="getScheduledInfoByInternalAccNumber" ref="getScheduledPaymentInfoByInternalAccountNumberSQL"/>
+	    <property name="getRecurringInfoByInternalAccNumber" ref="getRecurringPaymentInfoByInternalAccountNumberSQL"/>
+ 	</bean>
+ 	
+ 	<bean id="deleteScheduledPaymentsByOnlineTransId" class="java.lang.String">
+ 		<constructor-arg>
+ 			<value>
+ 				<![CDATA[
+ 					DELETE FROM pmt_schedule WHERE online_trans_id IN (:ids)
+ 				]]>
+ 			</value>
+ 		</constructor-arg>
+ 	</bean>
+ 	
+ 	<bean id="getScheduledPaymentInfoByInternalAccountNumberSQL" class="java.lang.String">
+		<constructor-arg>
+			<value>
+			  	<![CDATA[
+		    		select
+		    			ps.user_id,
+						ps.online_trans_id, 
+						ta.account_number_display as account_number,
+						ta.account_number as internal_account,
+						ta.bill_group as pay_group,
+						ps.pay_date as payment_date,
+						pw.source_num as wallet_name,
+						ps.pay_amt as amount,
+						pw.source_type 
+					from
+						pmt_schedule ps
+					join pmt_wallet pw on
+						ps.source_id = pw.source_id
+					join prof_company_user pcu on ps.user_id = pcu.userid::varchar
+					join prof_company_account pca  on pcu.companyid = pca.company_id 
+					join tm_account ta on ta.id = pca.account_id 
+					where
+						ta.account_number = :accNumber
+				]]>
+		  	</value>
+		</constructor-arg>
+ 	</bean>
+ 	
+ 	<bean id="getRecurringPaymentInfoByInternalAccountNumberSQL" class="java.lang.String">
+		<constructor-arg>
+			<value>
+			  	<![CDATA[
+					select
+						pa.user_id,
+						pa.automatic_id, 
+						ta.account_number_display as account_number,
+						ta.account_number as internal_account,
+						ta.bill_group as pay_group,
+						pw.source_num  as wallet_name,
+						pw.source_type 
+					from
+						pmt_automatic pa
+					join pmt_wallet pw on
+						pa.source_id = pw.source_id
+					join prof_company_user pcu on pa.user_id = pcu.userid::varchar
+					join prof_company_account pca  on pcu.companyid = pca.company_id 
+					join tm_account ta on ta.id = pca.account_id
+					join pmt_automatic_history pah on pah.automatic_id = pa.automatic_id 
+					where
+						ta.account_number = :accNumber
+					and
+						pah.config_change = 'Recurring payment created.'
+				]]>
+		  	</value>
+		</constructor-arg>
+ 	</bean>
+    
+    
+	<!-- ********************************************************************************** -->
+    <!-- **** Notification tasklet used to send out notification(s) informing           *** --> 
+    <!-- **** successful completion of the job.                                         *** -->
+    <!-- ********************************************************************************** -->
+    <bean id="successNotificationTasklet" 
+        class="com.sorrisotech.batch.common.notify.NotificationTasklet">
+        <property name="enabled" value="${notification.onSuccess.enabled}"/>
+        <property name="notificationType" value="${batch.success}"/>
+        <property name="destination" value="${notification.onSuccess.emails}"/>
+        <property name="locale">
+            <util:constant static-field="java.util.Locale.US"/>
+        </property>
+        <property name="parameters">
+            <map>
+               <entry key="jobName" value="${job.name}"/>
+            </map>
+       </property>
+    </bean>
+    
+    <!-- ********************************************************************************** -->
+    <!-- **** Notification tasklet used to send out notification(s) informing failure   *** --> 
+    <!-- **** of the job.                                                               *** -->
+    <!-- ********************************************************************************** -->
+    <bean id="failureNotificationTasklet" 
+        class="com.sorrisotech.batch.common.notify.NotificationTasklet">
+        <property name="enabled" value="${notification.onFailure.enabled}"/>
+        <property name="notificationType" value="${batch.failure}"/>
+        <property name="destination" value="${notification.onFailure.emails}"/>
+        <property name="locale">
+            <util:constant static-field="java.util.Locale.US"/>
+        </property>
+        <property name="parameters">
+            <map>
+               <entry key="jobName" value="${job.name}"/>
+            </map>
+       </property>
+    </bean>
+    
+    <!-- ********************************************************************************** -->
+    <!-- *** Notification tasklet used to send out notification(s) informing no         *** --> 
+    <!-- *** operation performed (NOOP).                                                *** -->
+    <!-- ********************************************************************************** -->
+    <bean id="noopNotificationTasklet" 
+        class="com.sorrisotech.batch.common.notify.NotificationTasklet">
+        <property name="enabled" value="${notification.onNoop.enabled}"/>
+		<property name="notificationType" value="${batch.noop}"/>
+		<property name="destination" value="${notification.onNoop.emails}"/>
+		<property name="locale">
+			<util:constant static-field="java.util.Locale.US"/>
+		</property>
+		<property name="parameters">
+			<map>
+				<entry key="jobName" value="${job.name}"/>
+			</map>
+		</property>
+    </bean>
+</beans>

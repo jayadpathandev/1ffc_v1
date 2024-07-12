@@ -1,4 +1,4 @@
-/* (c) Copyright 2016-2023 Sorriso Technologies, Inc(r), All Rights Reserved, 
+/* (c) Copyright 2016-2024 Sorriso Technologies, Inc(r), All Rights Reserved, 
  * Patents Pending.
  * 
  * This product is distributed under license from Sorriso Technologies, Inc.
@@ -47,6 +47,7 @@ public class RecurringPaymentMapper implements RowMapper<RecurringPayment>{
 		cRecurringPayment.setSourceType(rs.getString("source_type"));
 		cRecurringPayment.setInternalAccount(rs.getString("internal_account"));
 		cRecurringPayment.setPayGroup(rs.getString("pay_group"));
+		cRecurringPayment.setUserId(rs.getString("user_id"));
 		return cRecurringPayment;
 	}
 

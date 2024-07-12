@@ -1,4 +1,4 @@
-/* (c) Copyright 2016-2023 Sorriso Technologies, Inc(r), All Rights Reserved, 
+/* (c) Copyright 2016-2024 Sorriso Technologies, Inc(r), All Rights Reserved, 
  * Patents Pending.
  * 
  * This product is distributed under license from Sorriso Technologies, Inc.
@@ -67,7 +67,7 @@ public class JobRunner {
 	
 		Runtime.getRuntime().addShutdownHook(new Shutdown());
 		
-		String szXml = "status_processor.xml";
+		String szXml = "statusProcessor.xml";
 		String szJobName = "disableFuturePaymentsJob";
 		String szTstamp = "tstamp=" + String.valueOf(System.currentTimeMillis());
 		
