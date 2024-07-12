@@ -44,6 +44,11 @@ public class Record {
 	private boolean m_bPaymentDisabled;
 	
 	/**************************************************************************
+	 * Flag denotes if the payment is disabledDQ.
+	 */
+	private boolean m_bPaymentDisabledDQ;
+	
+	/**************************************************************************
 	 * Flag denotes if the ach is disabled.
 	 */
 	private boolean m_bAchDisabled;
@@ -52,6 +57,11 @@ public class Record {
 	 * Flag denotes if the recurring payment is disabled.
 	 */
 	private boolean m_bRecurringPaymentDisabled;
+	
+	/**************************************************************************
+	 * Flag denotes if the recurring payment is disabledUntilCurrent.
+	 */
+	private boolean m_bRecurringPaymentDisabledUntilCurrent;
 	
 	/**************************************************************************
 	 * List of all scheduled payment records for user.
@@ -168,6 +178,42 @@ public class Record {
 	 */
 	public void setRecurringPayments(List<RecurringPayment> recurringPayments) {
 		this.m_cRecurringPayments = recurringPayments;
+	}
+	
+	/**************************************************************************
+	 * Gets the value of m_bPaymentDisabledDQ.
+	 * 
+	 * @return true if the payment is diabledDQ, else false
+	 */
+	public boolean isPaymentDisabledDQ() {
+		return m_bPaymentDisabledDQ;
+	}
+
+	/**************************************************************************
+	 * Sets the value of m_bPaymentDisabledDQ.
+	 * 
+	 * @param bPaymentDisabledDQ 
+	 */
+	public void setPaymentDisabledDQ(boolean bPaymentDisabledDQ) {
+		this.m_bPaymentDisabledDQ = bPaymentDisabledDQ;
+	}
+
+	/**************************************************************************
+	 * Gets the value of m_bRecurringPaymentDisabledUntilCurrent.
+	 * 
+	 * @return true if the payment is disabledUntilCurrent, else false
+	 */
+	public boolean isRecurringPaymentDisabledUntilCurrent() {
+		return m_bRecurringPaymentDisabledUntilCurrent;
+	}
+
+	/**************************************************************************
+	 * Sets the value of m_bRecurringPaymentDisabledUntilCurrent.
+	 * 
+	 * @param bRecurringPaymentDisabledUntilCurrent 
+	 */
+	public void setRecurringPaymentDisabledUntilCurrent(boolean bRecurringPaymentDisabledUntilCurrent) {
+		this.m_bRecurringPaymentDisabledUntilCurrent = bRecurringPaymentDisabledUntilCurrent;
 	}
 
 	@Override
