@@ -1,4 +1,4 @@
-/* (c) Copyright 2016-2023 Sorriso Technologies, Inc(r), All Rights Reserved, 
+/* (c) Copyright 2016-2024 Sorriso Technologies, Inc(r), All Rights Reserved, 
  * Patents Pending.
  * 
  * This product is distributed under license from Sorriso Technologies, Inc.
@@ -49,6 +49,7 @@ public class ScheduledPaymentMapper implements RowMapper<ScheduledPayment> {
 		cScheduledPayment.setSourceType(rs.getString("source_type"));
 		cScheduledPayment.setInternalAccount(rs.getString("internal_account"));
 		cScheduledPayment.setPayGroup(rs.getString("pay_group"));
+		cScheduledPayment.setUserId(rs.getString("user_id"));
 		return cScheduledPayment;
 	}
 

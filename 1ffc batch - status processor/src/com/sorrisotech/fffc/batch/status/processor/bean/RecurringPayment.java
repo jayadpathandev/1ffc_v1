@@ -1,4 +1,4 @@
-/* (c) Copyright 2016-2023 Sorriso Technologies, Inc(r), All Rights Reserved, 
+/* (c) Copyright 2016-2024 Sorriso Technologies, Inc(r), All Rights Reserved, 
  * Patents Pending.
  * 
  * This product is distributed under license from Sorriso Technologies, Inc.
@@ -63,6 +63,11 @@ public class RecurringPayment {
 	 */
 	private String m_szPayGroup;
 
+	/**************************************************************************
+	 * User id.
+	 */
+	private String m_szUserId;
+	
 	/**************************************************************************
 	 * Gets the value of m_cId
 	 * 
@@ -165,4 +170,28 @@ public class RecurringPayment {
 	public void setPayGroup(String payGroup) {
 		this.m_szPayGroup = payGroup;
 	}
+
+	/**************************************************************************
+	 * Getter method for user id.
+	 * @return the userId
+	 */
+	public String getUserId() {
+		return m_szUserId;
+	}
+
+	/**************************************************************************
+	 * Setter method for user id.
+	 */
+	public void setUserId(String userId) {
+		this.m_szUserId = userId;
+	}
+	
+	@Override
+	public String toString() {
+		return "RecurringPayment [m_cId=" + m_cId + ", m_szAccounutNumber=" + m_szAccounutNumber
+				+ ", m_szWalletNickName=" + m_szWalletNickName + ", m_szSourceType=" + m_szSourceType
+				+ ", m_szInternalAccount=" + m_szInternalAccount + ", m_szPayGroup=" + m_szPayGroup + "]";
+	}
+	
+	
 }

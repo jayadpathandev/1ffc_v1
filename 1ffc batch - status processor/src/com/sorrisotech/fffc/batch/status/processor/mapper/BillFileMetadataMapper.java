@@ -1,4 +1,4 @@
-/* (c) Copyright 2016-2023 Sorriso Technologies, Inc(r), All Rights Reserved, 
+/* (c) Copyright 2016-2024 Sorriso Technologies, Inc(r), All Rights Reserved, 
  * Patents Pending.
  * 
  * This product is distributed under license from Sorriso Technologies, Inc.
@@ -21,21 +21,30 @@
  * Marketing", and "Persona Powered By Sorriso" are trademarks of Sorriso
  * Technologies, Inc.
  */
-package com.sorrisotech.fffc.batch.status.processor;
+package com.sorrisotech.fffc.batch.status.processor.mapper;
 
-import java.util.List;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
-import org.springframework.batch.item.ItemWriter;
+import org.springframework.jdbc.core.RowMapper;
+
+import com.sorrisotech.fffc.batch.status.processor.bean.BillFileMetadata;
 
 /**************************************************************************************************
- * Implementation of a No operation ItemWriter.
+ * The rowMapper implementation for BillFileMetadata.
  * 
  * @author Rohit Singh
  * 
  */
-public class NoopWriter implements ItemWriter<Object> {
+public class BillFileMetadataMapper implements RowMapper<BillFileMetadata> {
 
 	@Override
-	public void write(List<? extends Object> arg0) throws Exception {}
+	public BillFileMetadata mapRow(ResultSet rs, int index) throws SQLException {
+		BillFileMetadata billFileId = new BillFileMetadata();
+
+		billFileId.setBillFiledId(rs.getBigDecimal("bill_file_id"));
+
+		return billFileId;
+	}
 
 }

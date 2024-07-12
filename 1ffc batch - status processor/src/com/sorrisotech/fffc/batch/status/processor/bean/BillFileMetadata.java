@@ -21,33 +21,41 @@
  * Marketing", and "Persona Powered By Sorriso" are trademarks of Sorriso
  * Technologies, Inc.
  */
-package com.sorrisotech.fffc.batch.status.processor.mapper;
+package com.sorrisotech.fffc.batch.status.processor.bean;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.text.SimpleDateFormat;
+import java.math.BigDecimal;
+import java.sql.Timestamp;
 
-import org.springframework.jdbc.core.RowMapper;
-
-import com.sorrisotech.fffc.batch.status.processor.bean.Record;
-import com.sorrisotech.fffc.payment.FffcBalance;
 
 /**************************************************************************************************
- * RowMapper implementation class for Record
+ * Class which holds bill file metadata info.
  * 
  * @author Rohit Singh
  * 
  */
-public class RecordMapper implements RowMapper<Record> {
+public class BillFileMetadata {
 
-	@Override
-	public Record mapRow(ResultSet rs, int index) throws SQLException {
-		Record cUser = new Record();
-		cUser.setInternalAccNumber(rs.getString("account"));
-		cUser.setPaymentDisabled("Y".equals(rs.getString("payment_disabled")));
-		cUser.setAchDisabled("Y".equals(rs.getString("ach_disabled")));
-		cUser.setRecurringPaymentDisabled("Y".equals(rs.getString("recurring_payment_disabled")));
-		return cUser;
+	/**************************************************************************
+	 * The bill file id
+	 */
+	private BigDecimal m_szBillFiledId;
+	
+	/**
+	 * Getter for m_szBillFiledId.
+	 * 
+	 * @return m_szBillFiledId
+	 */
+	public BigDecimal getBillFiledId() {
+		return m_szBillFiledId;
 	}
 
+	/**
+	 * Setter for m_szBillFiledId.
+	 * 
+	 * @param szBillFiledId
+	 */
+	public void setBillFiledId(BigDecimal szBillFiledId) {
+		this.m_szBillFiledId = szBillFiledId;
+	}
+	
 }

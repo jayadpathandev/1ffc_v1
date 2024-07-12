@@ -1,4 +1,4 @@
-/* (c) Copyright 2016-2023 Sorriso Technologies, Inc(r), All Rights Reserved, 
+/* (c) Copyright 2016-2024 Sorriso Technologies, Inc(r), All Rights Reserved, 
  * Patents Pending.
  * 
  * This product is distributed under license from Sorriso Technologies, Inc.
@@ -73,7 +73,12 @@ public class ScheduledPayment {
 	 * Payment group.
 	 */
 	private String m_szPayGroup;
-
+	
+	/**************************************************************************
+	 * Scheduled record userId.
+	 */
+	private String m_szUserId;
+	
 	/**************************************************************************
 	 * Gets the value of m_szId
 	 * 
@@ -212,4 +217,28 @@ public class ScheduledPayment {
 	public void setPayGroup(String payGroup) {
 		this.m_szPayGroup = payGroup;
 	}
+	
+	/**************************************************************************
+	 * Getter method for user id.
+	 * @return the userId
+	 */
+	public String getUserId() {
+		return m_szUserId;
+	}
+
+	/**************************************************************************
+	 * Setter method for user id.
+	 */
+	public void setUserId(String userId) {
+		this.m_szUserId = userId;
+	}
+
+	@Override
+	public String toString() {
+		return "ScheduledPayment [m_szId=" + m_szId + ", m_szAccounutNumber=" + m_szAccounutNumber
+				+ ", m_cScheduledPaymentDate=" + m_cScheduledPaymentDate + ", m_szWalletNickName=" + m_szWalletNickName
+				+ ", m_cAmount=" + m_cAmount + ", m_szSourceType=" + m_szSourceType + ", m_szInternalAccount="
+				+ m_szInternalAccount + ", m_szPayGroup=" + m_szPayGroup + ", m_szUserId=" + m_szUserId + "]";
+	}	
+	
 }

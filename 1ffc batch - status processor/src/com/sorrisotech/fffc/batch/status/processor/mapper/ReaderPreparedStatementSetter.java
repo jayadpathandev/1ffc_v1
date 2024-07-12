@@ -23,31 +23,27 @@
  */
 package com.sorrisotech.fffc.batch.status.processor.mapper;
 
-import java.sql.ResultSet;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 
-import org.springframework.jdbc.core.RowMapper;
-
-import com.sorrisotech.fffc.batch.status.processor.bean.Record;
-import com.sorrisotech.fffc.payment.FffcBalance;
+import org.springframework.jdbc.core.PreparedStatementSetter;
 
 /**************************************************************************************************
- * RowMapper implementation class for Record
+ * Prepared statement setter for reader query.
  * 
  * @author Rohit Singh
  * 
  */
-public class RecordMapper implements RowMapper<Record> {
+public class ReaderPreparedStatementSetter implements PreparedStatementSetter {
+	
+    private String paymentGroup;
 
-	@Override
-	public Record mapRow(ResultSet rs, int index) throws SQLException {
-		Record cUser = new Record();
-		cUser.setInternalAccNumber(rs.getString("account"));
-		cUser.setPaymentDisabled("Y".equals(rs.getString("payment_disabled")));
-		cUser.setAchDisabled("Y".equals(rs.getString("ach_disabled")));
-		cUser.setRecurringPaymentDisabled("Y".equals(rs.getString("recurring_payment_disabled")));
-		return cUser;
+    @Override
+    public void setValues(PreparedStatement ps) throws SQLException {
+        ps.setString(1, paymentGroup);
+    }
+
+	public void setPaymentGroup(String paymentGroup) {
+		this.paymentGroup = paymentGroup;
 	}
-
 }
