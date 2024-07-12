@@ -217,11 +217,17 @@
 						   when (b.flex6 IS NOT NULL AND b.flex6 NOT IN ('enabled')) THEN 'Y' ELSE 'N'
 						end as payment_disabled,
 						case 
+						   when (b.flex6 IS NOT NULL AND b.flex6 IN ('disableDQ')) THEN 'Y' ELSE 'N'
+						end as payment_disabled_dq,
+						case 
 						   when (b.flex7 IS NOT NULL AND b.flex7 NOT IN ('enabled')) THEN 'Y' ELSE 'N'
 						end as ach_disabled,
 						case 
 						   when (b.flex15 IS NOT NULL AND b.flex15 NOT IN ('eligible', 'enrolled')) THEN 'Y' ELSE 'N'
-						end as recurring_payment_disabled
+						end as recurring_payment_disabled,
+						case 
+						   when (b.flex15 IS NOT NULL AND b.flex15 IN ('disabledUntilCurrent')) THEN 'Y' ELSE 'N'
+						end as recurring_payment_disabled_until_current
 					from
 					  bill as b
 					where

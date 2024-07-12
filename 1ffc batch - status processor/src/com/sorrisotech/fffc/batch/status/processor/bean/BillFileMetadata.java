@@ -24,7 +24,6 @@
 package com.sorrisotech.fffc.batch.status.processor.bean;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
 
 
 /**************************************************************************************************

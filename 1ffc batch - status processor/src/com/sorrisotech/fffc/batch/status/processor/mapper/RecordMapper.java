@@ -25,12 +25,10 @@ package com.sorrisotech.fffc.batch.status.processor.mapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 
 import org.springframework.jdbc.core.RowMapper;
 
 import com.sorrisotech.fffc.batch.status.processor.bean.Record;
-import com.sorrisotech.fffc.payment.FffcBalance;
 
 /**************************************************************************************************
  * RowMapper implementation class for Record
@@ -47,6 +45,9 @@ public class RecordMapper implements RowMapper<Record> {
 		cUser.setPaymentDisabled("Y".equals(rs.getString("payment_disabled")));
 		cUser.setAchDisabled("Y".equals(rs.getString("ach_disabled")));
 		cUser.setRecurringPaymentDisabled("Y".equals(rs.getString("recurring_payment_disabled")));
+		cUser.setPaymentDisabledDQ("Y".equals(rs.getString("payment_disabled_dq")));
+		cUser.setRecurringPaymentDisabledUntilCurrent("Y".equals(rs.getString("recurring_payment_disabled_until_current")));
+		
 		return cUser;
 	}
 
