@@ -487,11 +487,17 @@
     	</propertyfile>
     </target>
 
-    <target name="package-communicate" depends="-init">
+    <target name="package-batch" depends="-init">
         <mkdir dir="${output.dir}/batch/payment_reconciliation/resources"/>
         <copy file="${dss.dir}/batch/payment_reconciliation/resources/reconciliation.properties" todir="${output.dir}/batch/payment_reconciliation/resources"/>
         <propertyfile file="${output.dir}/batch/payment_reconciliation/resources/reconciliation.properties">
             <entry key="pmt.provider.id" value="1FFC-ea0f1923-255f-4f12-a603-16a1ed4f950c"/>
+        </propertyfile>
+
+        <mkdir dir="${output.dir}/batch/payment_process/resources"/>
+        <copy file="${dss.dir}/batch/payment_process/resources/paymentProcess.properties" todir="${output.dir}/batch/payment_process/resources"/>
+        <propertyfile file="${output.dir}/batch/payment_process/resources/paymentProcess.properties">
+            <entry key="max.failures" value="0"/>
         </propertyfile>
 
         <mkdir dir="${output.dir}/batch/notify_iq/resources/notification"/>
@@ -504,7 +510,7 @@
         <echo file="${output.dir}/batch/update_company_accounts/build.xml"><![CDATA[<project name="update_company_accounts" default="run" basedir="."><target name="run"><echo>Disabled.</echo></target></project>]]></echo>
     </target>
 
-    <target name="package" depends="-init, build.admin, build.auth, build.user, build.extdoc, package-libraries, package-communicate">
+    <target name="package" depends="-init, build.admin, build.auth, build.user, build.extdoc, package-libraries, package-batch">
         <ant dir="ui" target="qa"/>
         <ant dir="ui" target="package"/>
         <mkdir dir="${output.dir}/sql"/>
