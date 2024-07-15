@@ -428,7 +428,7 @@ useCase paymentHistory [
             tags: [ "d-none", "d-md-table-cell", "visually-hidden" ]
         ]
 
-        column payFromCol("{Pament method}") [
+        column payFromCol("{Payment method}") [
             elements: [sPayFrom]  
             tags: [ "d-none", "d-md-table-cell", "visually-hidden" ]
         ] 
