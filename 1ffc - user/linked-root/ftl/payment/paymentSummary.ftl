@@ -358,7 +358,7 @@
 						<#--  HANDLE THE CASE WHERE THE CURRENT BILL IS PAST ITS DUE DATE BUT A NEW BILL HASN'T ARRIVED -->
 						<#if bPastDueDate> 
 							<div class="text-center mt-3 border border-2 rounded-pill border-danger p-3">
-								We want to remind you that your scheduled payment amount of 
+								We want to remind you that 
 								<span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nAmountDue)}</span>
 								was due for payment on <span class="fw-bold text-decoration-underline">${dDueDate?date}</span>.
 								Please pay now.
