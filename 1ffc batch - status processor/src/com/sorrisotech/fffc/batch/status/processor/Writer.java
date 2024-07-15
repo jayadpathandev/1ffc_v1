@@ -47,6 +47,9 @@ import com.sorrisotech.utils.Spring;
  * 
  * @author Rohit Singh
  * 
+ * @eversion 2024-Jul-15 jak  Updated so recurring payment disabled will not delete a 
+ * 			scheduled payment.
+ * 
  */
 public class Writer extends NamedParameterJdbcDaoSupport implements ItemWriter<List<Record>> {
 
@@ -139,13 +142,13 @@ public class Writer extends NamedParameterJdbcDaoSupport implements ItemWriter<L
 					cRecurringRecordsIds = cRecurringPayments.stream()
 							.map(val -> val.getId())
 							.collect(Collectors.toList());
-					
-					cScheduledRecordsIds = cScheduledPayments.stream()
-							.map(val -> val.getId())
-							.collect(Collectors.toList());
-
 				}
 
+				if (entry.isPaymentDisabled()) {
+					cScheduledRecordsIds = cScheduledPayments.stream()
+						.map(val -> val.getId())
+						.collect(Collectors.toList());
+				}
 
 				final var recurringPaymentIds = cRecurringRecordsIds;
 				cRecurringPayments.removeIf(payment -> !recurringPaymentIds.contains(payment.getId()));
