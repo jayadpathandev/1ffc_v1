@@ -205,7 +205,7 @@ useCase paymentHistory [
         input(control) pInput("^[+]?[0-9]{1,3}(?:[0-9]*(?:[.,][0-9]{2})?|(?:,[0-9]{3})*(?:\\.[0-9]{2})?|(?:\\.[0-9]{3})*(?:,[0-9]{2})?)$", fPayAmount.sValidation)            
         string(validation) sValidation = "{Entry must be in standard US or European currency format.}"       
         string(error) sErrorEmpty = "{You must enter an amount}"
-        string(error) sErrorOver = "{Warning, entry exceeds current balance.}" 
+        string(error) sErrorOver = "{Warning, entry exceeds amount due.}" 
         string(error) sErrorOverMax = "{Warning, amount exceeds the maximum due}"
         string(error) sErrorBelowMin = "{Warning, amount is less than minimum due}" 
         string(error) sErrorZero = "{Warning, amount should not be zero.}"    
