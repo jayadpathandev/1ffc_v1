@@ -249,6 +249,7 @@
     <!-- ********************************************************************************** --> 
  	<bean id="statusWriter" class="com.sorrisotech.fffc.batch.status.processor.Writer">
  		<property name="dataSource" ref="dataSource"/>
+ 		<property name="configChange" value="${recurring.config.change}"/>
 	    <property name="deleteScheduled" ref="deleteScheduledPaymentsByOnlineTransId"/>
 	    <property name="scheduledPaymentMapper" ref="scheduledPaymentMapper"/>
 	    <property name="recurringPaymentMapper" ref="recurringPaymentMapper"/>
