@@ -22,11 +22,11 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 					pmt_grouping as pmtgrp,
 					pmt_history as pmthist
 				where
-				    pmtgrp.internal_account_number = :INT_ACCOUNT AND
-					pmtgrp.payment_group = :PMT_GROUP AND
-					pmtgrp.online_trans_id = pmthist.online_trans_id AND
-					(pmthist.pay_status = 'posted' OR pmthist.pay_status = 'processing') AND
-					pmthist.pay_date >= to_timestamp(:START_DATE,'YYYYMMDD')
+				    pmtgrp.internal_account_number = :INT_ACCOUNT
+					and pmtgrp.payment_group = :PMT_GROUP 
+					and pmthist.pay_date > :START_TIME
+					and pmtgrp.online_trans_id = pmthist.online_trans_id
+					and pmthist.pay_status in ('posted','processing') 
 			</value>
         </constructor-arg>   
     </bean>    

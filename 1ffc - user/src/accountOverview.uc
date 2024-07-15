@@ -174,8 +174,8 @@ useCase accountOverview [
 	native string sPayGroup			// -- payment group
 	native string sBillDate			// -- date of most recent bill or "" if none
 	native string sBillCount		// -- number of bills available for this account
-	native string sDocDate			// -- date of more recent document or "" if none
-	native string sDocCount			// -- number of documents available for this account
+	native string sDocDate			// -- date of most recent doc or "" if none
+	native string sDocCount			// -- number of docs available for this account
 	
 	// -- oldest Bill allowed --
 	native string maxBillAge =		AppConfig.get("recent.number.of.months", "3")
@@ -258,17 +258,13 @@ useCase accountOverview [
 	//		need to pay at least the minimumDue when they are in arrears. --
 	
     number        previousAmt  = Math.subtract(srBillOverviewResult.totalDue, srBillOverviewResult.docAmount)                
-    native string sBillLocalDate
-    native string sBillLocalAmountDue
-    native string sStatusLocalDate
+    native string sStatusLocalDateTime
     native string sStatusLocalAmountDue
 
     volatile native string sCurrentBalance = CurrentBalanceHelper.getCurrentBalanceRaw(
     									sPayGroup,							// -- payment group
 										sAccount,							// -- internal account
-										sBillLocalDate,						// -- most recent bill date
-										sBillLocalAmountDue,				// -- bill amount due
-										sStatusLocalDate,					// -- most recent status date
+										sStatusLocalDateTime,				// -- most recent status date
 										sStatusLocalAmountDue	)			// -- status amount due
     
 
@@ -276,9 +272,7 @@ useCase accountOverview [
    volatile native string bIsAccountCurrent = CurrentBalanceHelper.isAccountCurrent(
     									sPayGroup,							// -- payment group
 										sAccount,							// -- internal account
-										sBillLocalDate,						// -- most recent bill date
-										sBillLocalAmountDue,				// -- bill amount due
-										sStatusLocalDate,					// -- most recent status date
+										sStatusLocalDateTime,					// -- most recent status date
 										sStatusLocalAmountDue	)			// -- status amount due
     
     
@@ -331,7 +325,7 @@ useCase accountOverview [
  	 */
  	action assignlocalStatusVariable [
  		sLocalAccountStatus = srGetStatusResult.accountStatus
- 		sStatusLocalDate = srGetStatusResult.statusDate
+ 		sStatusLocalDateTime = srGetStatusResult.lastUpdateTimestamp
  		sStatusLocalAmountDue = srGetStatusResult.currentAmountDue
  		goto (switchOnViewStatus)
  	]
@@ -557,8 +551,6 @@ useCase accountOverview [
 	 *				this action is a no-op.
 	 */
 	action calculateCurrentBalanceFor1stFranklin [
-		sBillLocalDate = srBillOverviewResult.docDate
-    	sBillLocalAmountDue = srBillOverviewResult.totalDue
 		goto(getScheduledPmtInfo)
 	]
 

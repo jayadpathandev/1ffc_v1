@@ -32,6 +32,7 @@
   * 	   1.3 17-Mar-2024	JAK Added GetMonthlyPayment (for use in setting up automatic payments) and
   * 							 AccountOverview so I could use this list of accounts to merge accounts with
   * 							 no bills into the list of accounts for a user in dashboard.uc
+  * 	   1.4 12-July-2024 JAK	Added the last update timestamp to the general status call.
   */
 
 
@@ -214,6 +215,11 @@ define service AccountStatus(com.sorrisotech.app.serviceapi.uc.UcRequestClient) 
 		// ----------------------------------------------------------------
 		// -- date status was received for this account --
 		string statusDate
+		
+		// ----------------------------------------------------------------
+		// --  last time the status feed was updated. A numeric timestamp
+		//		 in milliseconds since Unix Epoch (no timezone) --
+		number	lastUpdateTimestamp 
 		
 	] // -- end of GetStatus --
 

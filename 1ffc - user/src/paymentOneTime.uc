@@ -178,7 +178,7 @@ useCase paymentOneTime [
     serviceStatus srAccountStatusCode
     serviceParam (AccountStatus.GetStatus) srGetStatusParams
     serviceResult (AccountStatus.GetStatus) srGetStatusResult
-    native string sLocalAccountStatusDate
+    native string sLocalAccountStatusDateTime
     native string sLocalAccountStatusAmount
     native string sLocalAccountBillDate
     native string sLocalAccountBillAmount
@@ -197,9 +197,7 @@ useCase paymentOneTime [
 			CurrentBalanceHelper.getCurrentBalanceFormattedAsCurrency (
 				sPayGroup, 						// -- payment group
 				sPayAccountInternal,			// -- account
-				sLocalAccountBillDate,			// -- published date of bill
-				sLocalAccountBillAmount,		// -- amount in bill
-				sLocalAccountStatusDate,		// -- published date of acct status
+				sLocalAccountStatusDateTime,		// -- published date of acct status
 				sLocalAccountStatusAmount )	 	// -- amount in acct status
 				
 	volatile native string sCurrentBalance
@@ -209,18 +207,14 @@ useCase paymentOneTime [
 			CurrentBalanceHelper.isAccountCurrent (
 				sPayGroup, 						// -- payment group
 				sPayAccountInternal,			// -- account
-				sLocalAccountBillDate,			// -- published date of bill
-				sLocalAccountBillAmount,		// -- amount in bill
-				sLocalAccountStatusDate,		// -- published date of acct status
+				sLocalAccountStatusDateTime,	// -- published date of acct status
 				sLocalAccountStatusAmount )	 	// -- amount in acct status
  
 	volatile native string sCurrentBalanceEdit =
 			CurrentBalanceHelper.getCurrentBalanceRaw (
 				sPayGroup, 						// -- payment group
 				sPayAccountInternal,			// -- account
-				sLocalAccountBillDate,			// -- published date of bill
-				sLocalAccountBillAmount,		// -- amount due in bill
-				sLocalAccountStatusDate,		// -- published date of acct status
+				sLocalAccountStatusDateTime,		// -- published date of acct status
 				sLocalAccountStatusAmount )		// -- current amt due in status
     
 	volatile native string sAuditIteratorHasNext = PaymentAuditIterator.hasNext()
@@ -601,7 +595,7 @@ useCase paymentOneTime [
 	 * 			the localized string form happens when sTotalAmountDue is referenced.. see declaration.
 	 */
 	action assignPaymentInformation [
-	    sLocalAccountStatusDate = srGetStatusResult.statusDate
+	    sLocalAccountStatusDateTime = srGetStatusResult.lastUpdateTimestamp
 	    sLocalAccountStatusAmount = srGetStatusResult.currentAmountDue
 	    sLocalAccountBillDate = sDocDate
 	    sLocalAccountBillAmount = srGetStatusResult.currentAmountDue

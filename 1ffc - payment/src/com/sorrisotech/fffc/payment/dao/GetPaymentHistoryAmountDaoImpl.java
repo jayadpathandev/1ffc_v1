@@ -4,6 +4,7 @@
 package com.sorrisotech.fffc.payment.dao;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
 
@@ -18,12 +19,16 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 
 /**
- * Implements DAO to retrieve sum of payment history since a specific date for a specific
- * account in a payment group
+ * Implements DAO to retrieve sum of payment history since a specific time for a specific
+ * account in a payment group.
+ * 
+ * 
  * 
  * @author johnK
  * @since 2024-Jan-31
  * @version 2024-Jan-31 JAK First and hopefully last version
+ * @version 2024-Jul-12 jak Updating to retrieve based on a timestamp intsead of 
+ * 					a string.
  * 
  */
 public class GetPaymentHistoryAmountDaoImpl implements IGetPaymentHistoryAmountDao {
@@ -45,10 +50,10 @@ public class GetPaymentHistoryAmountDaoImpl implements IGetPaymentHistoryAmountD
 			((ClassPathXmlApplicationContext)context).close();
 		}
 		catch (Throwable e) {
-			LOG.error("Could not load 1ffcbalancehelper.xml", e); 
+			LOG.error("GetPaymentHistoryAmountDaoImpl:static -- Could not load 1ffcbalancehelper.xml", e); 
 		}
 		
-	    if (mDao == null) throw new RuntimeException("Could not load 1ffcbalancehelper.xml.");
+	    if (mDao == null) throw new RuntimeException("GetPaymentHistoryAmountDaoImpl: static -- Could not load 1ffcbalancehelper.xml.");
 	}
 	
 	/**********************************************************************************************
@@ -73,7 +78,10 @@ public class GetPaymentHistoryAmountDaoImpl implements IGetPaymentHistoryAmountD
 	private NamedParameterJdbcTemplate mJdbc = null;
 
 	/**
-	 * Makes the query to get the sum of all payments since start date
+	 * Makes the query to get the sum of all payments since start time specified which 
+	 * comes from the status feed. The process at 1st franklin is as follows:
+	 * 
+	 * We take the following items from payment history
 	 * 
 	 * @param cszPaymentGroup
 	 * @param cszInternalAccount
@@ -81,7 +89,7 @@ public class GetPaymentHistoryAmountDaoImpl implements IGetPaymentHistoryAmountD
 	 * @return
 	 */
 	private BigDecimal getPaymentHistoryAmountForAccountInternal (String cszPaymentGroup, String cszInternalAccount,
-			String cszStartDate) {
+			Timestamp ctStartTime) {
 		List<BigDecimal> lResultList = null;
 		BigDecimal lRval = BigDecimal.ZERO;
 		try {
@@ -90,18 +98,18 @@ public class GetPaymentHistoryAmountDaoImpl implements IGetPaymentHistoryAmountD
 			final HashMap<String, Object> cParams = new HashMap<String, Object>();
 			cParams.put("PMT_GROUP", cszPaymentGroup);
 			cParams.put("INT_ACCOUNT", cszInternalAccount);
-			cParams.put("START_DATE", cszStartDate);
+			cParams.put("START_TIME", ctStartTime);
 			
 			// -- make query --
 			lResultList = mJdbc.query(m_GetPaymentHistoryAmount, cParams, new PaymentHistoryAmtMapper());
 			if (lResultList.size() == 1) {
 				lRval = lResultList.get(0);
 			} else {
-				LOG.error("getPaymentHistoryAmountForAccountInternal bad result set, returning 0. num rows: {}", lResultList.size());
+				LOG.error("GetPaymentHistoryAmountDaoImpl:getPaymentHistoryAmountForAccountInternal -- bad result set, returning 0. num rows: {}", lResultList.size());
 			}
 		}
 		catch (Exception e) {
-			LOG.error("getAccountElementsForUser -- Exception thrown for query", e);
+			LOG.error("GetPaymentHistoryAmountDaoImpl:getAccountElementsForUser -- Exception thrown for query", e);
 		}
 			
 		return lRval;
@@ -110,8 +118,8 @@ public class GetPaymentHistoryAmountDaoImpl implements IGetPaymentHistoryAmountD
 
 	@Override
 	public BigDecimal getPaymentHistoryAmountForAccount(String cszPaymentGroup, String cszInternalAccount,
-			String cszStartDate) {
-		BigDecimal lRval = mDao.getPaymentHistoryAmountForAccountInternal(cszPaymentGroup, cszInternalAccount, cszStartDate);
+			Timestamp ctStartTime) {
+		BigDecimal lRval = mDao.getPaymentHistoryAmountForAccountInternal(cszPaymentGroup, cszInternalAccount, ctStartTime);
 			
 		return lRval;
 	}
