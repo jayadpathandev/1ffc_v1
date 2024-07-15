@@ -296,7 +296,7 @@ useCase apiMakeOneTimePaymentForAgent
 		
     	logRequest.TRANSACTION_ID  = sPayId
 		logRequest.ONLINE_TRANS_ID = sPayId
-		logRequest.PAY_CHANNEL     = "online"
+		logRequest.PAY_CHANNEL     = "branch"
 		logRequest.PAY_STATUS      = "processing"
 
 		MakePayment.accountJson(logRequest.GROUPING_JSON)

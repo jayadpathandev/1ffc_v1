@@ -29,6 +29,8 @@ import com.sorrisotech.svcs.itfc.exceptions.MargaritaDataException;
  * @version 2024-Feb-18 jak Added some checks around bill vs status comparison to prevent
  * 																exceptions should one be empty.
  * @version 2024-May-07 jak Forced max payment to zero is it was less than zero.
+ * @version 2024-Jul-13 jak Remove bill as a current balance component and adjust calculations
+ * 								based on the way current balance is received.
  * 
  */
 public class BalanceHelper extends FffcBalance {
@@ -46,8 +48,6 @@ public class BalanceHelper extends FffcBalance {
 	 * @param data,
 	 * @param cszPayGroup
 	 * @param cszIntAccount
-	 * @param cszBillDate
-	 * @param cszBillBalance
 	 * @param cszStatusDate
 	 * @param cszStatusBalance
 	 * @return
@@ -57,18 +57,14 @@ public class BalanceHelper extends FffcBalance {
 									IUserData           data,
 									final String 		cszPayGroup,
 									final String 		cszIntAccount,
-									final String 		cszBillDate, 
-									final String	 	cszBillBalance,
-									final String 		cszStatusDate,
+									final String 		cszStatusTime,
 									final String	 	cszStatusBalance ) {
 
 		String lszRetVal = null;
 		BigDecimal ldCurBalance = getCurrentBalance (
 													cszPayGroup,
 													cszIntAccount,
-													cszBillDate, 
-													cszBillBalance,
-													cszStatusDate,
+													cszStatusTime,
 													cszStatusBalance);
 		
 		try {
@@ -77,7 +73,7 @@ public class BalanceHelper extends FffcBalance {
 			lszRetVal = format.formatAmount(cszPayGroup, ldCurBalance);
 			
 		} catch (Exception e) {
-			m_cLog.error("getCurrentBalanceFormattedAsCurrency - An exception was thrown", e);
+			m_cLog.error("BalanceHelper:getCurrentBalanceFormattedAsCurrency - An exception was thrown", e);
 		}
 
 		return lszRetVal ;
@@ -107,7 +103,7 @@ public class BalanceHelper extends FffcBalance {
 		try {
 			oMinDueVariable.setValue(lszRetValue);
 		} catch (MargaritaDataException e) {
-			m_cLog.error("getTrueMinimumDueNumber - An exception was thrown", e);
+			m_cLog.error("BalanceHelper:getTrueMinimumDueNumber - An exception was thrown", e);
 			e.printStackTrace();
 		}
 		return;
@@ -149,7 +145,7 @@ public class BalanceHelper extends FffcBalance {
 				lszRetValue = " " + format.formatAmount(cszPayGroup, ldMinimumDue);
 				
 			} catch (Exception e) {
-				m_cLog.error("getTrueMinimumDueFormattedAsCurrency - An exception was thrown", e);
+				m_cLog.error("BalanceHelper:getTrueMinimumDueFormattedAsCurrency - An exception was thrown", e);
 				e.printStackTrace();
 			}
 		}
@@ -165,7 +161,7 @@ public class BalanceHelper extends FffcBalance {
 	 * @param data
 	 * @param cszPayGroup
 	 * @param cszIntAccount
-	 * @param cszMaxDate
+	 * @param cszMaxTimeStamp
 	 * @param cszFileMaxDue
 	 * @return maximum payment allowed formatted as a localized currency
 	 */
@@ -174,7 +170,7 @@ public class BalanceHelper extends FffcBalance {
 											IUserData    		data,
 											final String 		cszPayGroup,
 											final String 		cszIntAccount,
-											final String 		cszMaxDate, 
+											final String 		cszMaxTimeStamp, 
 											final String 		cszFileMaxDue) {
 		String lszRetValue = null;
 		BigDecimal ldTrueMaxPaymentAmount = BigDecimal.ZERO;
@@ -182,7 +178,7 @@ public class BalanceHelper extends FffcBalance {
 		// -- gets the true maximum payment --
 		ldTrueMaxPaymentAmount = getTrueMaximumPay(cszPayGroup, 
 												   cszIntAccount,
-												   cszMaxDate,
+												   cszMaxTimeStamp,
 												   cszFileMaxDue);
 
 		// -- If not greater than zero force return to be zero 
@@ -197,7 +193,7 @@ public class BalanceHelper extends FffcBalance {
 				ldTrueMaxPaymentAmount.setScale(2);
 				lszRetValue = " " + format.formatAmount(cszPayGroup, ldTrueMaxPaymentAmount);
 			} catch (MargaritaDataException e) {
-				m_cLog.error("getTrueMaximumPayFormattedAsCurrency - An exception was thrown", e);
+				m_cLog.error("BalanceHelper:getTrueMaximumPayFormattedAsCurrency - An exception was thrown", e);
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				return m_cszReturnForInvalid;
@@ -214,7 +210,7 @@ public class BalanceHelper extends FffcBalance {
 		try {
 			return DateTimeFormatter.ofPattern("MMMM dd, yyyy").format(LocalDate.parse(date));
 		} catch(DateTimeParseException e) {
-			m_cLog.error("parseDateToOtherFormat() .. unable to parse the date, exception occurred {}", e);
+			m_cLog.error("BalanceHelper:parseDateToOtherFormat() .. unable to parse the date, exception occurred {}", e);
 			return null;
 		}
 	}

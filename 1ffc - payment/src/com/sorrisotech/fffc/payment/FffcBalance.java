@@ -1,10 +1,7 @@
 package com.sorrisotech.fffc.payment;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-
+import java.sql.Timestamp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +20,9 @@ import com.sorrisotech.fffc.payment.dao.GetPaymentHistoryAmountDaoImpl;
  * @version 2024-Apr-17 jak	Added tests for "0" date which happens if you have no bills
  * 								and are looking for current balance.
  * @version 2024-May-07 jak Forced max payment to zero if it was less than zero.
+ * @version 2024-May-07 jak	Always use status for current balance, use a precise time, and
+ * 								update calculations appropriately.
+ * @version 2024-Jul-13	jak	Updated for processing with time stamp instead of date
  * 
  */
 public class FffcBalance {
@@ -42,9 +42,7 @@ public class FffcBalance {
 	 * @param data
 	 * @param cszPayGroup
 	 * @param cszIntAccount
-	 * @param cszBillDate
-	 * @param cszBillBalance
-	 * @param cszStatusDate
+	 * @param cszStatusTimeStamp
 	 * @param cszStatusBalance
 	 * @param cReturnBalanceVal
 	 * @return String for current balance as nnnn.nn format
@@ -52,18 +50,14 @@ public class FffcBalance {
 	public static String getCurrentBalanceRaw(
 									final String 		cszPayGroup,
 									final String 		cszIntAccount,
-									final String 		cszBillDate, 
-									final String	 	cszBillBalance,
-									final String 		cszStatusDate,
+									final String 		cszStatusTimeStamp,
 									final String	 	cszStatusBalance) {
 		String lszRetValue = "";
 		
 		BigDecimal ldCurBalance = getCurrentBalance (
 				cszPayGroup,
 				cszIntAccount,
-				cszBillDate, 
-				cszBillBalance,
-				cszStatusDate,
+				cszStatusTimeStamp,
 				cszStatusBalance);
 
 		ldCurBalance.setScale(2);
@@ -79,27 +73,21 @@ public class FffcBalance {
 	 * @param data
 	 * @param cszPayGroup
 	 * @param cszIntAccount
-	 * @param cszBillDate
-	 * @param cszBillBalance
-	 * @param cszStatusDate
+	 * @param cszStatusTimeStamp
 	 * @param cszStatusBalance
 	 * @return
 	 */
 	public static String isAccountCurrent (
 			final String 		cszPayGroup,
 			final String 		cszIntAccount,
-			final String 		cszBillDate, 
-			final String	 	cszBillBalance,
-			final String 		cszStatusDate,
+			final String 		cszStatusTimeStamp,
 			final String	 	cszStatusBalance) {
 
 		String lsRetVal = "true";
 		BigDecimal ldCurBalance = getCurrentBalance (
 			cszPayGroup,
 			cszIntAccount,
-			cszBillDate, 
-			cszBillBalance,
-			cszStatusDate,
+			cszStatusTimeStamp,
 			cszStatusBalance);
 	
 		if ( 1 == ldCurBalance.compareTo(BigDecimal.ZERO)) { // 1 means ldCurBalance > zero 
@@ -116,88 +104,47 @@ public class FffcBalance {
 	 * 								
 	 * @param cszPayGroup
 	 * @param cszIntAccount
-	 * @param cszBillDate
-	 * @param cszBillBalance
-	 * @param cszStatusDate
+	 * @param cszStatusTimeStamp
 	 * @param cszStatusBalance
 	 * @return
 	 */
 	public static BigDecimal getCurrentBalance (
 										final String 		cszPayGroup,
 										final String 		cszIntAccount,
-										final String 		cszBillDate, 
-										final String	 	cszBillBalance,
-										final String 		cszStatusDate,
+										final String 		cszStatusTimeStamp,
 										final String	 	cszStatusBalance) {
 		BigDecimal ldRetVal = BigDecimal.ZERO;
 		BigDecimal ldCurBalance = BigDecimal.ZERO;
 		BigDecimal ldPayments = BigDecimal.ZERO;
-		String lszStartDate = null;	
+		Timestamp ltStartTime = null;	
 		GetPaymentHistoryAmountDaoImpl loPmtHist = new GetPaymentHistoryAmountDaoImpl();
-		LocalDate lBillDate = LocalDate.now();
-		LocalDate lStatusDate = LocalDate.now();
-		boolean bHasBillDate = false;
-		boolean bHasStatusDate = false;
-		
-		// -- get the date in proper format --
-		try {
-			if ((null != cszBillDate) && (0 != cszBillDate.length()) && (!cszBillDate.equalsIgnoreCase("0"))) {
-				lBillDate = LocalDate.parse(cszBillDate, DateTimeFormatter.BASIC_ISO_DATE);
-				bHasBillDate = true;
-			}
-			if ((null != cszStatusDate) && (0 != cszStatusDate.length()) && (!cszStatusDate.equalsIgnoreCase("0"))) {
-				lStatusDate = LocalDate.parse(cszStatusDate, DateTimeFormatter.BASIC_ISO_DATE);
-				bHasStatusDate = true;
-			}
-		} catch (DateTimeParseException e) {
-			m_cLog.error("getCurrentBalanceInternal....An exception was thrown", e);
+
+		// -- return 0 if we get bad input --
+		if ((null == cszStatusBalance) || (null == cszStatusTimeStamp) || 
+				cszStatusBalance.isEmpty() || cszStatusTimeStamp.isEmpty() ||
+			cszStatusBalance.isBlank() || cszStatusTimeStamp.isBlank()) {
 			return ldRetVal;
 		}
+
 		
-		// -- pick which date and balance to use --
 		try {
-			if (bHasBillDate &&  bHasStatusDate) { // -- has both, compare --
-				if (lBillDate.isAfter(lStatusDate)) {
-					// -- use bill data --
-					lszStartDate = cszBillDate;
-					ldCurBalance = new BigDecimal(cszBillBalance);
-					m_cLog.debug("getCurrentBalanceInternal using Bill Data - Date: {}, starting balance {}", cszBillDate, cszBillBalance);
-				}
-				else {
-					// -- use status data --
-					lszStartDate = cszStatusDate;
-					ldCurBalance = new BigDecimal(cszStatusBalance);
-					m_cLog.debug("getCurrentBalanceInternal using Status Data - Date: {}, starting balance {}", cszStatusDate, cszStatusBalance);
-				}
-			} else if (bHasStatusDate) { // -- only status, use that --
-				// -- use status data --
-				lszStartDate = cszStatusDate;
+				ltStartTime = new Timestamp(Long.parseUnsignedLong(cszStatusTimeStamp));
 				ldCurBalance = new BigDecimal(cszStatusBalance);
-				m_cLog.debug("getCurrentBalanceInternal using Status Data - Date: {}, starting balance {}", cszStatusDate, cszStatusBalance);
-			} else if (bHasBillDate) { // -- only bill, use that --
-				// -- use bill data --
-				lszStartDate = cszBillDate;
-				ldCurBalance = new BigDecimal(cszBillBalance);
-				m_cLog.debug("getCurrentBalanceInternal using Bill Data - Date: {}, starting balance {}", cszBillDate, cszBillBalance);
-			} else {	// -- nothing.. we came up empty and send an error value back --
-				// -- don't have a bill date, don't have a status date -- this is an error --
-				m_cLog.error("getCurrentBalanceInternal no bill date or status date!");
-				return ldRetVal;
-			}
+				m_cLog.debug("FffcBalance:getCurrentBalanceInternal using Status Data - Date: {}, starting balance {}", cszStatusTimeStamp.toString(), cszStatusBalance);
 		} catch (NumberFormatException e) {
-			m_cLog.debug("getCurrentBalanceInternal failed to convert balance from string");
+			m_cLog.debug("FffcBalance:getCurrentBalanceInternal failed to convert timestamp or balance from string");
 			return ldRetVal;
 		}
 		
 		// -- returns the total posted payments for an account since chosen date (inclusive) --
-		ldPayments = loPmtHist.getPaymentHistoryAmountForAccount(cszPayGroup, cszIntAccount, lszStartDate);
-		m_cLog.debug("getCurrentBalanceInternal payments posted: {}", ldPayments);
+		ldPayments = loPmtHist.getPaymentHistoryAmountForAccount(cszPayGroup, cszIntAccount, ltStartTime);
+		m_cLog.debug("FffcBalance:getCurrentBalanceInternal payments posted: {}", ldPayments);
 		
 		if (null != ldPayments) {
 			// -- do the math --
 			ldCurBalance = ldCurBalance.subtract(ldPayments);
 		}
-		m_cLog.debug("getCurrentBalanceInternal amount to return: {}", ldCurBalance);
+		m_cLog.debug("FffcBalance:getCurrentBalanceInternal amount to return: {}", ldCurBalance);
 		
 		if (1 == ldCurBalance.compareTo(BigDecimal.ZERO)) {
 			// -- only assign if > 0... otherwise we return the default
@@ -245,7 +192,7 @@ public class FffcBalance {
 			lszRetValue = lbdReturnTrueMinimumPaymentAmt.toPlainString();
 			
 		} catch (NumberFormatException e) {
-			m_cLog.debug("getTrueMinimumDueInternal failed to convert input variable from string");
+			m_cLog.debug("FffcBalance:getTrueMinimumDueInternal -- failed to convert input variable from string");
 			return lszRetValue;
 		}
 		
@@ -260,14 +207,14 @@ public class FffcBalance {
 	 * @param data
 	 * @param cszPayGroup
 	 * @param cszIntAccount
-	 * @param cszMaxDate
+	 * @param csMaxTimeStamp
 	 * @param cszFileMaxDue
 	 * @return maximum payment allowed as nnnn.nn string
 	 */
 	public static String getTrueMaximumPayRaw(
 										final String 		cszPayGroup,
 										final String 		cszIntAccount,
-										final String 		cszMaxDate, 
+										final String 		csMaxTimeStamp, 
 										final String 		cszFileMaxDue) {
 		String lszRetValue = null;
 		BigDecimal ldTrueMaxPaymentAmount = BigDecimal.ZERO;
@@ -275,7 +222,7 @@ public class FffcBalance {
 		// -- gets the true maximum payment --
 		ldTrueMaxPaymentAmount = getTrueMaximumPay(cszPayGroup, 
 												   cszIntAccount,
-												   cszMaxDate,
+												   csMaxTimeStamp,
 												   cszFileMaxDue);
 
 		if (ldTrueMaxPaymentAmount.equals(BigDecimal.ZERO)) {
@@ -295,7 +242,7 @@ public class FffcBalance {
 	 * 
 	 * @param cszPayGroup
 	 * @param cszIntAccount
-	 * @param cszMaxDate
+	 * @param cszMaxTimeStamp
 	 * @param cszBillMaxDue
 	 * @param cszFileMaxDue
 	 * @return
@@ -303,28 +250,28 @@ public class FffcBalance {
 	public static BigDecimal getTrueMaximumPay (
 									final String 		cszPayGroup,
 									final String 		cszIntAccount,
-									final String 		cszMaxDate, 
+									final String 		cszMaxTimeStamp, 
 									final String 		cszFileMaxDue) {
 
 		BigDecimal ldTrueMaxPayment = BigDecimal.ZERO;
 		BigDecimal ldTempMaxPayment = BigDecimal.ZERO;
 		BigDecimal ldPayments = BigDecimal.ZERO;
-		String lszStartDate = null;	
+		Timestamp ltStartTime = null;	
 		GetPaymentHistoryAmountDaoImpl loPmtHist = new GetPaymentHistoryAmountDaoImpl();
 
 		// -- return 0 if we get bad input --
-		if ((null == cszFileMaxDue) || (null == cszMaxDate) || 
-			cszFileMaxDue.isEmpty() || cszMaxDate.isEmpty() ||
-			cszFileMaxDue.isBlank() || cszMaxDate.isBlank()) {
+		if ((null == cszFileMaxDue) || (null == cszMaxTimeStamp) || 
+			cszFileMaxDue.isEmpty() || cszMaxTimeStamp.isEmpty() ||
+			cszFileMaxDue.isBlank() || cszMaxTimeStamp.isBlank()) {
 			return ldTrueMaxPayment;
 		}
 		
-		// - convert to big decimal -- 
+		// - convert to timestamp and big decimal -- 
 		try {
 			
-			lszStartDate = cszMaxDate;
+			ltStartTime = new Timestamp(Long.parseUnsignedLong(cszMaxTimeStamp));
 			ldTempMaxPayment = new BigDecimal(cszFileMaxDue);
-			m_cLog.debug("getTrueMaximumPayInternal - Date: {}, starting balance {}", cszMaxDate, cszFileMaxDue);
+			m_cLog.debug("getTrueMaximumPayInternal - Date: {}, starting balance {}", cszMaxTimeStamp, cszFileMaxDue);
 			
 		} catch (NumberFormatException e) {
 			m_cLog.debug("getTrueMaximumPayInternal failed to convert balance from string");
@@ -332,8 +279,8 @@ public class FffcBalance {
 		}
 		
 		// -- returns the total posted payments for an account since chosen date (inclusive) --
-		ldPayments = loPmtHist.getPaymentHistoryAmountForAccount(cszPayGroup, cszIntAccount, lszStartDate);
-		m_cLog.debug("getTrueMaximumPayInternal payments posted: {}", ldPayments);
+		ldPayments = loPmtHist.getPaymentHistoryAmountForAccount(cszPayGroup, cszIntAccount, ltStartTime);
+		m_cLog.debug("FffcBalance:getTrueMaximumPayInternal payments posted: {}", ldPayments);
 		
 		if (null != ldPayments) {
 			// -- do the math --
@@ -349,7 +296,7 @@ public class FffcBalance {
 			ldTrueMaxPayment = BigDecimal.ZERO;
 		}
 		
-		m_cLog.debug("getTrueMaximumPayInternal amount to return: {}", ldTrueMaxPayment);
+		m_cLog.debug("FffcBalance:getTrueMaximumPayInternal amount to return: {}", ldTrueMaxPayment);
 		
 		return ldTrueMaxPayment;
 		

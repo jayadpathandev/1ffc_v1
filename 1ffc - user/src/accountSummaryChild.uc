@@ -61,7 +61,6 @@ useCase accountSummaryChild [
 	// -- specific to 1st Franklin ... helps calculate current balance --
 	importJava CurrentBalanceHelper (com.sorrisotech.fffc.payment.BalanceHelper)
 	importJava DisplayAccountMasked(com.sorrisotech.fffc.account.DisplayAccountMasked)    
-	importJava FlexFieldInformation (com.sorrisotech.fffc.user.FlexFieldInformation)
 				
     import billCommon.sBillAccountInternal
     import billCommon.sBillAccountExternal
@@ -104,10 +103,8 @@ useCase accountSummaryChild [
     serviceParam (AccountStatus.GetStatus) srGetStatusParams
     serviceResult (AccountStatus.GetStatus) srGetStatusResult
     native string sLocalAccountStatus = "accountClosed"
-    native string sLocalAccountStatusDate
+    native string sLocalAccountStatusDateTime
     native string sLocalAccountStatusAmount
-    native string sLocalAccountBillDate
-    native string sLocalAccountBillAmount
 	native string sPaymentButtonOn = "false"
 	native string sLocalCreatePaymentStatus = "disabled"
 	native string sAchEnabledStatus = "true"
@@ -163,18 +160,14 @@ useCase accountSummaryChild [
 			CurrentBalanceHelper.getCurrentBalanceFormattedAsCurrency (
 				sPayGroup, 
 				sAccountInternal,
-				sLocalAccountBillDate,
-				sLocalAccountBillAmount,
-				sLocalAccountStatusDate,
+				sLocalAccountStatusDateTime,
 				sLocalAccountStatusAmount )	 
 	
 	// -- returns true if the account is current i.e. current balance <= 0 --
 	volatile string bIsAccountCurrent = CurrentBalanceHelper.isAccountCurrent (
 				sPayGroup, 
 				sAccountInternal,
-				sLocalAccountBillDate,
-				sLocalAccountBillAmount,
-				sLocalAccountStatusDate,
+				sLocalAccountStatusDateTime,
 				sLocalAccountStatusAmount )	 
 
     volatile native string sBillAccountBalanceDisplayed = 	
@@ -188,43 +181,41 @@ useCase accountSummaryChild [
 	// -- used in setting the sMinDueEdit variable --		
  	volatile native string sMinimumDue = 
  			CurrentBalanceHelper.getTrueMinimumDueRaw (
-		       srGetMinimumResult.sAmountRequired, // -- minimum due from status
-			   sCurrentBalanceEdit)				   // -- calculated current balance	
-			   									   // -- where minimum due is returned
+		       srGetMinimumResult.sAmountRequired, 		// -- minimum due from status
+			   sCurrentBalanceEdit)				   		// -- calculated current balance	
+			   									   		// -- where minimum due is returned
 
 	// -- use din setting the sMaxDueEdit variable --
 	volatile native string sMaximumPay = 
 			CurrentBalanceHelper.getTrueMaximumPayRaw (
 				sPayGroup, 								// -- payment group
 				sAccountInternal,						// -- account
-				srGetStatusResult.statusDate,			// -- status date
+				srGetStatusResult.lastUpdateTimestamp,	// -- status timestamp
 				srGetStatusResult.maximumPaymentAmount	// -- pulled from status now
 			)
 
 	// -- sets the minimum due used in display on the screen --
   	volatile native string sMinimumDueDisplay  = 
  			CurrentBalanceHelper.getTrueMinimumDueFormattedAsCurrency (
-				sPayGroup, 	// -- payment group
-				srGetMinimumResult.sAmountRequired,						// -- minimum due from status or bill
-				sCurrentBalanceEdit)			// -- current balance calculated based on bill/status and payments
+				sPayGroup, 								// -- payment group
+				srGetMinimumResult.sAmountRequired,		// -- minimum due from status or bill
+				sCurrentBalanceEdit)					// -- current balance calculated based on bill/status and payments
 				
 	// -- sets the maximum payment amount used in display on screen --
 	volatile native string sMaximumDueDisplay  = 
 			CurrentBalanceHelper.getTrueMaximumPayFormattedAsCurrency (
 				sPayGroup, 								// -- payment group
 				sAccountInternal,						// -- account
-				srGetStatusResult.statusDate,			// -- status date
+				srGetStatusResult.lastUpdateTimestamp,	// -- status date
 				srGetStatusResult.maximumPaymentAmount	// -- pulled from status now
 			)
 										
 	volatile native string sCurrentBalanceEdit =
 			CurrentBalanceHelper.getCurrentBalanceRaw (
-				sPayGroup, 		// -- payment group
-				sAccountInternal,		// -- account
-				sLocalAccountBillDate,				// -- published date of bill
-				sLocalAccountBillAmount,			// -- amount due in bill
-				sLocalAccountStatusDate,			// -- published date of acct status
-				sLocalAccountStatusAmount )			// -- current amt due in status
+				sPayGroup, 								// -- payment group
+				sAccountInternal,						// -- account
+				sLocalAccountStatusDateTime,			// -- published date of acct status
+				sLocalAccountStatusAmount )				// -- current amt due in status
 	   
 	string sUserId = Session.getUserId()
     string sAccNumLabel             = "{Account number:}"
@@ -314,7 +305,7 @@ useCase accountSummaryChild [
  	 */
  	 action checkAccountViewStatus [
  	 	sLocalAccountStatus = srGetStatusResult.accountStatus
- 	 	sLocalAccountStatusDate = srGetStatusResult.statusDate
+ 	 	sLocalAccountStatusDateTime = srGetStatusResult.lastUpdateTimestamp
  	 	sLocalAccountStatusAmount = srGetStatusResult.currentAmountDue
  	 	
  	 	sBillAmountDue = sCurrentBalanceEdit
@@ -661,8 +652,6 @@ useCase accountSummaryChild [
         sBillAccountExternal 		= sAccountDisplay               	// externalAccount
         sBillGroup         			= sPayGroup							// payment group for this account
         sBillingPeriod          	= sBillDate					 		// ubf:billdate -- date the bill was published, formatted
-		sLocalAccountBillDate		= srBillOverview.docDate			// used when calculating current balance
-		sLocalAccountBillAmount		= srBillOverview.totalDue			// used when calculating current balance
         sBillStream 				= srBillOverview.docStream			// bill stream name for this account
         sBillVersion 				= srBillOverview.docVersion 		// document version for this account
         sIsBill						= sIsBill							// true if this is a bill, otherwise we are look at a doc.
@@ -680,8 +669,6 @@ useCase accountSummaryChild [
         sBillAccountExternal 		= sAccountDisplay               	// externalAccount
         sBillGroup         			= sPayGroup							// payment group for this account
         sBillingPeriod          	= sBillDate					 		// ubf:billdate -- date the bill was published, formatted
-		sLocalAccountBillDate		= sLatestBillDate					// used when calculating current balance
-		sLocalAccountBillAmount		= "0"								// used when calculating current balance
         sBillStream 				= ""								// bill stream name for this account
         sBillVersion 				= "" 								// document version for this account
         sIsBill						= sIsBill							// true if this is a bill, otherwise we are look at a doc.
