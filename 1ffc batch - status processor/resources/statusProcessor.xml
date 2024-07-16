@@ -255,6 +255,9 @@
 	    <property name="recurringPaymentMapper" ref="recurringPaymentMapper"/>
 	    <property name="getScheduledInfoByInternalAccNumber" ref="getScheduledPaymentInfoByInternalAccountNumberSQL"/>
 	    <property name="getRecurringInfoByInternalAccNumber" ref="getRecurringPaymentInfoByInternalAccountNumberSQL"/>
+		<property name="automaticPmtInitiated" value="${automatic.initiated.payment.history.flex1}"/>
+		<property name="scheduledPmtInitiated" value="${scheduled.initiated.payment.history.flex1}"/>
+		<property name="insertPmtHistory" ref="insertFailedPaymentHistorySQL"/>
  	</bean>
  	
  	<bean id="deleteScheduledPaymentsByOnlineTransId" class="java.lang.String">
@@ -273,13 +276,17 @@
 			  	<![CDATA[
 		    		select
 		    			ps.user_id,
-						ps.online_trans_id, 
+						ps.online_trans_id,
+						ps.pay_type, 
 						ta.account_number_display as account_number,
 						ta.account_number as internal_account,
 						ta.bill_group as pay_group,
 						ps.pay_date as payment_date,
-						pw.source_num as wallet_name,
+						pw.source_name as wallet_name,
+						pw.source_num as wallet_num,
 						ps.pay_amt as amount,
+						ps.pay_surcharge as surcharge,
+						ps.pay_total_amt as total_amt,
 						pw.source_type 
 					from
 						pmt_schedule ps
@@ -322,6 +329,43 @@
 				]]>
 		  	</value>
 		</constructor-arg>
+ 	</bean>
+ 	
+ 	<bean id="insertFailedPaymentHistorySQL" class="java.lang.String">
+ 		<constructor-arg>
+	            <value>
+	                INSERT INTO pmt_history 
+	                		(
+	                		 transaction_id, 
+				             online_trans_id,
+				             pay_from_account, 
+				             pay_channel, 
+				             pay_date, 
+				             pay_amt, 
+				             pay_status, 
+				             user_id,
+				             pmt_provider_id,
+				             pay_surcharge,
+				             pay_total_amt,
+				             flex1					             			             
+	                		)
+		                VALUES 
+		                	(
+		                     :transaction_id, 
+				             :online_trans_id, 
+				             :pay_from_account, 
+				             'online', 
+				             CURRENT_TIMESTAMP, 
+				             :pay_amt, 
+				             'failed', 
+				             :user_id,
+				             '${payment.history.payment.provider.group}',
+				             :pay_surcharge,
+				             :pay_total_amt,
+				             :flex1
+				            ) 
+	            </value>
+ 		</constructor-arg>
  	</bean>
     
     

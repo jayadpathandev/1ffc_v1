@@ -72,6 +72,21 @@ public class Writer extends NamedParameterJdbcDaoSupport implements ItemWriter<L
 	 * Query for getting upcoming recurring payment records by userId.
 	 */
 	private String m_szGetRecurringInfoByInternalAccNumber = null;
+	
+	/**************************************************************************
+	 * The pay type for automatic payment.
+	 */
+	private String m_szAutomaticPmtInitiated = null;
+	
+	/**************************************************************************
+	 * The pay type for scheduled payment.
+	 */
+	private String m_szScheduledPmtInitiated = null;
+	
+	/**************************************************************************
+	 * The SQL for inserting payment history record.
+	 */
+	private String m_szInsertPmtHistory = null;
 
 	/**************************************************************************
 	 * RowMapper implementation for ScheduledPayment.
@@ -178,6 +193,11 @@ public class Writer extends NamedParameterJdbcDaoSupport implements ItemWriter<L
 				if (!cScheduledPayments.isEmpty()) {
 					int iScheduledRowsAffected = deleteScheduledPaymentsForUser(cScheduledRecordsIds);
 					LOG.info("Number of schedule records deleted : {}", iScheduledRowsAffected);
+
+					int totalRowsAffected = cScheduledPayments.stream()
+							.map(val -> insertFailedPmtHistory(val))
+							.reduce(0, Integer::sum);
+					LOG.info("Total records added to pmt_history table : {}", totalRowsAffected);
 				}
 				
 				LOG.info(
@@ -244,6 +264,33 @@ public class Writer extends NamedParameterJdbcDaoSupport implements ItemWriter<L
 	}
 
 	/**************************************************************************
+	 * Sets the value of m_szAutomaticPmtInitiated.
+	 * 
+	 * @param szAutomaticPmtInitiated
+	 */
+	public void setAutomaticPmtInitiated(String szAutomaticPmtInitiated) {
+		this.m_szAutomaticPmtInitiated = szAutomaticPmtInitiated;
+	}
+	
+	/**************************************************************************
+	 * Sets the value of m_szScheduledPmtInitiated.
+	 * 
+	 * @param szScheduledPmtInitiated
+	 */
+	public void setScheduledPmtInitiated(String szScheduledPmtInitiated) {
+		this.m_szScheduledPmtInitiated = szScheduledPmtInitiated;
+	}
+
+	/**************************************************************************
+	 * Sets the value of m_szInsertPmtHistory.
+	 * 
+	 * @param szInsertPmtHistory
+	 */
+	public void setInsertPmtHistory(String szInsertPmtHistory) {
+		this.m_szInsertPmtHistory = szInsertPmtHistory;
+	}
+
+	/**************************************************************************
 	 * Gets all scheduled payment records by userId.
 	 * 
 	 * @param userId
@@ -279,6 +326,45 @@ public class Writer extends NamedParameterJdbcDaoSupport implements ItemWriter<L
 			ids.add("");
 		MapSqlParameterSource param = new MapSqlParameterSource().addValue("ids", ids);
 		return getNamedParameterJdbcTemplate().update(m_szDeleteScheduled, param);
+	}
+	
+	/**************************************************************************
+	 * Inserts the scheduled payment as failed transaction into pmt_history table.
+	 * 
+	 * @param cScheduledPayment
+	 * @return rows affected
+	 */
+	private int insertFailedPmtHistory(ScheduledPayment cScheduledPayment) {
+		
+		MapSqlParameterSource cParams  = new MapSqlParameterSource();
+		
+		cParams.addValue("transaction_id",cScheduledPayment.getId()); 
+		cParams.addValue("online_trans_id",cScheduledPayment.getId()); 
+		
+		String payFromAcc = cScheduledPayment.getWalletNickName() + "|" 
+							+ cScheduledPayment.getSourceType() + "|" 
+							+ cScheduledPayment.getWalletNum();
+		
+		cParams.addValue("pay_from_account", payFromAcc); 
+		cParams.addValue("pay_amt",cScheduledPayment.getAmount()); 
+		cParams.addValue("user_id",cScheduledPayment.getUserId());
+		cParams.addValue("pay_surcharge",cScheduledPayment.getSurcharge());
+		cParams.addValue("pay_total_amt",cScheduledPayment.getTotalAmount());
+		
+		if ("automatic".equalsIgnoreCase(cScheduledPayment.getPayType()))
+			cParams.addValue("flex1", this.m_szAutomaticPmtInitiated);
+		else if ("onetime".equalsIgnoreCase(cScheduledPayment.getPayType()))
+			cParams.addValue("flex1", this.m_szScheduledPmtInitiated);
+		else
+			cParams.addValue("flex1", null);
+		
+		LOG.debug("Adding entry to 'pmt_history' table : {}", cParams);
+		
+		int rowsAffected = getNamedParameterJdbcTemplate().update(m_szInsertPmtHistory, cParams);
+		
+		LOG.debug("Row affected: {}", cParams);
+		
+		return rowsAffected;
 	}
 
 
