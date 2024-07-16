@@ -45,6 +45,26 @@ public class ScheduledPayment {
 	private String m_szAccounutNumber;
 	
 	/**************************************************************************
+	 * The payment type of the scheduled entry.
+	 */
+	private String m_szPayType;
+	
+	/**************************************************************************
+	 * The payment surcharge.
+	 */
+	private BigDecimal m_cSurcharge;
+	
+	/**************************************************************************
+	 * The total payment amount.
+	 */
+	private BigDecimal m_cTotalAmount;
+	
+	/**************************************************************************
+	 * The wallet masked number.
+	 */
+	private String m_szWalletNum;
+	
+	/**************************************************************************
 	 * Payment scheduled date
 	 */
 	private Date m_cScheduledPaymentDate;
@@ -232,13 +252,72 @@ public class ScheduledPayment {
 	public void setUserId(String userId) {
 		this.m_szUserId = userId;
 	}
+	
+	/**************************************************************************
+	 * Getter method for pay_type
+	 * @return the pay type
+	 */
+	public String getPayType() {
+		return m_szPayType;
+	}
+
+	/**************************************************************************
+	 * Setter method for payType.
+	 * @param m_szPayType
+	 */
+	public void setPayType(String szPayType) {
+		this.m_szPayType = szPayType;
+	}
+
+	/**************************************************************************
+	 * @return the surcharge
+	 */
+	public BigDecimal getSurcharge() {
+		return m_cSurcharge;
+	}
+
+	/**************************************************************************
+	 * @param szSurcharge the surcharge to set
+	 */
+	public void setSurcharge(BigDecimal szSurcharge) {
+		this.m_cSurcharge = szSurcharge;
+	}
+
+	/**************************************************************************
+	 * @return the totalAmount
+	 */
+	public BigDecimal getTotalAmount() {
+		return m_cTotalAmount;
+	}
+
+	/**************************************************************************
+	 * @param szTotalAmount the totalAmount to set
+	 */
+	public void setTotalAmount(BigDecimal szTotalAmount) {
+		this.m_cTotalAmount = szTotalAmount;
+	}
+
+	/**************************************************************************
+	 * @return the walletNum
+	 */
+	public String getWalletNum() {
+		return m_szWalletNum;
+	}
+
+	/**************************************************************************
+	 * @param szWalletNum the walletNum to set
+	 */
+	public void setWalletNum(String szWalletNum) {
+		this.m_szWalletNum = szWalletNum;
+	}
 
 	@Override
 	public String toString() {
-		return "ScheduledPayment [m_szId=" + m_szId + ", m_szAccounutNumber=" + m_szAccounutNumber
+		return "ScheduledPayment [m_szId=" + m_szId + ", m_szAccounutNumber=" + m_szAccounutNumber + ", m_szPayType="
+				+ m_szPayType + ", m_szSurcharge=" + m_cSurcharge + ", m_szTotalAmount=" + m_cTotalAmount
 				+ ", m_cScheduledPaymentDate=" + m_cScheduledPaymentDate + ", m_szWalletNickName=" + m_szWalletNickName
 				+ ", m_cAmount=" + m_cAmount + ", m_szSourceType=" + m_szSourceType + ", m_szInternalAccount="
 				+ m_szInternalAccount + ", m_szPayGroup=" + m_szPayGroup + ", m_szUserId=" + m_szUserId + "]";
-	}	
+	}
 	
 }
