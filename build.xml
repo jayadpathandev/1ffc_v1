@@ -521,7 +521,13 @@
     </target>
 
     <target name="automate">
-        <copy file="automate.properties" tofile="build.properties"/>
+        <propertyfile file="build.properties">
+            <entry key="output.dir"      value="${basedir}/dist"/>
+            <entry key="release.dir"     value="${basedir}/artifacts"/>
+            <entry key="artifacts.dir"   value="${basedir}/tmp"/>
+            <entry key="base.local.url"  value="https://company.name"/>
+            <entry key="base.public.url" value="https://company.name"/>
+        </propertyfile>
     </target>
 
 </project>
