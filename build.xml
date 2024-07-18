@@ -520,4 +520,8 @@
         <zip destfile="${output.dir}/1ffc_package.zip" basedir="${output.dir}" excludes="1ffc_package.zip"/>
     </target>
 
+    <target name="automate">
+        <copy file="automate.properties" tofile="build.properties"/>
+    </target>
+
 </project>
