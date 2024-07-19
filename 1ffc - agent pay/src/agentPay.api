@@ -84,5 +84,17 @@ define service AgentPay(com.sorrisotech.app.serviceapi.uc.UcRequestClient) [
     	string scheduledPayments
     ]
     
+    define method AddMigratedPaymentSource [
+    	string customerId
+    	string accountId
+    	string sourceType
+    	string sourceValue
+    	string accountHolder
+    	string maskedNumber
+    	string expiration
+    ] returns [
+    	string addResponseStatus
+    ]
+    
  ]
  

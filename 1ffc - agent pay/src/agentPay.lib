@@ -12,6 +12,7 @@ library agentPay [
     	apiGetScheduledPaymentsForAgent
     	apiDeleteScheduledPaymentForAgent
     	apiUpdateScheduledPaymentForAgent
+    	apiAddMigrationPaymentSource
     ]           
     
     audit [
@@ -34,6 +35,9 @@ library agentPay [
 
 			event delete_scheduledpay_for_agent_success		(21 "{Agent payment delete scheduled payment [customerId={0} accountId={1} paymentId={2}] success.}")
 			event delete_scheduledpay_for_agent_failed		(22 "{Agent payment delete scheduled payment [customerId={0} accountId={1} paymentId={2}] failed.}")
+			
+			event add_migrated_payment_source_success		(23 "{Agent payment add migrated payment source [customerId={0} accountId={1} sourceType={2} aciToken={3} accountHolder={4} maskedNumber={5}] success.}")
+			event add_migrated_payment_source_failure		(24 "{Agent payment add migrated payment source [customerId={0} accountId={1} sourceType={2} aciToken={3} accountHolder={4} maskedNumber={5}] failure.}")
          ]
     ]
 ]
