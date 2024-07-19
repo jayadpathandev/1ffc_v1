@@ -1,6 +1,10 @@
 package com.sorrisotech.svcs.documentesign.service;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -100,7 +104,8 @@ public class GetDocumentEsignUrl extends GetDocumentEsignUrlBase{
     	
     	if ( !"bank".equals( walletInfo.getSourceType()) ) {
     		pdfDetailsMap.put("EFFECTIVE_DATE", dateRule);
-    		pdfDetailsMap.put("DATE_1", dateFormatter.format(new Date()));
+    		pdfDetailsMap.put("DATE_1", dateConverterToTimeZone(new Date(),
+					ZoneId.of(config.getProperty("application.locale.time.zone.id"))));
     		pdfDetailsMap.put("FIRST_PMT_AMT", monthlyPaymentAmount);
     		pdfDetailsMap.put("MONTHLY_PMT_AMT", monthlyPaymentAmount);
     		pdfDetailsMap.put("EXTERNAL_ACCT", displayAccount);
@@ -117,7 +122,8 @@ public class GetDocumentEsignUrl extends GetDocumentEsignUrlBase{
     	} else {
     		
     		pdfDetailsMap.put("EFFECTIVE_DATE", dateRule);
-    		pdfDetailsMap.put("DATE_1", dateFormatter.format(new Date()));
+    		pdfDetailsMap.put("DATE_1", dateConverterToTimeZone(new Date(),
+					ZoneId.of(config.getProperty("application.locale.time.zone.id"))));
     		pdfDetailsMap.put("FIRST_PMT_AMT", monthlyPaymentAmount);
     		pdfDetailsMap.put("MONTHLY_PMT_AMT", monthlyPaymentAmount);
     		pdfDetailsMap.put("EXTERNAL_ACCT", displayAccount);
@@ -156,7 +162,8 @@ public class GetDocumentEsignUrl extends GetDocumentEsignUrlBase{
 		
 		final Map<String, String> metadata = new HashMap<>();
 		metadata.put("account", customerId);
-		metadata.put("date", new SimpleDateFormat("yyyyMMdd").format(new Date()));
+		metadata.put("date", dateConverterToTimeZone(new Date(),
+				ZoneId.of(config.getProperty("application.locale.time.zone.id"))));
 		metadata.put("intAccId", internalAccount);
 		metadata.put("extAccId", displayAccount);
 		metadata.put("extDocId", extDocId);
@@ -262,5 +269,24 @@ public class GetDocumentEsignUrl extends GetDocumentEsignUrlBase{
         
         return null; 
 	}
-
+    
+	private String dateConverterToTimeZone(Date dateToConvert, ZoneId zoneId) {
+		
+		ZonedDateTime zonedDateTime = null;
+		
+		String convertedDate = null;
+		
+		try {
+			zonedDateTime = dateToConvert.toInstant().atZone(zoneId);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+		
+		convertedDate = zonedDateTime.toLocalDate().format(dateFormatter);
+		
+		return convertedDate;
+	}
 }
