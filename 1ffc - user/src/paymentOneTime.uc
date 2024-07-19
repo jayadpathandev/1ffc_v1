@@ -2129,14 +2129,14 @@ useCase paymentOneTime [
 		if surchargeFlag == "true" then
 			checkSourceType
 		else
-			submitPayment
+			addDisplayNumberToFlex
 	]
 	
 	action checkSourceType [
 		if sPayDataSourceType == "debit" then
 			getconvenienceFee
 		else
-			submitPayment
+			addDisplayNumberToFlex
 	]
 	
 	action getconvenienceFee [
@@ -2146,7 +2146,7 @@ useCase paymentOneTime [
 		
 		switch apiCall AccountStatus.GetDebitConvenienceFee(surchargeRequest, surchargeResult, ssStatus) [
 			case apiSuccess validateConvenienceFee
-			default         submitPayment
+			default         addDisplayNumberToFlex
 		]
 	]
 
@@ -2154,7 +2154,7 @@ useCase paymentOneTime [
 		if  szValidConvenienceFee == "true" then 
 			addConvenienceFee
 		else
-			submitPayment
+			addDisplayNumberToFlex
 			
 	]
 
@@ -2163,6 +2163,17 @@ useCase paymentOneTime [
 		srMakePaymentParam.FLEX_VALUE = "convenienceFee=true" + "|" + "convenienceFeeAmount=" + surchargeResult.convenienceFeeAmt
 		srMakePaymentParam.FLEX_DEFINITION = flexDefinition
 		
+		goto(appendDisplayNumberToFlex)
+	]
+	
+	action addDisplayNumberToFlex [
+		srMakePaymentParam.FLEX_VALUE = "displayAccountNumber=" + sPayAccountExternal
+		srMakePaymentParam.FLEX_DEFINITION = flexDefinition
+		goto(submitPayment)
+	]
+	
+	action appendDisplayNumberToFlex [
+		srMakePaymentParam.FLEX_VALUE = "|" + "displayAccountNumber=" + sPayAccountExternal
 		goto(submitPayment)
 	]
  	
