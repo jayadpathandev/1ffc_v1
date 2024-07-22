@@ -62,4 +62,19 @@ export default function user_elements(
     fffc(parent);
     highlightRecentBills(parent);
     payment_history(parent);
+
+    // remove the migrated token from the wallet dropdown
+    $('select[name="dWalletItems"] option').each(function() {
+        if ($(this).text().trim().startsWith('Migrated token')) {
+            $(this).remove();
+        }
+    });
+
+    // removing all the migrated token from the wallet list
+    $('#paymentWallet_tPaymentWalletTable tbody tr').each(function() {
+        var nameSpan = $(this).find('#paymentWallet_tPaymentWalletTable\\.sName');
+        if (nameSpan.length && nameSpan.text().trim().startsWith('Migrated token')) {
+            $(this).remove();
+        }
+    });
 }

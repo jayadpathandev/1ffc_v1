@@ -120,7 +120,14 @@
 			        iframe.attr('height', event.data + 'px').css('height', event.data + 'px');
 				}
 			
-				window.addEventListener("message", receiveCrossOriginMessage, false);					
+				window.addEventListener("message", receiveCrossOriginMessage, false);
+				
+				// remove the migrated token from the wallet dropdown
+		        $('select[name="wallet"] option').each(function() {
+		            if ($(this).text().trim().startsWith('Migrated token')) {
+		                $(this).remove();
+		            }
+		        });					
 			});
 		</script>
 	</body>
