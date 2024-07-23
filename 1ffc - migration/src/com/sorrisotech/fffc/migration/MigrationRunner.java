@@ -6,14 +6,14 @@ public class MigrationRunner {
 
 	public static void main(String[] args) {
 		
-		String szTokenFile = "/home/johnk/migration-files/resp_fund_extract_07172024.txt";
+		String szTokenFile = Config.get("tokenFile");
 		TokenMap tokens = ACIToken.createACITokenMap(szTokenFile);
 		
-		String szSchedPmtFile = "/home/johnk/migration-files/Scheduled Payments 2024-Jul-20.txt";
+		String szSchedPmtFile = Config.get("schedPaymentFile");
 		List<IScheduledPayment> schedPayments = 
 				OneTimeScheduledPayment.createScheduledPaymentList(szSchedPmtFile, tokens);
 		
-		String szAutoPmtFile = "/home/johnk/migration-files/20240524_KY and VA Recuring Future Dated Debit.txt";
+		String szAutoPmtFile = Config.get("autoPaymentFile");
 		List<IAutomaticPaymentRule> autoPayments = 
 				MonthlyAutomaticPaymentRule.createAutomaticPaymentList(szAutoPmtFile, tokens);
 	}

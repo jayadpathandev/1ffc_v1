@@ -33,6 +33,7 @@
   * 							 AccountOverview so I could use this list of accounts to merge accounts with
   * 							 no bills into the list of accounts for a user in dashboard.uc
   * 	   1.4 12-July-2024 JAK	Added the last update timestamp to the general status call.
+  * 	   1.5 22-July-2024 JAK Added call to retrieve internal account information for use in migration.
   */
 
 
@@ -361,6 +362,19 @@ define service AccountStatus(com.sorrisotech.app.serviceapi.uc.UcRequestClient) 
  		table  accounts	[
  			string internalAccountId
  		]
+ 	]
+
+  	// -----------------------------------------------------------------------
+ 	// -- use GetAccountInfoFromExtAcct during migration from external web
+ 	//		service call that retrieves the internal information needed for
+ 	//		other web service calls (i.e. agent-pay api).
+ 	//
+ 	define method GetAccountInfoFromExtAcct [
+ 		string externalAccount
+ 		string billPaymentGroup
+ 	] returns [
+ 		string customerId
+ 		string internalAccount
  	]
  	
   	// -----------------------------------------------------------------------

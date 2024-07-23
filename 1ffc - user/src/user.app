@@ -70,6 +70,7 @@ application [
 		
 		paymentConvenienceFee
 		paymentGetStatusForScheduler
+		paymentGetAcctInfoByExtAcct		// -- payment information for migration
 		
 		statusTest
 		testFtlTemplating
