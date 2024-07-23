@@ -186,6 +186,22 @@ WHERE
             </value>
           </constructor-arg>
     </bean>
+       <bean id="getInternalAccountInfoSql" class = "java.lang.String">
+		<constructor-arg>
+       	<value>
+				select 
+					org_id as customerId,
+					account_number as internalAcctId
+				from 
+					tm_account 
+				where
+					account_number_display= :externalAccount
+					and bill_group= :billPaymentGroup
+				limit 1       	
+        </value>
+       </constructor-arg>
+    </bean>
+    
     <bean id="accountSequenceSql.mysql" class="java.lang.String">
         <constructor-arg>
             <value>
@@ -216,6 +232,8 @@ WHERE
     <bean id = "insertTmAccountRecord" class = "com.sorrisotech.svcs.accountstatus.dao.InsertTmAccountRecordDaoImpl">
     </bean>
     <bean id = "getEligibleRegisteredAcctsDao" class = "com.sorrisotech.svcs.accountstatus.dao.EligibleRegisteredAcctsDaoImpl">
+    </bean>
+   <bean id = "getAcctFromExtAcctDao" class = "com.sorrisotech.svcs.accountstatus.dao.AcctFromExtAcctDaoImpl">
     </bean>
     <!--  accountSequienceSql is a generic bean that refers to the correct sequencing query for the db type we
     		  are running on -->

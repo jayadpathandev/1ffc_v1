@@ -39,16 +39,18 @@ public class OneTimeScheduledPayment implements IScheduledPayment {
 	 * @return null if it failed, a List of IScheduledPayment interface objects if it succeeds
 	 */
 	static public List<IScheduledPayment> createScheduledPaymentList(String czFilePath, TokenMap mTokenMap) {
-		final Integer BillingAccountNumber = 0;
-		final Integer LastName = 1;
-		final Integer Address = 2;
-		final Integer PaymentAmount = 3;
-		final Integer PaymentDate = 4;
-		final Integer PaymentMethod = 5;
-		final Integer PaymentAccountId = 6;
-		final Integer Errors = 7;
-		final Integer NoErrorsLength = 7;
-		final Integer ErrorsLength = 8;
+		final Integer ciBillingAccountNumberPos = 0;
+		final Integer ciInNlsUatPos = 2;
+		final Integer ciLastNamePos = 3;
+		final Integer ciAddressPos = 4;
+		final Integer ciPaymentAmountPos = 5;
+		final Integer ciPaymentDatePos = 6;
+		final Integer ciPaymentMethodPos = 7;
+		final Integer ciPaymentAccountIdPos = 8;
+		final Integer ciErrorsPos = 9;
+		final Integer ciNoErrorsLength = 9;
+		final Integer ciErrorsLength = 10;
+		final String  cszYes = "yes"; // -- used when testing for in UAT --
 
 		List<IScheduledPayment> lSchedPaymentList = new ArrayList<IScheduledPayment>();
 		PipeDelimitedLineReader input = new PipeDelimitedLineReader();
@@ -73,7 +75,7 @@ public class OneTimeScheduledPayment implements IScheduledPayment {
 		do {
 			record = input.getSplitLine();
 			iLoopCount++;
-			if ((null != record) && (record.length == NoErrorsLength)) {
+			if ((null != record) && (record.length == ciNoErrorsLength) && record[ciInNlsUatPos].equals(cszYes)) {
 				String lszCustomerId = null;
 				String lszInternalAcct = null;
 				BigDecimal ldPayAmt = null;
@@ -82,19 +84,19 @@ public class OneTimeScheduledPayment implements IScheduledPayment {
 				
 				// -- convert pay amount --
 				try {
-					ldPayAmt = new BigDecimal(record[PaymentAmount]);
+					ldPayAmt = new BigDecimal(record[ciPaymentAmountPos]);
 				} catch (NumberFormatException e) {
 					LOG.error("OneTimeScheduledPayment:createScheduledPaymentList -- Number format exception for account: {}, pay amount: {}. Skipping payment.",
-							record[BillingAccountNumber], record[PaymentAmount]);
+							record[ciBillingAccountNumberPos], record[ciPaymentAmountPos]);
 					iSkipped++;
 					continue;
 				}
 				
 				// -- convert date --
-				lcPayDate = convertPaymentDate(record[PaymentDate]);
+				lcPayDate = convertPaymentDate(record[ciPaymentDatePos]);
 				if (null == lcPayDate) {
 					LOG.error("OneTimeScheduledPayment:createScheduledPaymentList -- Parse exception for account: {}, date: {}. Skipping payment.",
-							record[BillingAccountNumber], record[PaymentDate]);
+							record[ciBillingAccountNumberPos], record[ciPaymentDatePos]);
 					iSkipped++;
 					continue;
 				}
@@ -102,20 +104,30 @@ public class OneTimeScheduledPayment implements IScheduledPayment {
 				// -- retrieve customerID and internalAcct given the external
 				//		account number -- 
 				{
-					lszCustomerId = "CUSTOMERID";
-					lszInternalAcct = "INTERNALACCT";
+					GetInternalAccountInfo info = new GetInternalAccountInfo();
+					GetInternalAccountInfo.InternalAccts accts = null;
+					accts = info.getAccts(record[ciBillingAccountNumberPos]);
+					if (null != accts) {
+					  lszCustomerId = accts.CustomerId;
+					  lszInternalAcct = accts.InternalAcctId;
+					} else {
+						LOG.error("OneTimeScheduledPayment:createScheduledPaymentList -- No account data for account: {}. Skipping payment.",
+								record[ciBillingAccountNumberPos]);
+						iSkipped++;
+						continue;
+					}
 				}
 				
 				// -- set up payment structure
 				{
 					loPmtAcct = new PmtAcct();
-					Boolean lbSuccess = loPmtAcct.createPayAcct(record[PaymentMethod], 
-											record[PaymentAccountId],
-											mTokenMap,
-											record[BillingAccountNumber]);
+					Boolean lbSuccess = loPmtAcct.createPayAcctByToken( record[ciPaymentMethodPos], 
+																		record[ciPaymentAccountIdPos],
+																		mTokenMap,
+																		record[ciBillingAccountNumberPos]);
 					if (!lbSuccess) {
 						LOG.error("OneTimeScheduledPayment:createScheduledPaymentList -- Account {}, failure in mapping payment method: {}, account: {}",
-								record[BillingAccountNumber], record[PaymentMethod], record[PaymentAccountId]);
+								record[ciBillingAccountNumberPos], record[ciPaymentMethodPos], record[ciPaymentAccountIdPos]);
 						iSkipped++;
 						continue;
 					}
@@ -125,25 +137,33 @@ public class OneTimeScheduledPayment implements IScheduledPayment {
 				IScheduledPayment iPayment = new OneTimeScheduledPayment (
 						lszCustomerId,
 						lszInternalAcct,
-						record[BillingAccountNumber],
-						record[LastName],
-						record[Address],
+						record[ciBillingAccountNumberPos],
+						record[ciLastNamePos],
+						record[ciAddressPos],
 						ldPayAmt,
 						lcPayDate,
 						loPmtAcct			) ;
 				lSchedPaymentList.add(iPayment); 
-				LOG.debug("neTimeScheduledPayment:createScheduledPaymentList -- created sheduled" + 
-						" payment record for acccount: {}.", 
-						record[BillingAccountNumber]);
+				LOG.debug("OneTimeScheduledPayment:createScheduledPaymentList -- created sheduled" + 
+						" payment record for acccount: {}. Payment date: {}, ammount: {}.", 
+						record[ciBillingAccountNumberPos],
+						record[ciPaymentDatePos], 
+						ldPayAmt.toString());
 				
 				if (0 == Integer.remainderUnsigned(iLoopCount, 10000)) {
 					System.out.print(".");
 				}
 			} else {
-				if ((null != record) && (record.length == ErrorsLength)) {
-					LOG.info("neTimeScheduledPayment:createScheduledPaymentList -- Error in scheduled" + 
-								" payment record for acccount: {}, error value: {}.", 
-								record[BillingAccountNumber], record[Errors]);
+				if (null != record) {
+					if (record.length == ciErrorsLength) {
+						LOG.info("OneTimeScheduledPayment:createScheduledPaymentList -- Error in scheduled" + 
+									" payment record for acccount: {}, error value: {}.", 
+									record[ciBillingAccountNumberPos], record[ciErrorsPos]);
+					} else if (!record[ciInNlsUatPos].equals(cszYes)) {
+						LOG.info("OneTimeScheduledPayment:createScheduledPaymentList -- " + 
+									"Account {} marked as not in NLS UAT or duplicate, value: {}.", 
+									record[ciBillingAccountNumberPos], record[ciInNlsUatPos]);
+					}
 					iSkipped++;
 				}
 			}

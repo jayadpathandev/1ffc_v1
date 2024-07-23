@@ -27,10 +27,20 @@ public class PmtAcct {
 	public String m_szBankRouting = null;
 	public  String m_szBankAcct = null;
 	
-	public Boolean createPayAcct (final String PayMethod, 
-								  final String PayAcctId, 
-								  final TokenMap cTokenMap, 
-								  final String BillingAcctId)
+	/** 
+	 * Creates the payment account record details using a tokenId
+	 * 	for lookup
+	 * 
+	 * @param PayMethod
+	 * @param PayAcctId
+	 * @param cTokenMap
+	 * @param BillingAcctId
+	 * @return
+	 */
+	public Boolean createPayAcctByToken ( final String PayMethod, 
+								  		  final String PayAcctId, 
+								  		  final TokenMap cTokenMap, 
+								  		  final String BillingAcctId)
 	{
 		Boolean lbRet = false;
 		
@@ -46,15 +56,13 @@ public class PmtAcct {
 				
 			}
 			// -- is it a valid ported debit card --
-			/*	
-			if (null == mTokenMap.get(record[PaymentAccountId], record[BillingAccountNumber])) {
+			if (null == cTokenMap.getByToken(PayAcctId, BillingAcctId)) {
 				LOG.error("OneTimeScheduledPayment:createScheduledPaymentList -- ported debit card lookup failed on card token for account: {}, debit acct: {},Skipping payment.",
-						record[BillingAccountNumber], record[PaymentAccountId]);
-				iSkipped++;
-				continue;
+						BillingAcctId, PayAcctId);
+				break;
 				
 			} 
-			*/
+			
 			m_szTokenId = PayAcctId;
 			lbRet = true;
 			break;
@@ -82,6 +90,16 @@ public class PmtAcct {
 		return lbRet;
 	}
 	
+	/**
+	 * creates payment account details by using the billing account for lookup
+	 * 	of the token
+	 * 
+	 * @param PayMethod
+	 * @param cszBillingAccount
+	 * @param cTokenMap
+	 * @param cszLast4Digits
+	 * @return
+	 */
 	public Boolean  createPayAcctFromBillAccount(final String PayMethod,
 												 final String cszBillingAccount, 
 												 final TokenMap cTokenMap,

@@ -41,13 +41,16 @@ public class ACIToken implements IExternalToken {
 	 */
 	static public TokenMap createACITokenMap(String czFilePath) {
 		
-		final Integer RecordTypePos = 0;
-		final Integer AccountNumberPos = 3;
-		final Integer TokenValuePos = 5;
-		final Integer MaskedValuePos = 6;
-		final Integer HolderNamePos = 7;
-		final Integer ExpireDatePos = 8;
-		final String  TokenRecordType = "576503";
+		final Integer ciRecordTypePos = 0;
+		final Integer ciStatusPos = 1;
+		final Integer ciFailureReaonPos = 2;
+		final Integer ciAccountNumberPos = 3;
+		final Integer ciTokenValuePos = 5;
+		final Integer ciMaskedValuePos = 6;
+		final Integer ciHolderNamePos = 7;
+		final Integer ciExpireDatePos = 8;
+		final String  cszTokenRecordType = "576503";
+		final String  cszTokenSuccess = "SUCCESS";
 
 		TokenMap lTokenMap = new TokenMap();
 		PipeDelimitedLineReader input = new PipeDelimitedLineReader();
@@ -63,23 +66,29 @@ public class ACIToken implements IExternalToken {
 		
 		do {
 			record = input.getSplitLine();
-			if ((null != record) && (record[RecordTypePos].equals(TokenRecordType))) {
-				// -- convert expiration date MMYYYY into MM/YYYY what we need --
-				String szExpireDate = record[ExpireDatePos].substring(0,2) + "/" +
-										record[ExpireDatePos].substring(2);
-				String szMask = record[MaskedValuePos];
-				String szLast4 = szMask.substring(szMask.length()-4);
-				IExternalToken token = new ACIToken( record[TokenValuePos],
-											   szExpireDate,
-											   szLast4,
-											   record[AccountNumberPos],
-											   record[HolderNamePos]);
-				lTokenMap.put(token);
-				iLoopCount++;
-				if (0 == Integer.remainderUnsigned(iLoopCount, 10000)) {
-					System.out.print(".");
+			if ((null != record) && record[ciRecordTypePos].equals(cszTokenRecordType)) {
+				if (record[ciStatusPos].equals(cszTokenSuccess)) {
+					// -- convert expiration date MMYYYY into MM/YYYY what we need --
+					String szExpireDate = record[ciExpireDatePos].substring(0,2) + "/" +
+											record[ciExpireDatePos].substring(2);
+					String szMask = record[ciMaskedValuePos];
+					String szLast4 = szMask.substring(szMask.length()-4);
+					IExternalToken token = new ACIToken( record[ciTokenValuePos],
+												   szExpireDate,
+												   szLast4,
+												   record[ciAccountNumberPos],
+												   record[ciHolderNamePos]);
+					lTokenMap.put(token);
+					LOG.info("ACIToken:createACITokenMap -- Created token for account {}.", record[ciAccountNumberPos]);
+					iLoopCount++;
+					if (0 == Integer.remainderUnsigned(iLoopCount, 10000)) {
+						System.out.print(".");
+					}
+				} else {
+					LOG.info("ACIToken:createACITokenMap -- Invalid token for account: {}" +
+								" Reason: {}", record[ciAccountNumberPos], record[ciFailureReaonPos]);
 				}
-			} 
+			}
 		} while (record != null);
 		System.out.println();
 		LOG.info("ACIToken:createACITokenMap -- finished processing file: {}, {} token objects created.", 
