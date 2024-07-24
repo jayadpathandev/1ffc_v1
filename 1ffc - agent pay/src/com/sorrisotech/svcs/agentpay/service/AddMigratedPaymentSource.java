@@ -120,11 +120,22 @@ public class AddMigratedPaymentSource extends AddMigratedPaymentSourceBase {
         JSONObject creditCard = new JSONObject();
         JSONObject accountHolderMap = new JSONObject();
 
-        creditCard.put("accountType", sourceType);
-        creditCard.put("cardNumber", "ACITOKEN|" + sourceValue);
-        creditCard.put("cardType", "");
-        creditCard.put("cvvCode", "");
-        creditCard.put("expirationDate", expiration);
+        switch (sourceType) {
+	        case "debit":
+	        case "credit":
+	            creditCard.put("accountType", sourceType);
+	            creditCard.put("cardNumber", "ACITOKEN|" + sourceValue);
+	            creditCard.put("cardType", "");
+	            creditCard.put("cvvCode", "");
+	            creditCard.put("expirationDate", expiration);
+	            break;
+	        case "bank":
+	        case "sepa":
+	        default:
+				m_cLog.warn("Unsupported Payment type {}.", sourceType);
+				request.setRequestStatus(ServiceAPIErrorCode.Failure);
+				return ServiceAPIErrorCode.Failure;
+        }
 
         accountHolderMap.put("name", accountHolder);
         accountHolderMap.put("street1", "");
@@ -163,9 +174,11 @@ public class AddMigratedPaymentSource extends AddMigratedPaymentSourceBase {
             	
             	JSONObject cResponseObject = new JSONObject(cResponse.getBody());
             	String szResponseCode = cResponseObject.getString("responseCode");
+            	String szToken = cResponseObject.getString("token");
             	
             	if (ResponseCode.ADD_PAYMENT_SOURCE_SUCCESS.getCode().equals(szResponseCode)) {
             		m_cLog.info("Payment Source Added successfully.");
+            		request.set(IApiAgentPay.AddMigratedPaymentSource.token, szToken);
             		request.set(IApiAgentPay.AddMigratedPaymentSource.addResponseStatus, "201");
             		request.setRequestStatus(ServiceAPIErrorCode.Success);
             		return ServiceAPIErrorCode.Success;

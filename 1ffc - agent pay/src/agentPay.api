@@ -93,6 +93,7 @@ define service AgentPay(com.sorrisotech.app.serviceapi.uc.UcRequestClient) [
     	string maskedNumber
     	string expiration
     ] returns [
+    	string token
     	string addResponseStatus
     ]
     
