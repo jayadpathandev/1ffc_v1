@@ -16,6 +16,10 @@ public class MigrationRunner {
 		String szAutoPmtFile = Config.get("autoPaymentFile");
 		List<IAutomaticPaymentRule> autoPayments = 
 				MonthlyAutomaticPaymentRule.createAutomaticPaymentList(szAutoPmtFile, tokens);
+		
+		for (IScheduledPayment sp : schedPayments) {
+			sp.createScheduledPayment();
+		}
 	}
 
 }

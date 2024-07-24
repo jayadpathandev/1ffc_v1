@@ -21,11 +21,15 @@ public class PmtAcct {
 	private static final Logger LOG = LoggerFactory.getLogger(PmtAcct.class);
 
 	
-	public enum PayType {bank, debit, credit};
+	public enum PayType {bank, debit, credit, sepa};
 	public PayType m_payType = null;
 	public String m_szTokenId = null;
 	public String m_szBankRouting = null;
-	public  String m_szBankAcct = null;
+	public String m_szBankAcct = null;
+	public String m_szAcctHolder = null;
+	public String m_szLast4 = null;
+	public String m_szMaskedName = null;
+	public String m_szExpiration = null;
 	
 	/** 
 	 * Creates the payment account record details using a tokenId
@@ -55,15 +59,19 @@ public class PmtAcct {
 				break;
 				
 			}
+			IExternalToken token = cTokenMap.getByToken(PayAcctId, BillingAcctId);
 			// -- is it a valid ported debit card --
-			if (null == cTokenMap.getByToken(PayAcctId, BillingAcctId)) {
+			if (null == token) {
 				LOG.error("OneTimeScheduledPayment:createScheduledPaymentList -- ported debit card lookup failed on card token for account: {}, debit acct: {},Skipping payment.",
 						BillingAcctId, PayAcctId);
 				break;
 				
 			} 
-			
-			m_szTokenId = PayAcctId;
+			m_szAcctHolder = token.getAccountHolderName();
+			m_szLast4 = token.getLast4();
+			m_szTokenId= token.getToken();
+			m_szMaskedName = token.getMaskedName();
+			m_szExpiration = token.getExpirationDate();
 			lbRet = true;
 			break;
 		
@@ -117,13 +125,17 @@ public class PmtAcct {
 				
 			}
 			// -- is it a valid ported debit card --
-			IExternalToken lToken = cTokenMap.getByAccount(cszBillingAccount, cszLast4Digits);
-			if (null == lToken) {
+			IExternalToken token = cTokenMap.getByAccount(cszBillingAccount, cszLast4Digits);
+			if (null == token) {
 				LOG.error("PmtAcct:createPayAcctFromBillAccount -- ported debit card lookup failed on  account: {}, last 4 digits: {},Skipping payment.",
 						cszBillingAccount, cszLast4Digits);
 				break;				
 			} 
-			m_szTokenId = lToken.getToken();
+			m_szAcctHolder = token.getAccountHolderName();
+			m_szLast4 = token.getLast4();
+			m_szTokenId = token.getToken();
+			m_szMaskedName = token.getMaskedName();
+			m_szExpiration = token.getExpirationDate();
 			lbRet = true;
 			break;
 		

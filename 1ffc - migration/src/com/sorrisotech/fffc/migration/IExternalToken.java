@@ -72,7 +72,7 @@ public interface IExternalToken {
 	 * Returns last 4 digits of card number
 	 * @return
 	 */
-	public Object getLast4();
+	public String getLast4();
 	
 	
 }
