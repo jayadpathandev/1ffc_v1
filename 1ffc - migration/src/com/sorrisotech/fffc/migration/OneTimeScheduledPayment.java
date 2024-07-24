@@ -22,15 +22,14 @@ public class OneTimeScheduledPayment implements IScheduledPayment {
 
 	private static final Logger LOG = LoggerFactory.getLogger(OneTimeScheduledPayment.class);
 	
-	String m_szInternalAccount = null;
-	String m_szExternalAccount = null;
-	String m_szLastName = null;
-	String m_szAddress = null;
-	String m_szCustomerId = null;
-	BigDecimal m_dPayAmount = null;
-	Calendar m_calPaymentDate = null;
-
-	PmtAcct m_clPaymentAccount;
+	private String m_szInternalAccount = null;
+	private String m_szExternalAccount = null;
+	private String m_szLastName = null;
+	private String m_szAddress = null;
+	private String m_szCustomerId = null;
+	private BigDecimal m_dPayAmount = null;
+	private Calendar m_calPaymentDate = null;
+	PmtAcct m_oPmtAccount = null;;
 	
 	/**
 	 * Reads a scheduled payment file and creates a list of OneTimeScheduledPayment objects
@@ -40,17 +39,16 @@ public class OneTimeScheduledPayment implements IScheduledPayment {
 	 */
 	static public List<IScheduledPayment> createScheduledPaymentList(String czFilePath, TokenMap mTokenMap) {
 		final Integer ciBillingAccountNumberPos = 0;
-		final Integer ciInNlsUatPos = 2;
-		final Integer ciLastNamePos = 3;
-		final Integer ciAddressPos = 4;
-		final Integer ciPaymentAmountPos = 5;
-		final Integer ciPaymentDatePos = 6;
-		final Integer ciPaymentMethodPos = 7;
-		final Integer ciPaymentAccountIdPos = 8;
-		final Integer ciErrorsPos = 9;
-		final Integer ciNoErrorsLength = 9;
-		final Integer ciErrorsLength = 10;
-		final String  cszYes = "yes"; // -- used when testing for in UAT --
+		final Integer ciLastNamePos = 1;
+		final Integer ciAddressPos = 2;
+		final Integer ciPaymentAmountPos = 3;
+		final Integer ciPaymentDatePos = 4;
+		final Integer ciPaymentMethodPos = 5;
+		final Integer ciPaymentAcctMasked = 6;
+		final Integer ciPaymentAccountIdPos = 7;
+		final Integer ciErrorsPos = 8;
+		final Integer ciNoErrorsLength = 8;
+		final Integer ciErrorsLength = 9;
 
 		List<IScheduledPayment> lSchedPaymentList = new ArrayList<IScheduledPayment>();
 		PipeDelimitedLineReader input = new PipeDelimitedLineReader();
@@ -75,7 +73,7 @@ public class OneTimeScheduledPayment implements IScheduledPayment {
 		do {
 			record = input.getSplitLine();
 			iLoopCount++;
-			if ((null != record) && (record.length == ciNoErrorsLength) && record[ciInNlsUatPos].equals(cszYes)) {
+			if ((null != record) && (record.length == ciNoErrorsLength)) {
 				String lszCustomerId = null;
 				String lszInternalAcct = null;
 				BigDecimal ldPayAmt = null;
@@ -154,16 +152,10 @@ public class OneTimeScheduledPayment implements IScheduledPayment {
 					System.out.print(".");
 				}
 			} else {
-				if (null != record) {
-					if (record.length == ciErrorsLength) {
+				if ((null != record) && (record.length == ciErrorsLength)) {
 						LOG.info("OneTimeScheduledPayment:createScheduledPaymentList -- Error in scheduled" + 
 									" payment record for acccount: {}, error value: {}.", 
 									record[ciBillingAccountNumberPos], record[ciErrorsPos]);
-					} else if (!record[ciInNlsUatPos].equals(cszYes)) {
-						LOG.info("OneTimeScheduledPayment:createScheduledPaymentList -- " + 
-									"Account {} marked as not in NLS UAT or duplicate, value: {}.", 
-									record[ciBillingAccountNumberPos], record[ciInNlsUatPos]);
-					}
 					iSkipped++;
 				}
 			}
@@ -186,7 +178,7 @@ public class OneTimeScheduledPayment implements IScheduledPayment {
 	private static Calendar convertPaymentDate(final String cszPayDate) {
 		Calendar lcPayDate = null;
 		try {
-			SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 			Date date = sdf.parse(cszPayDate);
 			lcPayDate = Calendar.getInstance();
 			lcPayDate.setTime(date);
@@ -226,12 +218,15 @@ public class OneTimeScheduledPayment implements IScheduledPayment {
 		m_szCustomerId = cszCustomerId;
 		m_dPayAmount = cdPayAmount;
 		m_calPaymentDate = ccalPaymentDate;
-		m_clPaymentAccount = clPayAcct;
+		m_oPmtAccount = clPayAcct;
 	}
 	
 	
 	@Override
 	public WebSvcReturnCode createScheduledPayment() {
+		CreatePayment pmt = new CreatePayment();
+		pmt.createScheduledPayment(this);
+		
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -268,9 +263,19 @@ public class OneTimeScheduledPayment implements IScheduledPayment {
 				m_szExternalAccount + ", Internal account: " +
 				m_szInternalAccount + ", Payment date: " + 
 				date + " Payment amount: " + m_dPayAmount +
-				", paymentType: " + m_clPaymentAccount.m_payType.toString();
+				", paymentType: " + m_oPmtAccount.m_payType.toString();
 				
 		return lszInfoReturned;
+	}
+
+	@Override
+	public String getCustomerId() {
+		return m_szCustomerId;
+	}
+
+	@Override
+	public PmtAcct getPayAcct() {
+		return m_oPmtAccount;
 	}
 
 }

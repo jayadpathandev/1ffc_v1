@@ -3,12 +3,6 @@
  */
 package com.sorrisotech.fffc.migration;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -45,12 +39,17 @@ public class MonthlyAutomaticPaymentRule implements IAutomaticPaymentRule {
 	 * @return null if it failed, a List of IAutomaticPaymentRule interface objects if it succeeds
 	 */
 	static public List<IAutomaticPaymentRule> createAutomaticPaymentList(String cszFilePath, final TokenMap cTokenMap) {
-		final Integer Branch = 0;
-		final Integer Account = 1;
-		final Integer PayAcctHolderName = 10;
-		final Integer PayMethodLast4 = 9;
-		final Integer ExpireDate = 11; // -- this is often invalid
-		final Integer PayDate = 8;
+		final Integer ciBillingAccountNumberPos = 0;
+		final Integer ciLastNamePos = 1;
+		final Integer ciAddressPos = 2;
+		final Integer ciPaymentAmountPos = 3;
+		final Integer ciPaymentDatePos = 4;
+		final Integer ciPaymentMethodPos = 5;
+		final Integer ciPaymentAcctMasked = 6;
+		final Integer ciPaymentAccountIdPos = 7;
+		final Integer ciErrorPos = 8;
+		final Integer ciNoErrorsLength = 8;
+		final Integer ciErrorsLength = 9;
 
 		List<IAutomaticPaymentRule> lAutoPaymentList = new ArrayList<IAutomaticPaymentRule>();
 		PipeDelimitedLineReader input = new PipeDelimitedLineReader();
@@ -83,30 +82,20 @@ public class MonthlyAutomaticPaymentRule implements IAutomaticPaymentRule {
 				String lszBillingAcctNumber = null;
 				String lszPayMethod = "Debit"; // -- current file contains all debit --
 				
-				// -- create a full billing account number --
+				// -- this served a purpose with a previous listing that did not combined
+				//		the branch and loan number 
 				{
-					if (null != record[Branch] && null != record[Account] &&
-						!record[Branch].isBlank() && (4 == record[Branch].length()) &&
-						!record[Account].isBlank() && (6 == record[Account].length())) {
-						// -- good account/branch combination we think --
-						lszBillingAcctNumber = record[Branch] + record[Account];
-					} else {
-						LOG.error("MonthlyAutomaticPaymentRule:createAutomaticPaymentList -- Can't construct loan number from branch: {}, account: {}. Skipping payment.",
-								record[Branch], record[Account]);
-						iSkipped++;
-						continue;
-						
-					}
+					lszBillingAcctNumber = record[ciBillingAccountNumberPos];
 				}
 				
 				
 				// -- convert date to day of month --
 				{
 	
-					lszPayDate = convertPaymentDateToDay(record[PayDate]);
+					lszPayDate = convertPaymentDateToDay(record[ciPaymentDatePos]);
 					if (null == lszPayDate) {
 						LOG.error("MonthlyAutomaticPaymentRule:createAutomaticPaymentList -- Parse exception for account: {}, date: {}. Skipping payment.",
-								lszBillingAcctNumber, record[PayDate]);
+								lszBillingAcctNumber, record[ciPaymentDatePos]);
 						iSkipped++;
 						continue;
 					}
@@ -115,21 +104,30 @@ public class MonthlyAutomaticPaymentRule implements IAutomaticPaymentRule {
 				// -- retrieve customerID and internalAcct given the external
 				//		account number -- 
 				{
-					lszCustomerId = "CUSTOMERID";
-					lszInternalAcct = "INTERNALACCT";
+					GetInternalAccountInfo info = new GetInternalAccountInfo();
+					GetInternalAccountInfo.InternalAccts accts = null;
+					accts = info.getAccts(record[ciBillingAccountNumberPos]);
+					if (null != accts) {
+					  lszCustomerId = accts.CustomerId;
+					  lszInternalAcct = accts.InternalAcctId;
+					} else {
+						LOG.error("OneTimeScheduledPayment:createScheduledPaymentList -- No account data for account: {}. Skipping payment.",
+								record[ciBillingAccountNumberPos]);
+						iSkipped++;
+						continue;
+					}
 				}
 				
 				// -- set up payment structure
 				{
 					loPmtAcct = new PmtAcct();
-					Boolean lbSuccess = loPmtAcct.createPayAcctFromBillAccount(
-							lszPayMethod, 
-							lszBillingAcctNumber,
-							cTokenMap,
-							record[PayMethodLast4]);
+					Boolean lbSuccess = loPmtAcct.createPayAcctByToken( record[ciPaymentMethodPos], 
+																		record[ciPaymentAccountIdPos],
+																		cTokenMap,
+																		record[ciBillingAccountNumberPos]);
 					if (!lbSuccess) {
 						LOG.error("MonthlyAutomaticPaymentRule:createAutomaticPaymentList -- Account {}, failure in mapping payment method: {}, last 4 digits: {}",
-								lszBillingAcctNumber, lszBillingAcctNumber, record[PayMethodLast4]);
+								lszBillingAcctNumber, lszBillingAcctNumber, record[ciPaymentAcctMasked]);
 						iSkipped++;
 						continue;
 					}
@@ -140,11 +138,11 @@ public class MonthlyAutomaticPaymentRule implements IAutomaticPaymentRule {
 						lszBillingAcctNumber,
 						lszPayDate,
 						loPmtAcct,
-						record[PayAcctHolderName]);
+						record[ciLastNamePos]);
 				
 				lAutoPaymentList.add(iPayment);
 
-				LOG.debug("MonthlyAutomaticPaymentRule:createAutomaticPaymentList -- created sheduled" + 
+				LOG.debug("MonthlyAutomaticPaymentRule:createAutomaticPaymentList -- created automatic" + 
 						" payment record for acccount: {}.", 
 						lszBillingAcctNumber);
 				
@@ -171,7 +169,7 @@ public class MonthlyAutomaticPaymentRule implements IAutomaticPaymentRule {
 			Calendar lcPayDate = null;
 			String szRet = null;
 			try {
-				SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 				Date date = sdf.parse(cszPayDate);
 				lcPayDate = Calendar.getInstance();
 				lcPayDate.setTime(date);
@@ -226,11 +224,6 @@ public class MonthlyAutomaticPaymentRule implements IAutomaticPaymentRule {
 	}
 
 	@Override
-	public String getPayAmount() {
-		return null;
-	}
-
-	@Override
 	public String getPayDay() {
 		return m_szPaymentDay;
 	}
@@ -239,6 +232,16 @@ public class MonthlyAutomaticPaymentRule implements IAutomaticPaymentRule {
 	public String getInfoAsString() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public String getCustomerId() {
+		return m_szCustomerId;
+	}
+
+	@Override
+	public PmtAcct getPayAcct() {
+		return m_oPayAcct;
 	}
 
 }

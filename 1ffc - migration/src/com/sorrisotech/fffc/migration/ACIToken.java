@@ -168,7 +168,7 @@ public class ACIToken implements IExternalToken {
 	}
 
 	@Override
-	public Object getLast4() {
+	public String getLast4() {
 		return m_slast4CardNumber;
 	}
 

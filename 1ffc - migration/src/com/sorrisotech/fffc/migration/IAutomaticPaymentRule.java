@@ -20,6 +20,13 @@ public interface IAutomaticPaymentRule {
 
 	
 	/**
+	 * Returns customerId associatd with this payment rule
+	 * 
+	 * @return
+	 */
+	public String getCustomerId();
+	
+	/**
 	 * Display account name (loan id for 1st Franklin).
 	 * 
 	 * @return
@@ -34,19 +41,20 @@ public interface IAutomaticPaymentRule {
 	public String getInternalAccount();
 	
 	/**
-	 * Amount to pay every month
-	 * 
-	 * @return
-	 */
-	public String getPayAmount();
-	
-	/**
 	 * Get the day of the month when
 	 * paymentd based on this rule will be made.
 	 * 
 	 * @return
 	 */
 	public String getPayDay();
+	
+	/**
+	 * Gets the payment acount information from
+	 * that will be used for this rule
+	 * 
+	 * @return
+	 */
+	public PmtAcct getPayAcct();
 	
 	/**
 	 * Returns string suitable for use in logging.

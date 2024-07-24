@@ -19,6 +19,13 @@ public interface IScheduledPayment {
 	 * @return
 	 */
 	public WebSvcReturnCode createScheduledPayment();
+	
+	/**
+	 * Returns the customer Id value for this payment 
+	 * 
+	 * @return
+	 */
+	public String getCustomerId();
 
 	/**
 	 * Display account name (loan id for 1st Franklin).
@@ -48,7 +55,14 @@ public interface IScheduledPayment {
 	 */
 	public Calendar getPayDate();
 	
-	
+	/**
+	 * Gets the payment acount information from
+	 * that will be used for this payment
+	 * 
+	 * @return
+	 */
+	public PmtAcct getPayAcct();
+
 	/**
 	 * Returns string suitable for use in logging.
 	 * 

@@ -254,10 +254,8 @@ useCase apiAddMigrationPaymentSource
 	 * 		moves transaction state forward
 	 */
 	action saveWallet [
-		switch ApiPay.setWallet(srAddPaymentSource.token) [
-			case "true" actionSuccessResponse
-			default	actionInternalError
-		]
+		ApiPay.setWallet(srAddPaymentSource.token)
+		goto(actionSuccessResponse)
 	]
 	
   	/*************************
