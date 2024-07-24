@@ -28,6 +28,9 @@
         <mkdir dir="${output.dir}/jenkins/bill_loader_vault"/>
         <copy file="customizations/bill_loader_vault.xml" tofile="${output.dir}/jenkins/bill_loader_vault/config.xml"/>
 
+        <mkdir dir="${output.dir}/jenkins/bill_xfer"/>
+        <copy file="customizations/bill_xfer.xml" tofile="${output.dir}/jenkins/bill_xfer/config.xml"/>
+
         <mkdir dir="${output.dir}/jenkins/payment_ach"/>
         <copy file="customizations/payment_ach.xml" tofile="${output.dir}/jenkins/payment_ach/config.xml"/>
 
