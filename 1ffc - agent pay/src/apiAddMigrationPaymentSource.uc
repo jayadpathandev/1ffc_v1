@@ -3,6 +3,7 @@ useCase apiAddMigrationPaymentSource
 	startAt init
 	shortcut addMigrationPaymentSource(init)
 
+	importJava ApiPay(com.sorrisotech.fffc.agent.pay.ApiPay)
 	importJava Config(com.sorrisotech.utils.AppConfig)
 	importJava JsonRequest(com.sorrisotech.app.common.JsonRequest)
 	importJava JsonResponse(com.sorrisotech.app.common.JsonResponse)
@@ -13,11 +14,12 @@ useCase apiAddMigrationPaymentSource
 	
 	// -- data from request --
 	native string sSecurityToken 	= JsonRequest.value("securityToken")
+	native string sTransactionId 	= JsonRequest.value("transactionId")
 	native string sCustomerId 		= JsonRequest.value("customerId")
 	native string sAccountId	   	= JsonRequest.value("accountId")
     native string sSourceType		= JsonRequest.value("sourceType")
    	native string sSourceValue		= JsonRequest.value("sourceValue")
-  	native string sAccountHolder	= JsonRequest.value("countHolder")
+  	native string sAccountHolder	= JsonRequest.value("accountHolder")
   	native string sMaskedNumber		= JsonRequest.value("maskedNumber")
   	native string sExpiration		= JsonRequest.value("expiration")
   	
@@ -26,6 +28,10 @@ useCase apiAddMigrationPaymentSource
 	serviceStatus ssAddPaymentSource
     serviceParam (AgentPay.AddMigratedPaymentSource) spAddPaymentSource
     serviceResult(AgentPay.AddMigratedPaymentSource) srAddPaymentSource
+
+	native string sErrorStatus = ""
+	native string sErrorDesc = ""
+	native string sErrorCode = "" 
 	
    /*************************
      * MAIN SUCCESS SCENARIO
@@ -35,6 +41,9 @@ useCase apiAddMigrationPaymentSource
 	 * 1. Parse the JSON request.
 	 */
     action init[
+    	sErrorStatus = "400"
+    	sErrorDesc   = "Cannot parse JSON request."
+    	sErrorCode   = "invalid_json"
 
     	switch JsonRequest.load() [
     		case "success" verifyToken
@@ -46,18 +55,38 @@ useCase apiAddMigrationPaymentSource
 	 * 2. Verify that the securityToken was provided.
 	 */
     action verifyToken [    
+    	sErrorStatus = "400"
+    	sErrorDesc   = "Missing required parameter [securityToken]."
+    	sErrorCode   = "no_security_token"
 
     	if sSecurityToken != "" then 
+    		verifyTransactionId
+    	else
+    		actionInvalidRequest 
+    ]
+
+	/*************************
+	 * 3. Verify the transactionId was provided.
+	 */
+    action verifyTransactionId [
+    	sErrorStatus = "400"
+    	sErrorDesc   = "Missing required parameter [transactionId]."
+    	sErrorCode   = "no_transaction_id"
+    	
+    	if sTransactionId != "" then 
     		verifyCustomerId
     	else
     		actionInvalidRequest 
     ]
 
 	/*************************
-	 * 3. Verify that the customerID was provided.
+	 * 4. Verify that the customerID was provided.
 	 */
 	action verifyCustomerId [
-
+   		sErrorStatus = "400"
+    	sErrorDesc   = "Missing required parameter [customerId]."
+    	sErrorCode   = "no_customerId"
+ 
     	if sCustomerId != "" then 
     		verifyAccountId
     	else
@@ -66,9 +95,12 @@ useCase apiAddMigrationPaymentSource
 	]
 	
 	/*************************
-	 * 4. Verify that the accountId was provided.
+	 * 5. Verify that the accountId was provided.
 	 */
 	action verifyAccountId [
+   		sErrorStatus = "400"
+    	sErrorDesc   = "Missing required parameter [accountId]."
+    	sErrorCode   = "no_accountId"
 
     	if sAccountId != "" then 
     		verifySourceType
@@ -77,20 +109,30 @@ useCase apiAddMigrationPaymentSource
 	]
 	
 	/*************************
-	 * 5. Verify that the sourceType was provided.
+	 * 6. Verify that the sourceType was provided and 
+	 * 		is a valid value.
 	 */
 	action verifySourceType [
+   		sErrorStatus = "400"
+    	sErrorDesc   = "Invalid or missing [sourceType]."
+    	sErrorCode   = "invalid_sourceType"
 		
-		if sSourceType != "" then
-			verifySourceValue
-		else
-			actionInvalidRequest
+		switch sSourceType [
+			case "debit"	verifySourceValue
+			case "credit"	verifySourceValue
+			case "bank"		verifySourceValue
+			case "sepa"		verifySourceValue
+			default actionInvalidRequest
+		]
 	]
 	
 	/*************************
-	 * 6. Verify that the sourceValue was provided.
+	 * 7. Verify that the sourceValue was provided.
 	 */
 	action verifySourceValue [
+  		sErrorStatus = "400"
+    	sErrorDesc   = "Missing required parameter [sourceValue]."
+    	sErrorCode   = "no_sourceValue"
 		
 		if sSourceValue != "" then
 			verifyAccountHolder
@@ -99,9 +141,12 @@ useCase apiAddMigrationPaymentSource
 	]
     
     /*************************
-	 * 7. Verify that the Account Holder name was provided.
+	 * 8. Verify that the Account Holder name was provided.
 	 */
     action verifyAccountHolder [
+  		sErrorStatus = "400"
+    	sErrorDesc   = "Missing required parameter [accountHolder]."
+    	sErrorCode   = "no_accountHolder"
 		
 		if sAccountHolder != "" then
 			verifyMaskedNumber
@@ -110,9 +155,12 @@ useCase apiAddMigrationPaymentSource
     ]
     
     /*************************
-	 * 7. Verify that the masked card number was provided.
+	 * 9. Verify that the masked card number was provided.
 	 */
     action verifyMaskedNumber [
+  		sErrorStatus = "400"
+    	sErrorDesc   = "Missing required parameter [maskedNumber]."
+    	sErrorCode   = "no_maskedNumber"
     	
 		if sMaskedNumber != "" then
 			verifyExpiration
@@ -121,9 +169,12 @@ useCase apiAddMigrationPaymentSource
     ]
     
     /*************************
-	 * 8. Verify that the expiration was provided.
+	 * 10. Verify that the expiration was provided.
 	 */
     action verifyExpiration [
+  		sErrorStatus = "400"
+    	sErrorDesc   = "Missing required parameter [expiration]."
+    	sErrorCode   = "no_expiration"
     	
 		if sExpiration != "" then
 			authenticateRequest
@@ -132,20 +183,40 @@ useCase apiAddMigrationPaymentSource
     ]
     
  	/*************************
-	 * 9. Authenticate the request.
+	 * 11. Authenticate the request.
 	 */
     action authenticateRequest [
+    	sErrorStatus = "402"
+    	sErrorDesc = "There was an internal error while authenticating the request."
+    	sErrorCode = "internal_error"
 
     	login(
             username: sServiceUserName
             password: sSecurityToken
             namespace: sServiceNameSpace
         )
-        if success then addPaymentSource
+        if success then actionLoadTransaction
         if authenticationFailure then actionInvalidSecurityToken
         if failure then actionInternalError
     ]
     
+   	/*************************
+	 * 12. Load the transaction.
+	 */
+	action actionLoadTransaction [ 
+		sErrorStatus = "402"
+    	sErrorDesc   = "Invalid [transactionId] no matching transaction."
+    	sErrorCode   = "invalid_transaction_id"
+
+		switch ApiPay.load(sTransactionId) [
+			case "true" addPaymentSource
+			default	actionInternalError
+		]
+	]	
+    
+   	/*************************
+	 * 13. Add the payment source to the payment server.
+	 */
     action addPaymentSource [
     	spAddPaymentSource.customerId = sCustomerId
     	spAddPaymentSource.accountId = sAccountId
@@ -161,19 +232,43 @@ useCase apiAddMigrationPaymentSource
         ]
     ]
     
+  	/*************************
+	 * 14. Check Results, save wallet if success, otherwise.. invvalid
+	 */
     action checkSuccessResponseStatus [
+		sErrorStatus = "402"
+    	sErrorDesc   = "Failed to add payment source."
+    	sErrorCode   = "Failed_AddSourceCall"
     	
     	sResponseCode = srAddPaymentSource.addResponseStatus
     	
     	switch sResponseCode [
-    		case "201" actionSuccessResponse
+    		case "201" saveWallet
     		case "400" actionInvalidRequest
     		default actionInternalError
     	]
     ]
+
+  	/*************************
+	 * 12. Success saves wallet item to transaction and 
+	 * 		moves transaction state forward
+	 */
+	action saveWallet [
+		switch ApiPay.setWallet(srAddPaymentSource.token) [
+			case "true" actionSuccessResponse
+			default	actionInternalError
+		]
+	]
 	
+  	/*************************
+	 * 13. Send success response
+	 */
 	action actionSuccessResponse [
 		JsonResponse.reset()
+		JsonResponse.setNumber("statuscode", "201")
+		JsonResponse.setBoolean("success", "true")
+		JsonResponse.setString("payload", "Migrated token added")
+		JsonResponse.setString("error", "success")
 
 	    auditLog(audit_agent_pay.add_migrated_payment_source_success) [
 	   		sCustomerId sAccountId sSourceType sSourceValue sAccountHolder sMaskedNumber
@@ -200,25 +295,25 @@ useCase apiAddMigrationPaymentSource
     
     action actionInvalidRequest [
 		JsonResponse.reset()
-		JsonResponse.setNumber("statuscode", "400")
+		JsonResponse.setNumber("statuscode", sErrorStatus)
 		JsonResponse.setBoolean("success", "false")
-		JsonResponse.setString("payload", "Invalid request parameter.")
-		JsonResponse.setString("error", "InvalidAcctInfo")
+		JsonResponse.setString("payload", sErrorCode)
+		JsonResponse.setString("error", sErrorCode)
 
 	    auditLog(audit_agent_pay.add_migrated_payment_source_failure) [
 	   		sCustomerId sAccountId sSourceType sSourceValue sAccountHolder sMaskedNumber
 	    ]
 		Log.error("addMigrationPaymentSource", sCustomerId, sAccountId, "Invalid request parameter.")
 		
-		foreignHandler JsonResponse.errorWithData("400")
+		foreignHandler JsonResponse.errorWithData(sErrorStatus)
     ]
     
      action actionInternalError [
 		JsonResponse.reset()
-		JsonResponse.setNumber("statuscode", "402")
+		JsonResponse.setNumber("statuscode", sErrorStatus)
 		JsonResponse.setBoolean("success", "false")
-		JsonResponse.setString("payload", "Internal software error.")
-		JsonResponse.setString("error", "InternalError")
+		JsonResponse.setString("payload", sErrorDesc)
+		JsonResponse.setString("error", sErrorCode)
 
 	    auditLog(audit_agent_pay.add_migrated_payment_source_failure) [
 	   		sCustomerId sAccountId sSourceType sSourceValue sAccountHolder sMaskedNumber
