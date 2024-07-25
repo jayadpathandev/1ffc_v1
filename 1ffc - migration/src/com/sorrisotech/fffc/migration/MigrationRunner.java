@@ -20,6 +20,12 @@ public class MigrationRunner {
 		for (IScheduledPayment sp : schedPayments) {
 			sp.createScheduledPayment();
 		}
+		
+		for (IAutomaticPaymentRule ap : autoPayments) {
+			ap.createAutomaticPaymentRule();
+		}
+		
+		MigrationRpt.closeReport();
 	}
 
 }

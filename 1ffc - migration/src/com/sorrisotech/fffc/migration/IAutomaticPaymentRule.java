@@ -16,7 +16,7 @@ public interface IAutomaticPaymentRule {
 	 * 
 	 * @return
 	 */
-	public WebSvcReturnCode createAutomaticPaymentRule();
+	public void createAutomaticPaymentRule();
 
 	
 	/**
