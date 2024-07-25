@@ -16,7 +16,13 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * 
+ *  Implements a one time scheduled paymnet object.
+ *  
+ *   @author johnk
+ *   @since  2024-Jul-19
+ *   @version 2024-Jul-19 jak first version
+ *   @version 2024-Jul-25 jak cleanup messaging
+ *  
  */
 public class OneTimeScheduledPayment implements IScheduledPayment {
 
@@ -79,25 +85,7 @@ public class OneTimeScheduledPayment implements IScheduledPayment {
 				BigDecimal ldPayAmt = null;
 				PmtAcct loPmtAcct = null;
 				Calendar lcPayDate = null;
-				
-				// -- convert pay amount --
-				try {
-					ldPayAmt = new BigDecimal(record[ciPaymentAmountPos]);
-				} catch (NumberFormatException e) {
-					LOG.error("OneTimeScheduledPayment:createScheduledPaymentList -- Number format exception for account: {}, pay amount: {}. Skipping payment.",
-							record[ciBillingAccountNumberPos], record[ciPaymentAmountPos]);
-					iSkipped++;
-					continue;
-				}
-				
-				// -- convert date --
-				lcPayDate = convertPaymentDate(record[ciPaymentDatePos]);
-				if (null == lcPayDate) {
-					LOG.error("OneTimeScheduledPayment:createScheduledPaymentList -- Parse exception for account: {}, date: {}. Skipping payment.",
-							record[ciBillingAccountNumberPos], record[ciPaymentDatePos]);
-					iSkipped++;
-					continue;
-				}
+
 				
 				// -- retrieve customerID and internalAcct given the external
 				//		account number -- 
@@ -109,12 +97,83 @@ public class OneTimeScheduledPayment implements IScheduledPayment {
 					  lszCustomerId = accts.CustomerId;
 					  lszInternalAcct = accts.InternalAcctId;
 					} else {
-						LOG.error("OneTimeScheduledPayment:createScheduledPaymentList -- No account data for account: {}. Skipping payment.",
+						LOG.warn("OneTimeScheduledPayment:createScheduledPaymentList -- Account not in online system, account: {}. Skipping payment.",
 								record[ciBillingAccountNumberPos]);
+						MigrateRecord rcd = new MigrateRecord();
+						rcd.displayAcct = record[ciBillingAccountNumberPos];
+						rcd.customerId = null;
+						rcd.internalAcct =  null;
+						rcd.migrationStatus = "failed";
+						rcd.pmtType = "scheduled";
+						rcd.failReaon = "Account not available in database.";
+						MigrationRpt.reportItem(rcd);
 						iSkipped++;
 						continue;
 					}
 				}
+				
+				// -- convert pay amount --
+				try {
+					ldPayAmt = new BigDecimal(record[ciPaymentAmountPos]);
+				} catch (NumberFormatException e) {
+					LOG.warn("OneTimeScheduledPayment:createScheduledPaymentList -- number format exception for account: {}, pay amount: {}. Skipping payment.",
+							record[ciBillingAccountNumberPos], record[ciPaymentAmountPos]);
+					MigrateRecord rcd = new MigrateRecord();
+					rcd.displayAcct = record[ciBillingAccountNumberPos];
+					rcd.customerId = lszCustomerId;
+					rcd.internalAcct =  lszInternalAcct;
+					rcd.schedAmt = record[ciPaymentAmountPos];
+					rcd.migrationStatus = "failed";
+					rcd.pmtType = "scheduled";
+					rcd.failReaon = "Invalid format for scheduled amount.";
+					MigrationRpt.reportItem(rcd);
+					iSkipped++;
+					continue;
+				}
+				
+				// -- convert date --
+				lcPayDate = convertPaymentDate(record[ciPaymentDatePos]);
+				if (null == lcPayDate) {
+					LOG.warn("OneTimeScheduledPayment:createScheduledPaymentList -- parse exception for account: {}, date: {}. Skipping payment.",
+							record[ciBillingAccountNumberPos], record[ciPaymentDatePos]);
+					MigrateRecord rcd = new MigrateRecord();
+					rcd.displayAcct = record[ciBillingAccountNumberPos];
+					rcd.customerId = lszCustomerId;
+					rcd.internalAcct =  lszInternalAcct;
+					rcd.schedAmt = record[ciPaymentAmountPos];
+					rcd.schedDate = record[ciPaymentDatePos];
+					rcd.migrationStatus = "failed";
+					rcd.pmtType = "scheduled";
+					rcd.failReaon = "Invalid format for scheduled pmt date.";
+					MigrationRpt.reportItem(rcd);
+					iSkipped++;
+					continue;
+				}
+				
+				// -- don't schedule payments in the pasts -- 
+				{
+					Calendar now = Calendar.getInstance();
+					if (now.after(lcPayDate)) {
+						SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+						String szNow = dateFormat.format(now.getTime());
+						String szSched = dateFormat.format(lcPayDate.getTime());
+						LOG.warn("OneTimeScheduledPayment:createScheduledPaymentList -- " + 
+						"scheduled payment before current date payment date: {}, current date: {}", szSched, szNow);
+						MigrateRecord rcd = new MigrateRecord();
+						rcd.displayAcct = record[ciBillingAccountNumberPos];
+						rcd.customerId = lszCustomerId;
+						rcd.internalAcct =  lszInternalAcct;
+						rcd.schedAmt = record[ciPaymentAmountPos];
+						rcd.schedDate = record[ciPaymentDatePos];
+						rcd.migrationStatus = "failed";
+						rcd.pmtType = "scheduled";
+						rcd.failReaon = "Scheduled pmt date in past.";
+						MigrationRpt.reportItem(rcd);
+						iSkipped++;
+						continue;
+					}
+				}
+				
 				
 				// -- set up payment structure
 				{
@@ -122,10 +181,21 @@ public class OneTimeScheduledPayment implements IScheduledPayment {
 					Boolean lbSuccess = loPmtAcct.createPayAcctByToken( record[ciPaymentMethodPos], 
 																		record[ciPaymentAccountIdPos],
 																		mTokenMap,
-																		record[ciBillingAccountNumberPos]);
+																		record[ciBillingAccountNumberPos],
+																		record[ciLastNamePos]);
 					if (!lbSuccess) {
-						LOG.error("OneTimeScheduledPayment:createScheduledPaymentList -- Account {}, failure in mapping payment method: {}, account: {}",
+						LOG.warn("OneTimeScheduledPayment:createScheduledPaymentList -- account {}, Payment data not in ACI ported data, payment method: {}, account: {}",
 								record[ciBillingAccountNumberPos], record[ciPaymentMethodPos], record[ciPaymentAccountIdPos]);
+						MigrateRecord rcd = new MigrateRecord();
+						rcd.displayAcct = record[ciBillingAccountNumberPos];
+						rcd.customerId = lszCustomerId;
+						rcd.internalAcct =  lszInternalAcct;
+						rcd.schedAmt = record[ciPaymentAmountPos];
+						rcd.schedDate = record[ciPaymentDatePos];
+						rcd.migrationStatus = "failed";
+						rcd.pmtType = "scheduled";
+						rcd.failReaon = "Invalid or expired payment token.";
+						MigrationRpt.reportItem(rcd);
 						iSkipped++;
 						continue;
 					}
@@ -142,7 +212,7 @@ public class OneTimeScheduledPayment implements IScheduledPayment {
 						lcPayDate,
 						loPmtAcct			) ;
 				lSchedPaymentList.add(iPayment); 
-				LOG.debug("OneTimeScheduledPayment:createScheduledPaymentList -- created sheduled" + 
+				LOG.info("OneTimeScheduledPayment:createScheduledPaymentList -- created sheduled" + 
 						" payment record for acccount: {}. Payment date: {}, ammount: {}.", 
 						record[ciBillingAccountNumberPos],
 						record[ciPaymentDatePos], 
@@ -153,7 +223,7 @@ public class OneTimeScheduledPayment implements IScheduledPayment {
 				}
 			} else {
 				if ((null != record) && (record.length == ciErrorsLength)) {
-						LOG.info("OneTimeScheduledPayment:createScheduledPaymentList -- Error in scheduled" + 
+						LOG.warn("OneTimeScheduledPayment:createScheduledPaymentList -- error in scheduled" + 
 									" payment record for acccount: {}, error value: {}.", 
 									record[ciBillingAccountNumberPos], record[ciErrorsPos]);
 					iSkipped++;
@@ -161,6 +231,7 @@ public class OneTimeScheduledPayment implements IScheduledPayment {
 			}
 			
 		} while (record != null);
+		MigrationRpt.flushReport();
 		System.out.println();
 		LOG.info("OneTimeScheduledPayment:createScheduledPaymentList -- " + 
 		"finished processing file: {}, {} payment records processed, {} payment objects created, {} records skipped.", 
@@ -223,12 +294,36 @@ public class OneTimeScheduledPayment implements IScheduledPayment {
 	
 	
 	@Override
-	public WebSvcReturnCode createScheduledPayment() {
+	public void createScheduledPayment() {
+
 		CreatePayment pmt = new CreatePayment();
-		pmt.createScheduledPayment(this);
-		
-		// TODO Auto-generated method stub
-		return null;
+		WebSvcReturnCode code = pmt.createScheduledPayment(this);
+		if(null == code) {
+			
+			MigrateRecord rcd = new MigrateRecord();
+			rcd.displayAcct = m_szExternalAccount;
+			rcd.customerId = m_szCustomerId;
+			rcd.internalAcct =  m_szInternalAccount;
+			rcd.schedAmt = getPayAmount();
+			rcd.schedDate = getPayDate();
+			rcd.migrationStatus = "success";
+			rcd.pmtType = "scheduled";
+			MigrationRpt.reportItem(rcd);
+		}
+		else {
+			MigrateRecord rcd = new MigrateRecord();
+			rcd.displayAcct = m_szExternalAccount;
+			rcd.customerId = m_szCustomerId;
+			rcd.internalAcct =  m_szInternalAccount;
+			rcd.schedAmt = getPayAmount();
+			rcd.schedDate = getPayDate();
+			rcd.migrationStatus = "failed";
+			rcd.pmtType = "scheduled";
+			rcd.failReaon = code.getFriendlyMessage();
+			MigrationRpt.reportItem(rcd);
+		}
+		MigrationRpt.flushReport();
+
 	}
 
 	@Override
@@ -242,13 +337,21 @@ public class OneTimeScheduledPayment implements IScheduledPayment {
 	}
 
 	@Override
-	public BigDecimal getPayAmount() {
-		return m_dPayAmount;
+	public String getPayAmount() {
+		m_dPayAmount.setScale(2);
+		return m_dPayAmount.toString();
 	}
 
 	@Override
-	public Calendar getPayDate() {
-		return m_calPaymentDate;
+	public String getPayDate() {
+		final var sdf = new SimpleDateFormat("yyyy/MM/dd");
+		String lszDate = null;
+		try {
+	        lszDate = sdf.format(m_calPaymentDate.getTime());						
+		} catch(NullPointerException e) {
+			LOG.error("Could not parse date [" + m_calPaymentDate.getTime() + "].");
+		}
+		return lszDate;
 	}
 	
 

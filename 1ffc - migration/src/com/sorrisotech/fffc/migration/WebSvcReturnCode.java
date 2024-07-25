@@ -29,7 +29,8 @@ public class WebSvcReturnCode {
 	
 	public String getFriendlyMessage() {
 
-		String lsRet = null;
+		return payload;
+/*		String lsRet = null;
 		if (success)
 			lsRet = "Status: " + success.toString() +
 					", Account: " + displayName +
@@ -37,6 +38,6 @@ public class WebSvcReturnCode {
 					", Return code: " + statusCode +
 					", error: " + error +
 					", payload " + payload;
-		return lsRet;
-	}
+		return lsRet; */
+	} 
 }

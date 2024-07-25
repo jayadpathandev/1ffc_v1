@@ -1,8 +1,5 @@
 package com.sorrisotech.fffc.migration;
 
-import java.math.BigDecimal;
-import java.util.Calendar;
-
 /**
  * Scheduled payment information used when calling makeOneTimePaymentForAgent.
  * 
@@ -18,7 +15,7 @@ public interface IScheduledPayment {
 	 * 
 	 * @return
 	 */
-	public WebSvcReturnCode createScheduledPayment();
+	public void createScheduledPayment();
 	
 	/**
 	 * Returns the customer Id value for this payment 
@@ -42,18 +39,20 @@ public interface IScheduledPayment {
 	public String getInternalAccount();
 	
 	/**
-	 * Amount to pay every month
+	 * Amount of this payment formatted for 
+	 * use in JSON web service call.
 	 * 
 	 * @return
 	 */
-	public BigDecimal getPayAmount();
+	public String getPayAmount();
 	
 	/**
-	 * Day to pay every month
+	 * Date of this payment formatted
+	 * as 
 	 * 
 	 * @return
 	 */
-	public Calendar getPayDate();
+	public String getPayDate();
 	
 	/**
 	 * Gets the payment acount information from

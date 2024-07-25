@@ -13,12 +13,15 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
+
 /**
- *   Implements a mmonthly autoamtic payment rule 
+ *   Implements a mmonthly autoamtic payment rule object.
  *   
  *   @author johnk
  *   @since  2024-Jul-19
  *   @version 2024-Jul-19 jak first version
+ *   @version 2024-Jul-25 jak cleanup messaging
  */
 public class MonthlyAutomaticPaymentRule implements IAutomaticPaymentRule {
 
@@ -56,7 +59,7 @@ public class MonthlyAutomaticPaymentRule implements IAutomaticPaymentRule {
 		String [] record = null;
 		
 		if (!input.openFile(cszFilePath)) {
-			LOG.error("MonthlyAutomaticPaymentRule:createAutomaticPaymentList -- Failed to open file: ().", cszFilePath);
+			LOG.error("MonthlyAutomaticPaymentRule:createAutomaticPaymentList -- failed to open file: ().", cszFilePath);
 			return null;
 		}
 		
@@ -78,7 +81,7 @@ public class MonthlyAutomaticPaymentRule implements IAutomaticPaymentRule {
 				String lszCustomerId = null;
 				String lszInternalAcct = null;
 				PmtAcct loPmtAcct = null;
-				String lszPayDate = null;
+				String lszPayDayOfMonth = null;
 				String lszBillingAcctNumber = null;
 				String lszPayMethod = "Debit"; // -- current file contains all debit --
 				
@@ -88,18 +91,6 @@ public class MonthlyAutomaticPaymentRule implements IAutomaticPaymentRule {
 					lszBillingAcctNumber = record[ciBillingAccountNumberPos];
 				}
 				
-				
-				// -- convert date to day of month --
-				{
-	
-					lszPayDate = convertPaymentDateToDay(record[ciPaymentDatePos]);
-					if (null == lszPayDate) {
-						LOG.error("MonthlyAutomaticPaymentRule:createAutomaticPaymentList -- Parse exception for account: {}, date: {}. Skipping payment.",
-								lszBillingAcctNumber, record[ciPaymentDatePos]);
-						iSkipped++;
-						continue;
-					}
-				}
 				
 				// -- retrieve customerID and internalAcct given the external
 				//		account number -- 
@@ -111,47 +102,85 @@ public class MonthlyAutomaticPaymentRule implements IAutomaticPaymentRule {
 					  lszCustomerId = accts.CustomerId;
 					  lszInternalAcct = accts.InternalAcctId;
 					} else {
-						LOG.error("OneTimeScheduledPayment:createScheduledPaymentList -- No account data for account: {}. Skipping payment.",
+						LOG.warn("OneTimeScheduledPayment:createScheduledPaymentList -- Account not in online system, account: {}. Skipping payment.",
 								record[ciBillingAccountNumberPos]);
+						MigrateRecord rcd = new MigrateRecord();
+						rcd.displayAcct = record[ciBillingAccountNumberPos];
+						rcd.migrationStatus = "failed";
+						rcd.pmtType = "recurring";
+						rcd.failReaon = "Account not available in database.";
+						MigrationRpt.reportItem(rcd);
 						iSkipped++;
 						continue;
 					}
 				}
 				
+				// -- convert date to day of month --
+				{
+	
+					lszPayDayOfMonth = convertPaymentDateToDay(record[ciPaymentDatePos]);
+					if (null == lszPayDayOfMonth) {
+						LOG.warn("MonthlyAutomaticPaymentRule:createAutomaticPaymentList -- parse exception for day of month, account: {}, date parsed: {}. Skipping payment.",
+								lszBillingAcctNumber, record[ciPaymentDatePos]);
+						MigrateRecord rcd = new MigrateRecord();
+						rcd.displayAcct = record[ciBillingAccountNumberPos];
+						rcd.customerId = lszCustomerId;
+						rcd.internalAcct =  lszInternalAcct;
+						rcd.migrationStatus = "failed";
+						rcd.pmtType = "recurring";
+						rcd.failReaon = "Invalid date in intput file.";
+						MigrationRpt.reportItem(rcd);
+						iSkipped++;
+						continue;
+					}
+				}
+
 				// -- set up payment structure
 				{
 					loPmtAcct = new PmtAcct();
 					Boolean lbSuccess = loPmtAcct.createPayAcctByToken( record[ciPaymentMethodPos], 
 																		record[ciPaymentAccountIdPos],
 																		cTokenMap,
-																		record[ciBillingAccountNumberPos]);
+																		record[ciBillingAccountNumberPos],
+																		record[ciLastNamePos]);
 					if (!lbSuccess) {
-						LOG.error("MonthlyAutomaticPaymentRule:createAutomaticPaymentList -- Account {}, failure in mapping payment method: {}, last 4 digits: {}",
+						LOG.warn("OneTimeScheduledPayment:createScheduledPaymentList -- account {}, Payment data not in ACI ported data, payment method: {}, account: {}",
 								lszBillingAcctNumber, lszBillingAcctNumber, record[ciPaymentAcctMasked]);
+						MigrateRecord rcd = new MigrateRecord();
+						rcd.displayAcct = record[ciBillingAccountNumberPos];
+						rcd.customerId = lszCustomerId;
+						rcd.internalAcct =  lszInternalAcct;
+						rcd.recurDay = lszPayDayOfMonth;
+						rcd.migrationStatus = "failed";
+						rcd.pmtType = "recurring";
+						rcd.failReaon = "Invalid or expired payment token.";
+						MigrationRpt.reportItem(rcd);
 						iSkipped++;
 						continue;
 					}
 				}
+				
+				// -- create the automatic payment rule object --
 				IAutomaticPaymentRule iPayment = new MonthlyAutomaticPaymentRule(
 						lszCustomerId,
 						lszInternalAcct,
 						lszBillingAcctNumber,
-						lszPayDate,
+						lszPayDayOfMonth,
 						loPmtAcct,
 						record[ciLastNamePos]);
 				
 				lAutoPaymentList.add(iPayment);
 
-				LOG.debug("MonthlyAutomaticPaymentRule:createAutomaticPaymentList -- created automatic" + 
-						" payment record for acccount: {}.", 
-						lszBillingAcctNumber);
-				
+				LOG.info("MonthlyAutomaticPaymentRule:createAutomaticPaymentList -- created automatic" + 
+						" payment record for acccount: {}, day of month: {}.", 
+						lszBillingAcctNumber, lszPayDayOfMonth);
 				if (0 == Integer.remainderUnsigned(iLoopCount, 10000)) {
 					System.out.print(".");
 				}
 			}
 			
 		} while (record != null);
+		MigrationRpt.flushReport();
 		System.out.println();
 		LOG.info("MonthlyAutomaticPaymentRule:createAutomaticPaymentList -- " + 
 		"finished processing file: {}, {} payment records processed, {} payment objects created, {} records skipped.", 
@@ -209,8 +238,32 @@ public class MonthlyAutomaticPaymentRule implements IAutomaticPaymentRule {
 	
 
 	@Override
-	public WebSvcReturnCode createAutomaticPaymentRule() {
-		return null;
+	public void createAutomaticPaymentRule() {
+		CreatePayment pmt = new CreatePayment();
+		WebSvcReturnCode code = pmt.createAutomaticPaymentRule(this);
+		if (null == code){
+			
+			MigrateRecord rcd = new MigrateRecord();
+			rcd.displayAcct = m_szExternalAccount;
+			rcd.customerId = m_szCustomerId;
+			rcd.internalAcct =  m_szInternalAccount;
+			rcd.recurDay = m_szPaymentDay;
+			rcd.migrationStatus = "success";
+			rcd.pmtType = "recurring";
+			MigrationRpt.reportItem(rcd);
+		}
+		else {
+			MigrateRecord rcd = new MigrateRecord();
+			rcd.displayAcct = m_szExternalAccount;
+			rcd.customerId = m_szCustomerId;
+			rcd.internalAcct =  m_szInternalAccount;
+			rcd.recurDay = m_szPaymentDay;
+			rcd.migrationStatus = "failed";
+			rcd.pmtType = "recurring";
+			rcd.failReaon = code.getFriendlyMessage();
+			MigrationRpt.reportItem(rcd);
+		}
+		MigrationRpt.flushReport();
 	}
 
 	@Override
