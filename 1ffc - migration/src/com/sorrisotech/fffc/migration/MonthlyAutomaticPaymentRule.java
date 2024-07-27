@@ -242,8 +242,12 @@ public class MonthlyAutomaticPaymentRule implements IAutomaticPaymentRule {
 		CreatePayment pmt = new CreatePayment();
 		WebSvcReturnCode code = pmt.createAutomaticPaymentRule(this);
 		if (null == code){
+			WebSvcReturnCode code2 = pmt.getAutomaticPaymentRule(m_szCustomerId,
+																 m_szExternalAccount,
+																 m_szInternalAccount);
 			
 			MigrateRecord rcd = new MigrateRecord();
+			if (null == code2) rcd.validated = "true";
 			rcd.displayAcct = m_szExternalAccount;
 			rcd.customerId = m_szCustomerId;
 			rcd.internalAcct =  m_szInternalAccount;
@@ -254,6 +258,7 @@ public class MonthlyAutomaticPaymentRule implements IAutomaticPaymentRule {
 		}
 		else {
 			MigrateRecord rcd = new MigrateRecord();
+			rcd.validated = "false";
 			rcd.displayAcct = m_szExternalAccount;
 			rcd.customerId = m_szCustomerId;
 			rcd.internalAcct =  m_szInternalAccount;

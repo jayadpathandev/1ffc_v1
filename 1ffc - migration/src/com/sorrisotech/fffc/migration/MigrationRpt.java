@@ -49,10 +49,12 @@ public class MigrationRpt {
 		
 		String szToWrite = null;
 		szToWrite = report.addItem(szToWrite, rcd.migrationStatus, false);
+		szToWrite = report.addItem(szToWrite, rcd.validated, false);
 		szToWrite = report.addItem(szToWrite, rcd.pmtType, false);
 		szToWrite = report.addItem(szToWrite, rcd.customerId, false);
 		szToWrite = report.addItem(szToWrite, rcd.displayAcct, false);
 		szToWrite = report.addItem(szToWrite, rcd.internalAcct, false);
+		szToWrite = report.addItem(szToWrite, rcd.schedPmtId, false);
 		szToWrite = report.addItem(szToWrite, rcd.schedDate, false);
 		szToWrite = report.addItem(szToWrite, rcd.schedAmt, false);
 		szToWrite = report.addItem(szToWrite, rcd.recurDay, false);
@@ -135,8 +137,8 @@ public class MigrationRpt {
 	private Boolean writeHeader() {
 		Boolean bRet = true;
 	
-		final String cszHeader = "Status, Type, Customer Id, Loan Id, " + ""
-				+ "Account Id, Sched-Date, Sched-Amt, Recur-DayOfMonth, Fail-Reason\n";
+		final String cszHeader = "Status, Validated, Type, Customer Id, Loan Id, " + ""
+				+ "Account Id, Sched-PmtId, Sched-Date, Sched-Amt, Recur-DayOfMonth, Fail-Reason\n";
 		
 		try {
 			m_Writer.write(cszHeader);

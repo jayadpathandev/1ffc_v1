@@ -69,4 +69,27 @@ public interface IScheduledPayment {
 	 */
 	public String getInfoAsString();
 	
+	/**
+	 * 
+	 * Sets the information on this payment after its been scheduled
+	 * 
+	 * @param cszPaymentId
+	 * @param cszPaymentStatus
+	 */
+	public void setPayTransactionInfo(final String cszPaymentId, final String cszPaymentStatus);
+	
+	/**
+	 * Returns payment identifier after its been set... otherwise null
+	 * 
+	 * @return
+	 */
+	public String getPaymentId();
+	
+	/**
+	 * Returns payment status after its been set... otherwise null
+	 * 
+	 * @return
+	 */
+	public String getPaymentStatus();
+	
 }

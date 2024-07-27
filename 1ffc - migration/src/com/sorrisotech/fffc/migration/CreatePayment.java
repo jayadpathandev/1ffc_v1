@@ -5,8 +5,11 @@ package com.sorrisotech.fffc.migration;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -75,6 +78,55 @@ public class CreatePayment {
 		return m_retCode;
 		
 	}
+	
+	/** 
+	 * reports on an automatic payment rule
+	 * 
+	 * @param cszCustomerId
+	 * @param cszExternalAcct
+	 * @param cszInternalAcct
+	 * @return
+	 */
+	public WebSvcReturnCode getAutomaticPaymentRule(
+			final String cszCustomerId,
+			final String cszExternalAcct,			
+			final String cszInternalAcct) {
+
+		m_retCode = null;
+		
+		Boolean lbRet = apiGetAutomaticPaymentForAccount(cszCustomerId, cszExternalAcct, cszInternalAcct);
+		LOG.info("CreatePayment:getAutomaticPaymentRule -- satus on automatic payment for external account {} is {}.",
+					cszExternalAcct, lbRet.toString());
+		return m_retCode;
+	}
+	
+	/**
+	 * reports on a scheduled payment rule
+	 * 
+	 * @param cszCustomerId
+	 * @param cszExternalAcct
+	 * @param cszInternalAcct
+	 * @param cszPaymentId
+	 * @return
+	 */
+	public WebSvcReturnCode getScheduledPayment(
+			final String cszCustomerId,
+			final String cszExternalAcct,			
+			final String cszInternalAcct,
+			final String cszPaymentId ) {
+
+		m_retCode = null;
+		
+		Boolean lbRet = apiGetScheduledPaymentForAccount(
+									cszCustomerId,
+									cszExternalAcct,
+									cszInternalAcct,
+									cszPaymentId);
+		LOG.info("CreatePayment:getScheduledPayment -- status on scehduled payment {} for external account {} is {}.",
+				cszPaymentId, cszExternalAcct, lbRet.toString());
+		return m_retCode;
+	}
+	
 	
 	/**
 	 * Starts the agent payment process 
@@ -240,10 +292,18 @@ public class CreatePayment {
 		
 		} catch (JSONException | RestClientException e) {
 			LOG.error("CreatePayment:apiAddToken -- failed, catching errro.", e);
+			m_retCode = new WebSvcReturnCode();
+			m_retCode.displayName = "--";
+			m_retCode.error = "400";
+			m_retCode.payload = "JSON RestClientException on call";
 			return lbRet;
 		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
+			m_retCode = new WebSvcReturnCode();
+			m_retCode.displayName = "--";
+			m_retCode.error = "400";
+			m_retCode.payload = "URISyntaxException on call";
 			e.printStackTrace();
+			return lbRet;
 		}
 
 		lbRet = true;
@@ -252,6 +312,12 @@ public class CreatePayment {
 		
 	}
 	
+	/**
+	 * Creates a scheduled payment
+	 * 
+	 * @param pmt
+	 * @return
+	 */
 	private Boolean apiScheduledPayment(final IScheduledPayment pmt) {
 		Boolean lbRet = false;
 
@@ -301,13 +367,37 @@ public class CreatePayment {
 				m_retCode.payload = szPayload;
 				return lbRet;
 			}
+			JSONObject responseObject = new JSONObject(response.getBody());
+			// -- grab the transaction for moving forward
+			String m_szPmtId = Optional.ofNullable( responseObject.getString("paymentId")).orElse("");
+			String m_szPmtStatus = Optional.ofNullable( responseObject.getString("status")).orElse("");
+			
+			
+			if (m_szPmtId.isBlank() || m_szPmtStatus.isBlank()) {
+				LOG.error("CreatePayment:apiScheduledPayment -- error returned empty paymentId or payment status");
+				m_retCode = new WebSvcReturnCode();
+				m_retCode.displayName = pmt.getDisplayAccount();
+				m_retCode.error = "200";
+				m_retCode.payload = "Returned success but with empty payment information";
+				 
+				return lbRet;
+			}
+
+			pmt.setPayTransactionInfo(m_szPmtId, m_szPmtStatus);
 		
 		} catch (JSONException | RestClientException e) {
 			LOG.error("CreatePayment:apiScheduledPayment -- failed, catching errro.", e);
+			m_retCode = new WebSvcReturnCode();
+			m_retCode.displayName = pmt.getDisplayAccount();
+			m_retCode.error = "400";
+			m_retCode.payload = "JSON RestClientException on call";
 			return lbRet;
 		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			m_retCode = new WebSvcReturnCode();
+			m_retCode.displayName = pmt.getDisplayAccount();
+			m_retCode.error = "400";
+			m_retCode.payload = "URISyntaxException on call";
+			return lbRet;
 		}
 
 		lbRet = true;
@@ -316,6 +406,12 @@ public class CreatePayment {
 		
 	}
 	
+	/**
+	 * Creates an automatic payment rule
+	 * 
+	 * @param pmt
+	 * @return
+	 */
 	private  Boolean apiAutomaticPaymentRule(IAutomaticPaymentRule pmt) {
 		Boolean lbRet = false;
 		// -- build the url --
@@ -368,18 +464,236 @@ public class CreatePayment {
 		
 		} catch (JSONException | RestClientException e) {
 			LOG.error("CreatePayment:apiAutomaticPaymentRule -- failed, catching errro.", e);
+			m_retCode = new WebSvcReturnCode();
+			m_retCode.displayName = pmt.getDisplayAccount();
+			m_retCode.error = "400";
+			m_retCode.payload = "JSON RestClientException on call";
 			return lbRet;
 		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
+			m_retCode = new WebSvcReturnCode();
+			m_retCode.displayName = pmt.getDisplayAccount();
+			m_retCode.error = "400";
+			m_retCode.payload = "URISyntaxException on call";
 			e.printStackTrace();
 		}
 
 		lbRet = true;
+		return lbRet;
+		
+	}
+	
+	/**
+	 * returns information about an automatic payment rule for an account
+	 * 
+	 * @param cszCustomerId
+	 * @param cszExternalAcct
+	 * @param cszInternalAcct
+	 * @return
+	 */
+	private Boolean apiGetAutomaticPaymentForAccount (
+												final String cszCustomerId,
+			   									final String cszExternalAcct,			
+												final String cszInternalAcct) {
+		Boolean lbRet = null;
+		
+		// -- build the url --
+		String lszURL = Config.get("apiPay.URLBase");
+		String lszCallName = Config.get("apiPay.GetAutomaticPaymentRule");
+		String lszSecurityToken = Config.get("apiPay.SecurityToken");
+		String url = UriComponentsBuilder.fromHttpUrl(lszURL + lszCallName)
+				.queryParam("securityToken", lszSecurityToken)
+				.queryParam("customerId", cszCustomerId)
+				.queryParam("accountId", cszInternalAcct)
+				.toUriString();
+
+		try {
+			// -- post request for account status to application server --
+			RestTemplate restTemplate = new RestTemplate();
+			ResponseEntity<String> response;
+				response =  restTemplate.getForEntity(url, String.class);
+
+			HttpStatusCode statusCode = response.getStatusCode();
+			if (statusCode.isError()) {
+				LOG.error("CreatePayment:apiGetAutomaticPaymentForAccount -- call failed with error {}", statusCode.value());
+				JSONObject responseObject = new JSONObject(response.getBody());
+				String szErrorCode = Optional.ofNullable( responseObject.getString("error")).orElse("");
+				String szPayload = Optional.ofNullable( responseObject.getString("payload")).orElse("");
+				LOG.error("CreatePayment:apiGetAutomaticPaymentForAccount -- error details error: {}, payload: {}", szErrorCode, szPayload);
+				m_retCode = new WebSvcReturnCode();
+				m_retCode.displayName = cszExternalAcct;
+				m_retCode.error = szErrorCode;
+				m_retCode.payload = szPayload;
+				return lbRet;
+			}
+			
+			JSONObject responseObject = new JSONObject(response.getBody());
+	
+			// -- do we have a rule? --
+			Optional<Boolean> bAutoPayEnabled = Optional.ofNullable( responseObject.getBoolean("hasRule"));
+			
+			if (bAutoPayEnabled.get() == true) {
+				
+				// -- check return values --
+				String lszNickname = Optional.ofNullable( responseObject.getString("nickName")).orElse("");
+				String lszPaymentAccount = Optional.ofNullable( responseObject.getString("paymentAccount")).orElse("");
+				String lszPaymentAccountType = Optional.ofNullable( responseObject.getString("paymentAcctType")).orElse("");
+				String lszPaymentDateRule = Optional.ofNullable( responseObject.getString("paymentDateRule")).orElse("");
+				String lszPaymentAmountRule = Optional.ofNullable( responseObject.getString("paymentAmountRule")).orElse("");
+				String lszPaymentCountRule = Optional.ofNullable( responseObject.getString("paymentCountRule")).orElse("");
+				LOG.info("CreatePayment:getAutomaticPaymentForAccount -- " +
+						"Autopayment rule for customerId {}, external account {}, and internal account {} -- " +
+						"payAcct: {}, payType: {}, dateRule: {}, amtRule: {}, countRule().", 
+						cszCustomerId, cszExternalAcct, cszInternalAcct,
+						lszPaymentAccount, lszPaymentAccountType, lszPaymentDateRule,
+						lszPaymentAmountRule, lszPaymentCountRule);
+				lbRet = true;
+			
+			}
+			else {
+				LOG.info("CreatePayment:getAutomaticPaymentForAccount -- " +
+						"No autopayment rule for customerId {}, external account {}, and internal account {}", 
+						cszCustomerId, cszExternalAcct, cszInternalAcct );
+				m_retCode = new WebSvcReturnCode();
+				m_retCode.displayName = cszExternalAcct;
+				m_retCode.error = "200";
+				m_retCode.payload = "No Automatic payment exists.";
+				
+			}
+			
+		} catch (JSONException | RestClientException e) {
+			LOG.error("CreatePayment:apiGetAutomaticPaymentForAccount -- failed, catching error.", e);
+			m_retCode = new WebSvcReturnCode();
+			m_retCode.displayName = cszExternalAcct;
+			m_retCode.error = "400";
+			m_retCode.payload = "Invalid customer id or accountId.";
+		}
+		return lbRet;
+	}
+	
+	private Boolean apiGetScheduledPaymentForAccount(
+							final String cszCustomerId,
+							final String cszExternalAcct,			
+							final String cszInternalAcct,
+							final String cszPaymentId) {
+		Boolean lbRet = false;
+		
+		// -- build the url --
+		String lszURL = Config.get("apiPay.URLBase");
+		String lszCallName = Config.get("apiPay.GetScheduledPayments");
+		String lszSecurityToken = Config.get("apiPay.SecurityToken");
+		String url = UriComponentsBuilder.fromHttpUrl(lszURL + lszCallName)
+				.queryParam("securityToken", lszSecurityToken)
+				.queryParam("customerId", cszCustomerId)
+				.queryParam("accountId", cszInternalAcct)
+				.toUriString();
+
+		try {
+			// -- post request for scheduled payments to application server --
+			RestTemplate restTemplate = new RestTemplate();
+			ResponseEntity<String> response;
+				response =  restTemplate.getForEntity(url, String.class);
+
+			HttpStatusCode statusCode = response.getStatusCode();
+			if (statusCode.isError()) {
+				LOG.error("CreatePayment:getScheduledPaymentForAccount -- call failed with error {}", statusCode.value());
+				JSONObject responseObject = new JSONObject(response.getBody());
+				String szErrorCode = Optional.ofNullable( responseObject.getString("error")).orElse("");
+				String szPayload = Optional.ofNullable( responseObject.getString("payload")).orElse("");
+				LOG.error("CreatePayment:getScheduledPaymentForAccount -- error details error: {}, payload: {}", szErrorCode, szPayload);
+				m_retCode = new WebSvcReturnCode();
+				m_retCode.displayName = cszExternalAcct;
+				m_retCode.error = szErrorCode;
+				m_retCode.payload = szPayload;
+				return lbRet;
+			}
+			
+			JSONObject responseObject = new JSONObject(response.getBody());
+			List<String> paymentIds = getValuesInObject(responseObject, "paymentId");
+			
+			boolean bFoundPayment = false;
+			if (null != paymentIds) {
+				for (String pmtid: paymentIds ) {
+					if (cszPaymentId.equals(pmtid)) {
+						bFoundPayment = true;
+						break;
+					}
+				}
+			}
+			
+			if (bFoundPayment == true) {
+				
+				m_retCode = new WebSvcReturnCode();
+				m_retCode.displayName = cszExternalAcct;
+				m_retCode.error = "200";
+				m_retCode.payload = "Scheduled Payment " + cszPaymentId + " for account " + cszExternalAcct + " is validated.";
+				lbRet = true;
+			}
+			else {
+				LOG.info("CreatePayment:getScheduledPaymentForAccount -- " +
+						"No autopayment rule for customerId {}, external account {}, and internal account {}", 
+						cszCustomerId, cszExternalAcct, cszInternalAcct );
+				m_retCode = new WebSvcReturnCode();
+				m_retCode.displayName = cszExternalAcct;
+				m_retCode.error = "200";
+				m_retCode.payload = "Scheduled Payment " + cszPaymentId + " for account " + cszExternalAcct + " does not exist.";
+			}
+			
+		} catch (JSONException | RestClientException e) {
+			LOG.error("CreatePayment:getScheduledPaymentForAccount -- failed, catching error.", e);
+			m_retCode = new WebSvcReturnCode();
+			m_retCode.displayName = cszExternalAcct;
+			m_retCode.error = "400";
+			m_retCode.payload = "Invalid customer id or accountId.";
+		}
 		
 		return lbRet;
 		
 	}
 	
+	/**
+	 * given a JSONobject, returns List of values for a given key
+	 * 
+	 * @param jsonObject
+	 * @param key
+	 * @return
+	 */
+    public List<String> getValuesInObject(JSONObject jsonObject, String key) {
+        List<String> accumulatedValues = new ArrayList<>();
+        for (String currentKey : jsonObject.keySet()) {
+            Object value = jsonObject.get(currentKey);
+            if (currentKey.equals(key)) {
+                accumulatedValues.add(value.toString());
+            }
+
+            if (value instanceof JSONObject) {
+                accumulatedValues.addAll(getValuesInObject((JSONObject) value, key));
+            } else if (value instanceof JSONArray) {
+                accumulatedValues.addAll(getValuesInArray((JSONArray) value, key));
+            }
+        }
+
+        return accumulatedValues;
+    }
+
+    /**
+     * give JSONArray, returns a list of all objects contained therein
+     * 
+     * @param jsonArray
+     * @param key
+     * @return
+     */
+    public List<String> getValuesInArray(JSONArray jsonArray, String key) {
+        List<String> accumulatedValues = new ArrayList<>();
+        for (Object obj : jsonArray) {
+            if (obj instanceof JSONArray) {
+                accumulatedValues.addAll(getValuesInArray((JSONArray) obj, key));
+            } else if (obj instanceof JSONObject) {
+                accumulatedValues.addAll(getValuesInObject((JSONObject) obj, key));
+            }
+        }
+
+        return accumulatedValues;
+    }
 }
 	
 
