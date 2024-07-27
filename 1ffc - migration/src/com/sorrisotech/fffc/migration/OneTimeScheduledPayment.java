@@ -35,7 +35,9 @@ public class OneTimeScheduledPayment implements IScheduledPayment {
 	private String m_szCustomerId = null;
 	private BigDecimal m_dPayAmount = null;
 	private Calendar m_calPaymentDate = null;
-	PmtAcct m_oPmtAccount = null;;
+	private PmtAcct m_oPmtAccount = null;
+	private String m_szPaymentId = null;
+	private String m_szPaymentStatus = null;
 	
 	/**
 	 * Reads a scheduled payment file and creates a list of OneTimeScheduledPayment objects
@@ -299,11 +301,16 @@ public class OneTimeScheduledPayment implements IScheduledPayment {
 		CreatePayment pmt = new CreatePayment();
 		WebSvcReturnCode code = pmt.createScheduledPayment(this);
 		if(null == code) {
-			
+			WebSvcReturnCode code2 = pmt.getScheduledPayment(m_szCustomerId, m_szExternalAccount, m_szInternalAccount, m_szPaymentId);
 			MigrateRecord rcd = new MigrateRecord();
 			rcd.displayAcct = m_szExternalAccount;
 			rcd.customerId = m_szCustomerId;
 			rcd.internalAcct =  m_szInternalAccount;
+			if (null != m_szPaymentId && !m_szPaymentId.isBlank())
+				rcd.validated = "true"; 
+			else 
+				rcd.validated = "false";
+			rcd.schedPmtId = m_szPaymentId;
 			rcd.schedAmt = getPayAmount();
 			rcd.schedDate = getPayDate();
 			rcd.migrationStatus = "success";
@@ -315,6 +322,11 @@ public class OneTimeScheduledPayment implements IScheduledPayment {
 			rcd.displayAcct = m_szExternalAccount;
 			rcd.customerId = m_szCustomerId;
 			rcd.internalAcct =  m_szInternalAccount;
+			if (null != m_szPaymentId && !m_szPaymentId.isBlank())
+				rcd.validated = "true"; 
+			else 
+				rcd.validated = "false";
+			rcd.schedPmtId = m_szPaymentId;
 			rcd.schedAmt = getPayAmount();
 			rcd.schedDate = getPayDate();
 			rcd.migrationStatus = "failed";
@@ -379,6 +391,22 @@ public class OneTimeScheduledPayment implements IScheduledPayment {
 	@Override
 	public PmtAcct getPayAcct() {
 		return m_oPmtAccount;
+	}
+
+	@Override
+	public void setPayTransactionInfo(String cszPaymentId, String cszPaymentStatus) {
+		m_szPaymentId = cszPaymentId;
+		m_szPaymentStatus = cszPaymentStatus;
+	}
+
+	@Override
+	public String getPaymentId() {
+		return m_szPaymentId;
+	}
+
+	@Override
+	public String getPaymentStatus() {
+		return m_szPaymentStatus;
 	}
 
 }
