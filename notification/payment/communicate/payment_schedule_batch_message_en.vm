@@ -1,15 +1,25 @@
+#set($mappedCaseId = $caseId)
+#if ($caseId == "case1")
+    #set($mappedCaseId = "case1")
+#elseif ($caseId == "case2" || $caseId == "case4")
+    #set($mappedCaseId = "case2")
+#elseif ($caseId == "case5")
+    #set($mappedCaseId = "case9")
+#elseif ($caseId == "case5s")
+    #set($mappedCaseId = "case8s")
+#end
 {
-	"firstName" : "$firstName",
-	"lastName" : "$lastName",
-	"sourceName" : "$sourceName",
-	"accountNumber" : "$accountNumber",
-	"amount" : "$number.currency($amount)",
-	"surchargeAmount" : "$number.currency($surchargeAmount)",
-	"totalPaidAmount" : "$number.currency($totalPaidAmount)",
-	"minAmount" : "$number.currency($minAmount)",
-	"balAmount" : "$number.currency($balAmount)",
-	"caseId" : "$caseId",
-	"myAccountLogIn" : "@LOGIN_URL@",
-	"subject" : "We have an update on your recurring payment.",
-	"project" : "Payment Alerts"
+    "firstName" : "$firstName",
+    "lastName" : "$lastName",
+    "sourceName" : "$sourceName",
+    "accountNumber" : "$accountNumber",
+    "amount" : "$currencyTool.format($currency, $amount)",
+    "surchargeAmount" : "$currencyTool.format($currency, $surchargeAmount)",
+    "totalPaidAmount" : "$currencyTool.format($currency, $totalPaidAmount)",
+    "minAmount" : "$currencyTool.format($currency, $minAmount)",
+    "balAmount" : "$currencyTool.format($currency, $balAmount)",
+    "caseId" : "$mappedCaseId",
+    "myAccountLogIn" : "@LOGIN_URL@",
+    "subject" : "We have an update on your recurring payment.",
+    "project" : "Payment Alerts"
 }
