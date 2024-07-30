@@ -16,6 +16,9 @@ useCase accountSummaryChild [
 	* 							requirements.
 	* 2.1 	2023-Dec-28 jak		Modified to set payment rules for payment use cases
 	* 2.11	2024-Mar-15	jak		Fixed defect in setting number of days out for future payment.
+	* 2.12  2024-Jul-30 jak		Adjusted code to ensure that when payments are fully disabled
+	*								automatic payments are also disabled and autopay status
+	*								is ignored.
 	*/
 
     documentation [
@@ -695,9 +698,22 @@ useCase accountSummaryChild [
 	 ************************************************************************************** */
 
 	/**
-	 *  4a. System checks to see if automatic payments should be on or off 
+	 *  4a. System checks to see if payments are disabled. If they are, then we turn
+	 *		always turn off automatic payments 
 	 */
 	action areAutomaticPaymentsEnabled [
+		bAutomaticPaymentEnabled = sPaymentButtonOn
+		if bAutomaticPaymentEnabled == 'true' then
+			areAutomaticPaymentsEnabledStep2
+		else
+			setAutomaticPaymentDisabled
+	] 
+	
+	/**
+	 * 4b. Payment is turned on, Sysem tests against the autopay flags
+	 *
+	 */
+	action areAutomaticPaymentsEnabledStep2 [
 		bAutomaticPaymentEnabled = "true" // -- assume they are enabled --
 		switch srGetStatusResult.automaticPaymentStatus [
 			case	eligible				setAutomaticPaymentEnabled 		// -- can sign up for recurring payment
@@ -709,7 +725,7 @@ useCase accountSummaryChild [
 	] 
 	
 	/**
-	 * 4b. System checks if the account is current. If account is current, system turns automatic payments back
+	 * 4c. System checks if the account is current. If account is current, system turns automatic payments back
 	 		on.
 	 */
 	action isAccountCurrent [
