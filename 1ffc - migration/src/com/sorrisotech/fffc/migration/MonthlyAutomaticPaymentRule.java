@@ -270,6 +270,39 @@ public class MonthlyAutomaticPaymentRule implements IAutomaticPaymentRule {
 		}
 		MigrationRpt.flushReport();
 	}
+	
+	public void deleteAutomaticPaymentRule() {
+		CreatePayment pmt = new CreatePayment();
+		WebSvcReturnCode code = pmt.deleteAutomaticPaymentRule(
+					this.m_szCustomerId,
+					this.m_szExternalAccount,
+					this.m_szInternalAccount);
+		if (null == code){
+			MigrateRecord rcd = new MigrateRecord();
+			if (null == code) rcd.validated = "true";
+			rcd.displayAcct = m_szExternalAccount;
+			rcd.customerId = m_szCustomerId;
+			rcd.internalAcct =  m_szInternalAccount;
+			rcd.recurDay = m_szPaymentDay;
+			rcd.migrationStatus = "success";
+			rcd.pmtType = "delete recurring";
+			MigrationRpt.reportItem(rcd);
+		}
+		else {
+			MigrateRecord rcd = new MigrateRecord();
+			rcd.validated = "false";
+			rcd.displayAcct = m_szExternalAccount;
+			rcd.customerId = m_szCustomerId;
+			rcd.internalAcct =  m_szInternalAccount;
+			rcd.recurDay = m_szPaymentDay;
+			rcd.migrationStatus = "failed";
+			rcd.pmtType = "delete recurring";
+			rcd.failReaon = code.getFriendlyMessage();
+			MigrationRpt.reportItem(rcd);
+		}
+		MigrationRpt.flushReport();
+		
+	}
 
 	@Override
 	public String getDisplayAccount() {

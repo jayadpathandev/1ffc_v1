@@ -127,6 +127,60 @@ public class CreatePayment {
 		return m_retCode;
 	}
 	
+	/**
+	 * deletes the recurring payment rule associated with an account if it exists.
+	 * 
+	 * @param cszCustomerId
+	 * @param cszExternalAccount
+	 * @param cszInternalAccount
+	 * @return
+	 */
+	public WebSvcReturnCode deleteAutomaticPaymentRule (
+									final String cszCustomerId,
+									final String cszExternalAccount,
+									final String cszInternalAccount ) {
+		
+		m_retCode = null;
+		
+		Boolean lbRet = apiDeleteAutomaticPaymentRuleForAccount(
+									cszCustomerId, 
+									cszInternalAccount, 
+									cszExternalAccount);
+		LOG.info("CreatePayment:deleteRecurringPaymentRule -- returned for external account {}, value: {}",
+									cszExternalAccount, lbRet);
+				
+		
+		return m_retCode;
+	
+	}
+	
+	/**
+	 * deletes a scheduled payment for an account, given the paymentId
+	 * 
+	 * @param cszCustomerId
+	 * @param cszExternalAccount
+	 * @param cszInternalAccount
+	 * @param cszPaymentId
+	 * @return
+	 */
+	public WebSvcReturnCode deleteScheduledPayment (
+		final String cszCustomerId,
+		final String cszExternalAccount,
+		final String cszInternalAccount,
+		final String cszPaymentId) {
+
+		m_retCode = null;
+		Boolean lbret = apiDeleteScheduledPaymentForAccount(
+									cszCustomerId,
+									cszInternalAccount,
+									cszExternalAccount,
+									cszPaymentId);
+		LOG.info("CreatePayment:deleteScheduledPayment -- returned for external account {}, value: {}",
+				cszExternalAccount, lbret);
+		
+		return m_retCode;
+			
+	}
 	
 	/**
 	 * Starts the agent payment process 
@@ -694,6 +748,146 @@ public class CreatePayment {
 
         return accumulatedValues;
     }
+    
+    /** deletes an automatic payment rule
+     * 
+     * @param cszCustomerId
+     * @param cszExternalAcct
+     * @param cszInternalAcct
+     * @return
+     */
+    private Boolean apiDeleteAutomaticPaymentRuleForAccount(
+			final String cszCustomerId,
+			final String cszExternalAcct,			
+			final String cszInternalAcct) {
+    	Boolean lbRet = false;
+
+    	// -- get configured parameters -- 
+    	String lszURL = Config.get("apiPay.URLBase");
+		String lszCallName = Config.get("apiPay.DeleteAutomatiPaymentRule");
+		String lszSecurityToken = Config.get("apiPay.SecurityToken");
+
+		try {
+			final JSONObject data = new JSONObject();
+			
+			// -- base requirements --
+			data.put("securityToken", lszSecurityToken);
+			data.put("customerId", cszCustomerId);
+			data.put("accountId", cszExternalAcct);
+
+			// -- create the request --
+			final RequestEntity<String> request = RequestEntity
+					.post(new URI(lszURL + lszCallName))
+					.accept(MediaType.APPLICATION_JSON)
+					.contentType(MediaType.APPLICATION_JSON)
+					.body(data.toString());
+
+			// -- post the request
+			RestTemplate template = new RestTemplate();
+			final ResponseEntity<String> response = template.postForEntity(
+					lszURL + lszCallName, request, String.class
+					);
+			
+			// -- process the response --
+			HttpStatusCode statusCode = response.getStatusCode();
+			if (statusCode.isError()) {
+				LOG.error("CreatePayment:apiDeleteAutomaticPaymentRuleForAccount -- call failed with error {}", statusCode.value());
+				JSONObject responseObject = new JSONObject(response.getBody());
+				String szErrorCode = Optional.ofNullable( responseObject.getString("error")).orElse("");
+				String szPayload = Optional.ofNullable( responseObject.getString("payload")).orElse("");
+				LOG.error("CreatePayment:apiDeleteAutomaticPaymentRuleForAccount -- error details error: {}, payload: {}", szErrorCode, szPayload);
+				m_retCode = new WebSvcReturnCode();
+				m_retCode.displayName = cszExternalAcct;
+				m_retCode.error = szErrorCode;
+				m_retCode.payload = szPayload;
+				return lbRet;
+			}
+		
+		} catch (JSONException | RestClientException | URISyntaxException e) {
+			LOG.error("CreatePayment:apiDeleteAutomaticPaymentRuleForAccount -- failed, catching errro.", e);
+			m_retCode = new WebSvcReturnCode();
+			m_retCode.displayName = cszExternalAcct;
+			m_retCode.error = "400";
+			m_retCode.payload = "JSON RestClientException on call";
+			return lbRet;
+		}
+		
+		lbRet = true;
+    	
+    	return lbRet;
+    }
+
+    /**
+     * Deletes a scheduled payment for an account, given the payment id
+     * 
+     * @param cszCustomerId
+     * @param cszExternalAcct
+     * @param cszInternalAcct
+     * @param cszPaymentId
+     * @return
+     */
+    private Boolean apiDeleteScheduledPaymentForAccount (
+			final String cszCustomerId,
+			final String cszExternalAcct,			
+			final String cszInternalAcct,
+			final String cszPaymentId) {
+		Boolean lbRet = false;
+	
+    	// -- get configured parameters -- 
+    	String lszURL = Config.get("apiPay.URLBase");
+		String lszCallName = Config.get("apiPay.DeleteScheduledPayment");
+		String lszSecurityToken = Config.get("apiPay.SecurityToken");
+
+		try {
+			final JSONObject data = new JSONObject();
+			
+			// -- base requirements --
+			data.put("securityToken", lszSecurityToken);
+			data.put("customerId", cszCustomerId);
+			data.put("accountId", cszExternalAcct);
+			data.put("paymentId", cszPaymentId);
+			
+			// -- create the request --
+			final RequestEntity<String> request = RequestEntity
+					.post(new URI(lszURL + lszCallName))
+					.accept(MediaType.APPLICATION_JSON)
+					.contentType(MediaType.APPLICATION_JSON)
+					.body(data.toString());
+
+			// -- post the request
+			RestTemplate template = new RestTemplate();
+			final ResponseEntity<String> response = template.postForEntity(
+					lszURL + lszCallName, request, String.class
+					);
+			
+			// -- process the response --
+			HttpStatusCode statusCode = response.getStatusCode();
+			if (statusCode.isError()) {
+				LOG.error("CreatePayment:apiDeleteScheduledPaymentForAccount -- call failed with error {}", statusCode.value());
+				JSONObject responseObject = new JSONObject(response.getBody());
+				String szErrorCode = Optional.ofNullable( responseObject.getString("error")).orElse("");
+				String szPayload = Optional.ofNullable( responseObject.getString("payload")).orElse("");
+				LOG.error("CreatePayment:apiDeleteScheduledPaymentForAccount -- error details error: {}, payload: {}", szErrorCode, szPayload);
+				m_retCode = new WebSvcReturnCode();
+				m_retCode.displayName = cszExternalAcct;
+				m_retCode.error = szErrorCode;
+				m_retCode.payload = szPayload;
+				return lbRet;
+			}
+		
+		} catch (JSONException | RestClientException | URISyntaxException e) {
+			LOG.error("CreatePayment:apiDeleteScheduledPaymentForAccount -- failed, catching errro.", e);
+			m_retCode = new WebSvcReturnCode();
+			m_retCode.displayName = cszExternalAcct;
+			m_retCode.error = "400";
+			m_retCode.payload = "JSON RestClientException on call";
+			return lbRet;
+		}
+		
+		lbRet = true;
+	
+		return lbRet;
+	}
 }
 	
 
