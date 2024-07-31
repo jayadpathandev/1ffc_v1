@@ -1,5 +1,12 @@
+#set($displayAccountNumber = $accountNumber)
+#if ($displayAccountNumber && $displayAccountNumber.length() >= 4 && !$displayAccountNumber.startsWith("*"))
+    #set($index = $displayAccountNumber.length() - 4)
+    #set($maskedAccountNumber = "***" + $displayAccountNumber.substring($index))
+#else
+    #set($maskedAccountNumber = $displayAccountNumber)
+#end
 {
-	"accountNumber" : "$accountNumber",
+	"accountNumber" : "$maskedAccountNumber",
 	"walletNickName" : "$walletNickName",
 	"paymentDate" : "$paymentDate",
 	"amount" : "$amount",

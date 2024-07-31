@@ -1,11 +1,18 @@
+#set($payments = $json.parse($bills))
+#set($displayAccountNumber = $payments[0].displayAccountNumber)
+#if ($displayAccountNumber && $displayAccountNumber.length() >= 4 && !$displayAccountNumber.startsWith("*"))
+    #set($index = $displayAccountNumber.length() - 4)
+    #set($maskedAccountNumber = "***" + $displayAccountNumber.substring($index))
+#else
+    #set($maskedAccountNumber = $displayAccountNumber)
+#end
 {
 	"firstName" : "$firstName",
 	"lastName" : "$lastName",
 	"scheduledPaymentAmount" : "$number.currency($amount)",
 	"balance" : "$number.currency($balance)",
-#set($payments = $json.parse($bills))
 	"amount" : "$currencyTool.format($currency, $payments[0].amount)",
-	"accountNumber": "$payments[0].displayAccountNumber",
+	"accountNumber": "$maskedAccountNumber",
 	"documentNumber":"$payments[0].documentNumber",
 	"myAccountLogIn" : "@LOGIN_URL@",
 	"subject" : "Your scheduled payment has been cancelled.",

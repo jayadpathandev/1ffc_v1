@@ -1,8 +1,15 @@
+#set($displayAccountNumber = $accountNumber)
+#if ($displayAccountNumber && $displayAccountNumber.length() >= 4 && !$displayAccountNumber.startsWith("*"))
+    #set($index = $displayAccountNumber.length() - 4)
+    #set($maskedAccountNumber = "***" + $displayAccountNumber.substring($index))
+#else
+    #set($maskedAccountNumber = $displayAccountNumber)
+#end
 {
 	"firstName" : "$firstName",
 	"lastName" : "$lastName",
 	"nickName" : "$nickName",
-	"accountNumber" : "$accountNumber",
+	"accountNumber" : "$maskedAccountNumber",
 	"myAccountLogIn" : "@LOGIN_URL@",
 	"subject" : "A payment method was successfully deleted",
 	"project" : "Payment Alerts"

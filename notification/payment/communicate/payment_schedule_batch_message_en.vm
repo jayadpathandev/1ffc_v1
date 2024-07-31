@@ -8,11 +8,18 @@
 #elseif ($caseId == "case5s")
     #set($mappedCaseId = "case8s")
 #end
+#set($displayAccountNumber = $accountNumber)
+#if ($displayAccountNumber && $displayAccountNumber.length() >= 4 && !$displayAccountNumber.startsWith("*"))
+    #set($index = $displayAccountNumber.length() - 4)
+    #set($maskedAccountNumber = "***" + $displayAccountNumber.substring($index))
+#else
+    #set($maskedAccountNumber = $displayAccountNumber)
+#end
 {
     "firstName" : "$firstName",
     "lastName" : "$lastName",
     "sourceName" : "$sourceName",
-    "accountNumber" : "$accountNumber",
+    "accountNumber" : "$maskedAccountNumber",
     "amount" : "$currencyTool.format($currency, $amount)",
     "surchargeAmount" : "$currencyTool.format($currency, $surchargeAmount)",
     "totalPaidAmount" : "$currencyTool.format($currency, $totalPaidAmount)",
