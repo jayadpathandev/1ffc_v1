@@ -1,7 +1,14 @@
+#set($displayAccountNumber = $accountNumber)
+#if ($displayAccountNumber && $displayAccountNumber.length() >= 4 && !$displayAccountNumber.startsWith("*"))
+    #set($index = $displayAccountNumber.length() - 4)
+    #set($maskedAccountNumber = "***" + $displayAccountNumber.substring($index))
+#else
+    #set($maskedAccountNumber = $displayAccountNumber)
+#end
 {
 	"firstName" : "$firstName",
 	"lastName" : "$lastName",
-	"accountNumber" : "$accountNumber",
+	"accountNumber" : "$maskedAccountNumber",
 	"myAccountLogIn" : "@LOGIN_URL@",
 	"subject" : "A recurring payment has been deleted",
 	"project" : "Payment Alerts"

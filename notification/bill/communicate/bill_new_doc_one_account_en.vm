@@ -1,7 +1,14 @@
+#set($displayAccountNumber = $accountNumber)
+#if ($displayAccountNumber && $displayAccountNumber.length() >= 4 && !$displayAccountNumber.startsWith("*"))
+    #set($index = $displayAccountNumber.length() - 4)
+    #set($maskedAccountNumber = "***" + $displayAccountNumber.substring($index))
+#else
+    #set($maskedAccountNumber = $displayAccountNumber)
+#end
 { 
 	"firstName" : "$firstName",
 	"lastName" : "$lastName",
-	"accountNumber" : "$accountNumber",
+	"accountNumber" : "$maskedAccountNumber",
 	"billDate" : "$date.format('MM/dd/yyyy', $date.toDate('yyyyMMdd', $billDate))",
 	"billAmount" : "$currencyTool.format($currency, $billAmount)",
 	"myAccountLogIn" : "@LOGIN_URL@",

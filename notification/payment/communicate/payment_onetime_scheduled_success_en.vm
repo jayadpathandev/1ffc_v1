@@ -1,3 +1,11 @@
+#set($payments = $json.parse($groupingData))
+#set($displayAccountNumber = $payments[0].displayAccountNumber)
+#if ($displayAccountNumber && $displayAccountNumber.length() >= 4 && !$displayAccountNumber.startsWith("*"))
+    #set($index = $displayAccountNumber.length() - 4)
+    #set($maskedAccountNumber = "***" + $displayAccountNumber.substring($index))
+#else
+    #set($maskedAccountNumber = $displayAccountNumber)
+#end
 {
 	"firstName" : "$firstName",
 	"lastName" : "$lastName",
@@ -8,9 +16,8 @@
 #if( $sourceName )
 	"walletNickName" : "$sourceName",
 #end
-#set($payments = $json.parse($groupingData))
 	"dateOfAuthorization" : "$currentDate",
-	"accountNumber" : "$payments[0].displayAccountNumber",
+	"accountNumber" : "$maskedAccountNumber",
 	"amount" : "$currencyTool.format($currency, $payments[0].amount)",
 	"surcharge" : "$currencyTool.format($currency, $payments[0].surcharge)",
 	"totalAmount":"$currencyTool.format($currency, $payments[0].totalAmount)",
