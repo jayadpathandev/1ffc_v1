@@ -105,6 +105,7 @@ useCase paymentOneTime [
     importJava ForeignProcessor(com.sorrisotech.app.common.ForeignProcessor)
     importJava Spinner(com.sorrisotech.app.utils.Spinner)
     importJava Format(com.sorrisotech.common.app.Format)
+    importJava EsignHelper(com.sorrisotech.fffc.user.EsignHelper)
     importJava PaymentAuditIterator(com.sorrisotech.uc.payment.PaymentAuditIterator)
     importJava OneTimePaymentHelperAction(com.sorrisotech.uc.payment.OneTimePaymentHelperAction)
 	importJava LocalizedFormat(com.sorrisotech.common.LocalizedFormat)
@@ -381,6 +382,8 @@ useCase paymentOneTime [
     native string sOneTimeScheduledSuccessEmailFlag = NotifUtil.isNotificationEnabled(sUserId, "payment_onetime_scheduled_success")
     native string sMakePaymentSuccessEmailFlag      = NotifUtil.isNotificationEnabled(sUserId, "payment_make_payment_success")
     native string sPaymentDate
+    volatile string sCurrentDate = FffcAccountAction.getTodaysDate()
+    volatile string sPmtAuthDate = EsignHelper.formatDate(sCurrentDate, "yyyyMMdd", "MMMM dd, yyyy")
     persistent native string sAutoScheduledFlag = UcPaymentAction.getAutoScheduledFlag(sUserId, sPayAccountInternal)
     persistent native string sPmtScheduledFlag = UcPaymentAction.getPaymentScheduledFlag(sUserId,sPayAccountInternal,sBillId,"onetime")
     native string sTodaysDate = UcPaymentAction.getTodaysDateWithTimeZoneOffset()
@@ -2433,6 +2436,7 @@ useCase paymentOneTime [
 					 "totalAmount=" + sTotalAmount + "|" +
 		             "adjusted=false" + "|" + 
 		             "payDate=" + sPaymentDate + "|" + 
+		             "dateOfAuthorization=" + sPmtAuthDate + "|" +
 		             "bills=" + sGroupingDataString + "|" +
 		             "currency=" + sCurrency
 
