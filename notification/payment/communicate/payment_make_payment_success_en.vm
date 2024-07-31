@@ -25,6 +25,7 @@
 	"accountNumber" : "$maskedAccountNumber",
 	"surcharge": "$currencyTool.format($currency, $payments[0].surcharge)",
 	"totalAmount":"$currencyTool.format($currency, $payments[0].totalAmount)",
+	"dateofAuthorization" : "$dateOfAuthorization",
 	"myAccountLogIn" : "@LOGIN_URL@",
 	"subject": "Online Payment Successful",
 	"project" : "Payment Alerts"
