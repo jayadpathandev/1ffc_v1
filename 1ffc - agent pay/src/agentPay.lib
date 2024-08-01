@@ -3,7 +3,7 @@ library agentPay [
     	apiCancelPaymentForAgent
     	apiCreateAutomaticPaymentRuleForAgent
     	apiMakeOneTimePaymentForAgent
-    	apiStartAddSource
+    	apiShowIframe
     	apiStartChooseSource
     	apiStartPaymentForAgent
     	apiRequestPaymentStatusForAgent

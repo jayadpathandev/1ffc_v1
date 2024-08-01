@@ -1,6 +1,7 @@
-useCase apiStartAddSource [
+useCase apiShowIframe [
 	shortcut startAddSourceBank(actionNewBank)
 	shortcut startAddSourceDebit(actionNewDebit)
+	shortcut startEditSource(actionEditSource)
 	
 	startAt actionInvalid
 
@@ -9,10 +10,14 @@ useCase apiStartAddSource [
     importJava UcPaymentAction(com.sorrisotech.uc.payment.UcPaymentAction)
     importJava Session(com.sorrisotech.app.utils.Session)    
 
-   	native string sUserId   = Session.getUserId()
-   	native string sUserName = Session.getUsername()      
-	native string sAppType  = AppConfig.get("application.type")
-	native string sOneTime  = ApiPay.isOneTime()
+   	native string sUserId   		= Session.getUserId()
+   	native string sUserName 		= Session.getUsername()      
+	native string sAppType 			= AppConfig.get("application.type")
+	native string sOneTime  		= ApiPay.isOneTime()
+	native string sSourceToken 		= ApiPay.sourceToken()
+	native string sSourceName 		= ApiPay.sourceName()
+	native string sSourceType 		= ApiPay.sourceType()
+	native string sSourceDefault 	= ApiPay.sourceDefault()
 	 
 	action actionInvalid [
 		gotoUc(appLogout)		
@@ -43,6 +48,21 @@ useCase apiStartAddSource [
 			sAppType
 			)
 		
+	] 
+	
+	action actionEditSource [
+		foreignHandler UcPaymentAction.writeIframeEditSourceResponse(
+			"iframeEditSourceSubmit.ftl", 
+			sorrisoLanguage, 
+			sorrisoCountry, 
+			sUserId, 
+			sUserName, 
+			sSourceType, 
+			sSourceToken,
+			sSourceName,
+			sSourceDefault, 
+			sAppType
+			)
 	] 
 	
 ]

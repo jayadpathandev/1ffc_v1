@@ -22,6 +22,7 @@ public class PaySession {
 	private String         mWalletExpiry;
 	private String         mWalletToken = "";
 	private boolean        mAchEnabled = true;
+	private String         mWalletDefault;
 	
 	public  enum		   PayStatus {
 								created,
@@ -164,13 +165,15 @@ public class PaySession {
 			final String type,
 			final String account,
 			final String expiry,
-			final String token
+			final String token,
+			final String isDefault 
 			) {
 		mWalletName    = name;
 		mWalletType    = type;
 		mWalletAccount = account;
 		mWalletExpiry  = expiry;
 		mWalletToken   = token;
+		mWalletDefault = isDefault;
 	}
 	
 	public String walletName() {
@@ -187,6 +190,10 @@ public class PaySession {
 	}
 	public String walletToken() {
 		return mWalletToken;
+	}
+	
+	public String walletDefault() {
+		return mWalletDefault;
 	}
 	
 	/**

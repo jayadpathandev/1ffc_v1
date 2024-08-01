@@ -35,7 +35,7 @@
 				</p>
 			</div>
 		</#if>
-		<div class="apipay">
+		<div class="apipay ms-3">
 			<h4>
 				Payment method
 			</h4>
@@ -52,7 +52,7 @@
 				</div>
 			</div>
 			<div class="row mb-3">
-				<div class="col-4">
+				<div class="col-3">
 					<#if hasWallet>
 						<select class="form-control form-select" name="wallet" id="apipay_wallet">
 							<#list wallet as item>
@@ -62,13 +62,19 @@
 					</#if>
 				</div>
 				
+				<div class="col-2">
+					<#if hasWallet>
+						<a id="editButton" class="btn btn-secondary" href="startAgentPayIframe?itemType=edit">Edit</a>
+					</#if>
+				</div>
+				
 				<#if !disableAch>
-					<div class="col-4">
-						<a class="btn btn-primary" href="startChooseNew?itemType=bank">Use a new bank account</a>
+					<div class="col-3">
+						<a class="btn btn-primary" href="startAgentPayIframe?itemType=bank">Use a new bank account</a>
 					</div>
 				</#if>
-				<div class="col-4">
-					<a class="btn btn-primary" href="startChooseNew?itemType=debit">Use a new debit card</a>
+				<div class="col-3">
+					<a class="btn btn-primary" href="startAgentPayIframe?itemType=debit">Use a new debit card</a>
 				</div>
 			</div>
 			<#if iframe == "bank">
@@ -77,6 +83,9 @@
 			<#elseif iframe == "debit">
 				<iframe src="startAddSourceDebit">
 				</iframe>
+			<#elseif iframe == "edit">
+    			<iframe src="startEditSource">
+    			</iframe>
 			</#if>
 			<a id="internal_error" href="startChooseSourceFailure"></a>
 		</div>
@@ -112,6 +121,8 @@
 				
 				window.handleAddSourceSuccessResponseCallback = function(data) { success(data); }
 				window.handleAddSourceErrorResponseCallback = function(data) { failure(data); }
+				window.handleEditSourceSuccessResponseCallback = function(data) { success(data); }
+				window.handleEditSourceErrorResponseCallback = function(data) { failure(data); }
 				window.handleErrorResponseCallback = function() { failure(); }
 				window.handleCancelResponseCallback = function() { cancel(); }
 			    
@@ -127,8 +138,8 @@
 		            if ($(this).text().trim().startsWith('Migrated token')) {
 		                $(this).remove();
 		            }
-		        });					
-			});
+		        });
+        });
 		</script>
 	</body>
 </html>

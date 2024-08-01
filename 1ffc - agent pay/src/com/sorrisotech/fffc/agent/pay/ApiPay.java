@@ -359,7 +359,8 @@ public class ApiPay implements IExternalReuse {
 							source.getSourceType(),
 							source.getSourceNum(),
 							source.getSourceExpiry(),
-							token
+							token,
+							source.getSourceDefault()
 						);
 						mCurrent.setStatus(PayStatus.pmtAccountChosen);
 						break;
@@ -389,7 +390,8 @@ public class ApiPay implements IExternalReuse {
 							source.getSourceType(),
 							source.getSourceNum(),
 							source.getSourceExpiry(),
-							token
+							token,
+							source.getSourceDefault()
 						);
 						mCurrent.setStatus(PayStatus.pmtAccountChosen);
 						found = true;
@@ -405,7 +407,8 @@ public class ApiPay implements IExternalReuse {
 				type,
 				account,
 				expiry,
-				token
+				token,
+				"false"
 			);
 			mCurrent.setStatus(PayStatus.pmtAccountChosen);
 		}
@@ -456,6 +459,18 @@ public class ApiPay implements IExternalReuse {
 	public String sourceType() {
 		if (mCurrent == null) throw new RuntimeException("There is no current session.");
 		return mCurrent.walletType();		
+	}
+	
+	//*************************************************************************
+	public String sourceDefault() {
+		if (mCurrent == null) throw new RuntimeException("There is no current session.");
+		return mCurrent.walletDefault();		
+	}
+	
+	//*************************************************************************
+	public String sourceToken() {
+		if (mCurrent == null) throw new RuntimeException("There is no current session.");
+		return mCurrent.walletToken();		
 	}
 	
 	//*************************************************************************
@@ -533,7 +548,8 @@ public class ApiPay implements IExternalReuse {
 							source.getSourceType(),
 							source.getSourceNum(),
 							source.getSourceExpiry(),
-							source.getSourceId()
+							source.getSourceId(),
+							source.getSourceDefault()
 						);
 						currentName  = source.getSourceName();
 						currentNum   = source.getSourceNum();
