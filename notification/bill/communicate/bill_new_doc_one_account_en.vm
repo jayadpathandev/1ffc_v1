@@ -9,7 +9,7 @@
 	"firstName" : "$firstName",
 	"lastName" : "$lastName",
 	"accountNumber" : "$maskedAccountNumber",
-	"billDate" : "$date.format('MM/dd/yyyy', $date.toDate('yyyyMMdd', $billDate))",
+	"billDate" : "$date.format('MM/dd/yyyy', $date.toDate('yyyyMMdd', $DUE_DATE))",
 	"billAmount" : "$currencyTool.format($currency, $billAmount)",
 	"myAccountLogIn" : "@LOGIN_URL@",
 	"subject" : "Your monthly statement is now available",
