@@ -3,7 +3,7 @@ useCase apiStartChooseSource [
 		code
 	]
 
-	shortcut startChooseNew(actionDisplay) [
+	shortcut startAgentPayIframe(actionDisplay) [
 		itemType
 	]
 	
