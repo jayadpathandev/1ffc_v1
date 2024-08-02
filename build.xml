@@ -145,6 +145,12 @@
         <copy todir="${output.dir}/apps/extdoc/drivers/vault">
             <fileset dir="${dss.dir}/extdoc/vault"/>
         </copy>
+
+        <propertyfile file="${output.dir}/apps/extdoc/drivers/vault/vault.properties">
+            <entry key="vf.default" value="collect"/>
+            <entry key="mt.default" value="application/pdf"/>
+        </propertyfile>
+
         <mkdir dir="${output.dir}/apps/extdoc/drivers/billstreams"/>
         <echo file="${output.dir}/apps/extdoc/drivers/billstreams/VAULT_1FFCBills.properties">drivername=vault</echo>
 
