@@ -84,7 +84,19 @@
 								<a class="text-nowrap" href="jumpToAutoPay?offset=${jumpToOffset}">Set&nbsp;up&nbsp;recurring&nbsp;payments</a>				
 							<#else>
 								<#--  automatic payment is disabled -->
-								<a class="text-nowrap disabled pe-none opacity-50" aria-disabled="true">Set&nbsp;up&nbsp;recurring&nbsp;payment</a>				
+								<a class="text-nowrap disabled pe-none opacity-50" aria-disabled="true" "ms-2 text-info float-end" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-trigger="hover focus" title=""
+								    data-bs-original-title="If you are unable to set up a recurring payment, it may be because you already have a recurring payment scheduled or due to other reasons. Please contact your branch for further details."
+								    aria-label="If you are unable to set up a recurring payment, it may be because you already have a recurring payment scheduled or due to other reasons. Please contact your branch for further details.">
+									Set&nbsp;up&nbsp;recurring&nbsp;payment
+									<span sorriso="icon-info">
+								        <svg aria-hidden="true" role="img" class="octicon octicon-info" viewBox="0 0 16 16"
+								            width="16" height="16" fill="currentColor"
+								            style="display: inline-block; user-select: none; vertical-align: text-bottom; overflow: visible;">
+								            <path fill-rule="evenodd"
+								                d="M8 1.5a6.5 6.5 0 100 13 6.5 6.5 0 000-13zM0 8a8 8 0 1116 0A8 8 0 010 8zm6.5-.25A.75.75 0 017.25 7h1a.75.75 0 01.75.75v2.75h.25a.75.75 0 010 1.5h-2a.75.75 0 010-1.5h.25v-2h-.25a.75.75 0 01-.75-.75zM8 6a1 1 0 100-2 1 1 0 000 2z"></path>
+								        </svg>
+								    </span>
+								</a>																				
 							</#if>
 							<#break>
 						<#case "activeAccount">
@@ -97,14 +109,38 @@
 								<a class="text-nowrap" href="overviewJumpToAutoPay?offset=${jumpToOffset}">Set&nbsp;up&nbsp;recurring&nbsp;payments</a>				
 							<#else>
 								<#--  automatic payment is disabled -->
-								<a class="text-nowrap disabled pe-none opacity-50" aria-disabled="true">Set&nbsp;up&nbsp;recurring&nbsp;payment</a>				
+								<a class="text-nowrap disabled pe-none opacity-50" aria-disabled="true" "ms-2 text-info float-end" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-trigger="hover focus" title=""
+								    data-bs-original-title="If you are unable to set up a recurring payment, it may be because you already have a recurring payment scheduled or due to other reasons. Please contact your branch for further details."
+								    aria-label="If you are unable to set up a recurring payment, it may be because you already have a recurring payment scheduled or due to other reasons. Please contact your branch for further details.">
+									Set&nbsp;up&nbsp;recurring&nbsp;payment
+									<span sorriso="icon-info">
+								        <svg aria-hidden="true" role="img" class="octicon octicon-info" viewBox="0 0 16 16"
+								            width="16" height="16" fill="currentColor"
+								            style="display: inline-block; user-select: none; vertical-align: text-bottom; overflow: visible;">
+								            <path fill-rule="evenodd"
+								                d="M8 1.5a6.5 6.5 0 100 13 6.5 6.5 0 000-13zM0 8a8 8 0 1116 0A8 8 0 010 8zm6.5-.25A.75.75 0 017.25 7h1a.75.75 0 01.75.75v2.75h.25a.75.75 0 010 1.5h-2a.75.75 0 010-1.5h.25v-2h-.25a.75.75 0 01-.75-.75zM8 6a1 1 0 100-2 1 1 0 000 2z"></path>
+								        </svg>
+								    </span>
+								</a>			
 							</#if>
 							<#break>
 						<#case "closedAccount">
 							<#-- Other links enabled, payment link disabled -->
 							<a class="me-4 disabled pe-none opacity-50" aria-disabled="true">View statement</a>
-							<#-- <a class="me-4 text-nowrap" href="#" st-pop-in="fffcViewTransactions?offset=${jumpToOffset}">Transaction History</a> -->
-							<a class="text-nowrap disabled pe-none opacity-50" aria-disabled="true">Set&nbsp;up&nbsp;recurring&nbsp;payment</a>				
+							<#-- <a class="me-4 text-nowrap" href="#" st-pop-in="fffcViewTransactions?offset=${jumpToOffset}">Transaction History</a> -->	
+							<a class="text-nowrap disabled pe-none opacity-50" aria-disabled="true" "ms-2 text-info float-end" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-trigger="hover focus" title=""
+							    data-bs-original-title="If you are unable to set up a recurring payment, it may be because you already have a recurring payment scheduled or due to other reasons. Please contact your branch for further details."
+							    aria-label="If you are unable to set up a recurring payment, it may be because you already have a recurring payment scheduled or due to other reasons. Please contact your branch for further details.">
+								Set&nbsp;up&nbsp;recurring&nbsp;payment
+								<span sorriso="icon-info">
+							        <svg aria-hidden="true" role="img" class="octicon octicon-info" viewBox="0 0 16 16"
+							            width="16" height="16" fill="currentColor"
+							            style="display: inline-block; user-select: none; vertical-align: text-bottom; overflow: visible;">
+							            <path fill-rule="evenodd"
+							                d="M8 1.5a6.5 6.5 0 100 13 6.5 6.5 0 000-13zM0 8a8 8 0 1116 0A8 8 0 010 8zm6.5-.25A.75.75 0 017.25 7h1a.75.75 0 01.75.75v2.75h.25a.75.75 0 010 1.5h-2a.75.75 0 010-1.5h.25v-2h-.25a.75.75 0 01-.75-.75zM8 6a1 1 0 100-2 1 1 0 000 2z"></path>
+							        </svg>
+							    </span>
+							</a>			
 							<#break>
 						<#case "unknown">
 						<#default>
