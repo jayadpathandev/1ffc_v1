@@ -11,9 +11,9 @@
 	"lastName" : "$lastName",
 	"transactionId": "$transactionId",
 #if ($payDateRaw)                                   
-    "payDate": "$date.format('dd MMM yyyy', $date.toDate('yyyyMMdd hhmmss', $payDateRaw))",
+    "payDate": "$date.format('MMMM dd, yyyy', $date.toDate('yyyyMMdd hhmmss', $payDateRaw))",
 #else
-    "payDate": "$payDate",
+    "payDate": "$date.format('MMMM dd, yyyy', $date.toDate('yyyy-MM-dd', $payDate))",
 #end
 	"adjusted" : "$adjusted",
 	"surchargeFlag" : "$surchargeFlag",
