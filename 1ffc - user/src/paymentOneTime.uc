@@ -230,6 +230,7 @@ useCase paymentOneTime [
 	native string sPayDataSourceName    = UcPaymentAction.sourceName(sPayData)
 	native string sPayDataSourceAccount = UcPaymentAction.sourceAccount(sPayData)
 	native string sPayDataSourceType    = UcPaymentAction.sourceType(sPayData)
+	native string sPayFlexValue
 	     	
 	input sTotalPayAmt
 	input sSurCharge = ""
@@ -2163,20 +2164,20 @@ useCase paymentOneTime [
 
 	action addConvenienceFee [
 		sSurchargeAmountComplete = surchargeResult.convenienceFeeAmt
-		srMakePaymentParam.FLEX_VALUE = "convenienceFee=true" + "|" + "convenienceFeeAmount=" + surchargeResult.convenienceFeeAmt
+		sPayFlexValue = "convenienceFee=true" + "|" + "convenienceFeeAmount=" + surchargeResult.convenienceFeeAmt
 		srMakePaymentParam.FLEX_DEFINITION = flexDefinition
 		
 		goto(appendDisplayNumberToFlex)
 	]
 	
 	action addDisplayNumberToFlex [
-		srMakePaymentParam.FLEX_VALUE = "displayAccountNumber=" + sPayAccountExternal
+		sPayFlexValue = "displayAccountNumber=" + sPayAccountExternal
 		srMakePaymentParam.FLEX_DEFINITION = flexDefinition
 		goto(submitPayment)
 	]
 	
 	action appendDisplayNumberToFlex [
-		srMakePaymentParam.FLEX_VALUE = "|" + "displayAccountNumber=" + sPayAccountExternal
+		sPayFlexValue = sPayFlexValue + "|" + "displayAccountNumber=" + sPayAccountExternal
 		goto(submitPayment)
 	]
  	
@@ -2190,6 +2191,7 @@ useCase paymentOneTime [
 		srMakePaymentParam.PMT_DATE = sPaymentDate
 		srMakePaymentParam.USER_ID = sUserId
 		srMakePaymentParam.TOKEN = token
+		srMakePaymentParam.FLEX_VALUE = sPayFlexValue
 		
 		switch apiCall Payment.MakePayment(srMakePaymentParam, srMakePaymentResult, ssStatus) [
 		    case apiSuccess checkMakePaymentSubmit
