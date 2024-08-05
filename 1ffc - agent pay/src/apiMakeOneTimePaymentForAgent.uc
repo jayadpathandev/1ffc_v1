@@ -24,6 +24,7 @@ useCase apiMakeOneTimePaymentForAgent
 	native volatile string sCustomerId   = ApiPay.customerId()
 	native volatile string sAccountId    = ApiPay.accountId()
 	native volatile string sHasPaySource = ApiPay.hasWallet()
+	native string flexDefinition = Config.get("1ffc.flex.definition")
 	
 	native string sStatus
 	native string sTransId
@@ -262,10 +263,12 @@ useCase apiMakeOneTimePaymentForAgent
 
 		makeRequest.ONLINE_TRANS_ID = sPayId
 		makeRequest.CURRENCY = "USD"
-
+		
 		MakePayment.accountJson(makeRequest.GROUPING_JSON)
 		MakePayment.totalAmount    (makeRequest.AMOUNT)
 		MakePayment.payDate        (makeRequest.PMT_DATE)
+		MakePayment.flexValue	   (makeRequest.FLEX_VALUE)
+		MakePayment.flexDefinition (makeRequest.FLEX_DEFINITION, flexDefinition)
 
 		ApiPay.companyId           (makeRequest.COMPANY_ID) 
 		ApiPay.userid              (makeRequest.USER_ID)

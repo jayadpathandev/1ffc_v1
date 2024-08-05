@@ -1,6 +1,7 @@
 package com.sorrisotech.fffc.agent.pay;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -159,6 +160,7 @@ public class MakePayment {
 		method.put("nickName", current.walletName());
 		method.put("expiry", current.walletExpiry());
 		method.put("token",current.walletToken());
+		method.put("type", current.walletType());
 		root.set("payMethod", method);
 		
 		final var grouping = mapper.createArrayNode();
@@ -194,5 +196,46 @@ public class MakePayment {
 		final var df = new DecimalFormat("###.00");
 
 		value.putValue(df.format(mAmount));
+	}
+	
+	// *************************************************************************
+	public void flexValue(
+			final IUserData   data,
+			final IStringData value
+		) throws MargaritaDataException, ClassNotFoundException {
+		
+		StringBuilder result = new StringBuilder();
+		final PaySession current = data.getJavaObj(ApiPay.class).current();
+		
+		if ("debit".equals(current.walletType()) ) {
+			
+			if (mSurcharge != null && BigDecimal.ZERO.compareTo(mSurcharge) != 0) {
+				result.append("convenienceFee=true" + "|" + "convenienceFeeAmount=" + mSurcharge.setScale(2, RoundingMode.HALF_UP).toPlainString());
+				result.append("|");
+			}
+			
+			if (current.accountNumber() == null) {
+				throw new RuntimeException("DisplayAccountNumber is not set.");
+			}
+			
+			result.append("displayAccountNumber=" + current.accountNumber());
+			
+			value.putValue(result.toString());
+		}
+		
+	}
+	
+	// *************************************************************************
+	public void flexDefinition(
+			final IUserData   data,
+			final IStringData value,
+			final IStringData definition
+		) throws MargaritaDataException, ClassNotFoundException {
+
+		final PaySession current = data.getJavaObj(ApiPay.class).current();
+		
+		if ("debit".equals(current.walletType())) {
+			value.putValue(definition.getValue());
+		}
 	}
 }
