@@ -77,23 +77,34 @@
 <#assign nAutomaticPaymentAmount = scheduledPayment.automaticPmtTotalAmt>
 
 <#--  ** amount is the current amount due at the time of this statement.  -->
-<#assign nAmountDue = 0>
-<#assign bBillHasOverdue = bill.isBillOverdue>
 
+<#if 0 < status.amtOverdue >
+	<#assign bBillHasOverdue = true>
+	<#assign nAmountOverdue = status.amtOverdue>
+<#else>
+	<#assign bBillHasOverdue = false>
+	<#assign nAmountOverdue = 0 >
+</#if>
+
+<#assign nAmountDue = 0>
 <#if amount?has_content && amount?string?trim != "">
 	<#assign nAmountDue = amount>
 	<#-- if the there's a credit, then set the amount due for display to 0 -->
 	<#if nAmountDue <= 0>
 		<#assign nAmountDue = 0>
 	</#if>
- 	<#if bBillHasOverdue == true && bill.minDue?has_content && bill.minDue?string?trim != "">
-		<#assign nAmountOverdue = nAmountDue - bill.minDue>
-	<#else>
-		<#assign nAmountOverdue = "0">
-	</#if>
 <#else>
 	<#assign nAmountDue = 0> 	
 </#if>
+
+<#--  ** bAccountCredit is used to turn off messages associated with future payments
+			overdue accounts etc. -->
+<#if (nAmountDue > 0)>
+	<#assign bAccountCredit = false>
+<#else>
+	<#assign bAccountCredit = true>
+</#if>
+
 
 <#-- true if the total of all scheduled payments before payment due date + the automatic payment won't work -->
 <#if scheduledPayment.scheduledPmtTotalAmt?number < nAmountDue> 
@@ -111,15 +122,6 @@
 
 		The test returns 0(false) if due date is is today or in the future, 1(true) if we are passed the due date -->
 <#assign bPastDueDate = status.dueDate?date < .now?string["MM/dd/yyyy"]?date />
-<#assign bBillHasOverdue = bill.isBillOverdue>
-
-<#--  ** bAccountCredit is used to turn off messages associated with future payments
-			overdue accounts etc. -->
-<#if (nAmountDue > 0)>
-	<#assign bAccountCredit = false>
-<#else>
-	<#assign bAccountCredit = true>
-</#if>
 
 <#--  ** status.dueDate is the due date for this bill -->
 <#assign dDueDate = status.dueDate?date>		<#--  we use this everywhere so make it a variable -->
