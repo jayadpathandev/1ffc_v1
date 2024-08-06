@@ -396,5 +396,12 @@ public class UserStatusCacheItem implements IUserStatusCacheItem, IUserStatusIte
 		return ldPaymentDueDate;
 	}
 
+	@Override
+	public BigDecimal getMinimumPaymentFromStatus(String cszPaymentGroup, String cszAccountIdentifier)
+			throws AccountStatusException {
+		BigDecimal dMinPayment = getStatusElement(cszPaymentGroup, cszAccountIdentifier).getMinimumPaymentDue();
+		return dMinPayment;
+	}
+
 	
 }

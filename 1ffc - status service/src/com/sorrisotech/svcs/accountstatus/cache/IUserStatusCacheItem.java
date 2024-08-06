@@ -270,6 +270,16 @@ public interface IUserStatusCacheItem {
 	 * @throws AccountStatusException
 	 */
 	abstract public BigDecimal getPaymentDueDate(String cszPaymentGroup, String cszAccountIdentifier) throws AccountStatusException;
+	
+	/**
+	 * Returns the minimum payment due amount from the status record
+	 * 
+	 * @param cszPaymentGroup
+	 * @param cszAccountIdentifier
+	 * @return
+	 * @throws AccountStatusException
+	 */
+	abstract public BigDecimal getMinimumPaymentFromStatus( String cszPaymentGroup, String cszAccountIdentifier) throws AccountStatusException;
 
 
 }

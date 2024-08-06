@@ -37,6 +37,7 @@ import com.sorrisotech.svcs.serviceapi.api.ServiceAPIErrorCode;
  *  @version 01-Feb-2024 jak	Added account balance
  *  @version 30-May-2024 jak	Added payment due date
  *  @VERSION 12-jUL-2024 JAK 	Added last status update time
+ *  @version 2024-Aug-06 jak	Added minimum amount due as part of call
  *  
  *  @since 24-Sep-2023
  *  @author John A. Kowalonek 
@@ -76,8 +77,9 @@ public class GetStatus extends GetStatusBase {
 				request.set(IApiAccountStatus.GetStatus.statusDate, cacheItem.getMostRecentUpdate(sPaymentGroup, sAccount).toString());
 				request.set(IApiAccountStatus.GetStatus.accountBalance, cacheItem.getAccountBalance(sPaymentGroup, sAccount));
 				request.set(IApiAccountStatus.GetStatus.paymentDueDate, cacheItem.getPaymentDueDate(sPaymentGroup, sAccount));
+				request.set(IApiAccountStatus.GetStatus.minimumAmountDue, cacheItem.getMinimumPaymentFromStatus(sPaymentGroup, sAccount));
 				request.set(IApiAccountStatus.GetStatus.lastUpdateTimestamp, cacheItem.getLastUpdate());
-				rVal = ServiceAPIErrorCode.Success;
+						rVal = ServiceAPIErrorCode.Success;
 			} catch (AccountStatusException e) {
 				LOG.error("GetStatus:processInternal -- failed to get status for user {}, group {}, acct {}",
 						sUser, sPaymentGroup, sAccount, e);

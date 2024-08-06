@@ -257,7 +257,7 @@ useCase accountOverview [
 	//		So customers can pay up to the TotalDue, but should pay the docAmount to stay current and
 	//		need to pay at least the minimumDue when they are in arrears. --
 	
-    number        previousAmt  = Math.subtract(srBillOverviewResult.totalDue, srBillOverviewResult.docAmount)                
+    number        	previousAmt  = Math.subtract(srBillOverviewResult.totalDue, srBillOverviewResult.docAmount)                
     native string sStatusLocalDateTime
     native string sStatusLocalAmountDue
 
@@ -267,8 +267,12 @@ useCase accountOverview [
 										sStatusLocalDateTime,				// -- most recent status date
 										sStatusLocalAmountDue	)			// -- status amount due
     
-
-   
+	volatile number	curOverdueAmt = CurrentBalanceHelper.amountOverdue(
+										sPayGroup,							// -- payment group
+										sAccount,							// -- internal account
+										sStatusLocalDateTime,				// -- most recent status date
+										sStatusLocalAmountDue				// -- status amount due
+										srGetStatusResult.minimumAmountDue) // -- what the status thinks is min amount due
    volatile native string bIsAccountCurrent = CurrentBalanceHelper.isAccountCurrent(
     									sPayGroup,							// -- payment group
 										sAccount,							// -- internal account
@@ -477,8 +481,7 @@ useCase accountOverview [
  	 * 				the current amount due.  This happens after the system retrieves the bill
  	 *				information and calculating the current amount due. 
  	 */ 
-	action setStatusGroupVariables [
-
+	action setStatusGroupVariables[
 		FtlTemplate.setItemValue(sActiveTemplate, sStatusGrp, "accountStatus",  "string", sLocalAccountStatus)
 		FtlTemplate.setItemValue(sActiveTemplate, sStatusGrp, "bPayEnabled", 	 "boolean", bLocalPaymentEnabled)
 		FtlTemplate.setItemValue(sActiveTemplate, sStatusGrp, "paymentEnabled", "string", srGetStatusResult.paymentEnabled)
@@ -486,6 +489,7 @@ useCase accountOverview [
 		FtlTemplate.setItemValue(sActiveTemplate, sStatusGrp, "viewAccount",    "string", srGetStatusResult.viewAccount)
 		FtlTemplate.setItemValue(sActiveTemplate, sStatusGrp, "accountBalance", "number", srGetStatusResult.accountBalance)
 		FtlTemplate.setItemValue(sActiveTemplate, sStatusGrp, "dueDate", "dateDb", srGetStatusResult.paymentDueDate)
+		FtlTemplate.setItemValue(sActiveTemplate, sStatusGrp, "amtOverdue", "number", curOverdueAmt)
 		FtlTemplate.setItemValue(sActiveTemplate, sRootGrp,   "jumpToOffset", "string", AccountOffset)
 
 		// building edit nickname popin url

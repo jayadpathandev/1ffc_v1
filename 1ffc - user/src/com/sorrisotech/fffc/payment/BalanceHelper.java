@@ -333,4 +333,43 @@ public class BalanceHelper extends FffcBalance {
 		return firstAmount.add(secondAmount).toString();
 		
 	}
+	
+	/**
+	 * returns the amount overdue or 0 if there is nothing overdue
+	 * 
+	 * @param cszPayGroup
+	 * @param cszIntAccount
+	 * @param cszStatusTimeStamp
+	 * @param cszStatusBalance
+	 * @param cszMinDue
+	 * @return
+	 */
+	public static String amountOverdue (
+			final String 		cszPayGroup,
+			final String 		cszIntAccount,
+			final String 		cszStatusTimeStamp,
+			final String	 	cszStatusBalance,
+			final String		cszMinDue ) {
+		
+		BigDecimal bdRet = BigDecimal.ZERO;
+		BigDecimal lMinDue = BigDecimal.ZERO;
+		
+		BigDecimal lAmtDue = getCurrentBalance(cszPayGroup,
+				cszIntAccount, cszStatusTimeStamp, cszStatusBalance);
+		
+		try {
+			lMinDue = new BigDecimal(cszMinDue);
+		} catch (Exception e) {
+			m_cLog.error("BalanceHelper:overDueAmount - An exception was thrown", e);
+			e.printStackTrace();
+		}
+		
+		if (-1 == lAmtDue.compareTo(lMinDue))
+			bdRet = BigDecimal.ZERO;
+		else
+			bdRet = lAmtDue.subtract(lMinDue);
+		
+		return bdRet.toString();
+	}
+
 }
