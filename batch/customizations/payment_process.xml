@@ -37,7 +37,7 @@
     </jenkins.triggers.ReverseBuildTrigger>
   </triggers>
   <concurrentBuild>false</concurrentBuild>
-  <customWorkspace>${batch.dir}/payment_process</customWorkspace>
+  <customWorkspace>/sorriso/batch/payment_process</customWorkspace>
   <builders>
     <hudson.tasks.Ant plugin="ant@1.2">
       <targets></targets>
