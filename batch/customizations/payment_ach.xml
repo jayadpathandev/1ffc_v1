@@ -40,7 +40,7 @@ payment_sepa</blockingJobs>
     </hudson.triggers.TimerTrigger>
   </triggers>
   <concurrentBuild>false</concurrentBuild>
-  <customWorkspace>${batch.dir}/payment_ach</customWorkspace>
+  <customWorkspace>/sorriso/batch/payment_ach</customWorkspace>
   <builders>
     <hudson.tasks.Ant plugin="ant@1.2">
       <targets></targets>
