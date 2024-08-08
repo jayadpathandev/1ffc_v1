@@ -147,10 +147,8 @@
         </copy>
 
         <propertyfile file="${output.dir}/apps/extdoc/drivers/vault/vault.properties">
-            <entry key="vf.pdf" value="collect"/>
-            <entry key="mt.pdf" value="application/pdf"/>
-            <entry key="vf.html" value="collect"/>
-            <entry key="mt.html" value="text/html"/>
+            <entry key="vf.default.pdf" value="collect"/>
+            <entry key="mt.default.pdf" value="application/pdf"/>
         </propertyfile>
 
         <mkdir dir="${output.dir}/apps/extdoc/drivers/billstreams"/>
