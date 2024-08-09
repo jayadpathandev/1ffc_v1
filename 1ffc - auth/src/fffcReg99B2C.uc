@@ -345,7 +345,7 @@ useCase fffcReg99B2C [
      */
      action setPaperBillNotification [
 		setTopicStateData.userid = sUserId
-		setTopicStateData.topic = "bills_documents"
+		setTopicStateData.topic = "paperless"
 		setTopicStateData.channel = sEmailChannel
 		setTopicStateData.option = sPaperLessOption
         switch apiCall Notifications.ChangeTopicState(setTopicStateData, status) [        
