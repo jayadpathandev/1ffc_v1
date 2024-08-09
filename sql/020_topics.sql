@@ -41,3 +41,5 @@ UPDATE auth_topic_channel SET atc_default='N', atc_visible='N' WHERE atc_channel
 UPDATE auth_topic_channel SET atc_default='Y', atc_visible='N' WHERE atc_topic='system' AND atc_channel='email';
 
 UPDATE auth_topic_channel SET atc_default='Y', atc_visible='N' WHERE atc_topic='payment' AND atc_channel='email';
+
+UPDATE auth_topic_channel SET atc_default='Y', atc_visible='N' WHERE atc_topic='bills_documents' AND atc_channel='email';
