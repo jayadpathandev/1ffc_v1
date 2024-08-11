@@ -16,12 +16,13 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- *   Implements a mmonthly autoamtic payment rule object.
+ *   Implements a monthly automatic payment rule object.
  *   
  *   @author johnk
  *   @since  2024-Jul-19
  *   @version 2024-Jul-19 jak first version
  *   @version 2024-Jul-25 jak cleanup messaging
+ *   @version 2024-Aug-11 jak Updated to remove old automatic payments if needed
  */
 public class MonthlyAutomaticPaymentRule implements IAutomaticPaymentRule {
 
@@ -84,6 +85,21 @@ public class MonthlyAutomaticPaymentRule implements IAutomaticPaymentRule {
 				String lszPayDayOfMonth = null;
 				String lszBillingAcctNumber = null;
 				String lszPayMethod = "Debit"; // -- current file contains all debit --
+				Integer liExpectedRecordSize = 8;
+				
+				if (record.length < liExpectedRecordSize) {
+					LOG.warn("OneTimeScheduledPayment:createScheduledPaymentList -- Record too short account: {}. Skipping payment.",
+							record[ciBillingAccountNumberPos]);
+					MigrateRecord rcd = new MigrateRecord();
+					rcd.displayAcct = record[ciBillingAccountNumberPos];
+					rcd.migrationStatus = "failed";
+					rcd.pmtType = "recurring";
+					rcd.failReaon = "record to short.";
+					MigrationRpt.reportItem(rcd);
+					iSkipped++;
+					continue;
+				}
+					
 				
 				// -- this served a purpose with a previous listing that did not combined
 				//		the branch and loan number 
@@ -188,7 +204,8 @@ public class MonthlyAutomaticPaymentRule implements IAutomaticPaymentRule {
 		return lAutoPaymentList;
 	}
 		
-		/** Converts payment date fed in as MM/dd/yyyy into a day of the month
+		/** Converts payment date fed in as date format specified in the properties
+		 * 		file and convert that into a day of the month
 		 * 
 		 * @param cszPayDate
 		 * @param cszAcctNum
@@ -197,15 +214,28 @@ public class MonthlyAutomaticPaymentRule implements IAutomaticPaymentRule {
 		private static String convertPaymentDateToDay(final String cszPayDate) {
 			Calendar lcPayDate = null;
 			String szRet = null;
-			try {
-				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-				Date date = sdf.parse(cszPayDate);
-				lcPayDate = Calendar.getInstance();
-				lcPayDate.setTime(date);
-				Integer day = lcPayDate.get(Calendar.DAY_OF_MONTH);
-				szRet = day.toString();
-			} catch (ParseException e) {
-				szRet = null;
+
+			// -- get the configuration -- 
+			final String cszFormatDayOnly = "DayOfMonth";
+			final String cszDateFormat = "AutoPayInputDateFormat";
+			String szDateFormat = Config.get(cszDateFormat);
+
+			if ((null != szDateFormat) && (0 == szDateFormat.compareTo(cszFormatDayOnly))) {
+				szRet= cszPayDate;
+			} else {
+				try {
+					SimpleDateFormat sdf = new SimpleDateFormat(cszDateFormat);
+					Date date = sdf.parse(cszPayDate);
+					lcPayDate = Calendar.getInstance();
+					lcPayDate.setTime(date);
+					Integer day = lcPayDate.get(Calendar.DAY_OF_MONTH);
+					szRet = day.toString();
+				} catch (ParseException e) {
+					LOG.error("MonthlyAutomaticPaymentRule:convertPaymentDateToDate -- " + 
+							"Date format failure, check properties file. " + 
+							"Format processed = ", szDateFormat);
+					szRet = null;
+				}
 			}
 			return szRet;
 		}
@@ -239,12 +269,12 @@ public class MonthlyAutomaticPaymentRule implements IAutomaticPaymentRule {
 
 	@Override
 	public void createAutomaticPaymentRule() {
-		CreatePayment pmt = new CreatePayment();
+		PaymentAPI pmt = new PaymentAPI();
 		WebSvcReturnCode code = pmt.createAutomaticPaymentRule(this);
 		if (null == code){
 			WebSvcReturnCode code2 = pmt.getAutomaticPaymentRule(m_szCustomerId,
-																 m_szExternalAccount,
-																 m_szInternalAccount);
+																 m_szInternalAccount,
+																 m_szExternalAccount);
 			
 			MigrateRecord rcd = new MigrateRecord();
 			if (null == code2) rcd.validated = "true";
@@ -271,12 +301,11 @@ public class MonthlyAutomaticPaymentRule implements IAutomaticPaymentRule {
 		MigrationRpt.flushReport();
 	}
 	
-	public void deleteAutomaticPaymentRule() {
-		CreatePayment pmt = new CreatePayment();
-		WebSvcReturnCode code = pmt.deleteAutomaticPaymentRule(
-					this.m_szCustomerId,
-					this.m_szExternalAccount,
-					this.m_szInternalAccount);
+
+	@Override
+	public void removeOldAutomaticPaymentInfo() {
+		PaymentAPI pmt = new PaymentAPI();
+		WebSvcReturnCode code = pmt.deleteAutomaticPaymentRuleAndPmts(this);
 		if (null == code){
 			MigrateRecord rcd = new MigrateRecord();
 			if (null == code) rcd.validated = "true";
@@ -285,7 +314,7 @@ public class MonthlyAutomaticPaymentRule implements IAutomaticPaymentRule {
 			rcd.internalAcct =  m_szInternalAccount;
 			rcd.recurDay = m_szPaymentDay;
 			rcd.migrationStatus = "success";
-			rcd.pmtType = "delete recurring";
+			rcd.pmtType = "delete existing recurring pmt";
 			MigrationRpt.reportItem(rcd);
 		}
 		else {
@@ -295,15 +324,19 @@ public class MonthlyAutomaticPaymentRule implements IAutomaticPaymentRule {
 			rcd.customerId = m_szCustomerId;
 			rcd.internalAcct =  m_szInternalAccount;
 			rcd.recurDay = m_szPaymentDay;
-			rcd.migrationStatus = "failed";
-			rcd.pmtType = "delete recurring";
+			if (code.success)
+				rcd.migrationStatus = "success";
+			else
+				rcd.migrationStatus = "failed";
+			rcd.pmtType = "delete exiting recurring pmt";
 			rcd.failReaon = code.getFriendlyMessage();
 			MigrationRpt.reportItem(rcd);
 		}
 		MigrationRpt.flushReport();
 		
+		
 	}
-
+	
 	@Override
 	public String getDisplayAccount() {
 		return m_szExternalAccount;
@@ -334,5 +367,6 @@ public class MonthlyAutomaticPaymentRule implements IAutomaticPaymentRule {
 	public PmtAcct getPayAcct() {
 		return m_oPayAcct;
 	}
+
 
 }

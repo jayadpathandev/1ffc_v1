@@ -298,10 +298,10 @@ public class OneTimeScheduledPayment implements IScheduledPayment {
 	@Override
 	public void createScheduledPayment() {
 
-		CreatePayment pmt = new CreatePayment();
+		PaymentAPI pmt = new PaymentAPI();
 		WebSvcReturnCode code = pmt.createScheduledPayment(this);
 		if(null == code) {
-			WebSvcReturnCode code2 = pmt.getScheduledPayment(m_szCustomerId, m_szExternalAccount, m_szInternalAccount, m_szPaymentId);
+			WebSvcReturnCode code2 = pmt.getScheduledPayment(m_szCustomerId,  m_szInternalAccount, m_szExternalAccount, m_szPaymentId);
 			MigrateRecord rcd = new MigrateRecord();
 			rcd.displayAcct = m_szExternalAccount;
 			rcd.customerId = m_szCustomerId;

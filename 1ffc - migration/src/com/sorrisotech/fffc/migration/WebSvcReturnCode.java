@@ -20,6 +20,15 @@ public class WebSvcReturnCode {
 			getAutomaticPaymentRule,
 			unknown
 	};
+	
+	public WebSvcReturnCode() {
+		success = false;
+	}
+	
+	public WebSvcReturnCode(final Boolean cbSuccess)
+	{
+		success = cbSuccess;
+	}
 	public PmtMethod payMethod = PmtMethod.unknown;
 	public String statusCode = null;
 	public Boolean success = true;

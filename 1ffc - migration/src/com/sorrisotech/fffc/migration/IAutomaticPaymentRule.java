@@ -18,6 +18,11 @@ public interface IAutomaticPaymentRule {
 	 */
 	public void createAutomaticPaymentRule();
 
+	/**
+	 * Removes an existing automatic payment rule for this 
+	 * account if one exists and the payment info if that is selected
+	 */
+	public void removeOldAutomaticPaymentInfo();
 	
 	/**
 	 * Returns customerId associatd with this payment rule
