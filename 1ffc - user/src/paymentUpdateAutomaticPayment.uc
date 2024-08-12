@@ -151,7 +151,7 @@ useCase paymentUpdateAutomaticPayment [
 	
 	static sPaymentDateWarningText = "{[p]You are scheduling an automatic payment for a date that happens after your current due date of [b]<1>[/b]. Accounting for any scheduled payments, you’ll need to make a payment of [b]<2>[/b] before your current due date to ensure your account remains current.[/p][br]"
 				+ "[p]Choose [b]Cancel[/b] - to exit without creating a recurring payment.[/p][br]"
-				+ "[p]Choose [b]Create recurring only[/b] -  to create the recurring payment, you will be responsible for ensuring you may the current balance on or before your due date.[/p][br]"
+				+ "[p]Choose [b]Create recurring only[/b] -  to create the recurring payment, you will be responsible for ensuring you pay the current balance on or before your due date.[/p][br]"
 				+ "[p]Choose [b]Continue[/b] - to schedule a payment amount of [b]<3>[/b] on [b]<4>[/b] and then create the recurring payment.[/p]}"
 	
 	native string sAmount = EsignHelper.formatAmount(sPayGroup, sBillDueRemainingAmount)
