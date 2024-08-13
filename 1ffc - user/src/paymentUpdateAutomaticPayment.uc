@@ -156,8 +156,10 @@ useCase paymentUpdateAutomaticPayment [
 	
 	native string sAmount = EsignHelper.formatAmount(sPayGroup, sBillDueRemainingAmount)
 	native string sDueDate = EsignHelper.formatDate(sBillDueDate, "yyyyMMdd", "MMMM dd, yyyy")
-	native string sformattedDueDate = EsignHelper.formatDate(sBillDueDate, "yyyyMMdd", "yyyy-MM-dd")
-	volatile string sPaymentDateWarningLabel = I18n.translate ("paymentUpdateAutomaticPayment_sPaymentDateWarningText", sDueDate, sAmount, sAmount, sDueDate)
+	volatile string sCurrentDate = FffcAccountAction.getTodaysDate()
+	native string sCurrentDateForPopinMsg = EsignHelper.formatDate(sCurrentDate, "yyyyMMdd", "MMMM dd, yyyy")
+	native string sformattedCurrentDate = EsignHelper.formatDate(sCurrentDate, "yyyyMMdd", "yyyy-MM-dd")
+	volatile string sPaymentDateWarningLabel = I18n.translate ("paymentUpdateAutomaticPayment_sPaymentDateWarningText", sDueDate, sAmount, sAmount, sCurrentDateForPopinMsg)
 	
 	native string sPaymentMethodNickName = ""
 	native string sPaymentMethodType = ""
@@ -176,7 +178,7 @@ useCase paymentUpdateAutomaticPayment [
 	
 	volatile string sGroupingJson = 
 		CurrentBalanceHelper.createGrouingJson(
-            sformattedDueDate,
+            sformattedCurrentDate,
             dWalletItems,
             sPayAccountInternal,
             sPayAccountExternal,
@@ -1243,7 +1245,7 @@ useCase paymentUpdateAutomaticPayment [
 		srSetScheduledParam.SOURCE_ID           = dWalletItems
 		srSetScheduledParam.PAY_TYPE            = "onetime"
 		srSetScheduledParam.PAY_AMT             = sPayTotalAmount
-		srSetScheduledParam.PAY_DATE            = sformattedDueDate				
+		srSetScheduledParam.PAY_DATE            = sformattedCurrentDate				
 		srSetScheduledParam.PAY_STATUS          = "scheduled"		
 		srSetScheduledParam.USER_ID             = sUserId
 		srSetScheduledParam.SOURCE_DETAILS      = sPaymentMethodNickName + "|" + sPaymentMethodType + "|" + sPaymentMethodAccount
@@ -1268,7 +1270,7 @@ useCase paymentUpdateAutomaticPayment [
     		transactionId
     		dWalletItems
     		sPayTotalAmount
-    		sformattedDueDate
+    		sformattedCurrentDate
     		sAuditIteratorNext
     	]
 		
@@ -1289,7 +1291,7 @@ useCase paymentUpdateAutomaticPayment [
     		transactionId
     		dWalletItems
     		sPayTotalAmount
-    		sformattedDueDate
+    		sformattedCurrentDate
     		sAuditIteratorNext
     	]
 		
