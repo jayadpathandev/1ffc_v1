@@ -155,7 +155,7 @@ public class FffcAccountAction implements IExternalReuse {
 					
 					// -- Only show edit and cancel icon when it's one time payment
 					cRow.setDataValue("EDIT_CLASS", 	"payment-edit-img st-left-space");
-					cRow.setDataValue("CANCEL_CLASS", 	"payment-cancel-img st-left-space");
+//					cRow.setDataValue("CANCEL_CLASS", 	"payment-cancel-img st-left-space");
 				}
 				
 				boolean bFound = false;
