@@ -238,8 +238,7 @@ useCase paymentHistory [
         "SOURCE_TYPE"   	  => string sSourceType
         "SOURCE_NUM"   	      => string sSourceNum
         "PAY_GROUP"           => string sPayGroup
-        "EDIT_CLASS" 		  => string sEditClass
-        "CANCEL_CLASS"		  => string sCancelClass
+        "EDIT_CLASS" 		  => string sEditClass     
         
         link "" futurePaymentDetails(futurePaymentDetailsPopin) [          
            sOnlineTransId: sOnlineTransId             
@@ -322,15 +321,14 @@ useCase paymentHistory [
 
            		futurePaymentEdit: [
            			^type: "popin"      	
-//         			attr_class: "payment-edit-img st-left-space"     	 
- 					attr_class: sEditClass
+//         			attr_class: "payment-edit-img st-left-space"  
+					attr_class: sEditClass   	 
  					popin_size: "xl"         				
            		],
            		            	            	
             	futurePaymentDelete: [
            			^type: "popin"    
- //          		attr_class: "payment-cancel-img st-left-space"  
-           			attr_class: sCancelClass     			
+           			attr_class: "payment-cancel-img st-left-space"      			
            		]  
            ]
        ]                  
