@@ -85,7 +85,8 @@ useCase paymentAutomatic [
     string sMessageDelete             = "{Recurring payment has been successfully removed from <1>.}"  
     string sNoChangeMsg               = "{You didn't change any option. The system took no action as a result.}"
     string sErrorMsg                  = "{An error occurred while trying to fulfill your request. Please try again later}"
-    string sConfirmDeleteText         = "{Are you sure you want to delete the recurring payment from <1>?}"
+//  string sConfirmDeleteText         = "{Are you sure you want to delete the recurring payment from <1>?}"
+    string sConfirmDeleteText         = "{You have canceled your recurring payment schedule. Please ensure that you also cancel any individually scheduled payments to avoid being charged.}"    
     string sImportantInfo 			  = "{Important Information: Please allow up to 20 minutes for payments made in your online services account to be reflected in 1st Franklin's loan servicing system.}"
     
     // Bring over from b2b    
