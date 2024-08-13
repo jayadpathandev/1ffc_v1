@@ -92,6 +92,9 @@ define service AgentPay(com.sorrisotech.app.serviceapi.uc.UcRequestClient) [
     	string accountHolder
     	string maskedNumber
     	string expiration
+    	string routingNumber
+    	string accountType
+		string accountNumber
     ] returns [
     	string token
     	string addResponseStatus
