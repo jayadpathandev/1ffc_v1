@@ -82,6 +82,10 @@ public class AddMigratedPaymentSource extends AddMigratedPaymentSourceBase {
 		final String maskedNumber = request.getString(IApiAgentPay.AddMigratedPaymentSource.maskedNumber);
 		final String expiration = request.getString(IApiAgentPay.AddMigratedPaymentSource.expiration);
 		
+		final String routingNumber = request.getString(IApiAgentPay.AddMigratedPaymentSource.routingNumber);
+		final String accountType = request.getString(IApiAgentPay.AddMigratedPaymentSource.accountType);
+		final String accountNumber = request.getString(IApiAgentPay.AddMigratedPaymentSource.accountNumber);
+		
 		request.setToResponse();
 
 		ApiPayUser cUser = m_cApiPayDao.user(customerId);
@@ -114,52 +118,38 @@ public class AddMigratedPaymentSource extends AddMigratedPaymentSourceBase {
 		
 		final String szUrl = szPaymentBaseUrl + "addPaymentSource";
 		
-		 // Construct the JSON request body
-        JSONObject requestBody = new JSONObject();
-        JSONObject source = new JSONObject();
-        JSONObject creditCard = new JSONObject();
-        JSONObject accountHolderMap = new JSONObject();
 
+		JSONObject requestBody = new JSONObject();
+		
         switch (sourceType) {
 	        case "debit":
 	        case "credit":
-	            creditCard.put("accountType", sourceType);
-	            creditCard.put("cardNumber", "ACITOKEN|" + sourceValue);
-	            creditCard.put("cardType", "");
-	            creditCard.put("cvvCode", "");
-	            creditCard.put("expirationDate", expiration);
+	        	requestBody = createCardRequest(
+	        			sourceType, 
+	        			sourceValue, 
+	        			accountHolder, 
+	        			maskedNumber, 
+	        			expiration,
+	        			szUserID
+	        	);
 	            break;
 	        case "bank":
+	        	requestBody = createBankRequest(
+	        			sourceType,
+	        			accountNumber,
+	        			routingNumber,
+	        			accountType,
+	        			accountHolder,
+	        			szUserID
+	        	);
+	        	break;
 	        case "sepa":
 	        default:
 				m_cLog.warn("Unsupported Payment type {}.", sourceType);
 				request.setRequestStatus(ServiceAPIErrorCode.Failure);
 				return ServiceAPIErrorCode.Failure;
         }
-
-        accountHolderMap.put("name", accountHolder);
-        accountHolderMap.put("street1", "");
-        accountHolderMap.put("street2", "");
-        accountHolderMap.put("city", "");
-        accountHolderMap.put("state", "");
-        accountHolderMap.put("postalCode", "");
-        accountHolderMap.put("country", "");
-
-        source.put("creditCard", creditCard);
-        source.put("accountHolder", accountHolderMap);
-        source.put("sourceType", sourceType);
-        source.put("nickName", "Migrated token " + maskedNumber.substring(maskedNumber.length() - 4));
-        source.put("default", false);
-        source.put("internalToken", true);
-        source.put("paymentGroup", "");
-        source.put("hostedSourceCapture", true);
-
-        requestBody.put("source", source);
-        requestBody.put("token", "");
-        requestBody.put("userId", szUserID);
-        requestBody.put("saveSource", true);
-        requestBody.put("appType", "b2c");
-        requestBody.put("paymentGroup", "");
+        
 
         try {
             RequestEntity<String> cRequestEntity = RequestEntity
@@ -202,5 +192,89 @@ public class AddMigratedPaymentSource extends AddMigratedPaymentSourceBase {
         request.setRequestStatus(ServiceAPIErrorCode.Failure);
         return ServiceAPIErrorCode.Failure;
 	}
+
+	private JSONObject createCardRequest(
+			final String sourceType, 
+			final String sourceValue, 
+			final String accountHolder,
+			final String maskedNumber, 
+			final String expiration, 
+			final String szUserID
+	) {
+        JSONObject requestBody = new JSONObject();
+        JSONObject source = new JSONObject();
+        JSONObject creditCard = new JSONObject();
+        JSONObject accountHolderMap = new JSONObject();
+
+        creditCard.put("accountType", sourceType);
+        creditCard.put("cardNumber", "ACITOKEN|" + sourceValue);
+        creditCard.put("cardType", "");
+        creditCard.put("cvvCode", "");
+        creditCard.put("expirationDate", expiration);
+
+        accountHolderMap.put("name", accountHolder);
+        accountHolderMap.put("street1", "");
+        accountHolderMap.put("street2", "");
+        accountHolderMap.put("city", "");
+        accountHolderMap.put("state", "");
+        accountHolderMap.put("postalCode", "");
+        accountHolderMap.put("country", "");
+
+        source.put("creditCard", creditCard);
+        source.put("accountHolder", accountHolderMap);
+        source.put("sourceType", sourceType);
+        source.put("nickName", "Migrated token " + maskedNumber.substring(maskedNumber.length() - 4));
+        source.put("default", false);
+        source.put("internalToken", true);
+        source.put("paymentGroup", "");
+        source.put("hostedSourceCapture", true);
+
+        requestBody.put("source", source);
+        requestBody.put("token", "");
+        requestBody.put("userId", szUserID);
+        requestBody.put("saveSource", true);
+        requestBody.put("appType", "b2c");
+        requestBody.put("paymentGroup", "");
+		return requestBody;
+	}
+	
+	private JSONObject createBankRequest(
+		String sourceType,
+        String accountNumber,
+        String routingNumber,
+        String accountType,
+        String accountHolderName,
+        String userId
+    ) {
+        JSONObject bankAccount = new JSONObject();
+        bankAccount.put("accountNumber", accountNumber);
+        bankAccount.put("accountType", accountType);
+        bankAccount.put("bankName", "UNSPECIFIED");
+        bankAccount.put("routingNumber", routingNumber);
+
+        JSONObject accountHolder = new JSONObject();
+        accountHolder.put("name", accountHolderName);
+
+        String nickName = "Bank Account " + accountNumber.substring(accountNumber.length() - 4);
+
+        JSONObject source = new JSONObject();
+        source.put("bankAccount", bankAccount);
+        source.put("accountHolder", accountHolder);
+        source.put("sourceType", sourceType);
+        source.put("nickName", nickName);
+        source.put("default", false);
+        source.put("internalToken", true);
+        source.put("paymentGroup", "");
+
+        JSONObject request = new JSONObject();
+        request.put("source", source);
+        request.put("token", "");
+        request.put("userId", userId);
+        request.put("saveSource", true);
+        request.put("appType", "b2c");
+        request.put("paymentGroup", "");
+
+        return request;
+    }
 
 }

@@ -23,6 +23,10 @@ useCase apiAddMigrationPaymentSource
   	native string sMaskedNumber		= JsonRequest.value("maskedNumber")
   	native string sExpiration		= JsonRequest.value("expiration")
   	
+  	native string sRoutingNumber	= JsonRequest.value("routingNumber")
+  	native string sAccountType		= JsonRequest.value("accountType")
+  	native string sAccountNumber	= JsonRequest.value("accountNumber")
+  	
   	native string sResponseCode = ""
 	
 	serviceStatus ssAddPaymentSource
@@ -120,10 +124,54 @@ useCase apiAddMigrationPaymentSource
 		switch sSourceType [
 			case "debit"	verifySourceValue
 			case "credit"	verifySourceValue
-			case "bank"		verifySourceValue
+			case "bank"		verifyBankRoutingNumber
 			case "sepa"		verifySourceValue
 			default actionInvalidRequest
 		]
+	]
+	
+	action verifyBankRoutingNumber [
+		sErrorStatus = "400"
+    	sErrorDesc   = "Missing required parameter [routingNumber]."
+    	sErrorCode   = "no_routingNumber"
+		
+		if sRoutingNumber != "" then
+			verifyBankAccountType
+		else
+			actionInvalidRequest
+	]
+	
+	action verifyBankAccountType [
+		sErrorStatus = "400"
+    	sErrorDesc   = "Missing required parameter [accountType]."
+    	sErrorCode   = "no_accountType"
+		
+		if sAccountType != "" then
+			verifyBankAccountNumber
+		else
+			actionInvalidRequest
+	]
+	
+	action verifyBankAccountNumber [
+		sErrorStatus = "400"
+    	sErrorDesc   = "Missing required parameter [accountNumber]."
+    	sErrorCode   = "no_accountNumber"
+		
+		if sAccountNumber != "" then
+			verifyBankAccountHolder
+		else
+			actionInvalidRequest
+	]
+	
+	action verifyBankAccountHolder [
+		sErrorStatus = "400"
+    	sErrorDesc   = "Missing required parameter [accountHolder]."
+    	sErrorCode   = "no_accountHolder"
+		
+		if sAccountHolder != "" then
+			authenticateRequest
+		else
+			actionInvalidRequest
 	]
 	
 	/*************************
@@ -225,6 +273,10 @@ useCase apiAddMigrationPaymentSource
     	spAddPaymentSource.accountHolder = sAccountHolder
     	spAddPaymentSource.maskedNumber = sMaskedNumber
     	spAddPaymentSource.expiration = sExpiration
+    	
+    	spAddPaymentSource.routingNumber = sRoutingNumber
+    	spAddPaymentSource.accountType = sAccountType
+    	spAddPaymentSource.accountNumber = sAccountNumber
     	
     	switch apiCall AgentPay.AddMigratedPaymentSource(spAddPaymentSource, srAddPaymentSource, ssAddPaymentSource) [
             case apiSuccess checkSuccessResponseStatus
