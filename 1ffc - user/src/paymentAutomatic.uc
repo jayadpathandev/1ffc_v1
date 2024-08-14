@@ -971,6 +971,7 @@ useCase paymentAutomatic [
 			
 	/* 11. Delete automatic payment. */	
 	action deleteAutomaticPayment [
+		srDeleteAutomaticParam.USER_ID      = sUserId
 		srDeleteAutomaticParam.AUTOMATIC_ID = sSelectedAutomaticId
 		switch apiCall Payment.DeleteAutomaticPayment(srDeleteAutomaticParam, srDeleteAutomaticResult, ssStatus) [
             case apiSuccess deleteAutomaticPaymentHistory

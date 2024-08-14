@@ -37,6 +37,7 @@ public class GetAutoPay extends GetAutoPayBase {
 			op.set(IApiAgentPay.GetAutoPay.automaticCount,   data.stop);
 			op.set(IApiAgentPay.GetAutoPay.automaticPaymentId, data.id);
 			op.set(IApiAgentPay.GetAutoPay.automaticSourceId, data.sourceId);
+			op.set(IApiAgentPay.GetAutoPay.userId, data.userId);
 		} else {
 			op.set(IApiAgentPay.GetAutoPay.automaticEnabled, false);
 			op.set(IApiAgentPay.GetAutoPay.automaticDate,    "");
@@ -44,6 +45,7 @@ public class GetAutoPay extends GetAutoPayBase {
 			op.set(IApiAgentPay.GetAutoPay.automaticCount,   "0");
 			op.set(IApiAgentPay.GetAutoPay.automaticPaymentId, "0");
 			op.set(IApiAgentPay.GetAutoPay.automaticSourceId, "");
+			op.set(IApiAgentPay.GetAutoPay.userId,            "");
 		}
 	}
 

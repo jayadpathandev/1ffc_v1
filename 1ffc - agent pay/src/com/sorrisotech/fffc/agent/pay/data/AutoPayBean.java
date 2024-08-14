@@ -6,5 +6,6 @@ public class AutoPayBean {
 	public String stop;
 	public String id;
 	public String sourceId;
+	public String userId;
 	
 }
