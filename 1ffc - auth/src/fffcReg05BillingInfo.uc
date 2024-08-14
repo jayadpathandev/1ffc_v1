@@ -41,6 +41,8 @@ useCase fffcReg05BillingInfo [
 	importJava UcBillStream(com.sorrisotech.uc.billstream.UcBillStream)
 	importJava UcBillStreams(com.sorrisotech.uc.billstream.UcBillStreams)
 	importJava Config(com.sorrisotech.utils.AppConfig)
+	importJava Initialize(com.sorrisotech.fffc.auth.Initialize)
+	importJava NLSClient(com.sorrisotech.app.^library.nls.NLSClient)
 		
     import validation.dateValidation
 
@@ -132,6 +134,7 @@ useCase fffcReg05BillingInfo [
 	persistent native string sCompanyId
     persistent native string sAppType
     native string sLoginAction
+    volatile native string sNlsServiceStatus =  NLSClient.pingNlsService()
 	
 				
 	number nAccountNumberOrder = UcBillStream.getOrder(sorrisoLanguage, sorrisoCountry, sAccountAttr)
@@ -253,12 +256,28 @@ useCase fffcReg05BillingInfo [
 		string(title) sTitle = "{Something wrong happened}"
 		string(body) sBody = "{An error occurred while trying to fulfill your request. Please try again later.}"
 	]
+	structure(message) msgNlsUnvailableError [
+		string(title) sTitle = "{Your registration cannot be start at this time.}"
+		string(body) sBody = "{An error occurred while trying to start your online registration. Please wait a few hours and try again. If the issue persists, please contact 1st Franklin Support.}"
+	]
 
     /**************************************************************************
      * Main Path.
      **************************************************************************/ 
  
  	action startInit [
+ 		Initialize.init()
+ 		goto(checkNlsServiceStatus)
+ 	]
+ 	
+ 	action checkNlsServiceStatus [
+ 		if  sNlsServiceStatus == "online" then 
+ 		    checkLoginAction
+ 		else 
+ 			nlsUnavailableErrorMsg
+ 	]
+ 	
+ 	action checkLoginAction [
  		if 	sLoginAction == "signup" then 
  			initRegistrationInfo
  		else
@@ -973,5 +992,12 @@ useCase fffcReg05BillingInfo [
 	action genericErrorMsg [
 		displayMessage(type: "danger" msg: msgGenericError)
         goto(gotoScreen)
+	]
+	 /**************************************************************************
+     * Display generic error message due to the unavailability of Nls 
+     */
+	action nlsUnavailableErrorMsg [
+		displayMessage(type: "danger" msg: msgNlsUnvailableError)        
+		gotoModule(LOGIN)
 	]	
 ]

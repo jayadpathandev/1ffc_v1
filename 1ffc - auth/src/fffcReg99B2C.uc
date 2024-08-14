@@ -41,7 +41,6 @@ useCase fffcReg99B2C [
 	importJava UcBillRegistration(com.sorrisotech.uc.billstream.UcBillRegistration) 
 	importJava UserProfile(com.sorrisotech.app.utils.UserProfile) 
 	importJava FffcRegistration(com.sorrisotech.fffc.auth.FffcRegistration)
-	importJava Initialize(com.sorrisotech.fffc.auth.Initialize)
 	importJava Config(com.sorrisotech.utils.AppConfig)
 	   
 	import regChecklist.sAccountInfoFailed
@@ -422,7 +421,7 @@ useCase fffcReg99B2C [
 	 *  14. Sending the user addresses and default contact preferences setting to NLS.
 	 */
     action saveDefaultSettingNls [
-		Initialize.init()
+//		Initialize.init()
 		loadProfile(            
             fffcCustomerId: sOrgId   
             )
