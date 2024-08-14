@@ -439,4 +439,24 @@ public class NLSClient {
 		LOG.error("Error occured in service NLS API calling: " + errorMessage);
 		throw new Exception(errorMessage);
 	}
+	
+	/**********************************************************************************************
+	 * Use to ping NLS service to get NLS status.
+	 * 
+	 * @return String access token to access NLS server.
+	 */
+	public static String pingNlsService() throws Exception {
+		
+		//----------------------------------------------------------------------------------------
+		// We may need another API at NLS side to just check NLS availability status like ping
+		// service.
+		var authResponse = m_cAuthClient.getToken(m_szBaseUrl,
+		        new AuthAccessTokenRequest(m_szClientId, m_szClientSecret), m_szVersion);
+		if (!authResponse.getSuccess()
+		        && !HttpStatus.valueOf(authResponse.getStatuscode()).is2xxSuccessful()) {
+			handleError(authResponse.getErrors());
+		}
+		
+		return authResponse.getSuccess() ? "online" : "offline";
+	}
 }
