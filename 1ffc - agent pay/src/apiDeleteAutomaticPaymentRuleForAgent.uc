@@ -157,7 +157,9 @@ useCase apiDeleteAutomaticPaymentRuleForAgent
 		sErrorDesc = "AutoPayment rule delete failed"
 		sErrorCode = "autopay_delete_failed"
 
+		spDeleteRequest.USER_ID      = srGetAutoPay.^userId
 		spDeleteRequest.AUTOMATIC_ID = sAutoPayId
+		
 		switch apiCall Payment.DeleteAutomaticPayment(spDeleteRequest, srDeleteResult, ssDeleteRequest) [
 			case apiSuccess deleteAutomaticPaymentHistory
 			default actionFailure
