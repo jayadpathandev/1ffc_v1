@@ -31,7 +31,7 @@ useCase fffcReg03ElectronicTnC [
     ]
     
 	checkBoxes cPaperLessOption = false [
-		true : "{Yes, I would like to opt-in for paperless delivery and stop receiving paper statements by email.}"	
+		true : "{Yes, I would like to opt-in for paperless delivery and stop receiving paper statements by mail.}"	
 	]    
 	
 	persistent native string sPaperLessOption = "false"
