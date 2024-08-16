@@ -19,7 +19,9 @@
     "firstName" : "$firstName",
     "lastName" : "$lastName",
     "sourceName" : "$sourceName",
+#if ($accountNumber)
     "accountNumber" : "$maskedAccountNumber",
+#end
     "amount" : "$currencyTool.format($currency, $amount)",
     "surchargeAmount" : "$currencyTool.format($currency, $surchargeAmount)",
     "totalPaidAmount" : "$currencyTool.format($currency, $totalPaidAmount)",
