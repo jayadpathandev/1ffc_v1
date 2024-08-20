@@ -105,7 +105,8 @@ export class PaymentState {
                 flexField : string|undefined
             ) {
         $.ajax('getBillsForPayment', {
-            processData : false, contentType : false
+            processData : false, contentType : false,
+            async       : false
         }).done ((response) => {
 			if (response.success) {
                 function safe(val : number|undefined) : number|undefined {
