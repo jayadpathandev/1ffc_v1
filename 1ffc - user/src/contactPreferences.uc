@@ -39,6 +39,7 @@ useCase contactPreferences [
     importJava AuthUtil(com.sorrisotech.app.common.utils.AuthUtil)
     importJava ContactPrefs(com.sorrisotech.app.profile.ContactPrefs)
     importJava LoginUtil(com.sorrisotech.app.common.utils.LoginUtil)
+    importJava NotifUtil(com.sorrisotech.common.app.NotifUtil)
     importJava PersonaData(com.sorrisotech.app.utils.PersonaData)
     importJava Session(com.sorrisotech.app.utils.Session)	     
     importJava UcProfileAction(com.sorrisotech.app.profile.UcProfileAction)
@@ -87,6 +88,11 @@ useCase contactPreferences [
 	native string sNewSms
 	native string sSmsChannel = "sms"
 	native string sOrgId
+    native string sPaperlessTopic = "paperless"
+	native string sNtfParams = ""
+	native string sFirstName = ""
+	native string sLastName = ""
+    native string sPaperlessEnabled = ""
 	
 	native string sUserId            = Session.getUserId()
     native string sNameSpace         = AuthUtil.getAppNameSpace()
@@ -680,9 +686,34 @@ useCase contactPreferences [
     	setDataFffc.customerId = sOrgId
     	ContactPrefs.toJson(setDataFffc.jsonConfig)
     	switch apiCall FffcNotify.SetContactSettingsNls(setDataFffc, status) [
-    		case apiSuccess genericSuccessMsg
+    		case apiSuccess checkPaperlessUpdated
     		default genericErrorMsg
     	]
+    ]
+    
+    action checkPaperlessUpdated [
+    	switch ContactPrefs.hasCategoryChanges(sPaperlessTopic) [
+  			case "true" sendPaperlessDeliveryEmail
+  			case "false" genericSuccessMsg
+  			default genericErrorMsg
+  		]
+    ]
+    
+    action sendPaperlessDeliveryEmail [
+    	ContactPrefs.categoryState(sPaperlessTopic, sPaperlessEnabled)
+    	loadProfile(            
+            firstName: sFirstName
+            lastName: sLastName
+            )
+    	
+    	sNtfParams = "firstName=" + sFirstName + "|" + 
+					 "lastName=" + sLastName + "|" +
+		             "paperBillingEnabled=" + sPaperlessEnabled 
+
+		switch NotifUtil.sendRegisteredUserEmail(sUserId, sNtfParams, "profile_paper_billing") [
+			case "success" genericSuccessMsg
+			default genericErrorMsg
+		]
     ]
  
     /* User clicks the "Cancel" button. */    
