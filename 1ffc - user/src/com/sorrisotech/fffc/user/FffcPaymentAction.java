@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,11 +38,12 @@ import com.sorrisotech.app.common.utils.I18n;
 import com.sorrisotech.common.DateFormat;
 import com.sorrisotech.svcs.external.IServiceLocator2;
 import com.sorrisotech.svcs.itfc.data.IListData;
-import com.sorrisotech.svcs.itfc.data.IStringData;
 import com.sorrisotech.svcs.itfc.data.IUserData;
 import com.sorrisotech.svcs.payment.model.PaymentWalletFields;
 import com.sorrisotech.uc.payment.UcPaymentAction;
 import com.sorrisotech.utils.AppConfig;
+import com.sorrisotech.utils.DbConfig;
+import com.sorrisotech.utils.Spring;
 
 /******************************************************************************
  * This class deals with the payment transactions.
@@ -60,6 +62,16 @@ public class FffcPaymentAction extends UcPaymentAction {
 	 * Logger for this class.
 	 */
 	private static final Logger m_cLog = LoggerFactory.getLogger(FffcPaymentAction.class);
+	
+	private static DbConfig m_cDbConfig = null;
+	
+	static {
+		try {
+			m_cDbConfig = Spring.getAppConfig().getBean("dbConfig", DbConfig.class);
+		} catch (Exception e) {
+			m_cLog.error("Unable to find dbConfig Bean");
+		}
+	}
 
 	/**************************************************************************
 	 * This method returns a 2D array of payment due values.
@@ -212,5 +224,15 @@ public class FffcPaymentAction extends UcPaymentAction {
 		cCal.add(Calendar.SECOND, nowInApplicationTimeZone.getOffset().getTotalSeconds());
 		
 		return DateFormat.internal(cCal);
+	}
+	
+	/**
+	 * Returns the db_config property value.
+	 * 
+	 * @param key The name of the db_config property
+	 * @return value of the key
+	 */
+	public static String getDbConfigPropertyValue(String key) {
+		return Optional.ofNullable(m_cDbConfig).map(config -> config.getValue(key)).orElse("");
 	}
 }
