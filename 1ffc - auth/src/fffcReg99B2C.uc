@@ -122,7 +122,6 @@ useCase fffcReg99B2C [
    native string sStatusPaymentGroup = Config.get("1ffc.ignore.group")
    native string sBillPaymentGroup = Config.get("1ffc.bill.group")
    native string sAcctForReg = UcBillRegistration.getAccountNum()
-   native string sNtfParams = ""
  	
     // -- message strings for display when use case completes. 			
     structure(message) msgDuplicateAccount [    
@@ -503,29 +502,10 @@ useCase fffcReg99B2C [
      */
     action sendValidationEmail [    
         switch NotifUtil.sendAuthCode(sUserId, sNameSpace, "b2c", fUserName.pInput, sAuthCode, fFirstName.pInput, fLastName.pInput) [         
-            case "success" checkPaperlessEnabled
+            case "success" gotoRegValidateEmailAddress
             case "error"  deleteUserProfile
             default deleteUserProfile
         ]   
-    ]
-    
-    action checkPaperlessEnabled [    
-           if sPaperLessOption == "true" then
-           	  sendPaperlessDeliveryEmail
-           else
-           	   gotoRegValidateEmailAddress
-    ]
-    
-    action sendPaperlessDeliveryEmail [
-    	
-    	sNtfParams = "firstName=" + fFirstName.pInput + "|" + 
-					 "lastName=" + fLastName.pInput + "|" +
-		             "paperBillingEnabled=" + sPaperLessOption 
-
-		switch NotifUtil.sendRegisteredUserEmail(sUserId, sNtfParams, "profile_paper_billing") [
-			case "success" gotoRegValidateEmailAddress
-			default deleteUserProfile
-		]
     ]   
     
     /**************************************************************************
