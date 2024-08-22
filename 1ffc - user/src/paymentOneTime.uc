@@ -392,6 +392,8 @@ useCase paymentOneTime [
     native string sFlexfield = UcPaymentAction.getFlexField()
     native string sBillingType = UcPaymentAction.getBillingBalanceType()
     
+    native string sPaymentIdentifierType = UcPaymentAction.getDbConfigPropertyValue("payment.identifier")
+    
     native string flexDefinition = AppConfig.get("1ffc.flex.definition")
     native string timeZoneId = AppConfig.get("application.locale.time.zone.id")
     
@@ -2173,11 +2175,28 @@ useCase paymentOneTime [
 	action addDisplayNumberToFlex [
 		sPayFlexValue = "displayAccountNumber=" + sPayAccountExternal
 		srMakePaymentParam.FLEX_DEFINITION = flexDefinition
-		goto(submitPayment)
+		goto(checkPaymentIdentifierType)
 	]
 	
 	action appendDisplayNumberToFlex [
 		sPayFlexValue = sPayFlexValue + "|" + "displayAccountNumber=" + sPayAccountExternal
+		goto(checkPaymentIdentifierType)
+	]
+	
+	action checkPaymentIdentifierType [
+		if sPaymentIdentifierType == "DISPLAY_ACCOUNT" then
+			setDisplayAccountIdentifier
+		else
+			setConpanyIdIdentifier
+	]
+	
+	action setDisplayAccountIdentifier [
+		srMakePaymentParam.COMPANY_ID = sPayAccountExternal
+		goto(submitPayment)
+	]
+	
+	action setConpanyIdIdentifier [
+		srMakePaymentParam.COMPANY_ID = sCompanyId
 		goto(submitPayment)
 	]
  	
@@ -2187,7 +2206,6 @@ useCase paymentOneTime [
 		srMakePaymentParam.ONLINE_TRANS_ID = transactionId
 		srMakePaymentParam.AMOUNT = sTotalPayAmt
 		srMakePaymentParam.CURRENCY = sCurrency
-		srMakePaymentParam.COMPANY_ID = sCompanyId 
 		srMakePaymentParam.PMT_DATE = sPaymentDate
 		srMakePaymentParam.USER_ID = sUserId
 		srMakePaymentParam.TOKEN = token
