@@ -155,8 +155,11 @@ function pay_amount() {
         }
     }).trigger('change');
 
+    // Get the tomorrow's date
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
     $('#paymentUpdateAutomaticPayment_fPayInvoices\\.aDate_display').datepicker(
-        'option', 'minDate', new Date()
+        'option', 'minDate', tomorrow
     );
 }
 
