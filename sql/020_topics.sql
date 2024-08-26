@@ -36,6 +36,18 @@ INSERT INTO auth_topic_channel(atc_topic, atc_channel, atc_default, atc_visible)
 select 'account', 'sms', 'N', 'N'
 where not exists (select 1 from auth_topic_channel where atc_topic = 'account' and atc_channel = 'sms');
 
+INSERT INTO auth_topic_channel(atc_topic, atc_channel, atc_default, atc_visible)
+select 'paperless', 'email', 'N', 'Y'
+where not exists (select 1 from auth_topic_channel where atc_topic = 'paperless' and atc_channel = 'email'
+
+INSERT INTO auth_topic_channel(atc_topic, atc_channel, atc_default, atc_visible)
+select 'paperless', 'postal', 'N', 'N'
+where not exists (select 1 from auth_topic_channel where atc_topic = 'paperless' and atc_channel = 'postal');
+
+INSERT INTO auth_topic_channel(atc_topic, atc_channel, atc_default, atc_visible)
+select 'paperless', 'sms', 'N', 'N'
+where not exists (select 1 from auth_topic_channel where atc_topic = 'paperless' and atc_channel = 'sms');
+
 UPDATE auth_topic_channel SET atc_default='N', atc_visible='N' WHERE atc_channel='sms';
 
 UPDATE auth_topic_channel SET atc_default='Y', atc_visible='N' WHERE atc_topic='system' AND atc_channel='email';
