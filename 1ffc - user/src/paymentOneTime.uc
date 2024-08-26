@@ -2185,18 +2185,18 @@ useCase paymentOneTime [
 	
 	action checkPaymentIdentifierType [
 		if sPaymentIdentifierType == "DISPLAY_ACCOUNT" then
-			setDisplayAccountIdentifier
+			setDisplayAccountAsIdentifier
 		else
-			setConpanyIdIdentifier
+			setTransactionIdAsIdentifier
 	]
 	
-	action setDisplayAccountIdentifier [
+	action setDisplayAccountAsIdentifier [
 		srMakePaymentParam.COMPANY_ID = sPayAccountExternal
 		goto(submitPayment)
 	]
 	
-	action setConpanyIdIdentifier [
-		srMakePaymentParam.COMPANY_ID = sCompanyId
+	action setTransactionIdAsIdentifier [
+		srMakePaymentParam.COMPANY_ID = transactionId
 		goto(submitPayment)
 	]
  	
