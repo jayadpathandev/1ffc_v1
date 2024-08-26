@@ -38,7 +38,7 @@ where not exists (select 1 from auth_topic_channel where atc_topic = 'account' a
 
 INSERT INTO auth_topic_channel(atc_topic, atc_channel, atc_default, atc_visible)
 select 'paperless', 'email', 'N', 'Y'
-where not exists (select 1 from auth_topic_channel where atc_topic = 'paperless' and atc_channel = 'email'
+where not exists (select 1 from auth_topic_channel where atc_topic = 'paperless' and atc_channel = 'email');
 
 INSERT INTO auth_topic_channel(atc_topic, atc_channel, atc_default, atc_visible)
 select 'paperless', 'postal', 'N', 'N'
