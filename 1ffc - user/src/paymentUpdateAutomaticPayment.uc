@@ -156,10 +156,10 @@ useCase paymentUpdateAutomaticPayment [
 	
 	native string sAmount = EsignHelper.formatAmount(sPayGroup, sBillDueRemainingAmount)
 	native string sDueDate = EsignHelper.formatDate(sBillDueDate, "yyyyMMdd", "MMMM dd, yyyy")
-	volatile string sCurrentDate = FffcAccountAction.getTodaysDate()
-	native string sCurrentDateForPopinMsg = EsignHelper.formatDate(sCurrentDate, "yyyyMMdd", "MMMM dd, yyyy")
-	native string sformattedCurrentDate = EsignHelper.formatDate(sCurrentDate, "yyyyMMdd", "yyyy-MM-dd")
-	volatile string sPaymentDateWarningLabel = I18n.translate ("paymentUpdateAutomaticPayment_sPaymentDateWarningText", sDueDate, sAmount, sAmount, sCurrentDateForPopinMsg)
+	volatile string sTomorrowsDate = FffcAccountAction.getTomorrowsDate()
+	native string sTomorrowsDateForPopinMsg = EsignHelper.formatDate(sTomorrowsDate, "yyyyMMdd", "MMMM dd, yyyy")
+	native string sformattedTomorrowsDate = EsignHelper.formatDate(sTomorrowsDate, "yyyyMMdd", "yyyy-MM-dd")
+	volatile string sPaymentDateWarningLabel = I18n.translate ("paymentUpdateAutomaticPayment_sPaymentDateWarningText", sDueDate, sAmount, sAmount, sTomorrowsDateForPopinMsg)
 	
 	native string sPaymentMethodNickName = ""
 	native string sPaymentMethodType = ""
@@ -178,7 +178,7 @@ useCase paymentUpdateAutomaticPayment [
 	
 	volatile string sGroupingJson = 
 		CurrentBalanceHelper.createGrouingJson(
-            sformattedCurrentDate,
+            sformattedTomorrowsDate,
             dWalletItems,
             sPayAccountInternal,
             sPayAccountExternal,
@@ -1245,7 +1245,7 @@ useCase paymentUpdateAutomaticPayment [
 		srSetScheduledParam.SOURCE_ID           = dWalletItems
 		srSetScheduledParam.PAY_TYPE            = "onetime"
 		srSetScheduledParam.PAY_AMT             = sPayTotalAmount
-		srSetScheduledParam.PAY_DATE            = sformattedCurrentDate				
+		srSetScheduledParam.PAY_DATE            = sformattedTomorrowsDate				
 		srSetScheduledParam.PAY_STATUS          = "scheduled"		
 		srSetScheduledParam.USER_ID             = sUserId
 		srSetScheduledParam.SOURCE_DETAILS      = sPaymentMethodNickName + "|" + sPaymentMethodType + "|" + sPaymentMethodAccount
@@ -1270,7 +1270,7 @@ useCase paymentUpdateAutomaticPayment [
     		transactionId
     		dWalletItems
     		sPayTotalAmount
-    		sformattedCurrentDate
+    		sformattedTomorrowsDate
     		sAuditIteratorNext
     	]
 		
@@ -1291,7 +1291,7 @@ useCase paymentUpdateAutomaticPayment [
     		transactionId
     		dWalletItems
     		sPayTotalAmount
-    		sformattedCurrentDate
+    		sformattedTomorrowsDate
     		sAuditIteratorNext
     	]
 		
