@@ -27,6 +27,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -604,6 +605,20 @@ public class FffcAccountAction implements IExternalReuse {
 	        SimpleDateFormat format2 = new SimpleDateFormat("yyyyMMdd");
 	        String szOutputDate = format2.format(date);
 			return szOutputDate;
+	}
+	
+	/**
+	 * Used to get tomorrows date
+	 * 
+	 * @return tomorrow's date formatted as YYYYMMDD
+	 */
+	public static String getTomorrowsDate() {
+		
+			Calendar calendar = Calendar.getInstance();
+			
+			calendar.add(Calendar.DAY_OF_YEAR, 1);
+			
+			return new SimpleDateFormat("yyyyMMdd").format(calendar.getTime());
 	}
 	
 }
