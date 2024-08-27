@@ -483,9 +483,11 @@
     		<entry key="topics_marketing" value="Marketing messages"/>
     		<entry key="topics_marketing_desc" value="Cash Available Updates, Promotions and Offers"/>
     		<entry key="topics_collections" value="Collections"/>
-    		<entry key="topics_bills_documents" value="Paperless delivery"/>
-    		<entry key="topics_bills_documents_desc" value="Select if you would prefer not to get statements and notifications via the mail. Your monthly statements and communications will be available to view in the portal, and we will notify you by email when a new document is available to view. Must have a valid email on your account."/>
-    		<entry key="topics_order" value="account|marketing|bills_documents"/>
+    		<entry key="topics_bills_documents" value="Bills &amp; Documents"/>
+    		<entry key="topics_bills_documents_desc" value="You can opt out of receiving physical bills and notifications by mail. Instead, view your monthly bills online and receive email notifications when new documents are available. A valid email address is required."/>
+    		<entry key="topics_paperless" value="Paperless delivery"/>
+    		<entry key="topics_paperless_desc" value="Select if you would prefer not to get statements and notifications via the mail. Your monthly statements and communications will be available to view in the portal, and we will notify you by email when a new document is available to view. Must have a valid email on your account."/>
+       		<entry key="topics_order" value="account|marketing|paperless"/>
     	</propertyfile>
     	<propertyfile file="${output.dir}/apps/user/classes/app-config.properties">
     		<entry key="user.app.url" value="${base.public.url}personaWeb/user/"/>
