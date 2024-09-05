@@ -140,7 +140,35 @@ function pay_amount() {
     
     // New features for recurring payment  goes here
     // -----------------------------------------------------
-    $('#paymentUpdateAutomaticPayment_fPayAmount2\\.monthlyPaymentAmountInput').attr('readonly', 'readonly');
+    const additionalAmountField = $('#paymentUpdateAutomaticPayment_fAdditionalAmountField\\.additionalPaymentAmountInput');
+    
+    additionalAmountField.removeAttr('readonly');
+
+    additionalAmountField.on('input', function(e) {
+        e.preventDefault();
+        
+        const formattedTotalAmount = $('#paymentUpdateAutomaticPayment_sTotalMonthlyFormattedAmount');
+        const formattedContractedAmount = $('#paymentUpdateAutomaticPayment_sContractedFormattedAmount');
+
+        const inputAmount = parseFloat(String($(this).val()));
+
+        if (isNaN(inputAmount) || inputAmount <= 0) {
+            formattedTotalAmount.text(formattedContractedAmount.text());
+            return;
+        }
+
+        const currentText = formattedContractedAmount.text();
+
+        const numericPart = parseFloat(currentText.replace(/[^0-9.-]+/g, ''));
+        const prefix = currentText.replace(/[0-9.-]+/g, '');
+
+        const newAmount = numericPart + inputAmount;
+
+        formattedTotalAmount.text(prefix + newAmount.toFixed(2));
+    });
+
+
+
 
     $('#paymentUpdateAutomaticPayment_fPayInvoices\\.aDate_display').on('change', function() {
         

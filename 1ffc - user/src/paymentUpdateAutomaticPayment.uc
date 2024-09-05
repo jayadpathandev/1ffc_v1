@@ -78,10 +78,6 @@ useCase paymentUpdateAutomaticPayment [
     string sCreateAutomaticHeader	  = "{Create recurring payment}"
     string sScheduleTriggerHeader     = "{Schedule Trigger}"
     string sScheduleTriggerHeaderHelp = "{Select the criteria that will trigger the recurring payment. Please allow up to 3 days for payment to be posted.}"    
-//    string sScheduleExpiryHeader      = "{Schedule Expiry}"
-//    string sScheduleExpiryHeaderHelp  = "{Select when you would like the recurring payment to stop.}"
-//    string sPayAmountHeader           = "{Payment amount}"
-//    string sPayAmountHeaderHelp       = "{Select how much you want to pay.}"
     string sPaymentMethodHeader       = "{Payment method}"
     string sPaymentMethodHeaderHelp   = "{Choose the payment method for this recurring payment}"
     string sDateValidationModalId	  = "recurringPaymentDateValidationModal"
@@ -91,7 +87,30 @@ useCase paymentUpdateAutomaticPayment [
     string sGroupJson				  = ""	
     volatile string sSafeGroupJson	  =  FffcAccountAction.escapeGroupingJson(sGroupJson, sUserId)
     
-    static sContractedAmountLabel = "{Monthly amount due}"
+    static sContractedAmountLabel = "{Contracted amount}"
+    native string sContractedAmountValue = ""
+    volatile string sContractedFormattedAmount = CurrentBalanceHelper.getFormattedAmount(sPayGroup, sContractedAmountValue)
+
+    static sTotalMonthlyAmountLabel = "{Total monthly payment}"
+    volatile string sTotalMonthlyAmountValue = CurrentBalanceHelper.addAmount(sContractedAmountValue, fAdditionalAmountField.additionalPaymentAmountInput)
+    volatile string sTotalMonthlyFormattedAmount = CurrentBalanceHelper.getFormattedAmount(sPayGroup, sTotalMonthlyAmountValue)
+    
+    field fMonthlyField [
+        string(label) sLabel = "{Monthly payment amount *}" 
+        string(help) sHelp = "{The outstanding balance from the last bill or statement less any payments made since.}"      
+    ]
+    
+    field fAdditionalAmountLabel [
+    	string(label) sLabel = "{Additional amount}"  
+        string(help) sHelp = "{Enter any extra amount beyond the contracted amount. This covers payments not included in the original contract.}"
+    ]
+
+    field fAdditionalAmountField [
+		input (control) additionalPaymentAmountInput("^(\\d{1,5}|\\d{0,5}\\.\\d{1,2})$", fAdditionalAmountField.sValidation) = "0"
+        string sPayUptoValidationText = "{Enter a number between 1 and <1> (up to 2 decimal values allowed)}"
+        volatile string(pInput_validation) sValidation = I18n.translate ("paymentUpdateAutomaticPayment_fAdditionalAmountField.sPayUptoValidationText", sPayUpto)       
+    ]
+    
     native string sFuturePaymentsFound = "false"
 	native string sHistoryText          = "Recurring payment created." 
 	native string sDeleteAutomaticHistoryText = "Recurring payment deleted."
@@ -125,13 +144,10 @@ useCase paymentUpdateAutomaticPayment [
     native string sPayUpto = UcPaymentAction.getAutoPayUpto()
     native string sThousand = "1000"
     native string sDisplayAmt = UcPaymentAction.formatAmtText(sThousand, sPayGroup, "auto")
-//    native string sMinimumDueFlag = UcPaymentAction.getMinimumDueFlag()
-//    native string sBillingType = UcPaymentAction.getBillingBalanceType()
     native string surchargeFlag = UcPaymentAction.getSurchargeStatus()
     
     // from paymentCreateAutomaticPayment
     native string sPayDate      = "1"
-//    native string sDay          = "2"
     native string sSourceId     = ""
     native string sUserId       = Session.getUserId()
     native string sIsB2b        = Session.isB2bAsString()
@@ -142,7 +158,7 @@ useCase paymentUpdateAutomaticPayment [
 	volatile string sPayCountStatement   = EsignHelper.getPayCountStatement(fPayEffective.pInput)
 	volatile string sExpiryDateStatement   = EsignHelper.getExpiryDateStatement(fPayEffective.aDate)
 	volatile string sFormattedDate = EsignHelper.formatEftDate(fPayInvoices.aDate)
-	volatile string sPayDay = EsignHelper.getDayFromDate(fPayInvoices.aDate)
+	volatile string sPayDay = EsignHelper.getFormattedPayDay(fPayInvoices.aDate)
 	
 	// This could be 'schedule' or 'continue'
 	native string sMonthlyAmountChoice = ""
@@ -195,23 +211,15 @@ useCase paymentUpdateAutomaticPayment [
        )
     
     field fPayInvoices [
-        string(label) sLabel = "{Pay statements *}"        
-//        radioSet(control) rInput = option1 [        
-//            option1: "{of every month}"
-////            option2: "{prior to 'Due Date'}"              
-//        ]
+        string(label) sLabel = "{First monthly payment date *}"        
         date(control) aDate("yyyy-MM-dd", dateValidation)
         string(help) sHelp = "{If 31, 30 or 29 is selected and if it doesn't exist in the month, then the last day of the month will trigger the payment.}"
-//        auto dropDown(option1_prefix) dPayDate                       
-//        auto dropDown(option2_prefix) dPayPriorDays 
     ]
     
     field fPayEffective [
         string(label) sLabel = "{Effective until *}"        
         radioSet(control) rInput = option1 [        
-            option1: "{I cancel}"
-//            option2: ""    
-//            option3: "{payments made}"            
+            option1: "{I cancel}"         
         ]
         
         date(option2_prefix) aDate("yyyy-MM-dd", dateValidation)         
@@ -223,12 +231,9 @@ useCase paymentUpdateAutomaticPayment [
     field fPayAmount1 [
         string(label) sLabel = "{Pay *}"        
         radioSet(control) rInput = option1 [        
-            option1: "{Bill amount}"
-//            option2: "{Minimum due}"    
-//            option3: "{Up to}"            
+            option1: "{Bill amount}"          
         ]
         input (option3_suffix) pInput("^(\\d{1,5}|\\d{0,5}\\.\\d{1,2})$", fPayAmount1.sValidation) = "1"   
-        
 		string(help) sHelp = "{The outstanding balance from the last bill or statement less any payments made since.}"
         string sPayUptoValidationText = "{Enter a number between 1 and <1> (up to 2 decimal values allowed)}"
         volatile string(pInput_validation) sValidation = I18n.translate ("paymentUpdateAutomaticPayment_fPayAmount1.sPayUptoValidationText", sPayUpto)  
@@ -240,10 +245,6 @@ useCase paymentUpdateAutomaticPayment [
     
     field fPayAmount2 [
         string(label) sLabel = "{Monthly amount due *}"        
-//        radioSet(control) rInput = option1 [        
-//            option1: "{Monthly amount due}"
-//        ]
-//        input (option3_suffix) pInput("^(\\d{1,5}|\\d{0,5}\\.\\d{1,2})$", fPayAmount2.sValidation) = "1"   
         input (control) monthlyPaymentAmountInput("", fPayAmount2.sValidation)
         string(help) sHelp = "{The outstanding balance from the last bill or statement less any payments made since.}"
         string sPayUptoValidationText = "{Enter a number between 1 and <1> (up to 2 decimal values allowed)}"
@@ -441,7 +442,7 @@ useCase paymentUpdateAutomaticPayment [
 	]
 	
 	action setMonthlyPaymentAmountinField [
-		fPayAmount2.monthlyPaymentAmountInput = srGetContractedPaymentResult.monthlyPaymentAmount
+		sContractedAmountValue = srGetContractedPaymentResult.monthlyPaymentAmount
 		goto(updateAutomaticPaymentScreen)
 	]
 	
@@ -758,12 +759,59 @@ useCase paymentUpdateAutomaticPayment [
 										 logic: [
 											if srGetComm.RSP_CURBALTYPE == "F" then "remove"												
 										 ]
-										 
-										 display fPayAmount2[														
-											control_attr_tabindex: "12"
-											sWarning_class_override: "st-error alert alert-warning visually-hidden"
-											sError_class_override: "st-error alert alert-danger visually-hidden"
-											embedded_class: "ms-2"
+										
+										div sampleRow1 [
+											class: "row"
+											div col1 [
+												class: "col fw-bold"
+												display fMonthlyField [
+													class : "my-1"
+												]
+											]
+										]
+										
+										div sampleRow2 [
+											class: "row"
+											div col2 [
+												class: "col fw-bold"
+												display sContractedAmountLabel
+											]
+											
+											div col3 [
+												class: "col fw-bold"
+												display sContractedFormattedAmount
+											]
+										]
+										
+										div sampleRow3 [
+											class: "row"
+											div col4 [
+												class: "col fw-bold"
+												display fAdditionalAmountLabel [
+													class : "my-2"
+												]
+											]
+											
+											div col5 [
+												class: "col border-bottom border-3 border-grey fw-bold"
+												display fAdditionalAmountField [
+													class: "my-2"
+													control_attr_tabindex: "12"
+												]
+											]
+										]
+										
+										div sampleRow4 [
+											class: "row py-2"
+											div col6 [
+												class: "col fw-bold"
+												display sTotalMonthlyAmountLabel
+											]
+											
+											div col7 [
+												class: "col fw-bold"
+												display sTotalMonthlyFormattedAmount
+											]
 										]
 									 ]
 								 ]					
@@ -875,7 +923,7 @@ useCase paymentUpdateAutomaticPayment [
 			                    data :[
 			                    	fPayInvoices,
 			                    	fPayAmount1,
-			                    	fPayAmount2,
+			                    	fAdditionalAmountField,
 									fPayEffective	
 			                    ]		        
 			                    require: [
@@ -904,7 +952,7 @@ useCase paymentUpdateAutomaticPayment [
 				                data :[
 				                   		fPayInvoices,
 				                   		fPayAmount1,
-				                   		fPayAmount2,
+				                   		fAdditionalAmountField,
 										fPayEffective							
 				                ]		                    
 			                    require: [
@@ -924,7 +972,7 @@ useCase paymentUpdateAutomaticPayment [
 				                data :[
 				                   		fPayInvoices,
 				                   		fPayAmount1,
-				                   		fPayAmount2,
+				                   		fAdditionalAmountField,
 										fPayEffective							
 				                ]		                    
 			                    require: [
@@ -1048,7 +1096,7 @@ useCase paymentUpdateAutomaticPayment [
 		) 
 		
 		
-		srEsignUrlParams.monthlyContractedAmount = srGetContractedPaymentResult.monthlyPaymentAmount
+		srEsignUrlParams.monthlyContractedAmount = sTotalMonthlyAmountValue
 		srEsignUrlParams.internalAccount = sPayAccountInternal
 		srEsignUrlParams.displayAccount = sPayAccountExternal
 		srEsignUrlParams.sourceId = dWalletItems
@@ -1427,8 +1475,8 @@ useCase paymentUpdateAutomaticPayment [
 		srSetAutomaticParam.SOURCE_ID              = dWalletItems
 		srSetAutomaticParam.PAY_INVOICES_OPTION    = "option1"
 		srSetAutomaticParam.PAY_AMOUNT_OPTION      = "option1"
+		srSetAutomaticParam.PAY_UPTO			   = fAdditionalAmountField.additionalPaymentAmountInput
 		srSetAutomaticParam.PAY_DATE               = sPayDay
-//		srSetAutomaticParam.PAY_PRIOR_DAYS         = fPayInvoices.dPayPriorDays
 		srSetAutomaticParam.EFFECTIVE_UNTIL_OPTION = fPayEffective.rInput					
 		srSetAutomaticParam.EXPIRY_DATE            = fPayEffective.aDate
 		srSetAutomaticParam.PAY_COUNT              = fPayEffective.pInput		
