@@ -9,7 +9,8 @@ useCase apiMakeOneTimePaymentForAgent
 	importJava JsonResponse(com.sorrisotech.app.common.JsonResponse)
 	importJava Log(api.Log)
 	importJava MakePayment(com.sorrisotech.fffc.agent.pay.MakePayment)
-    importJava TransactionIdGen(com.sorrisotech.svcs.payment.util.RequestTransactionIdUtil)    
+    importJava TransactionIdGen(com.sorrisotech.svcs.payment.util.RequestTransactionIdUtil)  
+    importJava UcPaymentAction(com.sorrisotech.fffc.user.FffcPaymentAction)   
 
 	native string sServiceUserName  = Config.get("service.api.username")
     native string sServiceNameSpace = Config.get("service.api.namespace")
@@ -32,6 +33,8 @@ useCase apiMakeOneTimePaymentForAgent
 	native string sErrorStatus
 	native string sErrorDesc
 	native string sErrorCode
+	
+	native string sPaymentIdentifierType = UcPaymentAction.getDbConfigPropertyValue("payment.identifier")
 	
 	serviceStatus status
 	
@@ -254,7 +257,7 @@ useCase apiMakeOneTimePaymentForAgent
 			case "false" actionSchedulePayment
 		]	
 	]
-	
+		
  	/*************************
 	 * 9a. Issue the payment request.
 	 */
@@ -270,7 +273,7 @@ useCase apiMakeOneTimePaymentForAgent
 		MakePayment.flexValue	   (makeRequest.FLEX_VALUE)
 		MakePayment.flexDefinition (makeRequest.FLEX_DEFINITION, flexDefinition)
 
-		ApiPay.companyId           (makeRequest.COMPANY_ID) 
+		ApiPay.companyId           (makeRequest.COMPANY_ID, sPaymentIdentifierType, sPayId) 
 		ApiPay.userid              (makeRequest.USER_ID)
 		ApiPay.walletToken         (makeRequest.TOKEN)
 		
