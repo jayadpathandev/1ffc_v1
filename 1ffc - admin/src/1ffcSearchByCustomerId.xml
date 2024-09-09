@@ -52,7 +52,8 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 				(users_fffc.userId = prof.userId) and
 				(users_fffc.userId = profActive.id and 
 				  profActive.attrname = 'accountStatus' and 
-				  profActive.attrvalue = 'open') and
+				  (profActive.attrvalue = 'open' or profActive.attrvalue like 'locked%')
+				) and
 			 	(users_fffc.userId = profLastName.id and
 				  profLastName.attrname = 'lastName') and
 				(users_fffc.userId = profFirstName.id and
