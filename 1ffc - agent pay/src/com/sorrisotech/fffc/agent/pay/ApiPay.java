@@ -13,6 +13,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
 import javax.servlet.http.HttpServletResponse;
@@ -262,11 +263,23 @@ public class ApiPay implements IExternalReuse {
 		mCurrent.companyId(value);
 	}	
 	public void companyId(
-			final IStringData value
+			final IStringData value,
+			final String identifierType,
+			final String transactionId
 		) 
 			throws MargaritaDataException {
 		if (mCurrent == null) throw new RuntimeException("There is no current session.");
-		value.putValue(mCurrent.companyId());
+		
+		boolean bPaymentIdentifierIsAccount = Optional.ofNullable(identifierType)
+				.map(val -> "DISPLAY_ACCOUNT".equals(val))
+				.orElse(false);
+		
+		if (bPaymentIdentifierIsAccount) {
+			value.putValue(mCurrent.accountNumber());
+		} else {
+			value.putValue(transactionId);
+		}
+
 	}
 
 	//*************************************************************************
