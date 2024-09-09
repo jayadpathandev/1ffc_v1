@@ -49,8 +49,8 @@
         <mkdir dir="${output.dir}/jenkins/payment_schedule"/>
         <copy file="customizations/payment_schedule.xml" tofile="${output.dir}/jenkins/payment_schedule/config.xml"/>
 
-        <mkdir dir="${output.dir}/jenkins/update_company_account"/>
-        <copy file="customizations/update_company_account.xml" tofile="${output.dir}/jenkins/update_company_account/config.xml"/>
+        <mkdir dir="${output.dir}/jenkins/update_company_accounts"/>
+        <copy file="customizations/update_company_accounts.xml" tofile="${output.dir}/jenkins/update_company_accounts/config.xml"/>
 
 	</target>
 </project>
