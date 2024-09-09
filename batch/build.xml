@@ -25,6 +25,9 @@
 		<mkdir dir="${output.dir}/jenkins/1ffc_file_available"/>
 		<copy file="1ffc_file_available.xml" tofile="${output.dir}/jenkins/1ffc_file_available/config.xml"/>
 
+        <mkdir dir="${output.dir}/jenkins/bill_loader_busines_ubf"/>
+        <copy file="customizations/bill_loader_busines_ubf.xml" tofile="${output.dir}/jenkins/bill_loader_busines_ubf/config.xml"/>
+
         <mkdir dir="${output.dir}/jenkins/bill_loader_vault"/>
         <copy file="customizations/bill_loader_vault.xml" tofile="${output.dir}/jenkins/bill_loader_vault/config.xml"/>
 
@@ -45,5 +48,9 @@
 
         <mkdir dir="${output.dir}/jenkins/payment_schedule"/>
         <copy file="customizations/payment_schedule.xml" tofile="${output.dir}/jenkins/payment_schedule/config.xml"/>
+
+        <mkdir dir="${output.dir}/jenkins/update_company_account"/>
+        <copy file="customizations/update_company_account.xml" tofile="${output.dir}/jenkins/update_company_account/config.xml"/>
+
 	</target>
 </project>

@@ -516,8 +516,7 @@
         <mkdir dir="${output.dir}/batch/notify_dq/resources/notification"/>
         <copy file="${dss.dir}/server/notify_dq/resources/notification/notification.properties" todir="${output.dir}/batch/notify_dq/resources/notification"/>
 
-        <mkdir dir="${output.dir}/batch/update_company_accounts"/>
-        <echo file="${output.dir}/batch/update_company_accounts/build.xml"><![CDATA[<project name="update_company_accounts" default="run" basedir="."><target name="run"><echo>Disabled.</echo></target></project>]]></echo>
+
     </target>
 
     <target name="package" depends="-init, build.admin, build.auth, build.user, build.extdoc, package-libraries, package-batch">
