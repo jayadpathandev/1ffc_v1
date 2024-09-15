@@ -126,6 +126,7 @@ public class Writer extends NamedParameterJdbcDaoSupport implements ItemWriter<L
 				// Process each record
 
 				LOG.info("Processing internal account number : {}", entry.getInternalAccNumber());
+				
 
 				List<ScheduledPayment> cScheduledPayments = getScheduledPaymentsForUser(
 						entry.getInternalAccNumber()
@@ -138,6 +139,7 @@ public class Writer extends NamedParameterJdbcDaoSupport implements ItemWriter<L
 				List<String> cScheduledRecordsIds = new ArrayList<String>();
 				List<BigDecimal> cRecurringRecordsIds = new ArrayList<BigDecimal>();
 				
+				String sReasons = "";
 				if (entry.isAchDisabled()) {
 					
 					cRecurringRecordsIds = cRecurringPayments.stream()
@@ -149,7 +151,7 @@ public class Writer extends NamedParameterJdbcDaoSupport implements ItemWriter<L
 							.filter(payment -> "bank".equals(payment.getSourceType()))
 							.map(val -> val.getId())
 							.collect(Collectors.toList());
-
+					sReasons = sReasons.concat("ach disabled | ");
 				}
 
 				if (entry.isPaymentDisabled() || entry.isRecurringPaymentDisabled()) {
@@ -157,22 +159,27 @@ public class Writer extends NamedParameterJdbcDaoSupport implements ItemWriter<L
 					cRecurringRecordsIds = cRecurringPayments.stream()
 							.map(val -> val.getId())
 							.collect(Collectors.toList());
+					sReasons = sReasons.concat("payment or recurring payment disabled | ");
 				}
 
 				if (entry.isPaymentDisabled()) {
 					cScheduledRecordsIds = cScheduledPayments.stream()
 						.map(val -> val.getId())
 						.collect(Collectors.toList());
+					sReasons = sReasons.concat("payment disabled");
 				}
 
 				final var recurringPaymentIds = cRecurringRecordsIds;
 				cRecurringPayments.removeIf(payment -> !recurringPaymentIds.contains(payment.getId()));
 				entry.setRecurringPayments(cRecurringPayments);
 				
+				
 				LOG.info(
-						"Recurring payments Ids that are going to be deleted for account : {}, ids : {}", 
+						"Recurring payments Ids that are going to be deleted for account : {}, ids : {}, reasons {}", 
 						entry.getInternalAccNumber(), 
-						recurringPaymentIds
+						recurringPaymentIds,
+						sReasons
+						
 				);
 				
 				if (!cRecurringRecordsIds.isEmpty()) {
@@ -185,9 +192,10 @@ public class Writer extends NamedParameterJdbcDaoSupport implements ItemWriter<L
 				entry.setScheduledPayments(cScheduledPayments);
 
 				LOG.info(
-						"Scheduled payments Ids that are going to be deleted for account : {}, ids : {}", 
+						"Scheduled payments Ids that are going to be deleted for account : {}, ids : {}, reasons: {}", 
 						entry.getInternalAccNumber(), 
-						schedulePaymentIds
+						schedulePaymentIds,
+						sReasons
 				);
 				
 				if (!cScheduledPayments.isEmpty()) {
