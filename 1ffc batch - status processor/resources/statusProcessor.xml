@@ -274,29 +274,28 @@
 		<constructor-arg>
 			<value>
 			  	<![CDATA[
-		    		select
-		    			ps.user_id,
-						ps.online_trans_id,
-						ps.pay_type, 
-						ta.account_number_display as account_number,
-						ta.account_number as internal_account,
-						ta.bill_group as pay_group,
-						ps.pay_date as payment_date,
-						pw.source_name as wallet_name,
-						pw.source_num as wallet_num,
-						ps.pay_amt as amount,
-						ps.pay_surcharge as surcharge,
-						ps.pay_total_amt as total_amt,
-						pw.source_type 
+					select
+							pmt_schedule.user_id,
+							pmt_schedule.online_trans_id,
+							pmt_schedule.pay_type,
+							pmt_grouping.display_account_number as account_number,
+							pmt_grouping.internal_account_number as internal_account,
+							pmt_grouping.payment_group as pay_group,
+							pmt_schedule.pay_date as payment_date,
+							pmt_wallet.source_name as wallet_name,
+							pmt_wallet.source_num as wallet_num,
+							pmt_schedule.pay_amt as amount,
+							pmt_schedule.pay_surcharge as surcharge,
+							pmt_schedule.pay_total_amt as total_amt,
+							pmt_wallet.source_type
 					from
-						pmt_schedule ps
-					join pmt_wallet pw on
-						ps.source_id = pw.source_id
-					join prof_company_user pcu on ps.user_id = pcu.userid::varchar
-					join prof_company_account pca  on pcu.companyid = pca.company_id 
-					join tm_account ta on ta.id = pca.account_id 
+							pmt_schedule,
+							pmt_grouping,
+							pmt_wallet
 					where
-						ta.account_number = :accNumber
+							pmt_schedule.online_trans_id = pmt_grouping.online_trans_id and
+							pmt_wallet.source_id = pmt_schedule.source_id and
+							pmt_grouping.internal_account_number = :accNumber
 				]]>
 		  	</value>
 		</constructor-arg>
@@ -307,25 +306,24 @@
 			<value>
 			  	<![CDATA[
 					select
-						pa.user_id,
-						pa.automatic_id, 
-						ta.account_number_display as account_number,
-						ta.account_number as internal_account,
-						ta.bill_group as pay_group,
-						pw.source_num  as wallet_name,
-						pw.source_type 
+						pmt_automatic.user_id,
+						pmt_automatic.automatic_id,
+						pmt_automatic_grouping.display_account_number as account_number,
+						pmt_automatic_grouping.internal_account_number as internal_account,
+						pmt_automatic_grouping.payment_group as pay_group,
+						pmt_wallet.source_num as wallet_name,
+						pmt_wallet.source_type
 					from
-						pmt_automatic pa
-					join pmt_wallet pw on
-						pa.source_id = pw.source_id
-					join prof_company_user pcu on pa.user_id = pcu.userid::varchar
-					join prof_company_account pca  on pcu.companyid = pca.company_id 
-					join tm_account ta on ta.id = pca.account_id
-					join pmt_automatic_history pah on pah.automatic_id = pa.automatic_id 
+						pmt_automatic,
+						pmt_automatic_grouping,
+						pmt_automatic_history,
+						pmt_wallet
 					where
-						ta.account_number = :accNumber
-					and
-						pah.config_change = 'Recurring payment created.'
+						pmt_automatic.automatic_id = pmt_automatic_grouping.automatic_id and
+						pmt_automatic.automatic_id = pmt_automatic_history.automatic_id and
+						pmt_automatic_history.config_change = 'Recurring payment created.' and
+						pmt_automatic.source_id = pmt_wallet.source_id and
+						pmt_automatic_grouping.internal_account_number = :accNumber
 				]]>
 		  	</value>
 		</constructor-arg>
