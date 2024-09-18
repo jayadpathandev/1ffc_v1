@@ -541,8 +541,13 @@ useCase documentSearch [
         ]
                
         column column4(sColName4) [
-        	tags: [ "column4" ] 
-            elements: [ linkDownload ]                       
+        	tags: [ "column4" ]         	
+            elements: [
+            	linkDownload: [
+            		attr_target: "_blank"
+            	] 
+            ]        	
+ //           elements: [ linkDownload ]    
         ]
         
         column column5(sColName5) [
@@ -1524,6 +1529,7 @@ useCase documentSearch [
 	xsltScreen documentSearchResultsScreen("{Search Results}") [
 		
        form main [
+  
             class: "st-document-search"
 
 		    // Display the header
@@ -1539,8 +1545,7 @@ useCase documentSearch [
             // display the message and search button                           
             div row1 [
                 class: "row"
-                
-                  
+                                 
 				div headerRow [
 	  				class: "col-sm-10"
 	  				display sMsgResultsHeader   
@@ -1558,8 +1563,10 @@ useCase documentSearch [
 			
 			// Display all content
 			div content [
+				attr_target: "_blank"
 				div col1 [
 					class : "row st-padding-top"
+
 					display  tdocList [
 						class: "st-doc-search"
 					]						
