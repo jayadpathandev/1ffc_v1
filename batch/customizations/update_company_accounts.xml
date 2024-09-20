@@ -35,9 +35,6 @@
         <completeBuild>true</completeBuild>
       </threshold>
     </jenkins.triggers.ReverseBuildTrigger>
-    <hudson.triggers.TimerTrigger>
-      <spec>H/2 * * * *</spec>
-    </hudson.triggers.TimerTrigger>
   </triggers>
   <concurrentBuild>false</concurrentBuild>
   <customWorkspace>/sorriso/batch/update_company_accounts</customWorkspace>
