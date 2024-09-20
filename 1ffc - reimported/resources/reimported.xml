@@ -1,0 +1,464 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" 
+       xmlns:batch="http://www.springframework.org/schema/batch"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+        
+       	
+    <!-- ********************************************************************************** -->
+	<!-- ******** This file contains bean definitions that are					      ***** -->
+	<!-- ******** required by the 1ffc batch status processor job                     ***** -->
+	<!-- ********************************************************************************** -->
+	
+	
+	<!-- ********************************************************************************** -->
+	<!-- ******** Import common definitions like dataSource, jdbcTemplate,            ***** -->
+	<!-- ******** jobRepository, simpleStep.                                          ***** -->
+	<!-- ********************************************************************************** -->
+	<import resource="classpath:common-context.xml"/>
+	
+	<!-- ******************************************************************* -->
+	<!-- ********  Load properties for the following:             ********** -->
+	<!-- ********         Database connection details             ********** -->
+	<!-- ******************************************************************* -->
+	<bean id="propertyConfigurer" class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
+       <property name="propertySources">
+       <bean class="com.sorrisotech.utils.ConfigFactory">
+            <property name="sources">
+                <list>                    
+                    <bean class="com.sorrisotech.utils.ConfigFile">
+                        <constructor-arg value="false"/>
+                        <constructor-arg value="db/common.properties"/>
+                        <property name="cacheTimeout" value="10"/>
+                    </bean>
+                    <bean class="com.sorrisotech.utils.ConfigFile">
+                        <constructor-arg value="false"/>
+                        <constructor-arg value="common/user_config.properties"/>
+                        <property name="cacheTimeout" value="10"/>
+                    </bean>
+                    <bean class="com.sorrisotech.utils.ConfigFile">
+                        <constructor-arg value="false"/>
+                        <constructor-arg value="common/file_path.properties"/>
+                        <property name="cacheTimeout" value="10"/>
+                    </bean>
+                    <bean class="com.sorrisotech.utils.ConfigFile">
+                        <constructor-arg value="false"/>
+                        <constructor-arg value="reimported.properties"/>
+                        <property name="cacheTimeout" value="10"/>
+                    </bean>
+                    <bean class="com.sorrisotech.utils.ConfigTable">
+                        <property name="jdbc" ref="namedParameterJdbcTemplate"/>
+                        <property name="sql" value="select config_value from db_config where config_key=:name"/>
+	                </bean>                                       
+                    <bean class="com.sorrisotech.utils.ConfigDefine"/>
+                </list>
+            </property>
+        </bean>
+       </property>
+   </bean>
+   
+	
+	<!-- ********************************************************************************** -->
+   	<!-- ***   Batch Job configuration for removing scheduled and recurring payments    *** -->
+   	<!-- ***		    based on latest status feeds									*** -->
+   	<!-- ********************************************************************************** -->
+	<batch:job id="mainJob" parent="simpleJob">
+
+    	<batch:step id="registeredNewId" parent="simpleStep">
+    	    <batch:tasklet>
+				<batch:chunk reader="registeredNewIdReader" writer="newIdWriter" commit-interval="1"/>               
+			</batch:tasklet>
+        	<batch:next on="FAILED" to="sendFailedNotificationStep" />
+            <batch:next on="COMPLETED" to="unregisteredNewId" />
+        </batch:step>
+
+    	<batch:step id="unregisteredNewId" parent="simpleStep">
+    	    <batch:tasklet>
+				<batch:chunk reader="unregisteredNewIdReader" writer="newIdWriter" commit-interval="1"/>               
+			</batch:tasklet>
+        	<batch:next on="FAILED" to="sendFailedNotificationStep" />
+            <batch:next on="COMPLETED" to="newAccountId" />
+        </batch:step>
+
+    	<batch:step id="newAccountId" parent="simpleStep">
+    	    <batch:tasklet>
+				<batch:chunk reader="newAccountIdReader" processor="newAccountProcessor" writer="newAccountIdWriter" commit-interval="1"/>               
+			</batch:tasklet>
+        	<batch:next on="FAILED" to="sendFailedNotificationStep" />
+            <batch:next on="COMPLETED" to="sendSuccessNotificationStep" />
+        </batch:step>
+        
+        <batch:step id="sendFailedNotificationStep">
+             <batch:tasklet ref="failureNotificationTasklet"/>
+        </batch:step>
+        
+        <batch:step id="sendSuccessNotificationStep">
+            <batch:tasklet ref="successNotificationTasklet"/>
+        </batch:step> 
+    </batch:job>
+    
+    <!-- ********************************************************************************** -->
+   	<!-- *** Common SQL to get the latest loaded bill file.                             *** -->
+   	<!-- ********************************************************************************** -->
+    <bean id="currentDate" class="java.lang.String">
+    	<constructor-arg>
+    		<value>
+				select 
+					max(status_update_date) 
+				from 
+					bill_file_meta_data 
+				where 
+					status = 'PUBLISHED' 
+					and payment_group in (
+						'1FFC-ea0f1923-255f-4f12-a603-16a1ed4f950c',
+						'STATUS_1FFC-ea0f1923-255f-4f12-a603-16a1ed4f950c'
+					)			
+    		</value>
+    	</constructor-arg>
+    </bean>
+    
+    <!-- ********************************************************************************** -->
+   	<!-- *** Read in the account IDs of the registered accounts that have had their     *** -->
+   	<!-- *** ORG_ID changed.                                                            *** -->
+   	<!-- ********************************************************************************** -->
+	<bean id="registeredNewIdReader" class="com.sorrisotech.fffc.batch.reimport.customer.OrgIdChangeReader">
+		<property name="dataSource"      ref="dataSource"/>
+		<property name="dbConfig"        ref="dbConfig"/>
+		<property name="registered"		 value="true"/>
+		<property name="previousDateKey" value="1ffc.reimported.orgid.registered"/>
+		<property name="currentDateSql"  ref="currentDate"/>
+		<property name="accountsSql">
+			<value>
+				select
+					org_id,
+					tm_tags.value,
+					tm_account.company_id
+				from 
+					tm_categories,
+					tm_tags,
+					tm_tagged_accounts,
+					tm_account	
+				where
+					tm_categories.name='orgId' and tm_categories.type='S' and
+					tm_categories.id = tm_tags.category_id and
+					tm_tagged_accounts.tag_Id = tm_tags.id and
+					tm_tagged_accounts.account_id = tm_account.id and
+					tm_tagged_accounts.end_date is null and
+					tm_account.org_id != tm_tags.value and
+					tm_account.end_date is null and
+					tm_account.account_number_display in (
+						select 
+							display_name 
+						from 
+							bill_summary, 
+							bill_file_meta_data 
+						where 
+							bill_summary.bill_file_id = bill_file_meta_data.bill_file_id and
+							status_update_date &gt; :previous and 
+							status_update_date &lt;= :current
+					)			
+			</value>
+		</property>
+	</bean>
+	
+    <!-- ********************************************************************************** -->
+   	<!-- *** Read in the account IDs of the unregistered accounts that have had their   *** -->
+   	<!-- *** ORG_ID changed.                                                            *** -->
+   	<!-- ********************************************************************************** -->
+	<bean id="unregisteredNewIdReader" class="com.sorrisotech.fffc.batch.reimport.customer.OrgIdChangeReader">
+		<property name="dataSource"      ref="dataSource"/>
+		<property name="dbConfig"        ref="dbConfig"/>
+		<property name="registered"		 value="false"/>
+		<property name="previousDateKey" value="1ffc.reimported.orgid.unregistered"/>
+		<property name="currentDateSql"  ref="currentDate"/>
+		<property name="accountsSql">
+			<value>
+				select
+					stat_cust,
+					bill_cust,
+					null
+				from
+					(select account_number "bill_num", org_id "bill_cust" from tm_account where bill_group = '1FFC-ea0f1923-255f-4f12-a603-16a1ed4f950c') bill_accounts,
+					(select account_number "stat_num", org_id "stat_cust" from tm_account where bill_group = 'STATUS_1FFC-ea0f1923-255f-4f12-a603-16a1ed4f950c') stat_accounts
+				where
+					bill_num = stat_num and 
+					bill_cust != stat_cust and
+					bill_num in (
+						select 
+							account 
+						from 
+							bill, 
+							bill_file_meta_data 
+						where 
+							bill.bill_file_id = bill_file_meta_data.bill_file_id and
+							status_update_date &gt; :previous and 
+							status_update_date &lt;= :current
+					)			
+			</value>
+		</property>
+	</bean>	
+
+    <!-- ********************************************************************************** -->
+    <!-- *** The status writer will delete all the inactive scheduled/recurring payments*** -->
+    <!-- ********************************************************************************** --> 
+ 	<bean id="newIdWriter" class="com.sorrisotech.fffc.batch.reimport.customer.OrgIdChangeWriter">
+ 		<property name="dataSource" ref="dataSource"/>
+ 		<property name="updateProfCompanyOrgid">
+ 			<value>
+ 				update
+ 					PROF_COMPANY_ORGID
+ 				set
+ 					ORGID = :newOrgId
+ 				where
+ 					ORGID = :oldOrgId
+ 			</value>
+ 		</property>
+ 		<property name="deleteProfCompanyAccount">
+ 			<value>
+ 				delete from
+ 					PROF_COMPANY_ACCOUNT
+ 				where
+ 					COMPANY_ID = :companyId and
+ 					end_date is not null
+ 			</value>
+ 		</property>
+ 		<property name="updateTmAccount">
+ 			<value>
+ 				update 
+ 					TM_ACCOUNT
+ 				set
+ 					org_id = :newOrgId
+ 				where
+ 					org_id = :oldOrgId;
+ 			</value>
+ 		</property>
+ 	</bean>
+
+    <!-- ********************************************************************************** -->
+   	<!-- *** Read in the display account numbers of account that have gotten new        *** -->
+   	<!-- *** account IDs.                                                               *** -->
+   	<!-- ********************************************************************************** -->
+	<bean id="newAccountIdReader" class="com.sorrisotech.fffc.batch.reimport.account.AccountNumReader">
+		<property name="dataSource"    ref="dataSource"/>
+		<property name="dbConfig"      ref="dbConfig"/>
+		<property name="previousIdKey" value="1ffc.reimported.account.id"/>
+		<property name="currentIdSql">
+			<value>select max(id) from tm_account</value>
+		</property>
+		<property name="accountsSql">
+			<value>
+				select distinct account_number_display from (
+					select 
+						account_number_display, count(*) recs
+					from
+						tm_account
+					where
+						account_number_display in (
+							select account_number_display from tm_account where id &gt; :previous
+						)			
+					group by
+						account_number_display, bill_group
+				)
+				where recs &gt; 1
+			</value>
+		</property>
+	</bean>	
+   
+    
+    <!-- ********************************************************************************** -->
+    <!-- *** Processor to look at the accounts that changed to figure out what needs to *** -->
+    <!-- ** be done.                                                                    *** -->
+    <!-- ********************************************************************************** --> 
+    <bean id="newAccountProcessor" class="com.sorrisotech.fffc.batch.reimport.account.AccountNumProcessor">
+	    <property name="dataSource" ref="dataSource"/>
+	    <property name="billGroup" value="1FFC-ea0f1923-255f-4f12-a603-16a1ed4f950c"/>
+	    <property name="tmRecordsSql">
+	    	<value>
+	    		select 
+	    			id, account_number, start_date, company_id, bill_group, org_id 
+	    		from
+	    			tm_account
+	    		where
+	    			account_number_display = :account
+	    		order by 
+	    			id desc 
+	    	</value>
+	    </property>
+    </bean>
+ 
+    <!-- ********************************************************************************** -->
+    <!-- *** The status writer will delete all the inactive scheduled/recurring payments*** -->
+    <!-- ********************************************************************************** --> 
+ 	<bean id="newAccountIdWriter" class="com.sorrisotech.fffc.batch.reimport.account.AccountNumWriter">
+ 		<property name="dataSource" ref="dataSource"/>
+ 		<property name="insertProfCompanyOrgid">
+ 			<value>
+ 				insert into PROF_COMPANY_ORGID(
+ 					COMPANYID, ORGID, STATUS
+ 				) values (
+ 					:companyId, :orgId, 3
+ 				)
+ 			</value>
+ 		</property>
+ 		<property name="deleteProfCompanyOrgid">
+ 			<value>
+ 				delete from 
+ 					PROF_COMPANY_ORGID
+ 				where 
+ 					COMPANYID = :companyId and
+ 					ORGID in (@VALUES@)
+ 			</value>
+ 		</property>
+ 		<property name="deleteProfCompanyAccount">
+ 			<value>
+ 				delete from 
+ 					PROF_COMPANY_ACCOUNT
+ 				where 
+ 					COMPANY_ID = :companyId and
+ 					ACCOUNT_ID in (@VALUES@)
+ 			</value>
+ 		</property>
+ 		<property name="deleteTmAccount">
+ 			<value>
+ 				delete from 
+ 					TM_ACCOUNT
+ 				where 
+ 					ID in (@VALUES@)
+ 			</value>
+ 		</property>
+ 		<property name="updateTmAccount">
+ 			<value>
+ 				update 
+ 					TM_ACCOUNT
+ 				set
+ 					COMPANY_ID     = :companyId,
+ 					account_number = :accountId,
+ 					org_id         = :orgId
+ 				where 
+ 					id = :id
+ 			</value>
+ 		</property>
+ 		<property name="updatePmtGrouping">
+ 			<value>
+ 				update 
+ 					PMT_GROUPING
+ 				set
+ 					internal_account_number = :accountId
+ 				where
+ 					display_account_number = :accountNum AND
+ 					internal_account_number in (@VALUES@) 
+ 			</value>
+ 		</property>
+ 		<property name="updatePmtAutomaticGrouping">
+ 			<value>
+ 				update 
+ 					PMT_AUTOMATIC_GROUPING
+ 				set
+ 					internal_account_number = :accountId
+ 				where
+ 					display_account_number = :accountNum AND
+ 					internal_account_number in (@VALUES@) 
+ 			</value>
+ 		</property>
+ 		<property name="updatePmtAutomaticDocuments">
+ 			<value>
+ 				update 
+ 					PMT_AUTOMATIC_DOCUMENTS
+ 				set
+ 					internal_account_number = :accountId
+ 				where
+ 					internal_account_number in (@VALUES@) 
+ 			</value>
+ 		</property>
+ 		<property name="updateBill">
+ 			<value>
+ 				update 
+ 					bill
+ 				set
+ 					account = :accountId
+ 				where
+ 					account in (@VALUES@) and
+ 					bill_file_id in (
+ 						select
+ 							bill_file_id
+ 						from
+ 							bill_file_meta_data
+ 						where
+ 							payment_group = '1FFC-ea0f1923-255f-4f12-a603-16a1ed4f950c'
+ 					)
+ 			</value>
+ 		</property>
+ 		<property name="updateFffcTransactions">
+ 			<value>
+ 				update 
+ 					fffc_transactions
+ 				set
+ 					account = :accountId
+ 				where
+ 					account in (@VALUES@) 
+ 			</value>
+ 		</property>
+ 	</bean>
+
+	<!-- ********************************************************************************** -->
+    <!-- **** Notification tasklet used to send out notification(s) informing           *** --> 
+    <!-- **** successful completion of the job.                                         *** -->
+    <!-- ********************************************************************************** -->
+    <bean id="successNotificationTasklet" 
+        class="com.sorrisotech.batch.common.notify.NotificationTasklet">
+        <property name="enabled" value="${notification.onSuccess.enabled}"/>
+        <property name="notificationType" value="${batch.success}"/>
+        <property name="destination" value="${notification.onSuccess.emails}"/>
+        <property name="locale">
+            <util:constant static-field="java.util.Locale.US"/>
+        </property>
+        <property name="parameters">
+            <map>
+               <entry key="jobName" value="${job.name}"/>
+            </map>
+       </property>
+    </bean>
+    
+    <!-- ********************************************************************************** -->
+    <!-- **** Notification tasklet used to send out notification(s) informing failure   *** --> 
+    <!-- **** of the job.                                                               *** -->
+    <!-- ********************************************************************************** -->
+    <bean id="failureNotificationTasklet" 
+        class="com.sorrisotech.batch.common.notify.NotificationTasklet">
+        <property name="enabled" value="${notification.onFailure.enabled}"/>
+        <property name="notificationType" value="${batch.failure}"/>
+        <property name="destination" value="${notification.onFailure.emails}"/>
+        <property name="locale">
+            <util:constant static-field="java.util.Locale.US"/>
+        </property>
+        <property name="parameters">
+            <map>
+               <entry key="jobName" value="${job.name}"/>
+            </map>
+       </property>
+    </bean>
+    
+    <!-- ********************************************************************************** -->
+    <!-- *** Notification tasklet used to send out notification(s) informing no         *** --> 
+    <!-- *** operation performed (NOOP).                                                *** -->
+    <!-- ********************************************************************************** -->
+    <bean id="noopNotificationTasklet" 
+        class="com.sorrisotech.batch.common.notify.NotificationTasklet">
+        <property name="enabled" value="${notification.onNoop.enabled}"/>
+		<property name="notificationType" value="${batch.noop}"/>
+		<property name="destination" value="${notification.onNoop.emails}"/>
+		<property name="locale">
+			<util:constant static-field="java.util.Locale.US"/>
+		</property>
+		<property name="parameters">
+			<map>
+				<entry key="jobName" value="${job.name}"/>
+			</map>
+		</property>
+    </bean>
+</beans>
