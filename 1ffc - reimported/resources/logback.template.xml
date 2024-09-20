@@ -19,7 +19,7 @@
     </appender>
 
     <!-- Custom levels after this line -->
-	<logger name="com.sorrisotech." level="INFO"/>
+	<logger name="com.sorrisotech" level="INFO"/>
 
     <root level="WARN">
         <appender-ref ref="STDOUT"/>
