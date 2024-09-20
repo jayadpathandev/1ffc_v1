@@ -84,6 +84,9 @@
         <ant dir="1ffc batch - status processor" inheritAll="false" inheritRefs="false">
             <property name="dss.dir" value="${dss.dir}"/>
         </ant>
+        <ant dir="1ffc - reimported" inheritAll="false" inheritRefs="false">
+            <property name="dss.dir" value="${dss.dir}"/>
+        </ant>
         <ant dir="1ffc - transaction history batch" inheritAll="false" inheritRefs="false">
             <property name="dss.dir" value="${dss.dir}"/>
         </ant>

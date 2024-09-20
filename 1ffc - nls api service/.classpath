@@ -9,8 +9,8 @@
 	<classpathentry kind="con" path="org.apache.ivyde.eclipse.cpcontainer.IVYDE_CONTAINER/?project=service+-+nls+test&amp;ivyXmlPath=ivy.xml&amp;confs=*"/>
 	<classpathentry kind="lib" path="/batch - common/lib/angus-activation-2.0.0.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/antlr-2.7.2.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/antlr4-runtime-4.13.1.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/aspectjweaver-1.9.22.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/antlr4-runtime-4.13.2.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/aspectjweaver-1.9.22.1.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/authnet_cim_api.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/batchAccountBalance.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/batchAuditPurge.jar"/>
@@ -34,28 +34,28 @@
 	<classpathentry kind="lib" path="/batch - common/lib/checker-qual-3.42.0.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/commons-beanutils-1.9.4.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/commons-chain-1.1.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/commons-codec-1.16.0.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/commons-codec-1.17.0.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/commons-collections-3.2.2.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/commons-collections4-4.5.0-M1.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/commons-compress-1.25.0.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/commons-collections4-4.5.0-M2.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/commons-compress-1.26.2.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/commons-dbcp2-2.12.0.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/commons-digester-2.1.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/commons-httpclient-3.1.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/commons-io-2.16.1.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/commons-jexl-2.0.1.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/commons-lang-2.6.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/commons-lang3-3.14.0.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/commons-logging-1.3.0.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/commons-lang3-3.17.0.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/commons-logging-1.3.2.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/commons-math3-3.6.1.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/commons-pool2-2.12.0.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/commons-validator-1.8.0.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/commons-validator-1.9.0.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/core-3.5.3.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/curvesapi-1.08.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/dom4j-1.1.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/error_prone_annotations-2.21.1.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/esapi-2.0.1.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/failureaccess-1.0.1.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/freemarker-2.3.32.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/freemarker-2.3.33.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/googleauth-1.5.0.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/guava-32.1.3-android.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/HdrHistogram-2.1.11.jar"/>
@@ -64,15 +64,15 @@
 	<classpathentry kind="lib" path="/batch - common/lib/httpcore5-h2-5.2.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/istack-commons-runtime-4.1.1.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/j2objc-annotations-2.8.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/jackson-annotations-2.17.1.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/jackson-core-2.17.1.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/jackson-databind-2.17.1.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/jackson-dataformat-xml-2.17.1.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/jackson-annotations-2.18.0-rc1.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/jackson-core-2.18.0-rc1.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/jackson-databind-2.18.0-rc1.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/jackson-dataformat-xml-2.18.0-rc1.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/jackson-dataformat-yaml-2.17.0.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/jackson-datatype-joda-2.17.1.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/jackson-jaxrs-base-2.17.1.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/jackson-jaxrs-json-provider-2.17.1.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/jackson-module-jaxb-annotations-2.17.1.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/jackson-datatype-joda-2.18.0-rc1.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/jackson-jaxrs-base-2.18.0-rc1.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/jackson-jaxrs-json-provider-2.18.0-rc1.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/jackson-module-jaxb-annotations-2.18.0-rc1.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/jai-imageio-core-1.4.0.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/jakarta.activation-2.0.1.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/jakarta.activation-api-2.1.1.jar"/>
@@ -106,15 +106,15 @@
 	<classpathentry kind="lib" path="/batch - common/lib/LatencyUtils-2.0.3.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/libraryUtils.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/log4j-api-2.21.1.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/log4j-api-2.23.1.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/log4j-to-slf4j-2.18.0.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/logback-classic-1.4.0.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/logback-core-1.4.0.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/micrometer-commons-1.10.4.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/micrometer-commons-1.10.13.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/micrometer-core-1.3.20.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/micrometer-observation-1.10.4.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/micrometer-observation-1.10.13.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/mimepull-1.9.15.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/mysql-connector-j-8.4.0.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/mysql-connector-j-9.0.0.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/not-yet-commons-ssl-0.3.9.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/ntfRequest-api.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/opensaml-2.6.4.jar"/>
@@ -122,12 +122,12 @@
 	<classpathentry kind="lib" path="/batch - common/lib/oro-2.0.8.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/osgi-resource-locator-1.0.3.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/payment-api-2.0.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/persona-api-5.1.20240318.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/poi-5.2.5.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/poi-ooxml-5.2.5.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/poi-ooxml-lite-5.2.5.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/postgresql-42.7.3.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/protobuf-java-3.25.1.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/persona-api-5.2.20240718.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/poi-5.3.0.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/poi-ooxml-5.3.0.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/poi-ooxml-lite-5.3.0.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/postgresql-42.7.4.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/protobuf-java-4.26.1.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/reflections-0.10.2.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/serviceAPI.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/serviceHierarchy.jar"/>
@@ -140,20 +140,20 @@
 	<classpathentry kind="lib" path="/batch - common/lib/slf4j-api-2.0.9.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/snakeyaml-2.2.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/SparseBitSet-1.3.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/spring-aop-6.0.7.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/spring-aop-6.0.23.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/spring-batch-core-4.2.8.RELEASE.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/spring-batch-infrastructure-4.2.8.RELEASE.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/spring-beans-6.0.7.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/spring-context-6.0.7.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/spring-context-support-6.0.7.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/spring-core-6.0.7.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/spring-expression-6.0.7.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/spring-jcl-6.0.7.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/spring-jdbc-6.0.7.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/spring-oxm-6.0.7.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/spring-beans-6.0.23.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/spring-context-6.0.23.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/spring-context-support-6.0.23.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/spring-core-6.0.23.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/spring-expression-6.0.23.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/spring-jcl-6.0.23.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/spring-jdbc-6.0.23.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/spring-oxm-6.0.23.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/spring-retry-1.2.5.RELEASE.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/spring-tx-6.0.7.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/spring-web-6.0.7.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/spring-tx-6.0.23.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/spring-web-6.0.23.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/sslext-1.2-0.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/stax2-api-4.2.2.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/struts-core-1.3.8.jar"/>
@@ -170,8 +170,8 @@
 	<classpathentry kind="lib" path="/batch - common/lib/validation-api-1.1.0.Final.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/velocity-1.7.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/velocity-tools-2.0.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/woodstox-core-6.6.2.jar"/>
-	<classpathentry kind="lib" path="/batch - common/lib/xmlbeans-5.2.0.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/woodstox-core-7.0.0.jar"/>
+	<classpathentry kind="lib" path="/batch - common/lib/xmlbeans-5.2.1.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/xmlsec-3.0.2.jar"/>
 	<classpathentry kind="lib" path="/batch - common/lib/xmltooling-1.4.4.jar"/>
 	<classpathentry kind="output" path="classes"/>
