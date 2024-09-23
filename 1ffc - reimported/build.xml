@@ -44,7 +44,7 @@
 		<mkdir dir="${output.dir}/batch/1ffc_reimported/resources"/>
 
         <copy todir="${output.dir}/batch/1ffc_reimported/resources">
-             <fileset dir="resources"/>
+             <fileset dir="resources" excludes="logback.xml"/>
         </copy>
 		<copy file="control.xml" tofile="${output.dir}/batch/1ffc_reimported/build.xml"/>
         <echo file="${output.dir}/batch/1ffc_reimported/paths.properties">

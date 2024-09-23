@@ -22,6 +22,9 @@
 			</fileset>
         </copy>
 
+        <mkdir dir="${output.dir}/batch/config/common"/>
+        <copy todir="${output.dir}/batch/config/common" file="user_config.properties"/>
+
 		<mkdir dir="${output.dir}/jenkins/1ffc_file_available"/>
 		<copy file="1ffc_file_available.xml" tofile="${output.dir}/jenkins/1ffc_file_available/config.xml"/>
 
