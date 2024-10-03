@@ -374,6 +374,11 @@
 						</div>
 					</#if>
 					
+                    <#if debug>			
+						<span class="fw-bold"> amount overdue : ${nAmountOverdue}</span>
+						<span class="fw-bold"> past due date : ${status.dueDate?date}</span>
+					</#if>
+					
 					<#-- HANDLE THE CASE WHERE THERE'S NO PAYMENTS OF ANY KIND SCHEDULED -->
 					<#if (( 0 == scheduledPayment.oneTimePmtCount) && (0 == scheduledPayment.automaticPmtCount)) > 
 						
@@ -436,7 +441,7 @@
 				<#else>
 					<#--  last payment with a credit amount -->
 					<div class="text-center mt-3 border border-2 rounded-pill border-info p-3">
-						Contratulations! You've reached you final payment on this account. Visit your local
+						Congratulations! You've reached your final payment on this account. Visit your local
 						branch to make this payment and close your account.
 					</div>
 				</#if>			
