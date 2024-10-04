@@ -92,4 +92,6 @@ public interface IScheduledPayment {
 	 */
 	public String getPaymentStatus();
 	
+	public String getOrgIdWhereRoutingNumberIsZero();
+
 }

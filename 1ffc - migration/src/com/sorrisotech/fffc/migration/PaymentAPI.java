@@ -3,8 +3,13 @@
  */
 package com.sorrisotech.fffc.migration;
 
+import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -44,7 +49,7 @@ import org.springframework.web.util.UriComponentsBuilder;
  *  		payments with the attribute "automatic" will be deleted before 
  *  		creating the new autopay rule.
  *  			
- *  
+ *  @version 2024-Sep-29 jak	changes for new automatic payment type with extra
  *  
  */
 public class PaymentAPI {
@@ -327,19 +332,35 @@ public class PaymentAPI {
 			case debit:	
 			case credit:
 				data.put("sourceValue", pmtAccount.m_szTokenId);
+				data.put("expiration", pmtAccount.m_szExpiration);
 				break;
 			case bank:
 			case sepa:
-				data.put("soruceValue", pmtAccount.m_szBankRouting + "|" + pmtAccount.m_szBankAcct);
+		    	data.put("routingNumber", pmtAccount.m_szBankRouting);
+		    	data.put("accountNumber", pmtAccount.m_szBankAcct);
+		    	// Bank account type, must equal 'checking' or 'savings'
+		    	switch (pmtAccount.m_szBankAcctType) {
+		    	case "checking":
+			    	data.put("accountType", "c");
+			    	break;
+		    	case "savings":
+			    	data.put("accountType", "s");
+			    	break;
+		    	default:
+					LOG.error("PaymentAPI:apiAddToken -- invalid bank account type for payment {}.",
+							pmtAccount.m_szBankAcctType);
+					return false;
+		    	}
+
 				break;
 			default:
 				LOG.error("PaymentAPI:apiAddToken -- invalid source type for paymnent {}.",
-						pmtAccount.m_payType.toString());;
+						pmtAccount.m_payType.toString());
+				return false;
 			}
 
 			data.put("accountHolder", pmtAccount.m_szAcctHolder);
 			data.put("maskedNumber", pmtAccount.m_szMaskedName);
-			data.put("expiration", pmtAccount.m_szExpiration);
 
 			// -- create the request --
 			final RequestEntity<String> request = RequestEntity
@@ -509,10 +530,37 @@ public class PaymentAPI {
 			data.put("transactionId", m_transactionId);
 
 			// -- add call specific data --
-			data.put("paymentDateRule", "dayOfMonth=" + pmt.getPayDay());
-			data.put("paymentAmountRule", "billAmount");
-			data.put("paymentCountRule", "untilCanceled");
+			// -- we may make these option later --
+//			data.put("paymentDateRule", "dayOfMonth=" + pmt.getPayDay());
+//			data.put("paymentAmountRule", "billAmount");
+			
+			LocalDate lDate = pmt.getStartDate();
+			
+			// -- convert date into a string no fancy formatting"
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+			String formattedString = lDate.format(formatter);
+			data.put("paymentDateRule",  "startDate=" + formattedString);
 
+			// -- convert the extra payment into the right format --
+			BigDecimal lExtraPayment = pmt.getExtraPayment();
+			
+			// -- note for the naive like me who thought isEqual would 
+			//		work when comparing BigDecimal.Zero to a BigDecimal 0.00,
+			//		compareTo ignores the scale --
+			if (BigDecimal.ZERO.compareTo(lExtraPayment) == 0) {
+				data.put("paymentAmountRule", "billAmount");
+			} else {
+				DecimalFormatSymbols symbols = new DecimalFormatSymbols();
+				symbols.setGroupingSeparator(',');
+				symbols.setDecimalSeparator('.');
+				String pattern = "#,##0.00";
+				DecimalFormat decimalFormat = new DecimalFormat(pattern, symbols);
+				String lszExtraPayment = decimalFormat.format(lExtraPayment);
+				data.put("paymentAmountRule", "billAmountAndAdditional=" + lszExtraPayment);
+			}
+			
+			data.put("paymentCountRule", "untilCanceled");
+			
 			// -- create the request --
 			final RequestEntity<String> request = RequestEntity
 					.post(new URI(lszURL + lszCallName))

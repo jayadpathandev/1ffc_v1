@@ -1,5 +1,8 @@
 package com.sorrisotech.fffc.migration;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
 /**
  * Interface used to create an automatic payment rule
  * 
@@ -61,11 +64,28 @@ public interface IAutomaticPaymentRule {
 	 */
 	public PmtAcct getPayAcct();
 	
+	
+	/**
+	 * Gets the extra payment amount or 0 if there is none
+	 * 
+	 * @return
+	 */
+	public BigDecimal getExtraPayment();
+	
+	/**
+	 * Gets the start date for this automatic payment rule
+	 * 
+	 * @return
+	 */
+	public LocalDate getStartDate();
+	
 	/**
 	 * Returns string suitable for use in logging.
 	 * 
 	 * @return
 	 */
 	public String getInfoAsString();
+	
+	public String getOrgIdWhereRoutingNumberIsZero();
 
 }
