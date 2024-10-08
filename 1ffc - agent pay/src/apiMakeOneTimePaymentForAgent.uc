@@ -409,8 +409,8 @@ useCase apiMakeOneTimePaymentForAgent
 		logRequest.PAY_STATUS      = "failed"
 
 		MakePayment.accountJson(logRequest.GROUPING_JSON)
-		MakePayment.payDate   (logRequest.PAY_DATE)
-		MakePayment.amount    (logRequest.PAY_AMT)		
+		MakePayment.payDate    (logRequest.PAY_DATE)
+		MakePayment.totalAmount(logRequest.PAY_AMT)		
 
 		ApiPay.payGroup       (logRequest.PMT_PROVIDER_ID)
 		ApiPay.walletFrom     (logRequest.PAY_FROM_ACCOUNT)
