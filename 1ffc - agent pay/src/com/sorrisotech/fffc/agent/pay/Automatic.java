@@ -46,7 +46,7 @@ public class Automatic {
 			) throws MargaritaDataException {
 		var retval = "bad";
 		
-		if (input.equalsIgnoreCase("billAmount")) {
+		if (input.equalsIgnoreCase("billAmount") || input.toLowerCase().startsWith("billamountandadditional=")) {
 			output.putValue("option1");
 			retval = "good";			
 		} else if (input.equalsIgnoreCase("minimumAmountDue")) {
@@ -72,6 +72,21 @@ public class Automatic {
 		if (input.equalsIgnoreCase("billAmount") || input.equalsIgnoreCase("minimumAmountDue")) {
 			output.putValue("");
 			retval = "good";			
+		} else if(input.toLowerCase().startsWith("billamountandadditional=")) {
+			try {
+				final var offset = input.indexOf('=');
+				final var amount = new BigDecimal(input.substring(offset+1));
+				
+				if (amount.compareTo(BigDecimal.ZERO) > 0) {
+					output.putValue(amount.toPlainString());
+					retval = "good";
+				} else {
+					mErrorCode = "invalid_payment_amount_rule";
+					mErrorText = "Payment amount is less than or equal to zero.";
+				}
+			} catch(NumberFormatException e) {
+				error("invalid_payment_amount_rule", "paymentAmountRule", input);
+			}
 		} else if (input.toLowerCase().startsWith("uptoamount=")) {
 			try {
 				final var offset = input.indexOf('=');
@@ -98,7 +113,7 @@ public class Automatic {
 	}
 
 	// ************************************************************************
-	// option1 = Day of the Month
+	// option1 = Day of the Month || Start date
 	// option2 = Days before Due
 	public String translateDateOption(
 				final String      input,
@@ -112,7 +127,7 @@ public class Automatic {
 		} else {
 			final var code = input.substring(0, offset);
 			
-			if (code.equalsIgnoreCase("dayOfMonth")) {
+			if (code.equalsIgnoreCase("dayOfMonth") || code.equalsIgnoreCase("startDate")) {
 				output.putValue("option1");
 				retval = "good";							
 			} else if (code.equalsIgnoreCase("daysBefore")) {
@@ -152,6 +167,10 @@ public class Automatic {
 					mErrorCode = "invalid_payment_date_rule";
 					mErrorText = "Payment day is greater than 14 days before.";
 				} else if (mode.equalsIgnoreCase("dayOfMonth")) {
+					date.putValue(String.valueOf(day));
+					prior.putValue("0");
+					retval = "good";
+				} else if (mode.equalsIgnoreCase("startDate") && String.valueOf(day).length() == 8) { // the date should be in long format (yyyyMMdd)
 					date.putValue(String.valueOf(day));
 					prior.putValue("0");
 					retval = "good";

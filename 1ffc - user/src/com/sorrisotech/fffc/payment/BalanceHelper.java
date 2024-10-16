@@ -371,5 +371,25 @@ public class BalanceHelper extends FffcBalance {
 		
 		return bdRet.toString();
 	}
+	
+	public static String getFormattedAmount(
+		    IServiceLocator2 	locator, 
+			IUserData           data,
+			final String 		cszPayGroup,
+			final String 		cszAmount) {
+		String lszRetVal = "";
+		
+		try {
+			BigDecimal cAmount = new BigDecimal(cszAmount).setScale(2);
+			final LocalizedFormat format = new LocalizedFormat(locator, data.getLocale());
+			
+			lszRetVal += format.formatAmount(cszPayGroup, cAmount);
+			
+		} catch (Exception e) {
+			m_cLog.error("BalanceHelper:getFormattedAmount - An exception was thrown", e);
+		}
+
+		return lszRetVal ;
+	}
 
 }
