@@ -76,29 +76,19 @@
         <property name="getBillsLoaded">
         	<value>        		   
         		SELECT Count(*) 
-				FROM   bill_streams BIS, 
-				       bill_streams_register BSR, 
-				       bill B, 
-				       bill_summary BS, 
-				       bill_file_meta_data BFMD 
-				WHERE  BIS.bill_stream = BSR.bill_stream 
-				       AND BSR.bill_stream = BFMD.bill_stream 
-				       AND B.bill_id = BS.bill_id 
-				       AND B.bill_file_id = BFMD.bill_file_id 
-				       AND BFMD.status IN ( 'PUBLISHED', 'MERGED' )  		 			 
+				FROM   bill_file_meta_data 
+				WHERE  bill_stream is not null
+				       AND payment_group is not null 
+				       AND status IN ( 'PUBLISHED', 'MERGED' )  		 			 
         	</value>
         </property>
         
         <property name="verifyBillsLoaded">
         	<value>        		   
         		SELECT Count(*) 
-				FROM   bill B, 
-				       bill_summary BS, 
-				       bill_file_meta_data BFMD 
-				WHERE  BFMD.bill_stream = :bill_stream 
-				       AND B.bill_id = BS.bill_id 
-				       AND B.bill_file_id = BFMD.bill_file_id 
-				       AND BFMD.status IN ( 'PUBLISHED', 'MERGED' )  		 			 
+				FROM   bill_file_meta_data 
+				WHERE  bill_stream = :bill_stream 
+				       AND status IN ( 'PUBLISHED', 'MERGED' )  		 			 
         	</value>
         </property>
         
