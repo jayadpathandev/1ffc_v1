@@ -1,0 +1,70 @@
+<project name="batch-status-processor" default="package" basedir=".">
+
+    <!-- ######################################################################
+	     # Verify that all needed properties are defined.
+         ################################################################## -->
+    <target name="-init">
+		<loadproperties srcFile="../build.properties"/>
+
+        <property name="moduleName" value="reimported"/>
+
+    	<property name="mod.artifacts.dir" value="${artifacts.dir}/build/${moduleName}"/>
+    	<mkdir dir="${mod.artifacts.dir}"/>
+
+		<property name="mod.package.dir"  value="${artifacts.dir}/package"/>
+		<property name="bat.package.dir"  value="${mod.package.dir}/batch"/>
+
+		<mkdir dir="${bat.package.dir}"/>
+
+    	<path id="classpath">
+    		<fileset dir="${dss.dir}/batch/lib">
+    			 <include name="*.jar"/>
+    		</fileset>
+    	</path>
+    </target>
+
+    <!-- ######################################################################
+         # Compile the java files.
+         ################################################################## -->
+    <target name="compile" depends="-init">
+    	<javac destdir="${mod.artifacts.dir}" classpathref="classpath" includeAntRuntime="false">
+			<classpath>
+				<fileset dir="${bat.package.dir}"/>
+			</classpath>
+    	    <src>
+    	        <pathelement location="src"/>
+    		</src>
+    	</javac>
+    </target>
+
+    <!-- ######################################################################
+         # Package the xfer job.
+         ################################################################## -->
+	<target name="package" depends="-init, compile">
+		<mkdir dir="${output.dir}/batch/1ffc_reimported/resources"/>
+
+        <copy todir="${output.dir}/batch/1ffc_reimported/resources">
+             <fileset dir="resources" excludes="logback.xml"/>
+        </copy>
+		<copy file="control.xml" tofile="${output.dir}/batch/1ffc_reimported/build.xml"/>
+        <echo file="${output.dir}/batch/1ffc_reimported/paths.properties">
+log.dir  = /sorriso/logs
+log.file = 1ffc_v1_reimported
+
+common.config.dir = /sorriso/batch/config
+jar.dir           = /sorriso/batch/lib
+		</echo>
+
+		<mkdir dir="${output.dir}/batch/lib"/>
+
+		<jar destfile="${output.dir}/batch/lib/batchReimported.jar">
+		    <fileset dir="${mod.artifacts.dir}"/>
+		</jar>
+		<copy todir="${output.dir}/batch/lib">
+			<fileset dir="${mod.package.dir}/batch"/>
+		</copy>
+		<mkdir dir="${output.dir}/jenkins/1ffc_reimported"/>
+		<copy file="1ffc_reimported.xml" tofile="${output.dir}/jenkins/1ffc_reimported/config.xml"/>
+	</target>
+</project>
+

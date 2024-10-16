@@ -164,15 +164,15 @@
 			<td><span class="fw-bold">${status.viewAccount}</span></td>
 		</tr>
 		<tr>
-			<td><span class="fw-bold"># One Time Payments:</span></td>
+			<td><span class="fw-bold"># One Time Scheduled Payments:</span></td>
 			<td><span class="fw-bold">${scheduledPayment.oneTimePmtCount}</span></td>
 		</tr>
 		<tr>
-			<td><span class="fw-bold">One Time Payment Date:</span></td>
+			<td><span class="fw-bold">One Time Scheduled Payment Date:</span></td>
 			<td><span class="fw-bold">${scheduledPayment.oneTimePmtDate?date}</span></td>
 		</tr>
 		<tr>
-			<td><span class="fw-bold">Total Value One Time Payments:</span></td>
+			<td><span class="fw-bold">Total Value One Time Scheduled Payments:</span></td>
 			<td><span class="fw-bold">${formatUtils.formatAmount(scheduledPayment.oneTimePmtTotalAmt?number)}</span></td>
 		</tr>
 		<tr>
@@ -236,8 +236,27 @@
 					<#switch accountStatus>
 						<#case "activeAccount">
 							<#-- All links enabled -->
-							<a class="me-4" target="_blank" href="fffcViewDoc?sAccount=${bill.internalAccountNo}&sDate=${bill.dateNum?c}&sStreamId=${bill.stream}&sDocId=${bill.id?c}&sExtDocId=${bill.extDocId}">View statement</a>
-							
+			
+							<#if debug>
+								<#if !bill.extDocId?has_content>
+									<#assign extDocId = "">
+								<#else>
+									<#assign extDocId = bill.extDocId>
+								</#if>
+		
+								<span class="fw-bold">exDocId:</span>
+								<span class="fw-bold">${extDocId}</span>
+							</#if>
+
+							<#-- Disable the view Statement link if bill.extDocId is null or equal to lcd -->
+							<#if bill.extDocId?has_content && ("lcd" == bill.extDocId)>							
+								<a class="me-4 disabled pe-none opacity-50" target="_blank" href="fffcViewDoc?sAccount=${bill.internalAccountNo}&sDate=${bill.dateNum?c}&sStreamId=${bill.stream}&sDocId=${bill.id?c}">View statement</a>
+							<#elseif bill.extDocId?? && (bill.extDocId?length > 0)>
+								<a class="me-4" target="_blank" href="fffcViewDoc?sAccount=${bill.internalAccountNo}&sDate=${bill.dateNum?c}&sStreamId=${bill.stream}&sDocId=${bill.id?c}&sExtDocId=${bill.extDocId}">View statement</a>
+							<#else>
+								<a class="me-4 disabled pe-none opacity-50" target="_blank" href="fffcViewDoc?sAccount=${bill.internalAccountNo}&sDate=${bill.dateNum?c}&sStreamId=${bill.stream}&sDocId=${bill.id?c}">View statement</a>
+							</#if>
+								
 							<#-- <a class="me-4 text-nowrap" href="#" st-pop-in="fffcViewTransactions?displayaccount=${displayAccount}&offset=${jumpToOffset}">Transaction History</a> -->
 
 							<#--  Automatic (recurring) payments enable/disable control driven by status, currency of account, and if there's already

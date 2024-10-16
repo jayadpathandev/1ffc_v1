@@ -85,15 +85,15 @@ public class EsignHelper {
         }
 	}
 	
-	public static String getDayFromDate(String inputDateString) {
+	public static String getFormattedPayDay(String inputDateString) {
 		try {
 			SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
             Date date = inputFormat.parse(inputDateString);
 
-            SimpleDateFormat outputFormat = new SimpleDateFormat("dd", Locale.ENGLISH);
+            SimpleDateFormat outputFormat = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH);
             return outputFormat.format(date);
 		} catch( Exception ex) {
-			mLog.error("EsignHelper...getDayFromDate()...exception occured : {}", ex);
+			mLog.error("EsignHelper...getFormattedPayDay()...exception occured : {}", ex);
 			return null;
 		}
 	}
