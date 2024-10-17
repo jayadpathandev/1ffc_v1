@@ -143,6 +143,10 @@ useCase paymentHistory [
 	native string sTotalAmount			 = ""
     native string sPaymentRequestReceived  = ""
     native string sEstimatedProcessingDate = ""
+    native string sPayScheduledStatus    = ""
+    native string nPmtSurcharge			 = ""	
+	native string nPmtTotalAmount		 = ""
+	native string sPmtMethodType		 = ""
 
     native string sMessageFlag  		  = "false"
     native string sCancelTextFinal
@@ -178,6 +182,9 @@ useCase paymentHistory [
         
     serviceParam(Payment.GetHistory)  srHistoryParam
     serviceResult(Payment.GetHistory) srHistoryResult
+    
+    serviceParam(Payment.CreatePaymentHistory) srCreatePaymentHistoryParam
+	serviceResult(Payment.CreatePaymentHistory) srCreatePaymentHistoryResult
     		
     serviceResult(DisplayConfig.GetPastPaymentsConfig) srGetResponse
     
@@ -224,9 +231,9 @@ useCase paymentHistory [
         "PAY_AMT"    		  => string sPayAmount
         "PAY_AMT_NUM" 		  => number nPayAmount  
         "PAY_SURCHARGE"       => string sPaySurcharge
-        "PAY_SURCHARGE"  	  => number nPaySurcharge        
+        "PAY_SURCHARGE_NUM"   => number nPaySurcharge        
         "PAY_TOTAL_AMT"       => string sPayTotalAmount
-        "PAY_TOTAL_AMT"  	  => number nPayTotalAmount                     
+        "PAY_TOTAL_AMT_NUM"   => number nPayTotalAmount                     
         "PAY_DATE"      	  => string sPayDate
         "PAY_DATE_NUM"   	  => number nPayDate
         "PAY_REQ_DATE"    	  => string sPayReqDate
@@ -238,7 +245,9 @@ useCase paymentHistory [
         "SOURCE_TYPE"   	  => string sSourceType
         "SOURCE_NUM"   	      => string sSourceNum
         "PAY_GROUP"           => string sPayGroup
-        "EDIT_CLASS" 		  => string sEditClass     
+        "EDIT_CLASS" 		  => string sEditClass
+        "PAY_STATUS"          => string sPayStatus
+        "DETAILS_TYPE"        => string sDetailsType     
         
         link "" futurePaymentDetails(futurePaymentDetailsPopin) [          
            sOnlineTransId: sOnlineTransId             
@@ -270,6 +279,12 @@ useCase paymentHistory [
            sAmount: sPayAmount
            nAmount: nPayAmount
            sPayGroup: sPayGroup
+           sPayScheduledStatus: sPayStatus
+           nPmtSurcharge: nPaySurcharge
+           nPmtTotalAmount: nPayTotalAmount
+           sPmtMethodType: sDetailsType
+           sPaymentDetailsName: sDetailsName
+           sPaymentMethodAccount: sSourceNum
         ]
                    
         column accountCol("{Account number}") [
@@ -1786,10 +1801,32 @@ useCase paymentHistory [
     /* 11. Check delete scheduled payment result. */
 	action checkDeleteResult [		
 		if srDeleteScheduledResult.RESULT == "success" then
-    		setScheduledDeleteMsgFlag
+    		updatePaymentHistoryCancel
     	else 
     		genericErrorMsg	
 	]
+	
+	action updatePaymentHistoryCancel [
+    	srCreatePaymentHistoryParam.TRANSACTION_ID      = sOnlineTransId
+		srCreatePaymentHistoryParam.ONLINE_TRANS_ID     = sOnlineTransId
+		srCreatePaymentHistoryParam.PMT_PROVIDER_ID     = sPayGroup
+		srCreatePaymentHistoryParam.PAY_FROM_ACCOUNT    = sPaymentDetailsName + "|" + sPmtMethodType + "|" + sPaymentMethodAccount
+		srCreatePaymentHistoryParam.PAY_CHANNEL         = "online"
+		srCreatePaymentHistoryParam.PAY_DATE            = sEstimatedProcessingDate
+		srCreatePaymentHistoryParam.PAY_AMT             = nAmount 		
+		srCreatePaymentHistoryParam.PAY_STATUS          = "canceled"
+		srCreatePaymentHistoryParam.USER_ID             = sUserId
+		srCreatePaymentHistoryParam.PAY_SURCHARGE       = nPmtSurcharge
+		srCreatePaymentHistoryParam.PAY_TOTAL_AMT       = nPmtTotalAmount 
+		srCreatePaymentHistoryParam.RESPONSE_CODE		= "user"
+		srCreatePaymentHistoryParam.RESPONSE_MESSAGE	= "The user has deleted the scheduled payment."
+		srCreatePaymentHistoryParam.FLEX_1			    = sPayScheduledStatus
+		
+		switch apiCall Payment.CreatePaymentHistory(srCreatePaymentHistoryParam, srCreatePaymentHistoryResult, ssStatus) [
+            case apiSuccess setScheduledDeleteMsgFlag
+            default genericErrorMsg
+        ]	
+    ]
 	
 	/* 12. Sets delete scheduled payment success flag to true. */
 	action 	setScheduledDeleteMsgFlag [
