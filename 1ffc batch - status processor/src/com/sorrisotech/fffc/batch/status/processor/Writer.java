@@ -107,6 +107,26 @@ public class Writer extends NamedParameterJdbcDaoSupport implements ItemWriter<L
 	 * Used by this class to make SQL calls.
 	 */
 	private PaymentAutomaticDao m_cPaymentAutomaticDao = null;
+	
+	/**************************************************************************
+	 * Bank
+	 */
+	private static final String BANK = "bank";
+	
+	/**************************************************************************
+	 * ach payment disabled.
+	 */
+	private static final String ACH_DISABLED = "ach disabled";
+	
+	/**************************************************************************
+	 * Recurring payment disabled.
+	 */
+	private static final String RECURRING_PAYMENT_DISABLED = "recurring payment disabled";
+	
+	/**************************************************************************
+	 * Payment disabled.
+	 */
+	private static final String PAYMENT_DISABLED = "payment disabled";
 
 	public Writer() {
 		try {
@@ -127,7 +147,6 @@ public class Writer extends NamedParameterJdbcDaoSupport implements ItemWriter<L
 
 				LOG.info("Processing internal account number : {}", entry.getInternalAccNumber());
 				
-
 				List<ScheduledPayment> cScheduledPayments = getScheduledPaymentsForUser(
 						entry.getInternalAccNumber()
 				);
@@ -139,19 +158,19 @@ public class Writer extends NamedParameterJdbcDaoSupport implements ItemWriter<L
 				List<String> cScheduledRecordsIds = new ArrayList<String>();
 				List<BigDecimal> cRecurringRecordsIds = new ArrayList<BigDecimal>();
 				
-				String sReasons = "";
+				List<String> cReasonsList = new ArrayList<String>();
 				if (entry.isAchDisabled()) {
 					
 					cRecurringRecordsIds = cRecurringPayments.stream()
-							.filter(payment -> "bank".equals(payment.getSourceType()))
+							.filter(payment -> BANK.equals(payment.getSourceType()))
 							.map(val -> val.getId())
 							.collect(Collectors.toList());
 					
 					cScheduledRecordsIds = cScheduledPayments.stream()
-							.filter(payment -> "bank".equals(payment.getSourceType()))
+							.filter(payment -> BANK.equals(payment.getSourceType()))
 							.map(val -> val.getId())
 							.collect(Collectors.toList());
-					sReasons = sReasons.concat("ach disabled | ");
+					cReasonsList.add(ACH_DISABLED);
 				}
 
 				if (entry.isPaymentDisabled() || entry.isRecurringPaymentDisabled()) {
@@ -159,15 +178,18 @@ public class Writer extends NamedParameterJdbcDaoSupport implements ItemWriter<L
 					cRecurringRecordsIds = cRecurringPayments.stream()
 							.map(val -> val.getId())
 							.collect(Collectors.toList());
-					sReasons = sReasons.concat("payment or recurring payment disabled | ");
+					cReasonsList.add(entry.isPaymentDisabled() ? PAYMENT_DISABLED:RECURRING_PAYMENT_DISABLED);
 				}
 
 				if (entry.isPaymentDisabled()) {
 					cScheduledRecordsIds = cScheduledPayments.stream()
 						.map(val -> val.getId())
 						.collect(Collectors.toList());
-					sReasons = sReasons.concat("payment disabled");
+					if (!cReasonsList.contains(PAYMENT_DISABLED))
+						cReasonsList.add(PAYMENT_DISABLED);
 				}
+				
+				final String sReasons = String.join("|",cReasonsList);
 
 				final var recurringPaymentIds = cRecurringRecordsIds;
 				cRecurringPayments.removeIf(payment -> !recurringPaymentIds.contains(payment.getId()));
@@ -203,7 +225,7 @@ public class Writer extends NamedParameterJdbcDaoSupport implements ItemWriter<L
 					LOG.info("Number of schedule records deleted : {}", iScheduledRowsAffected);
 
 					int totalRowsAffected = cScheduledPayments.stream()
-							.map(val -> insertFailedPmtHistory(val))
+							.map(val -> insertCancelledPmtHistory(val, sReasons))
 							.reduce(0, Integer::sum);
 					LOG.info("Total records added to pmt_history table : {}", totalRowsAffected);
 				}
@@ -342,7 +364,7 @@ public class Writer extends NamedParameterJdbcDaoSupport implements ItemWriter<L
 	 * @param cScheduledPayment
 	 * @return rows affected
 	 */
-	private int insertFailedPmtHistory(ScheduledPayment cScheduledPayment) {
+	private int insertCancelledPmtHistory(ScheduledPayment cScheduledPayment, String szReasons) {
 		
 		MapSqlParameterSource cParams  = new MapSqlParameterSource();
 		
@@ -365,6 +387,9 @@ public class Writer extends NamedParameterJdbcDaoSupport implements ItemWriter<L
 			cParams.addValue("flex1", this.m_szScheduledPmtInitiated);
 		else
 			cParams.addValue("flex1", null);
+		
+		cParams.addValue("response_code", "business"); 
+		cParams.addValue("response_message", szReasons);
 		
 		LOG.debug("Adding entry to 'pmt_history' table : {}", cParams);
 		
