@@ -877,11 +877,20 @@ public class UcFtlDisplay implements IExternalReuse {
 			lTemplate.put(lcszRoot, "jumpToOffset", cSession.getAccountOffset(cszAccountNumber, cszPaymentGroup));
 			lTemplate.put(lcszRoot, "displayAccount", lBillInfo.getExternalAccountNo());
 			lTemplate.put(lcszRoot, "amount", new BigDecimal(cszCurrentAmountDue)); // -- this is current amount due, not statement amount due --
-			lTemplate.put(lcszRoot, "dueDate", lTemplate.m_DateFormat.numeric(lBillInfo.getBillDueDate()));
+			if (lBillInfo.getBillDueDate() != null) {
+				lTemplate.put(lcszRoot, "dueDate", lTemplate.m_DateFormat.numeric(lBillInfo.getBillDueDate()));
+			} else {
+				lTemplate.put(lcszRoot, "dueDate", "");
+			}
+					
 			lTemplate.put(lcszRoot, "newAmount", lBillInfo.getAmountDue());
 			lTemplate.put(lcszRoot, "previousAmount", cszPreviousBillAmountRemaining); // -- needs to be passed down as it is calculated --
 			lTemplate.put(lcszRoot, "minAmountDue", lBillInfo.getMinimumDue());
-			lTemplate.put(lcszRoot, "statementDate", lTemplate.m_DateFormat.numeric(lBillInfo.getBillDate()));
+			if (lBillInfo.getBillDate() != null) {
+				lTemplate.put(lcszRoot, "statementDate", lTemplate.m_DateFormat.numeric(lBillInfo.getBillDate()));
+			} else {
+				lTemplate.put(lcszRoot, "statementDate", "");
+			}
 			lTemplate.put(lcszRoot, "docNumber", lBillInfo.getInvoiceNo());
 			lTemplate.put(lcszRoot, "location", lBillInfo.getLocation());
 			lTemplate.put(lcszRoot, "paymentEnabled", szPaymentEnabled);
