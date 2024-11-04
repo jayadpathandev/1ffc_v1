@@ -161,6 +161,7 @@ useCase apiStartChooseSource [
 	]
 	
 	action deleteWalletSuccess [
+		ApiPay.clearWallet()
 		error = ""
 		sDeleteWalletError = ""
 		ApiPay.setError(error)
