@@ -65,6 +65,7 @@ public class ApiPay implements IExternalReuse {
 	private PaySession mCurrent   = null;
 	private String     mIFrame    = null;
 	private String     mError     = "";
+	private String 	   mDeleteErr = "";
 	
 	//*************************************************************************
 	@Override
@@ -594,6 +595,7 @@ public class ApiPay implements IExternalReuse {
 		context.put("disableAch", disableAch);
 		context.put("walletItem", mCurrent.walletToken());
 		context.put("error", mError);
+		context.put("deleteWalletError", mDeleteErr);
 		
 		// --------------------------------------------------------------------
 		try {
@@ -783,5 +785,80 @@ public class ApiPay implements IExternalReuse {
 	public String setTransactionStarted(final String code) {
 		return setStatus(code, PayStatus.started); 
 	}
+
+	/**
+	 * @param szDeleteErr the mDeleteErr to set
+	 */
+	public void setDeleteError(final IServiceLocator2 locator, final IUserData userData) {
+		
+		switch (mDeleteErr) {
+			case "scheduled":
+				mDeleteErr = I18n.translate(locator, userData,
+				        "apiStartChooseSource_paymentMethodScheduleError");
+				break;
+			case "progress":
+				mDeleteErr = I18n.translate(locator, userData,
+				        "apiStartChooseSource_paymentMethodScheduleProgressError");
+				break;
+			case "auto":
+				mDeleteErr = I18n.translate(locator, userData,
+				        "apiStartChooseSource_paymentMethodAutoError");
+				break;
+			case "unsaved":
+				mDeleteErr = I18n.translate(locator, userData, "apiStartChooseSource_addSourceCvvError");
+				break;
+			case "unknown":
+				mDeleteErr = I18n.translate(locator, userData,
+				        "apiStartChooseSource_paymentMethodUnknownError");
+				break;
+			case "":
+				mDeleteErr = "";
+				break;
+			default:
+				mDeleteErr = "";
+				break;
+		}
+	}
 	
+	public String isWalletDeletable() {
+		
+		if (mCurrent == null)
+			throw new RuntimeException("There is no current session.");
+		
+		return Optional.ofNullable(mWalletDao.getPaymentWallet(mCurrent.userId())).map(cWallet -> {
+			var szWalletStatus = new UcPaymentAction().checkSource(mCurrent.userId(),
+			        mCurrent.walletToken());
+			switch (szWalletStatus) {
+				case "":
+					return "true";
+				case "scheduled":
+					// --------------------------------------------------------------------
+					// Payment method is used in a scheduled payment, cannot delete.
+					mDeleteErr = "scheduled";
+					return "false";
+				case "progress":
+					// --------------------------------------------------------------------
+					// Scheduled payment is currently be made with the payment method, cannot
+					// delete.
+					mDeleteErr = "progress";
+					return "false";
+				case "auto":
+					// --------------------------------------------------------------------
+					// Payment method is used in an auto payment schedule, cannot delete.
+					mDeleteErr = "auto";
+					return "false";
+				default:
+					// --------------------------------------------------------------------
+					// Payment could not be delete for unknown reasons.
+					mDeleteErr = "unknown";
+					return "false";
+			}
+		}).orElseGet(() -> {
+			// ----------------------------------------------------------------------------
+			// Payment method is temporary, cannot delete.
+			mDeleteErr = "unsaved";
+			return "false";
+		});
+		
+	}
 }

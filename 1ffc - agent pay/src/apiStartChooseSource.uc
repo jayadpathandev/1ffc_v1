@@ -22,6 +22,8 @@ useCase apiStartChooseSource [
 		error
 	]
 	
+	shortcut startDeleteWallet(actionCheckDeleteSource)
+	
 	startAt init [
 		code
 	]
@@ -39,12 +41,24 @@ useCase apiStartChooseSource [
 	
 	native volatile string sUserId   = ApiPay.userid()
 	native volatile string sUserName = ApiPay.userName()
+	native volatile string sPaymentType = ApiPay.sourceType()
+	native volatile string sPaymentSourceId = ApiPay.sourceToken()
+	
+	static paymentMethodTemporaryError 		  = "{Payment method is temporary, cannot delete.}"
+	static paymentMethodScheduleError  		  = "{Payment method is used in a scheduled payment, cannot delete.}"
+	static paymentMethodScheduleProgressError = "{Scheduled payment is currently be made with the payment method, cannot delete.}"
+	static paymentMethodAutoError 			  = "{Payment method is used in an auto payment schedule, cannot delete.}"
+	static paymentMethodUnknownError		  = "{Payment could not be delete for unknown reasons.}"
 	
 	native string error
+	native string sDeleteWalletError
 	
     serviceStatus reqStatus
     serviceParam (AccountStatus.GetStatus) reqParams
     serviceResult (AccountStatus.GetStatus) reqResult
+    
+    serviceParam(Payment.DeleteWallet) srDeleteSourceParam	
+	serviceResult(Payment.DeleteWallet) srDeleteSourceResult
 	
 	action init [
 		switch ApiPay.load(code) [
@@ -81,7 +95,9 @@ useCase apiStartChooseSource [
 		
 	action actionDisplay [
 		error = ""
+		sDeleteWalletError = ""
 		ApiPay.setError(error)
+		ApiPay.setDeleteError(sDeleteWalletError)
 		ApiPay.prepareIframe(itemType)
 		foreignHandler ApiPay.showIframe()		
 	]
@@ -92,23 +108,73 @@ useCase apiStartChooseSource [
 	
  	action actionWalletError [
 		ApiPay.setError(error)
+		sDeleteWalletError = ""
+		ApiPay.setDeleteError(sDeleteWalletError)
 		ApiPay.prepareIframe(itemType)
 		foreignHandler ApiPay.showIframe()		
 	]	
 
 	action actionUseSource [
 		error = ""
+		sDeleteWalletError = ""
 		ApiPay.setError(error)
 		ApiPay.setWallet(walletToken)
+		ApiPay.setDeleteError(sDeleteWalletError)
 		ApiPay.prepareIframe(itemType)
 		foreignHandler ApiPay.showIframe()		
 	]
 	
 	action actionNewSource [
 		error = ""
+		sDeleteWalletError = ""
 		ApiPay.setError(error)
 		ApiPay.setWallet(walletType, walletAccount, walletExpiry, walletToken)
+		ApiPay.setDeleteError(sDeleteWalletError)
 		ApiPay.prepareIframe(itemType)
 		foreignHandler ApiPay.showIframe()		
+	]
+	
+	action actionCheckDeleteSource [
+		switch ApiPay.isWalletDeletable() [
+			case "true"	deleteWallet
+			case "false" deleteWalletError
+		]
+	]
+	
+	action deleteWallet [
+		
+		srDeleteSourceParam.SOURCE_TYPE = sPaymentType
+		srDeleteSourceParam.SOURCE_ID   = sPaymentSourceId
+	    srDeleteSourceParam.USER_ID     = sUserId
+	    
+		switch apiCall Payment.DeleteWallet(srDeleteSourceParam, srDeleteSourceResult, reqStatus) [
+            case apiSuccess checkDeleteResult
+            default deleteWalletError
+        ]	
+    ]
+    
+    action checkDeleteResult [		
+		if srDeleteSourceResult.RESULT == "success" then
+    		deleteWalletSuccess
+    	else 
+    		deleteWalletError	
+	]
+	
+	action deleteWalletSuccess [
+		error = ""
+		sDeleteWalletError = ""
+		ApiPay.setError(error)
+		ApiPay.setDeleteError(sDeleteWalletError)
+		ApiPay.prepareIframe(itemType)
+		foreignHandler ApiPay.showIframe()
+	]
+	
+	action deleteWalletError [
+		error = ""
+		sDeleteWalletError = ""
+		ApiPay.setError(error)
+		ApiPay.setDeleteError(sDeleteWalletError)
+		ApiPay.prepareIframe(itemType)
+		foreignHandler ApiPay.showIframe()
 	]
 ]
