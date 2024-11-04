@@ -147,6 +147,7 @@ useCase paymentHistory [
     native string nPmtSurcharge			 = ""	
 	native string nPmtTotalAmount		 = ""
 	native string sPmtMethodType		 = ""
+	native string sPaymentGrouping       = ""
 
     native string sMessageFlag  		  = "false"
     native string sCancelTextFinal
@@ -247,7 +248,8 @@ useCase paymentHistory [
         "PAY_GROUP"           => string sPayGroup
         "EDIT_CLASS" 		  => string sEditClass
         "PAY_STATUS"          => string sPayStatus
-        "DETAILS_TYPE"        => string sDetailsType     
+        "DETAILS_TYPE"        => string sDetailsType
+        "GROUPING_JSON"       => string sPayGroupData     
         
         link "" futurePaymentDetails(futurePaymentDetailsPopin) [          
            sOnlineTransId: sOnlineTransId             
@@ -285,6 +287,7 @@ useCase paymentHistory [
            sPmtMethodType: sDetailsType
            sPaymentDetailsName: sDetailsName
            sPaymentMethodAccount: sSourceNum
+           sPaymentGrouping : sPayGroupData
         ]
                    
         column accountCol("{Account number}") [
@@ -1821,6 +1824,7 @@ useCase paymentHistory [
 		srCreatePaymentHistoryParam.RESPONSE_CODE		= "user"
 		srCreatePaymentHistoryParam.RESPONSE_MESSAGE	= "The user has deleted the scheduled payment."
 		srCreatePaymentHistoryParam.FLEX_1			    = sPayScheduledStatus
+		srCreatePaymentHistoryParam.GROUPING_JSON   	= sPaymentGrouping
 		
 		switch apiCall Payment.CreatePaymentHistory(srCreatePaymentHistoryParam, srCreatePaymentHistoryResult, ssStatus) [
             case apiSuccess setScheduledDeleteMsgFlag
