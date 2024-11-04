@@ -384,12 +384,23 @@
 						
 						<#--  HANDLE THE CASE WHERE THE CURRENT BILL IS PAST ITS DUE DATE BUT A NEW BILL HASN'T ARRIVED -->
 						<#if bPastDueDate> 
-							<div class="text-center mt-3 border border-2 rounded-pill border-danger p-3">
-								We want to remind you that 
-								<span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nAmountDue)}</span>
-								was due for payment on <span class="fw-bold text-decoration-underline">${dDueDate?date}</span>.
-								Please pay now.
-							</div>
+
+							<#if status.bAutoPayLinkEnabled>							
+								<div class="text-center mt-3 border border-2 rounded-pill border-danger p-3">
+									We want to remind you that 
+									<span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nAmountDue)}</span>
+									was due for payment on <span class="fw-bold text-decoration-underline">${dDueDate?date}</span>.
+									Please pay now.
+								</div>
+							<#else>							
+								<div class="text-center mt-3 border border-2 rounded-pill border-danger p-3">
+									We want to remind you that 
+									<span class="fw-bold text-decoration-underline">${formatUtils.formatAmount(nAmountDue)}</span>
+									was due for payment on <span class="fw-bold text-decoration-underline">${dDueDate?date}</span>.
+									You will be unable to schedule a recurring payment until paid. Please pay now.
+								</div>
+							</#if>						
+								
 						<#-- HANDLE THE CASE WHERE THERE'S AN OVERDUE AMOUNT ON THE CURRENT BILL -->
 						<#elseif bBillHasOverdue>	
 							<div class="text-center mt-3 border border-2 rounded-pill border-danger p-3">
