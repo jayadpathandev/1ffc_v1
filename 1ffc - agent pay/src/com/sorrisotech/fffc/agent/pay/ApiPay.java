@@ -357,11 +357,18 @@ public class ApiPay implements IExternalReuse {
 	}
 
 	//*************************************************************************
+	public void clearWallet() {
+		if (mCurrent == null) throw new RuntimeException("There is no current session.");	
+		
+		mCurrent.wallet("", "", "", "", "", "");		
+	}
+
+	//*************************************************************************
 	public void setWallet(
 				final String token
 			) {
-		if (mCurrent == null) throw new RuntimeException("There is no current session.");
-
+		if (mCurrent == null) throw new RuntimeException("There is no current session.");	
+		
 		final var wallet = mWalletDao.getPaymentWallet(mCurrent.userId());
 		
 		if (wallet != null && wallet.length > 0) {

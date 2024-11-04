@@ -71,18 +71,17 @@
 						</select>
 					</#if>
 				</div>
-				
-				<div class="col-2">
-					<#if hasWallet>
-						<a id="editButton" class="btn btn-secondary<#if iframe != ""> disabled</#if>" href="startAgentPayIframe?itemType=edit">Edit</a>
-					</#if>
-				</div>
-				
+								
 				<!-- Delete Button -->
-        		<div class="col-2">
+        		<div class="col-3 row">
             		<#if hasWallet>
-                		<a id="deleteButton" class="btn btn-secondary" href="#" 
-                			data-bs-toggle="modal" data-bs-target="#confirmDeleteModal">Delete</a>
+                		<div class="col-12">
+							<a id="editButton" class="btn btn-primary<#if iframe != ""> disabled</#if>" href="startAgentPayIframe?itemType=edit">Edit</a>
+						</div>
+            			<div class="col-12">
+	                		<a id="deleteButton" class="btn btn-secondary" href="#" 
+    	            			data-bs-toggle="modal" data-bs-target="#confirmDeleteModal">Delete</a>
+    	            	</div>
             		</#if>
         		</div>
         		
@@ -98,7 +97,7 @@
                     		</div>
                     		<div class="modal-footer">
                         		<a id="noButton"  class="btn btn-secondary" data-bs-dismiss="modal">No</a>
-                        		<a id="confirmDeleteButton" class="btn btn-primary" href="startAgentPayIframe?itemType=delete">Yes</a>
+                        		<a id="confirmDeleteButton" class="btn btn-primary" href="startDeleteWallet">Yes</a>
                     		</div>
                 		</div>
             		</div>
@@ -121,9 +120,6 @@
 				</iframe>
 			<#elseif iframe == "edit">
     			<iframe src="startEditSource">
-    			</iframe>
-			<#elseif iframe == "delete">
-    			<iframe src="startDeleteWallet">
     			</iframe>
 			</#if>
 			<a id="internal_error" href="startChooseSourceFailure"></a>
