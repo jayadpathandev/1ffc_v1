@@ -35,6 +35,16 @@
 				</p>
 			</div>
 		</#if>
+		 <#if deleteWalletError != "" >
+            <div class="alert alert-danger" role="alert">
+                <h4>
+					<span>Delete wallet error</span>
+				</h4>
+				<p>
+					${deleteWalletError}
+				</p>
+            </div>
+        </#if>
 		<div class="apipay ms-3">
 			<h4>
 				Payment method
@@ -68,6 +78,32 @@
 					</#if>
 				</div>
 				
+				<!-- Delete Button -->
+        		<div class="col-2">
+            		<#if hasWallet>
+                		<a id="deleteButton" class="btn btn-secondary" href="#" 
+                			data-bs-toggle="modal" data-bs-target="#confirmDeleteModal">Delete</a>
+            		</#if>
+        		</div>
+        		
+        		 <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+            		<div class="modal-dialog">
+                		<div class="modal-content">
+                    		<div class="modal-header">
+                        		<h5 class="modal-title" id="confirmDeleteModalLabel">Confirm Delete</h5>
+                        		<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    		</div>
+                    		<div class="modal-body">
+                        		Are you sure you want to delete this item?
+                    		</div>
+                    		<div class="modal-footer">
+                        		<a id="noButton"  class="btn btn-secondary" data-bs-dismiss="modal">No</a>
+                        		<a id="confirmDeleteButton" class="btn btn-primary" href="startAgentPayIframe?itemType=delete">Yes</a>
+                    		</div>
+                		</div>
+            		</div>
+        		</div>
+				
 				<#if !disableAch>
 					<div class="col-3">
 						<a id="addBankButton" class="btn btn-primary<#if iframe != ""> disabled</#if>" href="startAgentPayIframe?itemType=bank">Use a new bank account</a>
@@ -85,6 +121,9 @@
 				</iframe>
 			<#elseif iframe == "edit">
     			<iframe src="startEditSource">
+    			</iframe>
+			<#elseif iframe == "delete">
+    			<iframe src="startDeleteWallet">
     			</iframe>
 			</#if>
 			<a id="internal_error" href="startChooseSourceFailure"></a>
