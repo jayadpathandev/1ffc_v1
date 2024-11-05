@@ -20,6 +20,7 @@
  */
 package com.sorrisotech.client.main;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -120,7 +121,30 @@ public class MainClient {
 	        throws InvalidRequestException, RestClientException {
 		LOG.debug("Update Contact Preferences Request : " + cContactPreferences);
 		
-		RequestValidator.ValidateRequest(cContactPreferences);
+		// FFFC-720: Implementing error handling to ride through request validation failed.
+		if (null == cContactPreferences.getChannelAddresses()
+		        || cContactPreferences.getChannelAddresses().isEmpty()) {
+			LOG.error(
+			        "MainClient:updateContactPreferences()... Channel addresses found null or empty in request for customer id: {}",
+			        cContactPreferences.getCustomerId());
+			cContactPreferences
+			        .setChannelAddresses(new ArrayList<ContactPrefrences.ChannelAddress>());
+		}
+		
+		if (null == cContactPreferences.getTopicPreferences()
+		        || cContactPreferences.getTopicPreferences().isEmpty()) {
+			LOG.error(
+			        "MainClient:updateContactPreferences()... Topic prefrences found null or empty in request for customer id: {}",
+			        cContactPreferences.getCustomerId());
+			cContactPreferences
+			        .setTopicPreferences(new ArrayList<ContactPrefrences.TopicPreference>());
+		}
+		
+		try {
+			RequestValidator.ValidateRequest(cContactPreferences);
+		} catch (InvalidRequestException e) {
+			LOG.error("MainClient:updateContactPreferences()... An exception was thrown: ", e);
+		}
 		
 		var cPathVariables = Map.of("version", szVersion);
 		
