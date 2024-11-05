@@ -33,6 +33,7 @@ useCase apiMakeOneTimePaymentForAgent
 	native string sErrorStatus
 	native string sErrorDesc
 	native string sErrorCode
+	native string sInternalErrorMessage = ""
 	
 	native string sPaymentIdentifierType = UcPaymentAction.getDbConfigPropertyValue("payment.identifier")
 	
@@ -45,6 +46,7 @@ useCase apiMakeOneTimePaymentForAgent
 	serviceResult (Payment.SetScheduledPayment) schedResult
 	
 	serviceParam(Payment.StartPaymentTransaction) logRequest
+	serviceResult(Payment.StartPaymentTransaction) logResult
 	
     serviceParam (AccountStatus.GetDebitConvenienceFee) surchargeRequest
     serviceResult (AccountStatus.GetDebitConvenienceFee) surchargeResult
@@ -253,9 +255,51 @@ useCase apiMakeOneTimePaymentForAgent
 	 */
 	action isPaymentImmediate [
 		switch MakePayment.is_immediate_payment() [
-			case "true" actionMakePayment
+			case "true" startPaymentTransaction
 			case "false" actionSchedulePayment
 		]	
+	]
+	
+	action startPaymentTransaction [
+		sStatus  = "started"
+		sTransId = makeResult.ONLINE_TRANS_ID
+		
+    	logRequest.TRANSACTION_ID  = sPayId
+		logRequest.ONLINE_TRANS_ID = sPayId
+		logRequest.PAY_CHANNEL     = "branch"
+		logRequest.PAY_STATUS      = "started"
+		logRequest.RESPONSE_CODE   = makeResult.RESPONSE_CODE
+		logRequest.RESPONSE_MESSAGE = makeResult.RESPONSE_MESSAGE
+
+		MakePayment.accountJson(logRequest.GROUPING_JSON)
+		MakePayment.payDate    (logRequest.PAY_DATE)
+		MakePayment.totalAmount(logRequest.PAY_AMT)
+
+		ApiPay.payGroup            (logRequest.PMT_PROVIDER_ID)
+		ApiPay.walletFrom          (logRequest.PAY_FROM_ACCOUNT)
+		ApiPay.userid              (logRequest.USER_ID)
+		
+		switch apiCall Payment.StartPaymentTransaction(logRequest, logResult, status) [
+            case apiSuccess checkTransactionStatus
+            default setInternalErrorMessage
+        ]
+	]
+	
+	action checkTransactionStatus [
+		if logResult.RESULT == "success" then
+			actionMakePayment
+		else
+			getTransactionResultMessage
+	]
+	
+	action getTransactionResultMessage [
+		sInternalErrorMessage = logResult.RESULT
+		goto(actionPayInternalFailure)
+	]
+	
+	action setInternalErrorMessage [
+		sInternalErrorMessage = "An error occurred while starting the transaction, so it has been canceled."
+		goto(actionPayInternalFailure)
 	]
 		
  	/*************************
@@ -279,8 +323,13 @@ useCase apiMakeOneTimePaymentForAgent
 		
 		switch apiCall Payment.MakePayment(makeRequest, makeResult, status) [
 			case apiSuccess checkPaymentStatus
-			default         actionPayInternalFailure
+			default         updateInternalErrorMessage
 		]		
+	]
+	
+	action updateInternalErrorMessage [
+		sInternalErrorMessage = "An internal error occurred while submitting payment."
+		goto(actionPayInternalFailure)
 	]
 	
 	action checkPaymentStatus [
@@ -416,7 +465,7 @@ useCase apiMakeOneTimePaymentForAgent
 		logRequest.PAY_CHANNEL     = "online"
 		logRequest.PAY_STATUS      = "failed"
 		logRequest.RESPONSE_CODE   = "158"
-		logRequest.RESPONSE_MESSAGE	= "An internal error occurred in payment.api > MakePayment"
+		logRequest.RESPONSE_MESSAGE	= sInternalErrorMessage
 
 		MakePayment.accountJson(logRequest.GROUPING_JSON)
 		MakePayment.payDate   (logRequest.PAY_DATE)
