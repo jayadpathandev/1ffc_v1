@@ -793,44 +793,22 @@ public class ApiPay implements IExternalReuse {
 		return setStatus(code, PayStatus.started); 
 	}
 
-	/**
-	 * @param szDeleteErr the mDeleteErr to set
-	 */
-	public void setDeleteError(final IServiceLocator2 locator, final IUserData userData) {
+	public void clearDeleteError () {
 		
-		switch (mDeleteErr) {
-			case "scheduled":
-				mDeleteErr = I18n.translate(locator, userData,
-				        "apiStartChooseSource_paymentMethodScheduleError");
-				break;
-			case "progress":
-				mDeleteErr = I18n.translate(locator, userData,
-				        "apiStartChooseSource_paymentMethodScheduleProgressError");
-				break;
-			case "auto":
-				mDeleteErr = I18n.translate(locator, userData,
-				        "apiStartChooseSource_paymentMethodAutoError");
-				break;
-			case "unsaved":
-				mDeleteErr = I18n.translate(locator, userData, "apiStartChooseSource_addSourceCvvError");
-				break;
-			case "unknown":
-				mDeleteErr = I18n.translate(locator, userData,
-				        "apiStartChooseSource_paymentMethodUnknownError");
-				break;
-			case "":
-				mDeleteErr = "";
-				break;
-			default:
-				mDeleteErr = "";
-				break;
-		}
+		this.mDeleteErr = "";
 	}
 	
 	public String isWalletDeletable() {
 		
 		if (mCurrent == null)
 			throw new RuntimeException("There is no current session.");
+		
+		if (mCurrent.walletName().equals("Unsaved")) {
+			// ----------------------------------------------------------------------------
+			// Payment method is temporary, cannot delete.
+			mDeleteErr = "unsaved";
+			return "false";
+		}
 		
 		return Optional.ofNullable(mWalletDao.getPaymentWallet(mCurrent.userId())).map(cWallet -> {
 			var szWalletStatus = new UcPaymentAction().checkSource(mCurrent.userId(),
@@ -861,9 +839,9 @@ public class ApiPay implements IExternalReuse {
 					return "false";
 			}
 		}).orElseGet(() -> {
-			// ----------------------------------------------------------------------------
-			// Payment method is temporary, cannot delete.
-			mDeleteErr = "unsaved";
+			// --------------------------------------------------------------------
+			// Payment could not be delete for unknown reasons.
+			mDeleteErr = "unknown";
 			return "false";
 		});
 		

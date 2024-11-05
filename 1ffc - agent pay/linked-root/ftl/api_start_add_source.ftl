@@ -41,7 +41,21 @@
 					<span>Delete wallet error</span>
 				</h4>
 				<p>
-					${deleteWalletError}
+					<#if deleteWalletError == 'scheduled'>
+      					Payment method is used in a scheduled payment, cannot delete.
+					</#if>
+					<#if deleteWalletError == 'auto'>
+      					Payment method is used in an auto payment schedule, cannot delete.
+					</#if>
+					<#if deleteWalletError == 'progress'>
+      					Scheduled payment is currently be made with the payment method, cannot delete.
+					</#if>
+					<#if deleteWalletError == 'unsaved'>
+      					Payment method is temporary, cannot delete.
+					</#if>
+					<#if deleteWalletError == 'unknown'>
+      					Payment could not be delete for unknown reasons.
+					</#if>
 				</p>
             </div>
         </#if>
