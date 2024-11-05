@@ -190,6 +190,7 @@ useCase paymentOneTime [
 	string msgStatusError = "Internal System Error, please try again later."
     
     native string sErrorValueReturned = "--"
+    native string sInternalErrorMessage = ""
     
 
 	// -- returns a current balance calculated based on either bill or status (whichever is newer) less
@@ -2193,12 +2194,47 @@ useCase paymentOneTime [
 	
 	action setDisplayAccountAsIdentifier [
 		srMakePaymentParam.COMPANY_ID = sPayAccountExternal
-		goto(submitPayment)
+		goto(startPaymentTransaction)
 	]
 	
 	action setTransactionIdAsIdentifier [
 		srMakePaymentParam.COMPANY_ID = transactionId
-		goto(submitPayment)
+		goto(startPaymentTransaction)
+	]
+	
+	action startPaymentTransaction [
+		srStartPaymentTransactionParam.TRANSACTION_ID      = transactionId
+		srStartPaymentTransactionParam.ONLINE_TRANS_ID     = transactionId
+		srStartPaymentTransactionParam.PMT_PROVIDER_ID     = sPayGroup
+		srStartPaymentTransactionParam.GROUPING_JSON   	   = sPayData
+		srStartPaymentTransactionParam.PAY_FROM_ACCOUNT    = sPayDataSourceName + "|" + sPayDataSourceType + "|" + sPayDataSourceAccount
+		srStartPaymentTransactionParam.PAY_CHANNEL         = "online"
+		srStartPaymentTransactionParam.PAY_DATE            = sPaymentDate
+		srStartPaymentTransactionParam.PAY_AMT             = sTotalPayAmt		
+		srStartPaymentTransactionParam.PAY_STATUS          = "started"
+		srStartPaymentTransactionParam.USER_ID             = sUserId
+		
+		switch apiCall Payment.StartPaymentTransaction(srStartPaymentTransactionParam, srStartPaymentTransactionResult, ssStatus) [
+            case apiSuccess checkTransactionStatus
+            default setInternalErrorMessage
+        ]
+	]
+	
+	action checkTransactionStatus [
+		if srStartPaymentTransactionResult.RESULT == "success" then
+			submitPayment
+		else
+			getTransactionResultMessage
+	]
+	
+	action getTransactionResultMessage [
+		sInternalErrorMessage = srStartPaymentTransactionResult.RESULT
+		goto(updatePaymentHistoryInternalError)
+	]
+	
+	action setInternalErrorMessage [
+		sInternalErrorMessage = "An error occurred while starting the transaction, so it has been canceled."
+		goto(updatePaymentHistoryInternalError)
 	]
  	
 	/* 27. Submit payment to payment system. */
@@ -2214,8 +2250,13 @@ useCase paymentOneTime [
 		
 		switch apiCall Payment.MakePayment(srMakePaymentParam, srMakePaymentResult, ssStatus) [
 		    case apiSuccess checkPaymentStatus
-		    default updatePaymentHistoryInternalError
+		    default updateInternalErrorMessage
 		]
+	]
+	
+	action updateInternalErrorMessage [
+		sInternalErrorMessage = "An internal error occurred while submitting payment."
+		goto(updatePaymentHistoryInternalError)
 	]
 	
 	action checkPaymentStatus [
@@ -2287,7 +2328,7 @@ useCase paymentOneTime [
 		srStartPaymentTransactionParam.PAY_STATUS          = "failed"
 		srStartPaymentTransactionParam.USER_ID             = sUserId
 		srStartPaymentTransactionParam.RESPONSE_CODE	   = "158"
-		srStartPaymentTransactionParam.RESPONSE_MESSAGE	   = "An internal error occurred in payment.api > MakePayment"
+		srStartPaymentTransactionParam.RESPONSE_MESSAGE	   = sInternalErrorMessage
 		
 		switch apiCall Payment.StartPaymentTransaction(srStartPaymentTransactionParam, srStartPaymentTransactionResult, ssStatus) [
             case apiSuccess submitPaymentErrorResponse
