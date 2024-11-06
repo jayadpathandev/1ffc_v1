@@ -124,7 +124,7 @@ public class MainClient {
 		// FFFC-720: Implementing error handling to ride through request validation failed.
 		if (null == cContactPreferences.getChannelAddresses()
 		        || cContactPreferences.getChannelAddresses().isEmpty()) {
-			LOG.error(
+			LOG.info(
 			        "MainClient:updateContactPreferences()... Channel addresses found null or empty in request for customer id: {}",
 			        cContactPreferences.getCustomerId());
 			cContactPreferences
@@ -133,7 +133,7 @@ public class MainClient {
 		
 		if (null == cContactPreferences.getTopicPreferences()
 		        || cContactPreferences.getTopicPreferences().isEmpty()) {
-			LOG.error(
+			LOG.info(
 			        "MainClient:updateContactPreferences()... Topic prefrences found null or empty in request for customer id: {}",
 			        cContactPreferences.getCustomerId());
 			cContactPreferences
