@@ -345,7 +345,9 @@
 				             pmt_provider_id,
 				             pay_surcharge,
 				             pay_total_amt,
-				             flex1					             			             
+				             flex1,
+				             response_code,
+				             response_message					             			             
 	                		)
 		                VALUES 
 		                	(
@@ -355,12 +357,14 @@
 				             'online', 
 				             CURRENT_TIMESTAMP, 
 				             :pay_amt, 
-				             'failed', 
+				             'canceled', 
 				             :user_id,
 				             '${payment.history.payment.provider.group}',
 				             :pay_surcharge,
 				             :pay_total_amt,
-				             :flex1
+				             :flex1,
+				             :response_code,
+				             :response_message	
 				            ) 
 	            </value>
  		</constructor-arg>

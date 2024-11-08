@@ -278,9 +278,16 @@ useCase apiMakeOneTimePaymentForAgent
 		ApiPay.walletToken         (makeRequest.TOKEN)
 		
 		switch apiCall Payment.MakePayment(makeRequest, makeResult, status) [
-			case apiSuccess checkMakePaymentSubmit
-			default         actionPayFailure
+			case apiSuccess checkPaymentStatus
+			default         actionPayInternalFailure
 		]		
+	]
+	
+	action checkPaymentStatus [
+		if makeResult.STATUS == "success" then
+			checkMakePaymentSubmit
+		else
+			actionPayFailure
 	]
 	
 	/*************************
@@ -304,6 +311,8 @@ useCase apiMakeOneTimePaymentForAgent
 		logRequest.ONLINE_TRANS_ID = sPayId
 		logRequest.PAY_CHANNEL     = "branch"
 		logRequest.PAY_STATUS      = "processing"
+		logRequest.RESPONSE_CODE   = makeResult.RESPONSE_CODE
+		logRequest.RESPONSE_MESSAGE = makeResult.RESPONSE_MESSAGE
 
 		MakePayment.accountJson(logRequest.GROUPING_JSON)
 		MakePayment.payDate    (logRequest.PAY_DATE)
@@ -330,6 +339,8 @@ useCase apiMakeOneTimePaymentForAgent
 		logRequest.ONLINE_TRANS_ID = sPayId
 		logRequest.PAY_CHANNEL     = "online"
 		logRequest.PAY_STATUS      = "posted"
+		logRequest.RESPONSE_CODE   = makeResult.RESPONSE_CODE
+		logRequest.RESPONSE_MESSAGE	= makeResult.RESPONSE_MESSAGE
 
 		MakePayment.accountJson(logRequest.GROUPING_JSON)
 		MakePayment.payDate    (logRequest.PAY_DATE)
@@ -398,6 +409,28 @@ useCase apiMakeOneTimePaymentForAgent
 		ApiPay.setTransactionComplete(sTransactionId)
 		foreignHandler JsonResponse.send()	 	
 	 ]
+	 
+	 action actionPayInternalFailure [
+    	logRequest.TRANSACTION_ID  = sPayId
+		logRequest.ONLINE_TRANS_ID = sPayId
+		logRequest.PAY_CHANNEL     = "online"
+		logRequest.PAY_STATUS      = "failed"
+		logRequest.RESPONSE_CODE   = "158"
+		logRequest.RESPONSE_MESSAGE	= "An internal error occurred in payment.api > MakePayment"
+
+		MakePayment.accountJson(logRequest.GROUPING_JSON)
+		MakePayment.payDate   (logRequest.PAY_DATE)
+		MakePayment.amount    (logRequest.PAY_AMT)		
+
+		ApiPay.payGroup       (logRequest.PMT_PROVIDER_ID)
+		ApiPay.walletFrom     (logRequest.PAY_FROM_ACCOUNT)
+		ApiPay.userid         (logRequest.USER_ID)
+		
+		switch apiCall Payment.StartPaymentTransaction(logRequest, status) [
+            case apiSuccess actionFailureResponse
+            default         actionFailureResponse
+        ]	
+	]
 
  	/*************************
 	 * 10a. Record the failed transaction.
@@ -407,10 +440,12 @@ useCase apiMakeOneTimePaymentForAgent
 		logRequest.ONLINE_TRANS_ID = sPayId
 		logRequest.PAY_CHANNEL     = "online"
 		logRequest.PAY_STATUS      = "failed"
+		logRequest.RESPONSE_CODE   = makeResult.RESPONSE_CODE
+		logRequest.RESPONSE_MESSAGE = makeResult.DETAILED_ERROR_MESSAGE
 
 		MakePayment.accountJson(logRequest.GROUPING_JSON)
-		MakePayment.payDate   (logRequest.PAY_DATE)
-		MakePayment.amount    (logRequest.PAY_AMT)		
+		MakePayment.payDate    (logRequest.PAY_DATE)
+		MakePayment.totalAmount(logRequest.PAY_AMT)		
 
 		ApiPay.payGroup       (logRequest.PMT_PROVIDER_ID)
 		ApiPay.walletFrom     (logRequest.PAY_FROM_ACCOUNT)

@@ -58,7 +58,7 @@ public class MigrationRpt {
 		szToWrite = report.addItem(szToWrite, rcd.schedDate, false);
 		szToWrite = report.addItem(szToWrite, rcd.schedAmt, false);
 		szToWrite = report.addItem(szToWrite, rcd.recurDay, false);
-		szToWrite = report.addItem(szToWrite, rcd.failReaon, true);
+		szToWrite = report.addItem(szToWrite, rcd.failReason, true);
 		try {
 			report.m_Writer.write(szToWrite);
 		} catch (IOException e) {

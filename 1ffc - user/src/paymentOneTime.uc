@@ -487,10 +487,11 @@ useCase paymentOneTime [
     native string sAppUsecase       = "paymentOneTime"
     persistent native string responseCode      = ""
     persistent native string responseMessage   = ""
+    persistent native string responseDetailedErrorMessage   = ""
     persistent input transactionId             = TransactionIdGen.getTransactionId()
     input token						= ""    
    
-    native string methodNickName			= ""
+    persistent native string methodNickName			= ""
     string (iframe) sCreateIframe
     string (iframe) sEditIframe
 	persistent string sIframeSourceType
@@ -2048,7 +2049,7 @@ useCase paymentOneTime [
 	
 	/* 20. Get wallet info success. */ 
 	action getWalletInfoSuccess [
-		methodNickName = srGetWalletInfoResult.SOURCE_NAME
+		methodNickName = srGetWalletInfoResult.SOURCE_NAME + "|" + srGetWalletInfoResult.SOURCE_TYPE + "|" + srGetWalletInfoResult.SOURCE_NUM
 		sPaymentMethodNickName = srGetWalletInfoResult.SOURCE_NAME
 		sPaymentMethodType = srGetWalletInfoResult.SOURCE_TYPE
 		sPaymentMethodAccount = srGetWalletInfoResult.SOURCE_NUM
@@ -2212,9 +2213,16 @@ useCase paymentOneTime [
 		srMakePaymentParam.FLEX_VALUE = sPayFlexValue
 		
 		switch apiCall Payment.MakePayment(srMakePaymentParam, srMakePaymentResult, ssStatus) [
-		    case apiSuccess checkMakePaymentSubmit
-		    default updatePaymentHistoryError
+		    case apiSuccess checkPaymentStatus
+		    default updatePaymentHistoryInternalError
 		]
+	]
+	
+	action checkPaymentStatus [
+		if srMakePaymentResult.STATUS == "success" then
+			checkMakePaymentSubmit
+		else
+			updatePaymentHistoryError
 	]
 	
 	/* This action checks the batch payment submit success (Status-Code: "44")*/
@@ -2237,6 +2245,8 @@ useCase paymentOneTime [
 		srStartPaymentTransactionParam.PAY_AMT             = sTotalPayAmt		
 		srStartPaymentTransactionParam.PAY_STATUS          = "processing"
 		srStartPaymentTransactionParam.USER_ID             = sUserId
+		srStartPaymentTransactionParam.RESPONSE_CODE       = srMakePaymentResult.RESPONSE_CODE
+		srStartPaymentTransactionParam.RESPONSE_MESSAGE    = srMakePaymentResult.RESPONSE_MESSAGE
 		
 		switch apiCall Payment.StartPaymentTransaction(srStartPaymentTransactionParam, srStartPaymentTransactionResult, ssStatus) [
             case apiSuccess submitPaymentSuccessResponse
@@ -2256,10 +2266,32 @@ useCase paymentOneTime [
 		srStartPaymentTransactionParam.PAY_AMT             = sTotalPayAmt		
 		srStartPaymentTransactionParam.PAY_STATUS          = "posted"
 		srStartPaymentTransactionParam.USER_ID             = sUserId
+		srStartPaymentTransactionParam.RESPONSE_CODE       = srMakePaymentResult.RESPONSE_CODE
+		srStartPaymentTransactionParam.RESPONSE_MESSAGE    = srMakePaymentResult.RESPONSE_MESSAGE
 		
 		switch apiCall Payment.StartPaymentTransaction(srStartPaymentTransactionParam, srStartPaymentTransactionResult, ssStatus) [
             case apiSuccess submitPaymentSuccessResponse
             default submitPaymentSuccessResponse
+        ]	
+    ]
+    
+    action updatePaymentHistoryInternalError [
+    	srStartPaymentTransactionParam.TRANSACTION_ID      = transactionId
+		srStartPaymentTransactionParam.ONLINE_TRANS_ID     = transactionId
+		srStartPaymentTransactionParam.PMT_PROVIDER_ID     = sPayGroup
+		srStartPaymentTransactionParam.GROUPING_JSON       = sPayData
+		srStartPaymentTransactionParam.PAY_FROM_ACCOUNT    = methodNickName 
+		srStartPaymentTransactionParam.PAY_CHANNEL         = "online"
+		srStartPaymentTransactionParam.PAY_DATE            = sPaymentDate
+		srStartPaymentTransactionParam.PAY_AMT             = sTotalPayAmt		
+		srStartPaymentTransactionParam.PAY_STATUS          = "failed"
+		srStartPaymentTransactionParam.USER_ID             = sUserId
+		srStartPaymentTransactionParam.RESPONSE_CODE	   = "158"
+		srStartPaymentTransactionParam.RESPONSE_MESSAGE	   = "An internal error occurred in payment.api > MakePayment"
+		
+		switch apiCall Payment.StartPaymentTransaction(srStartPaymentTransactionParam, srStartPaymentTransactionResult, ssStatus) [
+            case apiSuccess submitPaymentErrorResponse
+            default submitPaymentErrorResponse
         ]	
     ]
     
@@ -2275,6 +2307,8 @@ useCase paymentOneTime [
 		srStartPaymentTransactionParam.PAY_AMT             = sTotalPayAmt		
 		srStartPaymentTransactionParam.PAY_STATUS          = "failed"
 		srStartPaymentTransactionParam.USER_ID             = sUserId
+		srStartPaymentTransactionParam.RESPONSE_CODE	   = srMakePaymentResult.RESPONSE_CODE
+		srStartPaymentTransactionParam.RESPONSE_MESSAGE	   = srMakePaymentResult.DETAILED_ERROR_MESSAGE
 		
 		switch apiCall Payment.StartPaymentTransaction(srStartPaymentTransactionParam, srStartPaymentTransactionResult, ssStatus) [
             case apiSuccess submitPaymentErrorResponse
