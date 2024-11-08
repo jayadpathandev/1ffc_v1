@@ -17,5 +17,5 @@ public class MigrateRecord {
 	public String schedAmt = null;
 	public String recurDay = null;
 	public String validated = null;
-	public String failReaon = null;
+	public String failReason = null;
 }

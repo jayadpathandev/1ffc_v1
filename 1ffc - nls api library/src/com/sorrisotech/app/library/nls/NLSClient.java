@@ -20,6 +20,8 @@
  */
 package com.sorrisotech.app.library.nls;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
@@ -141,6 +143,8 @@ public class NLSClient {
 	 */
 	public static SimpleNLSResponse getDocument(String szDocumentId) throws Exception {
 		
+		var cStartTime = Instant.now();
+		
 		if (!Boolean.valueOf(isConfigured())) {
 			LOG.error("NLS Client Library is not configured yet!");
 			throw new IllegalStateException("NLS Client Library is not configured yet");
@@ -156,6 +160,15 @@ public class NLSClient {
 			handleError(createDocumentResponse.getErrors());
 		}
 		
+		var cEndTime = Instant.now();
+		
+		var cDuration = Duration.between(cStartTime, cEndTime);
+		
+		if (cDuration.toMillis() > 10000)
+			LOG.warn(
+			        "The NLS API (POST: /Main/Document) took {} seconds, which is longer than the expected time.",
+			        cDuration.toSeconds());
+			
 		return createDocumentResponse;
 	}
 	
@@ -174,6 +187,8 @@ public class NLSClient {
 	 */
 	public static CurrentBalanceResponse getCurrentBalance(String szLoanId) throws Exception {
 		
+		var cStartTime = Instant.now();
+		
 		if (!Boolean.valueOf(isConfigured())) {
 			LOG.error("NLS Client Library is not configured yet!");
 			throw new IllegalStateException("NLS Client Library is not configured yet");
@@ -188,6 +203,15 @@ public class NLSClient {
 		        && !HttpStatus.valueOf(currentBalanceResponse.getStatuscode()).is2xxSuccessful()) {
 			handleError(currentBalanceResponse.getErrors());
 		}
+		
+		var cEndTime = Instant.now();
+		
+		var cDuration = Duration.between(cStartTime, cEndTime);
+		
+		if (cDuration.toMillis() > 10000)
+			LOG.warn(
+			        "The NLS API (POST: /Main/CurrentBalance) took {} seconds, which is longer than the expected time.",
+			        cDuration.toSeconds());
 		
 		return currentBalanceResponse;
 	}
@@ -206,6 +230,9 @@ public class NLSClient {
 	 */
 	public static SimpleNLSResponse updateBorrowerNickName(LoanNicknameRequest cLoanNicknameRequest)
 	        throws Exception {
+		
+		var cStartTime = Instant.now();
+		
 		if (!Boolean.valueOf(isConfigured())) {
 			LOG.error("NLS Client Library is not configured yet!");
 			throw new IllegalStateException("NLS Client Library is not configured yet");
@@ -220,6 +247,15 @@ public class NLSClient {
 		        .valueOf(updateBorrowerNicknameResponse.getStatuscode()).is2xxSuccessful()) {
 			handleError(updateBorrowerNicknameResponse.getErrors());
 		}
+		
+		var cEndTime = Instant.now();
+		
+		var cDuration = Duration.between(cStartTime, cEndTime);
+		
+		if (cDuration.toMillis() > 10000)
+			LOG.warn(
+			        "The NLS API (PUT: /Main/LoanNickname) took {} seconds, which is longer than the expected time.",
+			        cDuration.toSeconds());
 		
 		return updateBorrowerNicknameResponse;
 	}
@@ -238,6 +274,8 @@ public class NLSClient {
 	 */
 	public static ConvenienceFeeResponse getConvenienceFee(String szLoanId) throws Exception {
 		
+		var cStartTime = Instant.now();
+		
 		if (!Boolean.valueOf(isConfigured())) {
 			LOG.error("NLS Client Library is not configured yet!");
 			throw new IllegalStateException("NLS Client Library is not configured yet");
@@ -253,6 +291,15 @@ public class NLSClient {
 			handleError(convenienceFeeResponse.getErrors());
 		}
 		
+		var cEndTime = Instant.now();
+		
+		var cDuration = Duration.between(cStartTime, cEndTime);
+		
+		if (cDuration.toMillis() > 10000)
+			LOG.warn(
+			        "The NLS API (POST: /Main/ConvenienceFee) took {} seconds, which is longer than the expected time.",
+			        cDuration.toSeconds());
+		
 		return convenienceFeeResponse;
 	}
 	
@@ -264,6 +311,8 @@ public class NLSClient {
 	 * @throws Exception if error in response.
 	 */
 	public static BranchResponse getAllBranches() throws Exception {
+		
+		var cStartTime = Instant.now();
 		
 		if (!Boolean.valueOf(isConfigured())) {
 			LOG.error("NLS Client Library is not configured yet!");
@@ -278,6 +327,15 @@ public class NLSClient {
 		        && !HttpStatus.valueOf(cBranchResponse.getStatuscode()).is2xxSuccessful()) {
 			handleError(cBranchResponse.getErrors());
 		}
+		
+		var cEndTime = Instant.now();
+		
+		var cDuration = Duration.between(cStartTime, cEndTime);
+		
+		if (cDuration.toMillis() > 10000)
+			LOG.warn(
+			        "The NLS API (GET: /Main/Branches) took {} seconds, which is longer than the expected time.",
+			        cDuration.toSeconds());
 		
 		return cBranchResponse;
 	}
@@ -295,6 +353,8 @@ public class NLSClient {
 	public static UpdatedContactPrefrencesResponse getAllUpdatedContactPreferences(
 	        ContactPreferencesRequest cContactPreferencesRequest) throws Exception {
 		
+		var cStartTime = Instant.now();
+		
 		if (!Boolean.valueOf(isConfigured())) {
 			LOG.error("NLS Client Library is not configured yet!");
 			throw new IllegalStateException("NLS Client Library is not configured yet");
@@ -309,6 +369,15 @@ public class NLSClient {
 		        .valueOf(cContactPreferenceUpdates.getStatuscode()).is2xxSuccessful()) {
 			handleError(cContactPreferenceUpdates.getErrors());
 		}
+		
+		var cEndTime = Instant.now();
+		
+		var cDuration = Duration.between(cStartTime, cEndTime);
+		
+		if (cDuration.toMillis() > 10000)
+			LOG.warn(
+			        "The NLS API (POST: /Main/UpdatedPreferences) took {} seconds, which is longer than the expected time.",
+			        cDuration.toSeconds());
 		
 		return cContactPreferenceUpdates;
 	}
@@ -325,6 +394,8 @@ public class NLSClient {
 	public static CreateContactPrefrencesResponse getContactPreferencesofUser(
 	        ContactPreferencesRequest cContactPreferencesRequest) throws Exception {
 		
+		var cStartTime = Instant.now();
+		
 		if (!Boolean.valueOf(isConfigured())) {
 			LOG.error("NLS Client Library is not configured yet!");
 			throw new IllegalStateException("NLS Client Library is not configured yet");
@@ -339,6 +410,15 @@ public class NLSClient {
 		        .valueOf(cContactPreferenceUpdates.getStatuscode()).is2xxSuccessful()) {
 			handleError(cContactPreferenceUpdates.getErrors());
 		}
+		
+		var cEndTime = Instant.now();
+		
+		var cDuration = Duration.between(cStartTime, cEndTime);
+		
+		if (cDuration.toMillis() > 10000)
+			LOG.warn(
+			        "The NLS API (POST: /Main/ContactPreferences) took {} seconds, which is longer than the expected time.",
+			        cDuration.toSeconds());
 		
 		return cContactPreferenceUpdates;
 	}
@@ -355,6 +435,8 @@ public class NLSClient {
 	public static SimpleNLSResponse updateContactPreferences(ContactPrefrences cContactPrefrences)
 	        throws Exception {
 		
+		var cStartTime = Instant.now();
+		
 		if (!Boolean.valueOf(isConfigured())) {
 			LOG.error("NLS Client Library is not configured yet!");
 			throw new IllegalStateException("NLS Client Library is not configured yet");
@@ -369,6 +451,15 @@ public class NLSClient {
 		        .valueOf(cContactPreferenceUpdates.getStatuscode()).is2xxSuccessful()) {
 			handleError(cContactPreferenceUpdates.getErrors());
 		}
+		
+		var cEndTime = Instant.now();
+		
+		var cDuration = Duration.between(cStartTime, cEndTime);
+		
+		if (cDuration.toMillis() > 10000)
+			LOG.warn(
+			        "The NLS API (PATCH: /Main/ContactPreferences) took {} seconds, which is longer than the expected time.",
+			        cDuration.toSeconds());
 		
 		return cContactPreferenceUpdates;
 	}

@@ -108,6 +108,11 @@ useCase accountOverview [
     serviceStatus srAccountStatusCode
     serviceParam (AccountStatus.GetStatus) srGetStatusParams
     serviceResult (AccountStatus.GetStatus) srGetStatusResult
+
+	// GetContractualMonthlyPaymentAmount
+    serviceStatus srMonthlyPmtAmountCode
+    serviceParam (AccountStatus.GetContractualMonthlyPaymentAmount) srMonthlyPmtAmountParams
+    serviceResult (AccountStatus.GetContractualMonthlyPaymentAmount) srMonthlyPmtAmountResult
     
     //-- template group names --
  	native string sStatusGrp = "status" 
@@ -260,6 +265,7 @@ useCase accountOverview [
     number        	previousAmt  = Math.subtract(srBillOverviewResult.totalDue, srBillOverviewResult.docAmount)                
     native string sStatusLocalDateTime
     native string sStatusLocalAmountDue
+    number 		  monthlyPaymentAmount
 
     volatile native string sCurrentBalance = CurrentBalanceHelper.getCurrentBalanceRaw(
     									sPayGroup,							// -- payment group
@@ -272,7 +278,8 @@ useCase accountOverview [
 										sAccount,							// -- internal account
 										sStatusLocalDateTime,				// -- most recent status date
 										sStatusLocalAmountDue				// -- status amount due
-										srGetStatusResult.minimumAmountDue) // -- what the status thinks is min amount due
+										monthlyPaymentAmount) 				// -- contractual montly amount
+										
    volatile native string bIsAccountCurrent = CurrentBalanceHelper.isAccountCurrent(
     									sPayGroup,							// -- payment group
 										sAccount,							// -- internal account
@@ -318,10 +325,27 @@ useCase accountOverview [
 		srGetStatusParams.account = sAccount
 		// -- retrieve the status information --
    		switch apiCall AccountStatus.GetStatus(srGetStatusParams, srGetStatusResult, srAccountStatusCode) [
-    		case apiSuccess assignlocalStatusVariable
+    		case apiSuccess GetContractualMonthlyPaymentAmount
     		default errorRetrievingStatus
     	]
  	]
+ 
+ 	/**
+ 	 * Retrieve the amount of the current monthly payment.
+ 	 */	
+ 	action GetContractualMonthlyPaymentAmount [
+ 		
+ 		srMonthlyPmtAmountParams.user = sUserId
+ 		srMonthlyPmtAmountParams.paymentGroup = sPayGroup
+ 		srMonthlyPmtAmountParams.account = sAccount
+
+		// -- retrieve the contractual monthly amount --
+   		switch apiCall AccountStatus.GetContractualMonthlyPaymentAmount(srMonthlyPmtAmountParams, srMonthlyPmtAmountResult, srMonthlyPmtAmountCode) [
+    		case apiSuccess assignlocalStatusVariable
+    		default errorRetrievingStatus
+ 		]
+ 	]
+
  	
  	/**
  	 * A2. System assigns a local variable value from the status result allowing the system to transition from new account to
@@ -331,6 +355,8 @@ useCase accountOverview [
  		sLocalAccountStatus = srGetStatusResult.accountStatus
  		sStatusLocalDateTime = srGetStatusResult.lastUpdateTimestamp
  		sStatusLocalAmountDue = srGetStatusResult.currentAmountDue
+ 		
+ 		monthlyPaymentAmount= srMonthlyPmtAmountResult.monthlyPaymentAmount
  		goto (switchOnViewStatus)
  	]
  	
