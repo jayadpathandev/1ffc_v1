@@ -64,17 +64,17 @@
 				
 				<div class="col-2">
 					<#if hasWallet>
-						<a id="editButton" class="btn btn-secondary" href="startAgentPayIframe?itemType=edit">Edit</a>
+						<a id="editButton" class="btn btn-secondary<#if iframe != ""> disabled</#if>" href="startAgentPayIframe?itemType=edit">Edit</a>
 					</#if>
 				</div>
 				
 				<#if !disableAch>
 					<div class="col-3">
-						<a class="btn btn-primary" href="startAgentPayIframe?itemType=bank">Use a new bank account</a>
+						<a id="addBankButton" class="btn btn-primary<#if iframe != ""> disabled</#if>" href="startAgentPayIframe?itemType=bank">Use a new bank account</a>
 					</div>
 				</#if>
 				<div class="col-3">
-					<a class="btn btn-primary" href="startAgentPayIframe?itemType=debit">Use a new debit card</a>
+					<a id="addDebitButton" class="btn btn-primary<#if iframe != ""> disabled</#if>" href="startAgentPayIframe?itemType=debit">Use a new debit card</a>
 				</div>
 			</div>
 			<#if iframe == "bank">
@@ -93,6 +93,11 @@
 			$(function() {
 				window.payment_size = function(size) {
 					$('iframe').height(size);
+				<#if iframe != "">
+					$('a#editButton').removeClass('disabled');
+					$('a#addBankButton').removeClass('disabled');
+					$('a#addDebitButton').removeClass('disabled');
+				</#if>
 				}
 			
 				$('#apipay_wallet').on('change', function() {
@@ -139,6 +144,13 @@
 		                $(this).remove();
 		            }
 		        });
+	        <#if iframe != "">
+	        	window.setTimeout(function() {
+					$('a#editButton').removeClass('disabled');
+					$('a#addBankButton').removeClass('disabled');
+					$('a#addDebitButton').removeClass('disabled');
+	        	}, 30000);
+	        </#if>		        
         });
 		</script>
 	</body>
