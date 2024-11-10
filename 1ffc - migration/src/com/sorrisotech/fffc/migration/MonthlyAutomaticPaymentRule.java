@@ -19,6 +19,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.micrometer.common.util.StringUtils;
+
 
 
 /**
@@ -189,8 +191,10 @@ public class MonthlyAutomaticPaymentRule implements IAutomaticPaymentRule {
 					String pattern = "#,##0.0#";
 					DecimalFormat decimalFormat = new DecimalFormat(pattern, symbols);
 					decimalFormat.setParseBigDecimal(true);
-
 					lbdExtraPayment  = (BigDecimal) decimalFormat.parse(record[ciDebitExtraAmountPos]);
+					if (0 > lbdExtraPayment.compareTo(BigDecimal.ZERO)) {
+						lbdExtraPayment = BigDecimal.ZERO;
+					}
 				} catch (NullPointerException | ParseException e) {
 					LOG.warn("MonthlyAutomaticPaymentRule:createAutomaticPaymentListDebit -- parse exception for extra payment, account: {}, amount parsed: {}. Skipping payment.",
 							lszBillingAcctNumber, record[ciDebitExtraAmountPos]);
@@ -268,7 +272,9 @@ public class MonthlyAutomaticPaymentRule implements IAutomaticPaymentRule {
 		final Integer ciACHRoutingNumberPos = 3;
 		final Integer ciACHAcountNumberPos = 4;
 		final Integer ciACHPayAmountPos = 5;
-		final Integer ciACHStartDatePos = 6;
+		final Integer ciACHContractedAmountPos = 6;
+		final Integer ciACHExtraAmountPos = 7;
+		final Integer ciACHStartDatePos = 8;
 
 		List<IAutomaticPaymentRule> lAutoPaymentList = new ArrayList<IAutomaticPaymentRule>();
 		PipeDelimitedLineReader input = new PipeDelimitedLineReader();
@@ -302,7 +308,7 @@ public class MonthlyAutomaticPaymentRule implements IAutomaticPaymentRule {
 				String lszPayMethod = "ACH"; // -- current file contains all ACH --
 				BigDecimal lbdExtraPayment = BigDecimal.ZERO;
 				LocalDate ldStartDate = LocalDate.now();
-				Integer liExpectedRecordSize = 10;
+				Integer liExpectedRecordSize = 12;
 				
 				if (record.length < liExpectedRecordSize) {
 					LOG.warn("MonthlyAutomaticPaymentRule:createScheduledPaymentListACH -- Record too short account: {}. Skipping payment.",
@@ -391,9 +397,31 @@ public class MonthlyAutomaticPaymentRule implements IAutomaticPaymentRule {
 				}
 				
 				// -- calculate the extra amount if there is any --
-				{
-					lbdExtraPayment =BigDecimal.ZERO;
-				}
+				try {
+					DecimalFormatSymbols symbols = new DecimalFormatSymbols();
+					symbols.setGroupingSeparator(',');
+					symbols.setDecimalSeparator('.');
+					String pattern = "#,##0.0#";
+					DecimalFormat decimalFormat = new DecimalFormat(pattern, symbols);
+					decimalFormat.setParseBigDecimal(true);
+					lbdExtraPayment  = (BigDecimal) decimalFormat.parse(record[ciACHExtraAmountPos]);
+					if (0 > lbdExtraPayment.compareTo(BigDecimal.ZERO)) {
+						lbdExtraPayment = BigDecimal.ZERO;
+					}
+				} catch (NullPointerException | ParseException e) {
+					LOG.warn("MonthlyAutomaticPaymentRule:createAutomaticPaymentListDebit -- parse exception for extra payment, account: {}, amount parsed: {}. Skipping payment.",
+							lszBillingAcctNumber, record[ciACHExtraAmountPos]);
+					MigrateRecord rcd = new MigrateRecord();
+					rcd.displayAcct = record[ciACHBillingAccountNumberPos];
+					rcd.customerId = lszCustomerId;
+					rcd.internalAcct =  lszInternalAcct;
+					rcd.migrationStatus = "failed";
+					rcd.pmtType = "recurring";
+					rcd.failReason = "Invalid extra amount in intput file.";
+					MigrationRpt.reportItem(rcd);
+					iSkipped++;
+					continue;
+				}				
 
 				// -- set up payment structure
 				{
