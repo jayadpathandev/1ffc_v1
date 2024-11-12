@@ -288,6 +288,7 @@ useCase paymentOneTime [
     static editSourceCardExpiredError = "{Failed to update payment source. The card is expired. }"
     static editSourceLostStolenFraudError = "{Failed to update payment source. The card has been reported lost, stolen, or fraud has been detected.}"
     static editSourceInvalidMethodError = "{Failed to update payment source. The card type is not supported.}"
+    static paymentHistoryAccessError = "{Failed to add record to payment history. Please contact branch to ensure your payment is correctly credited.}"
     
     static paymentGenericError = "{Sorry, we couldn't process your payment. Please contact a branch representative for assistance if the issue persists.}"
     static paymentDateManipulated = "{Failed to make payment, payment date out of acceptable range.}"
@@ -2380,7 +2381,8 @@ useCase paymentOneTime [
 	
 	/* 29A. report payment history error on screen */
 	action paymentHistoryError [
-		display msgHistoryInsertError
+		displayMessage(type: "warning" msg: msgHistoryInsertError)
+		goto (init)
 	]
 	
 	/* 30. Inserts a payment schedule record. */
