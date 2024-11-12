@@ -232,11 +232,17 @@ useCase paymentOneTime [
 	native string sPayDataSourceAccount = UcPaymentAction.sourceAccount(sPayData)
 	native string sPayDataSourceType    = UcPaymentAction.sourceType(sPayData)
 	native string sPayFlexValue
-	     	
-	input sTotalPayAmt
-	input sSurCharge = ""
-	input sTotalAmount = ""     // pay amount + surcharge
 	
+	//-- these variables are no longer used --     	
+	input sTotalPayAmt // without grrd
+	input sSurCharge = ""
+	input sTotalAmount = ""  // pay amount + surcharge
+	
+	// -- these are the new variables being used-
+	string sAmountOnAccountPaid = "0.00"		// -- based amount on account
+	string sTotalPaid = "0.00"  	// -- amount + fee
+	string sFeePaid = "0.00"		// -- convenience fee or surchage
+	 
 	string sDocumentNum
 
 	/* "single" or "multiple" indicator */
@@ -447,6 +453,11 @@ useCase paymentOneTime [
     structure(message) msgError [
 		string(title) sTitle = "{We're unable to make a payment at this time.}"
 		native string(body) sBody = "" 
+	]
+	
+	structure(message) msgHistoryInsertError [
+		string(title) sTitle = "{Error updating payment information in payment history}"
+		string (body) sBody = "{Please contact your branch to ensure your account is credited correctly.}"
 	]
 
 	structure(message) msgChangeScheduledDate [
@@ -2168,6 +2179,7 @@ useCase paymentOneTime [
 
 	action addConvenienceFee [
 		sSurchargeAmountComplete = surchargeResult.convenienceFeeAmt
+		sFeePaid = surchargeResult.convenienceFeeAmt // -- used in actual call to payment
 		sPayFlexValue = "convenienceFee=true" + "|" + "convenienceFeeAmount=" + surchargeResult.convenienceFeeAmt
 		srMakePaymentParam.FLEX_DEFINITION = flexDefinition
 		
@@ -2210,7 +2222,7 @@ useCase paymentOneTime [
 		srStartPaymentTransactionParam.PAY_FROM_ACCOUNT    = sPayDataSourceName + "|" + sPayDataSourceType + "|" + sPayDataSourceAccount
 		srStartPaymentTransactionParam.PAY_CHANNEL         = "online"
 		srStartPaymentTransactionParam.PAY_DATE            = sPaymentDate
-		srStartPaymentTransactionParam.PAY_AMT             = sTotalPayAmt		
+		srStartPaymentTransactionParam.PAY_AMT             = sAmountOnAccountPaid		
 		srStartPaymentTransactionParam.PAY_STATUS          = "started"
 		srStartPaymentTransactionParam.USER_ID             = sUserId
 		
@@ -2241,12 +2253,13 @@ useCase paymentOneTime [
 	action submitPayment [
 		srMakePaymentParam.GROUPING_JSON = sPayData
 		srMakePaymentParam.ONLINE_TRANS_ID = transactionId
-		srMakePaymentParam.AMOUNT = sTotalPayAmt
+		srMakePaymentParam.AMOUNT = sAmountOnAccountPaid
 		srMakePaymentParam.CURRENCY = sCurrency
 		srMakePaymentParam.PMT_DATE = sPaymentDate
 		srMakePaymentParam.USER_ID = sUserId
 		srMakePaymentParam.TOKEN = token
 		srMakePaymentParam.FLEX_VALUE = sPayFlexValue
+		srMakePaymentParam.TRANSACTION_FEE = sFeePaid
 		
 		switch apiCall Payment.MakePayment(srMakePaymentParam, srMakePaymentResult, ssStatus) [
 		    case apiSuccess checkPaymentStatus
@@ -2260,6 +2273,10 @@ useCase paymentOneTime [
 	]
 	
 	action checkPaymentStatus [
+		// -- we should always get back the returned values --
+		sAmountOnAccountPaid = srMakePaymentResult.AMOUNT_PAID
+		sTotalPaid = srMakePaymentResult.TOTAL_PAID
+		sFeePaid = srMakePaymentResult.FEE_PAID
 		if srMakePaymentResult.STATUS == "success" then
 			checkMakePaymentSubmit
 		else
@@ -2283,7 +2300,7 @@ useCase paymentOneTime [
 		srStartPaymentTransactionParam.PAY_FROM_ACCOUNT    = sPayDataSourceName + "|" + sPayDataSourceType + "|" + sPayDataSourceAccount
 		srStartPaymentTransactionParam.PAY_CHANNEL         = "online"
 		srStartPaymentTransactionParam.PAY_DATE            = sPaymentDate
-		srStartPaymentTransactionParam.PAY_AMT             = sTotalPayAmt		
+		srStartPaymentTransactionParam.PAY_AMT             = sAmountOnAccountPaid		
 		srStartPaymentTransactionParam.PAY_STATUS          = "processing"
 		srStartPaymentTransactionParam.USER_ID             = sUserId
 		srStartPaymentTransactionParam.RESPONSE_CODE       = srMakePaymentResult.RESPONSE_CODE
@@ -2291,7 +2308,8 @@ useCase paymentOneTime [
 		
 		switch apiCall Payment.StartPaymentTransaction(srStartPaymentTransactionParam, srStartPaymentTransactionResult, ssStatus) [
             case apiSuccess submitPaymentSuccessResponse
-            default submitPaymentSuccessResponse
+            case apiError paymentHistoryError
+            default paymentHistoryError
         ]	
     ]	
 	
@@ -2304,7 +2322,7 @@ useCase paymentOneTime [
 		srStartPaymentTransactionParam.PAY_FROM_ACCOUNT    = sPayDataSourceName + "|" + sPayDataSourceType + "|" + sPayDataSourceAccount
 		srStartPaymentTransactionParam.PAY_CHANNEL         = "online"
 		srStartPaymentTransactionParam.PAY_DATE            = sPaymentDate
-		srStartPaymentTransactionParam.PAY_AMT             = sTotalPayAmt		
+		srStartPaymentTransactionParam.PAY_AMT             = sAmountOnAccountPaid		
 		srStartPaymentTransactionParam.PAY_STATUS          = "posted"
 		srStartPaymentTransactionParam.USER_ID             = sUserId
 		srStartPaymentTransactionParam.RESPONSE_CODE       = srMakePaymentResult.RESPONSE_CODE
@@ -2312,7 +2330,8 @@ useCase paymentOneTime [
 		
 		switch apiCall Payment.StartPaymentTransaction(srStartPaymentTransactionParam, srStartPaymentTransactionResult, ssStatus) [
             case apiSuccess submitPaymentSuccessResponse
-            default submitPaymentSuccessResponse
+            case apiError paymentHistoryError
+            default paymentHistoryError
         ]	
     ]
     
@@ -2324,7 +2343,7 @@ useCase paymentOneTime [
 		srStartPaymentTransactionParam.PAY_FROM_ACCOUNT    = methodNickName 
 		srStartPaymentTransactionParam.PAY_CHANNEL         = "online"
 		srStartPaymentTransactionParam.PAY_DATE            = sPaymentDate
-		srStartPaymentTransactionParam.PAY_AMT             = sTotalPayAmt		
+		srStartPaymentTransactionParam.PAY_AMT             = sAmountOnAccountPaid		
 		srStartPaymentTransactionParam.PAY_STATUS          = "failed"
 		srStartPaymentTransactionParam.USER_ID             = sUserId
 		srStartPaymentTransactionParam.RESPONSE_CODE	   = "158"
@@ -2332,8 +2351,9 @@ useCase paymentOneTime [
 		
 		switch apiCall Payment.StartPaymentTransaction(srStartPaymentTransactionParam, srStartPaymentTransactionResult, ssStatus) [
             case apiSuccess submitPaymentErrorResponse
-            default submitPaymentErrorResponse
-        ]	
+            case apiError paymentHistoryError
+            default paymentHistoryError
+         ]	
     ]
     
 	/* 29. Insert a payment history record for error response. */
@@ -2345,7 +2365,7 @@ useCase paymentOneTime [
 		srStartPaymentTransactionParam.PAY_FROM_ACCOUNT    = methodNickName 
 		srStartPaymentTransactionParam.PAY_CHANNEL         = "online"
 		srStartPaymentTransactionParam.PAY_DATE            = sPaymentDate
-		srStartPaymentTransactionParam.PAY_AMT             = sTotalPayAmt		
+		srStartPaymentTransactionParam.PAY_AMT             = sAmountOnAccountPaid		
 		srStartPaymentTransactionParam.PAY_STATUS          = "failed"
 		srStartPaymentTransactionParam.USER_ID             = sUserId
 		srStartPaymentTransactionParam.RESPONSE_CODE	   = srMakePaymentResult.RESPONSE_CODE
@@ -2353,9 +2373,15 @@ useCase paymentOneTime [
 		
 		switch apiCall Payment.StartPaymentTransaction(srStartPaymentTransactionParam, srStartPaymentTransactionResult, ssStatus) [
             case apiSuccess submitPaymentErrorResponse
-            default submitPaymentErrorResponse
-        ]	
+            case apiError paymentHistoryError
+            default paymentHistoryError
+         ]	
     ]
+	
+	/* 29A. report payment history error on screen */
+	action paymentHistoryError [
+		display msgHistoryInsertError
+	]
 	
 	/* 30. Inserts a payment schedule record. */
 	action setScheduledPayment [
@@ -2363,7 +2389,7 @@ useCase paymentOneTime [
 		srSetScheduledParam.GROUPING_JSON       = sPayData
 		srSetScheduledParam.SOURCE_ID           = token
 		srSetScheduledParam.PAY_TYPE            = "onetime"
-		srSetScheduledParam.PAY_AMT             = sTotalPayAmt
+		srSetScheduledParam.PAY_AMT             = sAmountOnAccountPaid
 		srSetScheduledParam.PAY_DATE            = sPaymentDate				
 		srSetScheduledParam.PAY_STATUS          = "scheduled"		
 		srSetScheduledParam.USER_ID             = sUserId
@@ -2399,7 +2425,7 @@ useCase paymentOneTime [
             secondary: sUserId
     		transactionId
     		token
-    		sTotalPayAmt
+    		sAmountOnAccountPaid
     		sPaymentDate
     		sAuditIteratorNext
     	]
@@ -2422,8 +2448,8 @@ useCase paymentOneTime [
  		SurchargeSession.emptyMap()
 		
 		sNtfParams = "transactionId=" + transactionId + "|" + "sourceName=" + sPayDataSourceName + "|" +"nickName="+ sPayDataSourceAccount + "|" + "currentDate="+ convertedTodaysDate + "|" +
-		              "amount=" + sTotalPayAmt +  "|" + "sourceType=" + sPaymentMethodType + "|" + 
-		              "surchargeFlag=" + surchargeFlag + "|"  + "surcharge=" + sSurCharge + "|" + "totalAmount=" + sTotalAmount + "|" +
+		              "amount=" + sAmountOnAccountPaid +  "|" + "sourceType=" + sPaymentMethodType + "|" + 
+		              "surchargeFlag=" + surchargeFlag + "|"  + "surcharge=" + sFeePaid + "|" + "totalAmount=" + sTotalPaid + "|" +
 		              "paymentDate=" + convertedPayDate + "|" + "groupingData=" + sGroupingDataString + "|" + "currency=" + sCurrency
 		switch NotifUtil.sendRegisteredUserEmail(sUserId, sNtfParams, "payment_onetime_scheduled_success") [
 			case "success" jsonSetScheduledSuccessResponse
@@ -2455,7 +2481,7 @@ useCase paymentOneTime [
             secondary: sUserId
     		transactionId
     		token
-    		sTotalPayAmt
+    		sAmountOnAccountPaid
     		sPaymentDate
     		sAuditIteratorNext
     	]
@@ -2501,7 +2527,7 @@ useCase paymentOneTime [
             secondary: sUserId
 			transactionId
 			token
-			sTotalPayAmt
+			sAmountOnAccountPaid
 			sPaymentDate
 			sAuditIteratorNext
 		]
@@ -2524,11 +2550,11 @@ useCase paymentOneTime [
  		
 		sNtfParams = "transactionId=" + transactionId + "|" + 
 					 "sourceName=" + sPayDataSourceName + "|" +
-		             "amount=" + sTotalPayAmt + "|" +
+		             "amount=" + sAmountOnAccountPaid + "|" +
 					 "sourceType=" + sPaymentMethodType + "|" + 
 					 "surchargeFlag=" + surchargeFlag + "|" + 
-					 "surcharge=" + sSurCharge + "|" + 
-					 "totalAmount=" + sTotalAmount + "|" +
+					 "surcharge=" + sFeePaid + "|" + 
+					 "totalAmount=" + sTotalPaid + "|" +
 		             "adjusted=false" + "|" + 
 		             "payDate=" + sPaymentDate + "|" + 
 		             "dateOfAuthorization=" + sPmtAuthDate + "|" +
@@ -2572,7 +2598,7 @@ useCase paymentOneTime [
             secondary: sUserId
     		transactionId
     		token
-    		sTotalPayAmt
+    		sAmountOnAccountPaid
     		sPaymentDate
     		sAuditIteratorNext
     	]
