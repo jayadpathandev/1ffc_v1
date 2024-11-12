@@ -560,6 +560,7 @@ useCase apiMakeOneTimePaymentForAgent
 	    ]
 		Log.error("makeOneTimePaymentForAgent", sTransactionId, sPaymentDate, sPayAmount, sErrorDesc)
 
+		logout()
 		foreignHandler JsonResponse.errorWithData(sErrorStatus)
     ]
 
@@ -578,7 +579,8 @@ useCase apiMakeOneTimePaymentForAgent
 	   		sTransactionId sPaymentDate sPayAmount
 	    ]
 		Log.error("makeOneTimePaymentForAgent", sTransactionId, sPaymentDate, sPayAmount, "Invalid security token.")
-		
+
+		logout()
 		foreignHandler JsonResponse.errorWithData("401")
     ]
     

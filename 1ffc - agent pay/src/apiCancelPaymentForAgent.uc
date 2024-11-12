@@ -124,6 +124,7 @@ useCase apiCancelPaymentForAgent
 	    ]
 		Log.^success("cancelPaymentForAgent", transactionId, "Success")
 		
+		logout()
 	    foreignHandler JsonResponse.send()
 	]
 
@@ -142,6 +143,7 @@ useCase apiCancelPaymentForAgent
    		]
 		Log.error("cancelPaymentForAgent", transactionId, sErrorDesc)
 
+		logout()
 		foreignHandler JsonResponse.errorWithData(sErrorStatus)
     ]
 
@@ -160,6 +162,7 @@ useCase apiCancelPaymentForAgent
    		]
 		Log.error("cancelPaymentForAgent", transactionId, "Invalid security token.")
 
+		logout()
 		foreignHandler JsonResponse.errorWithData("401")
     ]
     

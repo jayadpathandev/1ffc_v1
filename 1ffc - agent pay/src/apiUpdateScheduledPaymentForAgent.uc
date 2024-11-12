@@ -218,6 +218,7 @@ useCase apiUpdateScheduledPaymentForAgent
 	    ]
 		Log.^success("updateScheduledPaymentForAgent", customerId, accountId, payDate, payAmount)
 
+		logout()
 		foreignHandler JsonResponse.send()	 	
 	 ]
 
@@ -274,6 +275,7 @@ useCase apiUpdateScheduledPaymentForAgent
 	    ]
 		Log.error("updateScheduledPaymentForAgent", paymentId, payDate, payAmount, sErrorDesc)
 
+		logout()
 		foreignHandler JsonResponse.errorWithData(sErrorStatus)
     ]
 
@@ -292,6 +294,7 @@ useCase apiUpdateScheduledPaymentForAgent
 	    ]
 		Log.error("updateScheduledPaymentForAgent", paymentId, payDate, payAmount, "Invalid security token.")
 		
+		logout()
 		foreignHandler JsonResponse.errorWithData("401")
     ]
     

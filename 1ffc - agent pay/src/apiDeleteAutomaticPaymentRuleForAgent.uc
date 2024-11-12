@@ -189,6 +189,7 @@ useCase apiDeleteAutomaticPaymentRuleForAgent
 	    ]
 		Log.^success("deleteAutomaticPaymentForAgent", sCustomerId, sAccountId)
 
+		logout()
 		foreignHandler JsonResponse.send()	 	
 	 ]
 
@@ -207,6 +208,7 @@ useCase apiDeleteAutomaticPaymentRuleForAgent
 	    ]
 		Log.error("deleteAutomaticPaymentForAgent", sCustomerId, sAccountId, sErrorDesc)
 
+		logout()
 		foreignHandler JsonResponse.errorWithData(sErrorStatus)
     ]
 
@@ -225,6 +227,7 @@ useCase apiDeleteAutomaticPaymentRuleForAgent
 	    ]
 		Log.error("makeOneTimePaymentForAgent", sCustomerId, sAccountId, "Invalid security token.")
 		
+		logout()
 		foreignHandler JsonResponse.errorWithData("401")
     ]
     
