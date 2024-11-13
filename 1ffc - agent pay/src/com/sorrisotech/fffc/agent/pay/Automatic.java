@@ -1,6 +1,10 @@
 package com.sorrisotech.fffc.agent.pay;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -270,4 +274,42 @@ public class Automatic {
 			LOG.error("Internal error", e);
 		}
 	}	
+	
+	 /**
+     * Checks if the wallet will expire before payment.
+     *
+     * @param szPayDate      the payment date in format "dayOfMonth=<day>" or "startDate=<yyyyMMdd>"
+     * @param szSourceExpiry the wallet expiry date in format "MM/yyyy"
+     * @return "true", "false", or "error"
+     */
+    public static String willWalletExpireBeforePayDate(final String szPayDate, final String szSourceExpiry) {
+    	try {
+            // Parse szSourceExpiry
+            YearMonth expiryDate = YearMonth.parse(szSourceExpiry, DateTimeFormatter.ofPattern("MM/yyyy"));
+
+            // Determine payment date
+            LocalDate paymentDate;
+            if (szPayDate.startsWith("dayOfMonth=")) {
+                int dayOfMonth = Integer.parseInt(szPayDate.split("=")[1]);
+                LocalDate today = LocalDate.now();
+                if (dayOfMonth <= today.getDayOfMonth()) {
+                    // Move to the next month if the day is greater than today
+                    paymentDate = today.plusMonths(1).withDayOfMonth(dayOfMonth);
+                } else {
+                    paymentDate = today.withDayOfMonth(dayOfMonth);
+                }
+            } else if (szPayDate.startsWith("startDate=")) {
+                paymentDate = LocalDate.parse(szPayDate.split("=")[1], DateTimeFormatter.ofPattern("yyyyMMdd"));
+            } else {
+                return "error";
+            }
+
+            // Compare expiry with payment date
+            YearMonth paymentMonth = YearMonth.from(paymentDate);
+            return paymentMonth.isAfter(expiryDate) ? "true" : "false";
+
+        } catch (DateTimeParseException | NumberFormatException e) {
+            return "error";
+        }
+    }
 }
