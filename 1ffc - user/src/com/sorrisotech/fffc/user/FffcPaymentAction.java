@@ -39,6 +39,7 @@ import com.sorrisotech.common.DateFormat;
 import com.sorrisotech.svcs.external.IServiceLocator2;
 import com.sorrisotech.svcs.itfc.data.IListData;
 import com.sorrisotech.svcs.itfc.data.IUserData;
+import com.sorrisotech.svcs.payment.model.PaymentScheduleFields;
 import com.sorrisotech.svcs.payment.model.PaymentWalletFields;
 import com.sorrisotech.uc.payment.UcPaymentAction;
 import com.sorrisotech.utils.AppConfig;
@@ -234,5 +235,29 @@ public class FffcPaymentAction extends UcPaymentAction {
 	 */
 	public static String getDbConfigPropertyValue(String key) {
 		return Optional.ofNullable(m_cDbConfig).map(config -> config.getValue(key)).orElse("");
+	}
+	
+	/**
+	 * Returns the expiry date of the scheduled source.
+	 * 
+	 * @param userId
+	 * @param transactionId
+	 * @return expiryDate of the source or null
+	 */
+	public String getSourceExpiry(String userId, String transactionId) {
+		PaymentScheduleFields scheduledEntries = m_cBeanScheduled.getSchedulePaymentByTransId(userId, transactionId);
+		Optional<String> sourceId = Optional.ofNullable(scheduledEntries).map(val -> val.getSourceId());
+		if (sourceId.isPresent()) {
+			PaymentWalletFields[] wallets = m_cBean.getPaymentWalletByToken(sourceId.get());
+			Optional<String> sourceExpiry = Optional.ofNullable(wallets)
+					.filter(val -> val.length > 0)
+					.map(val -> val[0])
+					.map(val -> val.getSourceExpiry());
+			
+			if (sourceExpiry.isPresent()) {
+				return sourceExpiry.get();
+			}
+		}
+		return null;
 	}
 }

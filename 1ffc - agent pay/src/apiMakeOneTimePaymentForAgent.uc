@@ -214,7 +214,7 @@ useCase apiMakeOneTimePaymentForAgent
 	 	if sDoSurcharge == "true" then
 	 		queryForSurcharge
 	 	else
-	 		isPaymentImmediate 
+	 		checkForCardExpiration 
 	 ]
 
  	/*************************
@@ -245,11 +245,30 @@ useCase apiMakeOneTimePaymentForAgent
     	sErrorCode   = "internal_error"
 
 		switch MakePayment.setSurcharge(surchargeResult.convenienceFeeAmt) [
-			case "success" isPaymentImmediate
+			case "success" checkForCardExpiration
 			default        actionFailure
 		]	
 	]
 
+	action checkForCardExpiration [
+		sErrorStatus = "400"
+    	sErrorDesc   = "The payment method will expire before the payment date. Please schedule the payment before the expiration date, or update your payment method's expiration date."
+    	sErrorCode   = "wallet_will_expire"
+    	
+		switch MakePayment.willWalletExpireBeforePayDate(srGetWalletInfoResult.SOURCE_EXPIRY) [
+			case "true" actionFailure
+			case "false" isPaymentImmediate
+			default internalErrorWhileCheckingSourceExpiration
+		]
+	]
+	
+	action internalErrorWhileCheckingSourceExpiration [
+		sErrorStatus = "500"
+    	sErrorDesc   = "Internal error while checking wallet expiration."
+    	sErrorCode   = "internal_error"
+    	goto(actionFailure)
+	]
+	
  	/*************************
 	 * 9. Determine what type of payment is being done.
 	 */

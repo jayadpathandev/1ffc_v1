@@ -315,7 +315,7 @@ useCase apiCreateAutomaticPaymentRuleForAgent
 	action actionCheckSavedSource [ 
 		switch sIsOneTime [
 			case "true" actionMethodNotSaved
-			default	actionCreateAutomatic
+			default	checkForCardExpiration
 		]
 	]
 
@@ -337,6 +337,25 @@ useCase apiCreateAutomaticPaymentRuleForAgent
 		logout()
 		foreignHandler JsonResponse.errorWithData("210")
 	 ]
+	 
+	 action checkForCardExpiration [
+		sErrorStatus = "400"
+    	sErrorDesc   = "The payment method will expire before the payment date. Please schedule the payment before the expiration date, or update your payment method's expiration date."
+    	sErrorCode   = "wallet_will_expire"
+    	
+		switch Automatic.willWalletExpireBeforePayDate(sDateRule, srGetWalletInfoResult.SOURCE_EXPIRY) [
+			case "true" actionFailure
+			case "false" actionCreateAutomatic
+			default internalErrorWhileCheckingSourceExpiration
+		]
+	]
+	
+	action internalErrorWhileCheckingSourceExpiration [
+		sErrorStatus = "500"
+    	sErrorDesc   = "Internal error while checking wallet expiration."
+    	sErrorCode   = "internal_error"
+    	goto(actionFailure)
+	]
 
  	/*************************
 	 * 15. Issue the payment request.

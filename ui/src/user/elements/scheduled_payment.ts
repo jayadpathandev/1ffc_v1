@@ -34,24 +34,27 @@ function handle_source() {
     function update(id : string|undefined) {
         if (id !== undefined && id !== '') {
             $.ajax(
-                'getWalletInfo', { type : "POST",  data: { token: id }, processData : true }
+                'getWalletInfo', { type : "POST",  data: { token: id }, processData : true, async: false }
             ).done(function(response) {
+                $('#paymentUpdateAutomaticPayment_sourceExpiry').text(response.sSourceExpiry)
                 $('div[id^="paymentUpdateAutomaticPayment_paymentSurchargeColumn_"]').addClass('visually-hidden');
                 $('div[id^="paymentUpdateAutomaticPayment_eftMessage_"]').addClass('visually-hidden');
 
-                if (response.sPaymentMethodType === 'debit') {            
+                if (response.sPaymentMethodType === 'debit') {
                     if (surcharge == 'true') {
                         $('div[id^="paymentUpdateAutomaticPayment_paymentSurchargeColumn_"]').removeClass('visually-hidden');
-                     }
-                } else if (response.sPaymentMethodType === 'bank')                   
+                    }
+                } else if (response.sPaymentMethodType === 'bank')
                     $('div[id^="paymentUpdateAutomaticPayment_eftMessage_"]').removeClass('visually-hidden');
             });
         }
     }
 
+
     $('#paymentUpdateAutomaticPayment_dWalletItems').on('change', function() {
         const val = $(this).val() as string;
         update(val);
+        checkForSourceExpiration();
     });
     update($('#paymentUpdateAutomaticPayment_dWalletItems').val() as string);
 }
@@ -65,6 +68,35 @@ function handle_trigger() {
     $('#paymentUpdateAutomaticPayment_fPayInvoices\\.dPayPriorDays').on('change', function() {
         $('#paymentUpdateAutomaticPayment_fPayInvoices\\.rInput_option2').prop('checked', true);
     });
+}
+
+function checkForSourceExpiration() {
+    const $changeDateMsg = $('div[id^="paymentUpdateAutomaticPayment_messageChangeScheduledDate_"]');
+    !$changeDateMsg.hasClass('visually-hidden') && $changeDateMsg.addClass('visually-hidden');
+
+    const $signDocumentBtn = $('#paymentUpdateAutomaticPayment_signDocument');
+
+    const sourceExpiry = $('#paymentUpdateAutomaticPayment_sourceExpiry').text();
+    const [month, year] = sourceExpiry.split("/").map(Number);
+    const nextMonthOfExpiryDate = new Date(year, month);
+    if (!isValidDate(nextMonthOfExpiryDate)) return;
+
+    const $dateSelected = $('#paymentUpdateAutomaticPayment_fPayInvoices\\.aDate_display');
+    const selectedDateValue = $dateSelected.val();
+    if (!Date.parse(String(selectedDateValue))) return;
+
+    const selectedDate = new Date(String(selectedDateValue));
+
+    if (selectedDate >= nextMonthOfExpiryDate) {
+        $changeDateMsg.removeClass('visually-hidden');
+        $changeDateMsg[0].scrollIntoView({ behavior: "smooth", block: "center" });
+        $signDocumentBtn.addClass('disabled');
+    }
+
+}
+
+function isValidDate(date: Date) {
+    return date instanceof Date && !isNaN(Number(date));
 }
 
 //*****************************************************************************
@@ -181,6 +213,8 @@ function pay_amount() {
         } else {
             $signDocumentBtn.addClass('disabled');
         }
+
+        checkForSourceExpiration();
     }).trigger('change');
 
     // Get the tomorrow's date

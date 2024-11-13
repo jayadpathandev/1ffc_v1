@@ -9,6 +9,7 @@ useCase apiUpdateScheduledPaymentForAgent
 	importJava Log(api.Log)
 	importJava UcPaymentUtils(com.sorrisotech.fffc.agent.pay.UcPaymentUtils)
 	importJava JsonRequest(com.sorrisotech.app.common.JsonRequest)
+	importJava FffcPaymentAction(com.sorrisotech.fffc.user.FffcPaymentAction)
 
 	native string sServiceUserName  = Config.get("service.api.username")
     native string sServiceNameSpace = Config.get("service.api.namespace")
@@ -26,6 +27,7 @@ useCase apiUpdateScheduledPaymentForAgent
 	native string sErrorStatus
 	native string sErrorDesc
 	native string sErrorCode
+	native volatile string sSourceExpiry = FffcPaymentAction.getSourceExpiry(sUserId, paymentId)
 	
 	serviceStatus ssUpdateSchedPayment
     serviceParam(Payment.UpdateScheduledPaymentB2C) spUpdateSchedPayment
@@ -177,9 +179,28 @@ useCase apiUpdateScheduledPaymentForAgent
 		switch UcPaymentUtils.validateDateAndAmount(payDate, payAmount) [
 		   case "invalid_date"   actionInvalidDate
 		   case "invalid_amount" actionInvalidAmount
-		   case "success"        updateScheduledPayment
+		   case "success"        checkForCardExpiration
            default               actionFailure    
 		]
+	]
+	
+	action checkForCardExpiration [
+		sErrorStatus = "400"
+    	sErrorDesc   = "The payment method will expire before the payment date. Please schedule the payment before the expiration date, or update your payment method's expiration date."
+    	sErrorCode   = "wallet_will_expire"
+    	
+		switch UcPaymentUtils.willWalletExpireBeforePayDate(sSourceExpiry) [
+			case "true" actionFailure
+			case "false" updateScheduledPayment
+			default internalErrorWhileCheckingSourceExpiration
+		]
+	]
+	
+	action internalErrorWhileCheckingSourceExpiration [
+		sErrorStatus = "500"
+    	sErrorDesc   = "Internal error while checking wallet expiration."
+    	sErrorCode   = "internal_error"
+    	goto(actionFailure)
 	]
 	
 	/*************************
