@@ -417,10 +417,12 @@ useCase paymentHistory [
         "" => string iPayStatusPosted = ""
         "" => string iPayStatusFailed = ""
         "" => string iPayStatusProcessing = ""
+        "" => string iPayStatusCanceled = ""
         
         "" => string  sPayStatusPosted = "Posted"
         "" => string  sPayStatusProcessing = "Processing"  
         "" => string  sPayStatusFailed = "Failed"   
+        "" => string  sPayStatusCanceled = "Canceled"
         
         link "" pastPaymentDetails(pastPaymentDetailsPopin) [  
            sOnlineTransId: sOnlineTransId 
@@ -671,6 +673,10 @@ useCase paymentHistory [
             		^class: 'pay-status-failed st-payment-status-icon'
             		^class: sPayStatus
         		]  
+        		iPayStatusCanceled: [
+        			^class: 'pay-status-canceled st-payment-status-icon'
+            		^class: sPayStatus
+        		]
         		sPayStatusPosted: [
             		^class: 'pay-status-posted'
             		^class: sPayStatus
@@ -682,6 +688,10 @@ useCase paymentHistory [
         		sPayStatusFailed: [
             		^class: 'pay-status-failed'
             		^class: sPayStatus
+        		]
+        		sPayStatusCanceled: [
+        			^class: 'pay-status-canceled'
+        			^class: sPayStatus
         		]
      		]            
         ]     
