@@ -233,10 +233,11 @@ useCase paymentOneTime [
 	native string sPayDataSourceType    = UcPaymentAction.sourceType(sPayData)
 	native string sPayFlexValue
 	
-	//-- these variables are no longer used --     	
-	input sTotalPayAmt // without grrd
-	input sSurCharge = ""
-	input sTotalAmount = ""  // pay amount + surcharge
+	//-- these variables come up from the javascript and are
+	//		now ONLY used when creating scheduled payments --    	
+	input sTotalPayAmt 	 // amount paid on account
+	input sSurCharge = ""	 // fee for this transaction
+	input sTotalAmount = ""  // amount on account + fee
 	
 	// -- these are the new variables being used-
 	string sAmountOnAccountPaid = "0.00"		// -- based amount on account
@@ -2387,6 +2388,14 @@ useCase paymentOneTime [
 	
 	/* 30. Inserts a payment schedule record. */
 	action setScheduledPayment [
+		// -- amounts to be used in data for scheduled payment currently set here
+		//		and are generated and passed back from the javascript. We need to
+		//		change core to calculate and return these from the scheduled payment
+		//		call similar to the change we made for immediate payment --
+		sAmountOnAccountPaid = sTotalPayAmt // -- amount paid on account
+		sFeePaid = sSurCharge				// -- fee paid
+		sTotalPaid = sTotalAmount  			//
+		
 		srSetScheduledParam.ONLINE_TRANS_ID     = transactionId
 		srSetScheduledParam.GROUPING_JSON       = sPayData
 		srSetScheduledParam.SOURCE_ID           = token
