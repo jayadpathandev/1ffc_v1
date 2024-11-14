@@ -162,6 +162,8 @@ public class UcPaymentUtils {
 	public String willWalletExpireBeforePayDate(final String szSourceExpiry) {
 		String szResult = "false";
 		
+		if (szSourceExpiry.isEmpty()) return szResult;
+		
 		try {
 			if (szSourceExpiry != null && !szSourceExpiry.isEmpty()) {
 				SimpleDateFormat cFormat = new SimpleDateFormat("MM/yyyy");
