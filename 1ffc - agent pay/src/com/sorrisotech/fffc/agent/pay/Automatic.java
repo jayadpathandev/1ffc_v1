@@ -283,6 +283,9 @@ public class Automatic {
      * @return "true", "false", or "error"
      */
     public static String willWalletExpireBeforePayDate(final String szPayDate, final String szSourceExpiry) {
+    	
+    	if (szSourceExpiry.isEmpty()) return "false";
+    	
     	try {
             // Parse szSourceExpiry
             YearMonth expiryDate = YearMonth.parse(szSourceExpiry, DateTimeFormatter.ofPattern("MM/yyyy"));
