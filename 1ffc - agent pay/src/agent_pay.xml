@@ -178,7 +178,130 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
         </constructor-arg>   
     </bean>    
 
+	<bean id="api.pay.accounts.for.org.id" class="java.lang.String">
+        <constructor-arg>
+            <value>
+				select 
+					id, account_number, bill_group
+				from 
+					tm_account 
+				where org_id = :org_id and end_date is null
+			</value>
+        </constructor-arg>   
+    </bean>    
+
+	<bean id="api.pay.create.pay.session" class="java.lang.String">
+        <constructor-arg>
+            <value>
+				insert into FFFC_PAY_SESSION(
+					FPS_EXPIRES_AT, FPS_STATUS, FPS_SAVE_SOURCE, FPS_ACH_ENABLED
+				) values (
+					current_timestamp + interval '1 hour', 'created', :save, 'y'
+				) returning *
+			</value>
+        </constructor-arg>   
+    </bean>    
+
+	<bean id="api.pay.find.pay.session" class="java.lang.String">
+        <constructor-arg>
+            <value>
+            	select
+            		*
+            	from
+            		FFFC_PAY_SESSION
+            	where
+            		FPS_ONLINE_ID = :onlineId
+			</value>
+        </constructor-arg>   
+    </bean>    
+
+	<bean id="api.pay.expire.pay.session" class="java.lang.String">
+        <constructor-arg>
+            <value>
+            	delete from
+            		FFFC_PAY_SESSION
+            	where
+            		FPS_EXPIRES_AT &lt; current_timestamp
+			</value>
+        </constructor-arg>   
+    </bean>
     
     <bean id="ApiPayDao" class="com.sorrisotech.fffc.agent.pay.ApiPayDao">
     </bean>
+    
+    <!-- ###################################################################### -->
+    <!-- ###################################################################### -->
+    <!-- ###################################################################### -->    
+    <bean id="pay.session.start" class="java.lang.String">
+        <constructor-arg>
+            <value>
+            	update FFFC_PAY_SESSION set
+            		FPS_USER_ID         = :userId,
+            		FPS_USER_NAME       = :userName,
+            		FPS_CUSTOMER_ID     = :customerId,
+            		FPS_ACCOUNT_ID      = :accountId,
+            		FPS_ACCOUNT_NUM     = :accountNum,
+            		FPS_PAY_GROUP       = :payGroup,
+            		FPS_INVOICE         = :invoice,
+            		FPS_COMPANY_ID      = :companyId
+            		FPS_AUTO_PAY_EXISTS = :autoPayExists
+            	where
+            		FPS_ONLINE_ID = :id
+			</value>
+        </constructor-arg>       
+    </bean>
+
+    <bean id="pay.session.update.wallet" class="java.lang.String">
+        <constructor-arg>
+            <value>
+            	update FFFC_PAY_SESSION set
+            		FPS_WALLET_NAME     = :name,
+            		FPS_WALLET_TYPE     = :type,
+            		FPS_WALLET_ACCOUNT  = :account,
+            		FPS_WALLET_EXPIRY   = :expiry,
+            		FPS_WALLET_TOKEN    = :token,
+            		FPS_WALLET_DEFAULT  = :isDefault,
+            	where
+            		FPS_ONLINE_ID = :id
+			</value>
+        </constructor-arg>       
+    </bean>
+
+
+    <bean id="pay.session.update.status" class="java.lang.String">
+        <constructor-arg>
+            <value>
+            	update FFFC_PAY_SESSION set
+            		FPS_STATUS = :value
+            	where
+            		FPS_ONLINE_ID = :id
+			</value>
+        </constructor-arg>       
+    </bean>
+
+    <bean id="pay.session.update.auto.pay" class="java.lang.String">
+        <constructor-arg>
+            <value>
+            	update FFFC_PAY_SESSION set
+            		FPS_AUTO_PAY_EXISTS = :value
+            	where
+            		FPS_ONLINE_ID = :id
+			</value>
+        </constructor-arg>       
+    </bean>
+
+    <bean id="pay.session.update.ach" class="java.lang.String">
+        <constructor-arg>
+            <value>
+            	update FFFC_PAY_SESSION set
+            		FPS_ACH_ENABLED = :value
+            	where
+            		FPS_ONLINE_ID = :id
+			</value>
+        </constructor-arg>       
+    </bean>   
+    
+    <bean id="PaySession" class="om.sorrisotech.fffc.agent.pay.data.PaySession" scope="prototype">
+    </bean>
+    
 </beans>
