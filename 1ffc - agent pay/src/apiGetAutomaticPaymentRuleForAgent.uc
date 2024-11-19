@@ -212,6 +212,7 @@ useCase apiGetAutomaticPaymentRuleForAgent
 	   	]
 		Log.^success("getAutomaticPaymentRuleForAgent", customerId, accountId, "Success")
 		
+		logout()
 	    foreignHandler JsonResponse.send()
 	]
 
@@ -230,6 +231,7 @@ useCase apiGetAutomaticPaymentRuleForAgent
 	    ]
 		Log.error("getAutomaticPaymentRuleForAgent", customerId, accountId, sErrorDesc)
 
+		logout()
 		foreignHandler JsonResponse.errorWithData(sErrorStatus)
     ]
 
@@ -248,6 +250,7 @@ useCase apiGetAutomaticPaymentRuleForAgent
 	   	]
 		Log.error("getAutomaticPaymentRuleForAgent", customerId, accountId, "Invalid security token.")
 
+		logout()
 		foreignHandler JsonResponse.errorWithData("401")
     ]
     
@@ -266,6 +269,7 @@ useCase apiGetAutomaticPaymentRuleForAgent
 	   	]
 		Log.error("getAutomaticPaymentRuleForAgent", customerId, accountId, "Account ID does not belong to Customer ID.")
 
+		logout()
 		foreignHandler JsonResponse.errorWithData("400")
     ]
     
