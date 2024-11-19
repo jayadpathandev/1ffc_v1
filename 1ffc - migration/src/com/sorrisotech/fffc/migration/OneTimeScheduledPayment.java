@@ -51,7 +51,23 @@ public class OneTimeScheduledPayment implements IScheduledPayment {
 	 * @return null if it failed, a List of IScheduledPayment interface objects if it succeeds
 	 */
 	static public List<IScheduledPayment> createScheduledPaymentListDebit(String czFilePath, TokenMap mTokenMap) {
+/*
+ * This is the real file format
+ */
 		final Integer ciBillingAccountNumberPos = 0;
+		final Integer ciLastNamePos = 1;
+		final Integer ciAddressPos = 2;
+		final Integer ciPaymentAmountPos = 3;
+		final Integer ciPaymentDatePos = 4;
+		final Integer ciPaymentMethodPos = 5;
+		final Integer ciPaymentAcctMasked = 7;
+		final Integer ciPaymentAccountIdPos = 7;
+		final Integer ciNoErrorsLength = 8;
+
+/*
+ * 		A different scheduled payment format.
+ */
+/*		final Integer ciBillingAccountNumberPos = 0;
 		final Integer ciLastNamePos = 1;
 		final Integer ciAddressPos = 2;
 		final Integer ciPaymentAmountPos = 3;
@@ -62,7 +78,7 @@ public class OneTimeScheduledPayment implements IScheduledPayment {
 		final Integer ciPaymentAcctMasked = 8;
 		final Integer ciPaymentAccountIdPos = 9;
 		final Integer ciNoErrorsLength = 10;
-
+*/		
 		List<IScheduledPayment> lSchedPaymentList = new ArrayList<IScheduledPayment>();
 		PipeDelimitedLineReader input = new PipeDelimitedLineReader();
 		String [] record = null;
@@ -505,16 +521,25 @@ public class OneTimeScheduledPayment implements IScheduledPayment {
 
 		PaymentAPI pmt = new PaymentAPI();
 		WebSvcReturnCode code = pmt.createScheduledPayment(this);
+		MigrateRecord rcd = new MigrateRecord();
 		if(null == code) {
-			WebSvcReturnCode code2 = pmt.getScheduledPayment(m_szCustomerId,  m_szInternalAccount, m_szExternalAccount, m_szPaymentId);
-			MigrateRecord rcd = new MigrateRecord();
+			LocalDate now = LocalDate.now();
+			if (now.isEqual(m_calPaymentDate)) {
+				// -- just made an immediate payment --
+				// -- don't have a call to validate immediate payments --
+				rcd.validated = "true";
+			}
+			else {
+				// -- this is a future payment ---
+				WebSvcReturnCode code2 = pmt.getScheduledPayment(m_szCustomerId,  m_szInternalAccount, m_szExternalAccount, m_szPaymentId);
+				if (null != m_szPaymentId && !m_szPaymentId.isBlank())
+					rcd.validated = "true"; 
+				else 
+					rcd.validated = "false";
+			}
 			rcd.displayAcct = m_szExternalAccount;
 			rcd.customerId = m_szCustomerId;
 			rcd.internalAcct =  m_szInternalAccount;
-			if (null != m_szPaymentId && !m_szPaymentId.isBlank())
-				rcd.validated = "true"; 
-			else 
-				rcd.validated = "false";
 			rcd.schedPmtId = m_szPaymentId;
 			rcd.schedAmt = getPayAmount();
 			rcd.schedDate = getPayDate();
@@ -523,7 +548,6 @@ public class OneTimeScheduledPayment implements IScheduledPayment {
 			MigrationRpt.reportItem(rcd);
 		}
 		else {
-			MigrateRecord rcd = new MigrateRecord();
 			rcd.displayAcct = m_szExternalAccount;
 			rcd.customerId = m_szCustomerId;
 			rcd.internalAcct =  m_szInternalAccount;
@@ -627,5 +651,11 @@ public class OneTimeScheduledPayment implements IScheduledPayment {
 
 		}
 		return szRetValue;
+	}
+
+	@Override
+	public Boolean isPayDateToday() {
+		LocalDate now = LocalDate.now();
+		return (now.isEqual(m_calPaymentDate));
 	}	
 }

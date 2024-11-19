@@ -305,6 +305,7 @@ useCase apiCreateAutomaticPaymentRuleForAgent
 		JsonResponse.setString("payload",    "Automatic payment exists.")
 		JsonResponse.setString("error",      "automatic_payment_exists")
 
+		logout()
 		foreignHandler JsonResponse.errorWithData("210")
 	 ]
 
@@ -314,7 +315,7 @@ useCase apiCreateAutomaticPaymentRuleForAgent
 	action actionCheckSavedSource [ 
 		switch sIsOneTime [
 			case "true" actionMethodNotSaved
-			default	actionCreateAutomatic
+			default	checkForCardExpiration
 		]
 	]
 
@@ -333,8 +334,28 @@ useCase apiCreateAutomaticPaymentRuleForAgent
 		JsonResponse.setString("payload",    "Payment source was not saved.")
 		JsonResponse.setString("error",      "source_not_saved")
 
+		logout()
 		foreignHandler JsonResponse.errorWithData("210")
 	 ]
+	 
+	 action checkForCardExpiration [
+		sErrorStatus = "400"
+    	sErrorDesc   = "The payment method will expire before the payment date. Please schedule the payment before the expiration date, or update your payment method's expiration date."
+    	sErrorCode   = "wallet_will_expire"
+    	
+		switch Automatic.willWalletExpireBeforePayDate(sDateRule, srGetWalletInfoResult.SOURCE_EXPIRY) [
+			case "true" actionFailure
+			case "false" actionCreateAutomatic
+			default internalErrorWhileCheckingSourceExpiration
+		]
+	]
+	
+	action internalErrorWhileCheckingSourceExpiration [
+		sErrorStatus = "500"
+    	sErrorDesc   = "Internal error while checking wallet expiration."
+    	sErrorCode   = "internal_error"
+    	goto(actionFailure)
+	]
 
  	/*************************
 	 * 15. Issue the payment request.
@@ -404,6 +425,7 @@ useCase apiCreateAutomaticPaymentRuleForAgent
 		JsonResponse.setString("payload",    "Could not create the automatic payment.")
 		JsonResponse.setString("error",      "automatic_payment_not_created")
 
+		logout()
 		foreignHandler JsonResponse.errorWithData("210")
 	 ]
 
@@ -420,6 +442,7 @@ useCase apiCreateAutomaticPaymentRuleForAgent
 
 		Log.error("createAutomaticPaymentRuleForAgent", sTransactionId, sDateRule, sAmountRule, sCountRule, sErrorDesc)
 
+		logout()
 		foreignHandler JsonResponse.errorWithData(sErrorStatus)
     ]
 
@@ -435,7 +458,8 @@ useCase apiCreateAutomaticPaymentRuleForAgent
 		JsonResponse.setString("error",      "invalid_security_token")
 
 		Log.error("createAutomaticPaymentRuleForAgent", sTransactionId, sDateRule, sAmountRule, sCountRule, "Invalid security token.")
-		
+
+		logout()
 		foreignHandler JsonResponse.errorWithData("401")
     ]
 
@@ -452,6 +476,7 @@ useCase apiCreateAutomaticPaymentRuleForAgent
 
 		Log.error("createAutomaticPaymentRuleForAgent", sTransactionId, sDateRule, sAmountRule, sCountRule, sErrorDesc)
 
+		logout()
 		foreignHandler JsonResponse.errorWithData(sErrorStatus)
     ]    
 ]

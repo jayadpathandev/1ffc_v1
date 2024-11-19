@@ -150,6 +150,7 @@ useCase apiDeleteScheduledPaymentForAgent
 	    ]
 		Log.^success("deleteScheduledPaymentForAgent", sCustomerId, sAccountId, sPaymentId)
 
+		logout()
 		foreignHandler JsonResponse.send()	 	
 	 ]
 
@@ -168,6 +169,7 @@ useCase apiDeleteScheduledPaymentForAgent
 	    ]
 		Log.error("deleteScheduledPaymentForAgent", sCustomerId, sAccountId, sPaymentId, sErrorDesc)
 
+		logout()
 		foreignHandler JsonResponse.errorWithData(sErrorStatus)
     ]
 
@@ -186,6 +188,7 @@ useCase apiDeleteScheduledPaymentForAgent
 	    ]
 		Log.error("makeOneTimePaymentForAgent", sCustomerId, sAccountId, sPaymentId, "Invalid security token.")
 		
+		logout()
 		foreignHandler JsonResponse.errorWithData("401")
     ]
     

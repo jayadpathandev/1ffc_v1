@@ -1,14 +1,19 @@
 package com.sorrisotech.fffc.migration;
 
+import java.math.BigDecimal;
+import java.sql.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 public class MigrationRunner {
 
+	@SuppressWarnings("deprecation")
 	public static void main(String[] args) {
 		
-/*		String szTokenFile = Config.get("tokenFile");
+		String szTokenFile = Config.get("tokenFile");
 		TokenMap tokens = ACIToken.createACITokenMap(szTokenFile);
-*/
+
 		// -- tennessee only -- 8 digit routing failure 3 payments remain --
 /*		{
 			PaymentAPI pay = new PaymentAPI();
@@ -18,48 +23,41 @@ public class MigrationRunner {
 			pay.deleteScheduledPayment("2748165","2967363", "8944003335", "A00000000133150");
 			
 		}
-*/
+*/		
+				
 		// -- create scheduled payment objects for debit cards --
 /*		String szSchedPmtFileDebit = Config.get("schedPaymentFileDebit");
 		List<IScheduledPayment> schedPaymentsDebit = 
 				OneTimeScheduledPayment.createScheduledPaymentListDebit(szSchedPmtFileDebit, tokens);
-*/		
+		
 		// -- create scheduled payment objects for ACH --
 		String szSchedPmtFileACH = Config.get("schedPaymentFileACH");
 		List<IScheduledPayment> schedPaymentsACH = 
 				OneTimeScheduledPayment.createScheduledPaymentListACH(szSchedPmtFileACH);
-		
-		// -- create autopay objects for debit cards --
-/*		String szAutoPmtFileDebit = Config.get("autoPaymentFileDebit");
+*/		
+/*		// -- create autopay objects for debit cards --
+		String szAutoPmtFileDebit = Config.get("autoPaymentFileDebit");
 		List<IAutomaticPaymentRule> autoPaymentsDebit = 
 				MonthlyAutomaticPaymentRule.createAutomaticPaymentListDebit(szAutoPmtFileDebit, tokens);
 */		
-		// -- create autopay objects for ACH --
-
-		for (IScheduledPayment sp: schedPaymentsACH) {
-				sp.createScheduledPayment();
-		}
 		
-/*		String szAutoPmtFileACH = Config.get("autoPaymentFileACH");
+		String szAutoPmtFileACH = Config.get("autoPaymentFileACH");
 		List<IAutomaticPaymentRule> autoPaymentsACH = 
 				MonthlyAutomaticPaymentRule.createAutomaticPaymentListACH(szAutoPmtFileACH);
 
 		for (IAutomaticPaymentRule ap: autoPaymentsACH) {
-			if (null != ap.getOrgIdWhereRoutingNumberIsZero()) {
+			if (0 < ap.getExtraPayment().compareTo(BigDecimal.ZERO)) {
 				ap.removeOldAutomaticPaymentInfo();
 				ap.createAutomaticPaymentRule();
 			}
 		}
-(/
-		RoutingLeading0s.flushReport();
-		RoutingLeading0s.closeReport();
-		
+
 		
 /*		for (IScheduledPayment sp : schedPaymentsDebit) {
 			sp.createScheduledPayment();
 		}
-*/
-/*		for (IScheduledPayment sp : schedPaymentsACH) {
+
+		for (IScheduledPayment sp : schedPaymentsACH) {
 			sp.createScheduledPayment();
 		}
 */

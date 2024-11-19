@@ -437,7 +437,11 @@ public class PaymentAPI {
 			data.put("transactionId", m_transactionId);
 
 			// -- add call specific data --
-			data.put("paymentDate", pmt.getPayDate());
+			if (pmt.isPayDateToday())
+				data.put("paymentDate", "today"); // workaround for defect where today doesn't turn into today but sometimes sturns into yesterday
+			else
+				data.put("paymentDate", pmt.getPayDate());
+
 			data.put("paymentAmount", pmt.getPayAmount());
 
 			// -- create the request --
@@ -466,7 +470,15 @@ public class PaymentAPI {
 				m_retCode.error = szErrorCode;
 				m_retCode.payload = szPayload;
 				return lbRet;
+			} else if (statusCode.value() == 210) {
+				LOG.info("PaymentApi:apiScheduledPayment -- call returned 210 -- error reported by payment provider.");
+				m_retCode = new WebSvcReturnCode();
+				m_retCode.displayName = pmt.getDisplayAccount();
+				m_retCode.error = "210";
+				m_retCode.payload = "Payment provider declined transaction.";
+				return lbRet;
 			}
+			
 			JSONObject responseObject = new JSONObject(response.getBody());
 			// -- grab the transaction for moving forward
 			String m_szPmtId = Optional.ofNullable( responseObject.getString("paymentId")).orElse("");

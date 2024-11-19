@@ -145,6 +145,7 @@ useCase paymentUpdateAutomaticPayment [
     native string sThousand = "1000"
     native string sDisplayAmt = UcPaymentAction.formatAmtText(sThousand, sPayGroup, "auto")
     native string surchargeFlag = UcPaymentAction.getSurchargeStatus()
+    native string sourceExpiry = ""
     
     // from paymentCreateAutomaticPayment
     native string sPayDate      = "1"
@@ -334,6 +335,11 @@ useCase paymentUpdateAutomaticPayment [
         string(body) sBody = "{An error occurred while trying to retrieve contact details. Please try again later}"
     ]
     
+    structure(message) msgChangeScheduledDate [
+		string(title) sTitle = "{Payment warning}"
+		string (body) sBody = "{The payment method will expire before the selected payment date. Please schedule the payment before the expiration date, or update your payment method's expiration date.}"
+	]
+	
     structure msgAutoPmtScheduled [
         static sTitle = "{Payment warning}"
     ]
@@ -533,6 +539,7 @@ useCase paymentUpdateAutomaticPayment [
     /* 3. 8. Show the update automatic payment screen. */
     xsltScreen updateAutomaticPaymentScreen("{Payment}") [
     	display hSpinner
+    	display sourceExpiry
     	
     	div editScheduleContainer [
     		class: "col-md-12 st-payment-template-border st-scheduled-payment"
@@ -729,7 +736,15 @@ useCase paymentUpdateAutomaticPayment [
 								class: "col-sm-12 col-md-12 col-lg-12 alert alert-warning st-padding-bottom"
 								display sEftRecurringAlertMessage
 							]
+							
+							div messageChangeScheduledDate [
+								class: "col-sm-12 col-md-12 col-lg-12 alert alert-danger visually-hidden st-padding-bottom"
+								attr_role: "alert"				
+								display msgChangeScheduledDate 
+							]
 						]
+						
+						
 						 
 						 div step3_content [
 						 	 class: "row st-margin-left45"		
