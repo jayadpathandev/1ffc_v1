@@ -140,8 +140,8 @@ public class SetContactSettingsNls extends SetContactSettingsNlsBase {
 
 		} catch (Exception e) {
 			LOG.error(
-					"SetContactSettingsNls:processInternal ..... failed to update contact prefrences for customer id: {}",
-					szCustomerId, e, e);
+					"SetContactSettingsNls:processInternal ..... failed to update contact prefrences for customer id: {}, Request body: {}",
+					szCustomerId, cContactPrefrencesRequest.toString(), e, e);
 		}
 
 		request.setToResponse();

@@ -113,8 +113,8 @@ public class SetEconsentNls extends SetEconsentNlsBase {
 				eReturnCode = ServiceAPIErrorCode.Success;
 			} catch (Exception e) {
 				LOG.error(
-				        "SetEconsentNls:processInternal ..... failed to update econsent data for customer id: {}",
-				        szCustomerId, e, e);
+				        "SetEconsentNls:processInternal ..... failed to update econsent data for customer id: {}, Request body: {}",
+				        szCustomerId, contactPreferencesofUser.getPayload().toString(), e, e);
 			}
 		} else {
 			LOG.warn("SetEconsentNls:processInternal ..... no record found for customer id: {}",

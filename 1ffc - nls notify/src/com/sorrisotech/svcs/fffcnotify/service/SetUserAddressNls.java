@@ -120,8 +120,8 @@ public class SetUserAddressNls extends SetUserAddressNlsBase {
 				        new ContactPreferencesRequest(szCustomerId, szDateTime));
 			} catch (Exception e) {
 				LOG.error(
-				        "SetUserAddress:processInternal ..... failed to get contact prefrences for customer id: {}",
-				        szCustomerId, e, e);
+				        "SetUserAddress:processInternal ..... failed to get contact prefrences for customer id: {}, date and time: {}",
+				        szCustomerId, szDateTime, e, e);
 			}
 		}
 		
@@ -184,8 +184,8 @@ public class SetUserAddressNls extends SetUserAddressNlsBase {
 					eReturnCode = ServiceAPIErrorCode.Success;
 				} catch (Exception e) {
 					LOG.error(
-					        "SetUserAddress:processInternal ..... failed to update contact prefrences for customer id: {}",
-					        szCustomerId, e, e);
+					        "SetUserAddress:processInternal ..... failed to update contact prefrences for customer id: {}, , Request body: {}",
+					        szCustomerId, contactPreferencesofUser.getPayload().toString(), e, e);
 				}
 			} else {
 				LOG.warn(

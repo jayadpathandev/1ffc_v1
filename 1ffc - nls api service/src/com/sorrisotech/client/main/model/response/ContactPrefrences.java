@@ -156,11 +156,15 @@ public class ContactPrefrences {
 
 	@Override
 	public String toString() {
-		return "ContactPrefrences [m_szCustomerId=" + m_szCustomerId + ", m_szDateTime="
-		        + m_szDateTime + ", m_szChannelAddresses=" + m_szChannelAddresses
-		        + ", m_szTopicPreferences=" + m_szTopicPreferences + "]";
+	    return "{" +
+	           "\"customer_id\": \"" + m_szCustomerId + "\"," +
+	           "\"date_time\": \"" + m_szDateTime + "\"," +
+	           "\"channel_addresses\": " + m_szChannelAddresses + "," +
+	           "\"econsent\": " + econsent + "," +
+	           "\"topic_preferences\": " + m_szTopicPreferences +
+	           "}";
 	}
-	
+
 	/**************************************************************************
 	 * Default constructor
 	 */
@@ -327,14 +331,18 @@ public class ContactPrefrences {
 		/**************************************************************************
 		 * Overridden toString method.
 		 * 
-		 * @return a string representation of the object.
+		 * @return a string representation of the object (JSON String).
 		 */
 		@Override
 		public String toString() {
-			return "ChannelAddress{" + "channelName='" + m_szChannelName + '\''
-			        + ", consentAddress='" + m_szConsentAddress + '\'' + ", sourceIpAddress='"
-			        + m_szSourceIpAddress + '\'' + ", consentDate='" + m_szConsentDate + '\''
-			        + ", latitude=" + m_szLatitude + ", longitude=" + m_szLongitude + '}';
+		    return "{" +
+		           "\"channelname\": \"" + m_szChannelName + "\"," +
+		           "\"consent_address\": \"" + m_szConsentAddress + "\"," +
+		           "\"source_ip_address\": \"" + m_szSourceIpAddress + "\"," +
+		           "\"consent_date\": \"" + m_szConsentDate + "\"," +
+		           "\"latitude\": " + m_szLatitude + "," +
+		           "\"longitude\": " + m_szLongitude +
+		           "}";
 		}
 		
 		/**************************************************************************
@@ -421,8 +429,10 @@ public class ContactPrefrences {
 		 */
 		@Override
 		public String toString() {
-			return "TopicPreference{" + "topicName='" + m_szTopicName + '\'' + ", topicChannels="
-			        + m_cTopicChannels + '}';
+		    return "{" +
+		           "\"topicname\": \"" + m_szTopicName + "\"," +
+		           "\"topic_channels\": " + m_cTopicChannels +
+		           "}";
 		}
 		
 		/**************************************************************************
@@ -488,8 +498,10 @@ public class ContactPrefrences {
 		 */
 		@Override
 		public String toString() {
-			return "TopicChannel{" + "channelName='" + m_szChannelName + '\'' + ", selected="
-			        + m_bSelected + '}';
+		    return "{" +
+		           "\"channel_name\": \"" + m_szChannelName + "\"," +
+		           "\"selected\": " + m_bSelected +
+		           "}";
 		}
 		
 		/**************************************************************************
@@ -609,7 +621,10 @@ public class ContactPrefrences {
 		 */
 		@Override
 		public String toString() {
-			return "Econsent [active=" + active + ", dateTime=" + dateTime + "]";
+		    return "{" +
+		           "\"active\": " + active + "," +
+		           "\"date_time\": \"" + dateTime + "\"" +
+		           "}";
 		}
 	}
 }
