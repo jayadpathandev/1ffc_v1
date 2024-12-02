@@ -36,8 +36,6 @@ INSERT INTO auth_topic_channel(atc_topic, atc_channel, atc_default, atc_visible)
 select 'account', 'sms', 'N', 'N'
 where not exists (select 1 from auth_topic_channel where atc_topic = 'account' and atc_channel = 'sms');
 
--- (26/11/2024) FFFC-756: [SUPT1FFC-361] Hide “Paperless Delivery” option in Contact Preferences
-/*
 INSERT INTO auth_topic_channel(atc_topic, atc_channel, atc_default, atc_visible)
 select 'paperless', 'email', 'N', 'Y'
 where not exists (select 1 from auth_topic_channel where atc_topic = 'paperless' and atc_channel = 'email');
@@ -49,7 +47,6 @@ where not exists (select 1 from auth_topic_channel where atc_topic = 'paperless'
 INSERT INTO auth_topic_channel(atc_topic, atc_channel, atc_default, atc_visible)
 select 'paperless', 'sms', 'N', 'N'
 where not exists (select 1 from auth_topic_channel where atc_topic = 'paperless' and atc_channel = 'sms');
-*/
 
 UPDATE auth_topic_channel SET atc_default='N', atc_visible='N' WHERE atc_channel='sms';
 
