@@ -2303,7 +2303,7 @@ useCase paymentOneTime [
 		srStartPaymentTransactionParam.PAY_CHANNEL         = "online"
 		srStartPaymentTransactionParam.PAY_DATE            = sPaymentDate
 		srStartPaymentTransactionParam.PAY_AMT             = sAmountOnAccountPaid		
-		srStartPaymentTransactionParam.PAY_STATUS          = "processing"
+		srStartPaymentTransactionParam.PAY_STATUS          = "queued"
 		srStartPaymentTransactionParam.USER_ID             = sUserId
 		srStartPaymentTransactionParam.RESPONSE_CODE       = srMakePaymentResult.RESPONSE_CODE
 		srStartPaymentTransactionParam.RESPONSE_MESSAGE    = srMakePaymentResult.RESPONSE_MESSAGE

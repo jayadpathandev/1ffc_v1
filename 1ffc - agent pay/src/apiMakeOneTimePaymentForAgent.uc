@@ -372,7 +372,7 @@ useCase apiMakeOneTimePaymentForAgent
 	 * 9c. Insert a payment history record for batch submit success response. 
 	 */
 	action actionPaymentHistoryBatchSubmitSuccess [
-		sStatus  = "processing"
+		sStatus  = "queued"
 		sTransId = makeResult.ONLINE_TRANS_ID
 		
     	logRequest.TRANSACTION_ID  = sPayId
