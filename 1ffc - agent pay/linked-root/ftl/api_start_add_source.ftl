@@ -148,11 +148,26 @@
 					$('a#addDebitButton').removeClass('disabled');
 				</#if>
 				}
+				
+				// remove the migrated token from the wallet dropdown
+		        $('select[name="wallet"] option').each(function() {
+		            if ($(this).text().trim().startsWith('Migrated token')) {
+		                $(this).remove();
+		            }
+		        });
 			
+				$('select[name="wallet"] option').first().prop('selected', true);
 				$('#apipay_wallet').on('change', function() {
-					var item = $(this).val();
-					document.location.href = 'startUseSource?walletToken=' + encodeURIComponent(item);
-				});
+					var selectedItem = $(this).val();
+
+				    var urlParams = new URLSearchParams(window.location.search);
+				    var currentToken = urlParams.get('walletToken');
+
+				    if (currentToken !== selectedItem) {
+				        document.location.href = 'startUseSource?walletToken=' + encodeURIComponent(selectedItem);
+				    }
+				}).trigger('change');
+		        
 				function success(data) {
 					$.ajax({
 						url: 'startNewSource' + 
@@ -186,13 +201,7 @@
 				}
 			
 				window.addEventListener("message", receiveCrossOriginMessage, false);
-				
-				// remove the migrated token from the wallet dropdown
-		        $('select[name="wallet"] option').each(function() {
-		            if ($(this).text().trim().startsWith('Migrated token')) {
-		                $(this).remove();
-		            }
-		        });
+		        
 	        <#if iframe != "">
 	        	window.setTimeout(function() {
 					$('a#editButton').removeClass('disabled');
