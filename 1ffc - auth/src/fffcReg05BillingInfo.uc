@@ -94,7 +94,6 @@ useCase fffcReg05BillingInfo [
     string sItemEmail  = "{E-mail address}"        
     string sPara1 = "{As part of your contract agreement, you should have received at least one document which includes your account number. If you do not have this information, please contact customer service at 1-888-504-6520.}"
     string sPara1Bill = "{As part of your contract agreement, you should have received at least one bill which includes your account number. If you do not have this information, please contact customer service at 1-888-504-6520.}"
-    string sPara3 = "{E-mail: no-reply@onlineservices.1ffc.com}"
         
     native string sFlag = "false"        
     native string sStreamCount  = UcBillStreams.getBillStreamCount(sAppType)           
@@ -634,16 +633,6 @@ useCase fffcReg05BillingInfo [
 						class: "col-md-12"
 						
 						display sPara1Bill
-					]
-				]
-								
-				div row24 [
-					class: "row"
-					
-					p col24 [
-						class: "col-md-12"
-						
-						display sPara3
 					]
 				]										
 			]
