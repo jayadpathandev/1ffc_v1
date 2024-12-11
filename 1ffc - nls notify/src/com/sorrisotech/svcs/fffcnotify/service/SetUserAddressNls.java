@@ -34,6 +34,7 @@ import com.sorrisotech.client.main.model.response.ContactPrefrences.Econsent;
 import com.sorrisotech.client.main.model.response.CreateContactPrefrencesResponse;
 import com.sorrisotech.svcs.fffcnotify.api.IApiFffcNotify;
 import com.sorrisotech.svcs.fffcnotify.data.Location;
+import com.sorrisotech.svcs.fffcnotify.util.ContactPreferencesUtil;
 import com.sorrisotech.svcs.serviceapi.api.IRequestInternal;
 import com.sorrisotech.svcs.serviceapi.api.ServiceAPIErrorCode;
 
@@ -118,6 +119,20 @@ public class SetUserAddressNls extends SetUserAddressNlsBase {
 				// Fetching users contact preferences by calling NLS API.
 				contactPreferencesofUser = NLSClient.getContactPreferencesofUser(
 				        new ContactPreferencesRequest(szCustomerId, szDateTime));
+				
+				// --------------------------------------------------------------------------------------
+				// This call will go through each list (channel addresses and topic
+				// preferences) and remove any entries where required fields are missing or
+				// empty. Specifically, it will:
+				// 1. Remove TopicPreference objects with empty or null topic names.
+				// 2. Remove TopicChannel objects with empty or null channel names within each
+				// TopicPreference.
+				// 3. Remove ChannelAddress objects with empty or null channel names.
+				// The `customerId` is passed to ensure that if any data is removed, we log this
+				// information (error log) with the relevant customer context for better
+				// traceability and debugging.
+				ContactPreferencesUtil.cleanPayload(szCustomerId,
+				        contactPreferencesofUser.getPayload());
 			} catch (Exception e) {
 				LOG.error(
 				        "SetUserAddress:processInternal ..... failed to get contact prefrences for customer id: {}, date and time: {}",
