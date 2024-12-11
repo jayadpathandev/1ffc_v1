@@ -1559,7 +1559,8 @@ tbody .payment-history-status span {
 .payment-history-status .pay-status-posted.posted,
 .payment-history-status .pay-status-processing.processing,
 .payment-history-status .pay-status-failed.failed,
-.payment-history-status .pay-status-canceled.canceled  {
+.payment-history-status .pay-status-canceled.canceled,
+.payment-history-status .pay-status-queued.queued  {
     display: inline;
     margin-left: 30px;
 }
@@ -1594,6 +1595,10 @@ tbody .payment-history-status span {
 
 .payment-history-status .st-payment-status-icon.pay-status-canceled.canceled:before {
 	background-position: -1606px -48px;
+}
+
+.payment-history-status .st-payment-status-icon.pay-status-queued.queued:before {
+	background-position: -1480px -48px;
 }
 
 #paymentHistory_tFuturePaymentsTable .glyphicon-remove {
