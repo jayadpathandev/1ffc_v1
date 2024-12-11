@@ -34,6 +34,7 @@ import com.sorrisotech.client.main.model.response.ContactPrefrences.TopicChannel
 import com.sorrisotech.client.main.model.response.ContactPrefrences.TopicPreference;
 import com.sorrisotech.client.main.model.response.CreateContactPrefrencesResponse;
 import com.sorrisotech.svcs.fffcnotify.api.IApiFffcNotify;
+import com.sorrisotech.svcs.fffcnotify.util.ContactPreferencesUtil;
 import com.sorrisotech.svcs.notifications.data.UserConfig;
 import com.sorrisotech.svcs.notifications.service.NotificationsDao;
 import com.sorrisotech.svcs.serviceapi.api.IRequestInternal;
@@ -98,6 +99,20 @@ public class SetContactSettingsNls extends SetContactSettingsNlsBase {
 			// Fetching users contact preferences by calling NLS API.
 			cContactPreferencesofUser = NLSClient
 					.getContactPreferencesofUser(new ContactPreferencesRequest(szCustomerId, szDateTime));
+			
+			// --------------------------------------------------------------------------------------
+			// This call will go through each list (channel addresses and topic
+			// preferences) and remove any entries where required fields are missing or
+			// empty. Specifically, it will:
+			// 1. Remove TopicPreference objects with empty or null topic names.
+			// 2. Remove TopicChannel objects with empty or null channel names within each
+			// TopicPreference.
+			// 3. Remove ChannelAddress objects with empty or null channel names.
+			// The `customerId` is passed to ensure that if any data is removed, we log this
+			// information (error log) with the relevant customer context for better
+			// traceability and debugging.
+			ContactPreferencesUtil.cleanPayload(szCustomerId,
+			        cContactPreferencesofUser.getPayload());
 
 			var cTopicPreferenceRequest = new ArrayList<TopicPreference>();
 
