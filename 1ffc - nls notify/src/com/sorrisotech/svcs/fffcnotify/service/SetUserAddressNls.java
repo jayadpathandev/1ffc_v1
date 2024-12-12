@@ -191,9 +191,22 @@ public class SetUserAddressNls extends SetUserAddressNlsBase {
 					contactPreferencesofUser.getPayload().setDateTime(szDateTime);
 					
 					// --------------------------------------------------------------------------------------
-					// Setting consent status and last updated date as current date.
-					contactPreferencesofUser.getPayload().setEconsent(
-					        new Econsent(Boolean.parseBoolean(szIsConsentActive), szDateTime));
+					// Checking if consent status is provided as null.
+				    if (null == szIsConsentActive || szIsConsentActive.isBlank()) {
+				        if (contactPreferencesofUser.getPayload().getEconsent() == null) {
+				        	// --------------------------------------------------------------------------------------
+				            // Setting default consent status to false (null means consent not set at NLS.)
+				            contactPreferencesofUser.getPayload().setEconsent(
+				                new Econsent(false, szDateTime)
+				            );
+				        }
+				    } else {
+				    	// --------------------------------------------------------------------------------------
+						// Setting consent status with the provided value and last updated date as current date.
+				        contactPreferencesofUser.getPayload().setEconsent(
+				            new Econsent(Boolean.parseBoolean(szIsConsentActive), szDateTime)
+				        );
+				    }
 					
 					NLSClient.updateContactPreferences(contactPreferencesofUser.getPayload());
 					eReturnCode = ServiceAPIErrorCode.Success;
