@@ -19,7 +19,11 @@ useCase accountSummaryChild [
 	* 2.12  2024-Jul-30 jak		Adjusted code to ensure that when payments are fully disabled
 	*								automatic payments are also disabled and autopay status
 	*								is ignored.
+	* 2.12.01 2024-Dec-13 jak	Fixed issue where if someone logged in and consented we would
+	* 								still show access denied... basically wouldn't have gotten
+	* 								here if they didn't consent... so ignore disabledEconsent.
 	*/
+
 
     documentation [
         preConditions: [[
@@ -317,10 +321,11 @@ useCase accountSummaryChild [
  	 	sBillDueRemainingFlag = sRemainingDueFlag
 
  	 	evalActors()
- 	 	if "enabled" == srGetStatusResult.viewAccount then
- 	 		getPaymentEnabled
- 	 	else 
- 	 		setStatusAccessDenied
+ 	 	switch srGetStatusResult.viewAccount [
+ 	 		case enabled getPaymentEnabled
+ 	 		case disabledEconsent getPaymentEnabled
+ 	 		default setStatusAccessDenied
+ 	 	]
  	 ]
  	 
  	 /**
