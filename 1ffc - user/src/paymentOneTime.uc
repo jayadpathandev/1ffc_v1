@@ -133,6 +133,7 @@ useCase paymentOneTime [
     import paymentCommon.sPaymentSourceDebitEnabled
     import paymentCommon.sPaymentSourceSepaEnabled
     import paymentCommon.sCurrencySymbol
+    import paymentCommon.sCurrencySignificantDigit
     import paymentCommon.sAppType
 
 	// -- items gathered and calculated by accountSummaryChild when an
@@ -2086,12 +2087,19 @@ useCase paymentOneTime [
 	action validatePayData [
 		UcPaymentAction.setCurrency(sPayData, sCurrency)
 		
-		switch UcPaymentAction.validateMakePaymentRequest(sPayData) [
+		switch UcPaymentAction.validateMakePaymentRequest(sPayData, sCurrencySignificantDigit) [
 			case "valid" validateSurcharge
 			case "pmtDateManipulated" makePaymentErrorResponse
+			case "invaidPmtAmount" updateInvalidAmountInternalError
 			case "invalid" genericErrorResponse
 			default genericErrorResponse
 		]
+	]
+	
+	/* 22a.Create response message for invalid amount. */
+	action updateInvalidAmountInternalError [
+		sInternalErrorMessage = "An invalid amount entered while making payment."
+		goto(updatePaymentHistoryInternalError)
 	]	
 	
     /* 23.validate the payment request if surcharge is true and the paymentMethod is credit */  
