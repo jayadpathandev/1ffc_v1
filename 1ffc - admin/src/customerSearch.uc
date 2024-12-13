@@ -721,6 +721,8 @@ useCase customerSearch [
     	setDataFffc.browserGeo = sGeolocation
     	setDataFffc.ipGeo = setLocationResp.IP_GEO
     	setDataFffc.ipAddress = sIpAddress
+    	// - FFFC-771 Disabling econsent at NLS here.
+    	setDataFffc.sConsentActive = "false"
     	switch apiCall FffcNotify.SetUserAddressNls(setDataFffc, status) [
     		case apiSuccess generateAuthCode
     		default genericErrorMsg
@@ -939,6 +941,8 @@ useCase customerSearch [
     	setDataFffc.browserGeo = sGeolocation
     	setDataFffc.ipGeo = setLocationResp.IP_GEO
     	setDataFffc.ipAddress = sIpAddress
+    	// - FFFC-771 Disabling econsent at NLS here.
+    	setDataFffc.sConsentActive = "false"
     	switch apiCall FffcNotify.SetUserAddressNls(setDataFffc, status) [
     		case apiSuccess resetCsrPasswordFlag
     		default genericErrorMsg
