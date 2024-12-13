@@ -550,8 +550,31 @@ useCase apiMakeOneTimePaymentForAgent
 		sErrorStatus = "401"
     	sErrorDesc   = "Invalid amount specified."
     	sErrorCode   = "invalid_amount"
-		goto(actionFailure)    	
+    	sInternalErrorMessage = "An invalid amount entered while making payment."
+		goto(actionInvalidPayAmountFailure)    	
     ]
+    
+    action actionInvalidPayAmountFailure [
+    	logRequest.TRANSACTION_ID  = sPayId
+		logRequest.ONLINE_TRANS_ID = sPayId
+		logRequest.PAY_CHANNEL     = "online"
+		logRequest.PAY_STATUS      = "failed"
+		logRequest.RESPONSE_CODE   = "158"
+		logRequest.RESPONSE_MESSAGE	= sInternalErrorMessage
+
+		MakePayment.accountJson(logRequest.GROUPING_JSON)
+		MakePayment.payDate   (logRequest.PAY_DATE)
+		MakePayment.payAmount  (logRequest.PAY_AMT)		
+
+		ApiPay.payGroup       (logRequest.PMT_PROVIDER_ID)
+		ApiPay.walletFrom     (logRequest.PAY_FROM_ACCOUNT)
+		ApiPay.userid         (logRequest.USER_ID)
+		
+		switch apiCall Payment.StartPaymentTransaction(logRequest, status) [
+            case apiSuccess actionFailure
+            default         actionFailure
+        ]	
+	]
 
     /********************************
      * Send an invalid date failure.
