@@ -169,8 +169,8 @@
 				    }).remove();
 				
 				const urlParams = new URLSearchParams(window.location.search);
-				const currentToken = urlParams.get('walletToken');
-				if (currentToken == null) {
+				const currentToken = urlParams.get('code');
+				if (currentToken) {
 					$walletDropdown
 					    .find('option:first')
 					    .prop('selected', true)
