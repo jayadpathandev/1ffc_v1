@@ -95,16 +95,17 @@ class ValidatorRequiredInput extends ValidatorBase {
 //*****************************************************************************
 class OverBalance extends ValidatorBase {
 
-    private locale  : string = '';
     private balance : number = 0;
-    private custom  : JQuery<any> | undefined;
+    private overBalanceAlert  : JQuery<HTMLElement> | undefined;
     //*************************************************************************
     constructor(
                 state : ElementState,
                 field : JQuery<any>
             ) {
         super(state, field);
-        this.custom = this.field.siblings('*[sorriso-error="over_pmt_hist"]');
+
+        this.overBalanceAlert = $('*[sorriso-error="over_pmt_hist"]');
+
         this.balance = parseFloat(
             $('#paymentHistory_fPayAmount\\.pInput').text()
         )
@@ -115,21 +116,21 @@ class OverBalance extends ValidatorBase {
         const str = this.as_string();
 
         if (str === '') {
-            this.custom?.addClass('visually-hidden');
-            return true;
-        };
-
-        const amount = parseFloat(str);
-
-        if (isNaN(amount)) {
-            this.custom?.addClass('visually-hidden');
+            this.overBalanceAlert?.addClass('visually-hidden');
             return true;
         }
 
-        if ( this.balance != 0 && amount > this.balance ) {
-            this.custom?.removeClass('visually-hidden');
+        const amount = parseFloat(str);
+        if (isNaN(amount)) {
+            this.overBalanceAlert?.addClass('visually-hidden');
+            return true;
+        }
+
+        const isBelowBalnce = ( this.balance != 0 && amount <= this.balance );
+        if (isBelowBalnce) {
+            this.overBalanceAlert?.addClass('visually-hidden');
         } else {
-            this.custom?.addClass('visually-hidden');
+            this.overBalanceAlert?.removeClass('visually-hidden');
         }
 
         return true;
@@ -137,25 +138,62 @@ class OverBalance extends ValidatorBase {
 }
 
 //*****************************************************************************
-class AmountIsInLimit extends ValidatorBase {
-
+class GreaterThanMinDue extends ValidatorBase {
     private minDue : number = 0;
-    private maxDue : number = 0;
-    private belowMinPrompt  : JQuery<any> | undefined;
-    private overMaxPrompt : JQuery<any> | undefined;
+    private belowMinAlert : JQuery<HTMLElement> | undefined;
 
     //*************************************************************************
     constructor(
-                state : ElementState,
-                field : JQuery<any>
-            ) {
+        state : ElementState,
+        field : JQuery<any>
+    ) {
         super(state, field);
-        this.belowMinPrompt = this.field.siblings('*[sorriso-error="below-min_pmt_hist"]');
-        this.overMaxPrompt = this.field.siblings('*[sorriso-error="over-max_pmt_hist"]');
+        this.belowMinAlert = $('*[sorriso-error="below-min_pmt_hist"]');
 
         this.minDue = parseFloat(
             $('.st-min-due-amt').text()
         )
+    }
+
+    //*************************************************************************
+    protected validate() : boolean|undefined {
+        const str = this.as_string();
+
+        if (str === '') {
+            this.belowMinAlert?.addClass('visually-hidden');
+            return true;
+        }
+
+        const amount = parseFloat(str);
+        if (isNaN(amount)) {
+            this.belowMinAlert?.addClass('visually-hidden');
+            return true;
+        }
+
+        const isAboveMinDue = (amount >= this.minDue);
+        if (isAboveMinDue) {
+            this.belowMinAlert?.addClass('visually-hidden');
+        } else {
+            this.belowMinAlert?.removeClass('visually-hidden');
+        }
+
+        return true;
+    }
+
+}
+
+//*****************************************************************************
+class LessThanMaxDue extends ValidatorBase {
+    private maxDue : number = 0;
+    private aboveMaxAlert : JQuery<HTMLElement> | undefined;
+
+    //*************************************************************************
+    constructor(
+        state : ElementState,
+        field : JQuery<any>
+    ) {
+        super(state, field);
+        this.aboveMaxAlert = $('*[sorriso-error="over-max_pmt_hist"]');
 
         this.maxDue = parseFloat(
             $('.st-max-due-amt').text()
@@ -167,42 +205,57 @@ class AmountIsInLimit extends ValidatorBase {
         const str = this.as_string();
 
         if (str === '') {
-            this.belowMinPrompt?.addClass('visually-hidden');
-            this.overMaxPrompt?.addClass('visually-hidden');
-            return true;
-        };
-
-        const amount = parseFloat(str);
-
-        if (isNaN(amount)) {
-            this.belowMinPrompt?.addClass('visually-hidden');
-            this.overMaxPrompt?.addClass('visually-hidden');
+            this.aboveMaxAlert?.addClass('visually-hidden');
             return true;
         }
 
-        if (amount == 0) {
-            this.belowMinPrompt?.addClass('visually-hidden');
-            this.overMaxPrompt?.addClass('visually-hidden');
-            return false;
-        } else if (amount < this.minDue) {
-            this.belowMinPrompt?.removeClass('visually-hidden');
-            this.overMaxPrompt?.addClass('visually-hidden');
-            return false;
-        } else if (amount > this.maxDue) {
-            this.overMaxPrompt?.removeClass('visually-hidden');
-            this.belowMinPrompt?.addClass('visually-hidden');
-            return false;
+        const amount = parseFloat(str);
+        if (isNaN(amount)){
+            this.aboveMaxAlert?.addClass('visually-hidden');
+            return true;
+        }
+
+        const isBelowMaxDue = (amount <= this.maxDue);
+        if (isBelowMaxDue) {
+            this.aboveMaxAlert?.addClass('visually-hidden');
         } else {
-            this.belowMinPrompt?.addClass('visually-hidden');
-            this.overMaxPrompt?.addClass('visually-hidden');
+            this.aboveMaxAlert?.removeClass('visually-hidden');
         }
 
         return true;
     }
+
 }
 
 //*****************************************************************************
-class NotZero extends ValidatorBase {
+class IsValidDecimals extends ValidatorBase {
+
+    private locale  : string = '';
+
+    //*************************************************************************
+    constructor(
+                state : ElementState,
+                field : JQuery<any>
+            ) {
+        super(state, field);
+        this.set_message('invalid-decimals_pmt_hist');
+    }
+
+    //*************************************************************************
+    protected validate() : boolean|undefined {
+        const str = this.as_string();
+
+        if (str === '') return true;
+
+        const amount = parseFloat(str);
+        if (isNaN(amount)) return true;
+
+        return /^\d+(\.\d{0,2})?$/.test(amount.toString());
+    }
+}
+
+//*****************************************************************************
+class PositiveValue extends ValidatorBase {
 
     private locale  : string = '';
 
@@ -222,10 +275,9 @@ class NotZero extends ValidatorBase {
         if (str === '') return true;
 
         const amount = parseFloat(str);
-
         if (isNaN(amount)) return true;
 
-        return amount != 0;
+        return Number(amount.toFixed(2)) > 0;
     }
 }
 
@@ -266,8 +318,10 @@ function payment_history_elem() {
         (state, field) => { return [
             new ValidatorRequiredInput(state, field),
             new IsAmount(state, field),
-            new NotZero(state, field),
-            new AmountIsInLimit(state, field),
+            new PositiveValue(state, field),
+            new IsValidDecimals(state, field),
+            new GreaterThanMinDue(state, field),
+            new LessThanMaxDue(state, field),
             new OverBalance(state, field)
         ]}
     );
