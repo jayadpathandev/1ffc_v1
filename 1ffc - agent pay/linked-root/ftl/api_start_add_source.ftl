@@ -151,31 +151,33 @@
 				
 				const $walletDropdown = $('select#apipay_wallet');
 				
-				// Remove migrated token options, select the first option, and handle the change event
+				$walletDropdown.on('change', function() {
+			        const selectedItem = $(this).val();
+			        const urlParams = new URLSearchParams(window.location.search);
+			        const currentToken = urlParams.get('walletToken');
+			
+			        if (currentToken !== selectedItem) {
+			            document.location.href = 'startUseSource?walletToken=' + encodeURIComponent(selectedItem);
+			        }
+			    });
+			    
+			    // Remove migrated token options, select the first option, and handle the change event
 				$walletDropdown
 				    .find('option')
 				    .filter(function() {
 				        return $(this).text().trim().startsWith('Migrated token');
-				    })
-				    .remove();
+				    }).remove();
 				
-				$walletDropdown
-				    .find('option:first')
-				    .prop('selected', true);
+				const urlParams = new URLSearchParams(window.location.search);
+				const currentToken = urlParams.get('walletToken');
+				if (currentToken == null) {
+					$walletDropdown
+					    .find('option:first')
+					    .prop('selected', true)
+					    .trigger('change');
+				}
 				
-				$walletDropdown
-				    .on('change', function() {
-				        const selectedItem = $(this).val();
-				        const urlParams = new URLSearchParams(window.location.search);
-				        const currentToken = urlParams.get('walletToken');
-				
-				        if (currentToken !== selectedItem) {
-				            document.location.href = 'startUseSource?walletToken=' + encodeURIComponent(selectedItem);
-				        }
-				    })
-				    .trigger('change');
 
-		        
 				function success(data) {
 					$.ajax({
 						url: 'startNewSource' + 
