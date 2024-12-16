@@ -25,13 +25,13 @@ import $ from 'jquery';
 import 'jquery-ui';
 
 import { ElementState, Validation } from '../../common/basic/forms/element_state';
-import { ValidatorBase } from '../../common/basic/forms/validator_base';
 import { ValidatorForm } from '../../common/basic/forms/validator_form';
 import { ValidatorRequiredInput } from '../../common/basic/forms/validator_required_input';
 import { FormatService } from '../../common/services/format_service';
 import { parseAmount } from '../../common/services/parse_amount';
 import { PaymentWallet } from '../../common/window';
 import { PaymentState } from '../services/payment_state';
+import { ValidatorBase } from '../../common/basic/forms/validator_base';
 
 //*****************************************************************************
 const PMT_ERRORS = new Map<String, String>();
@@ -302,6 +302,7 @@ function add_validator(
     const field = $('#' + id.replaceAll('.', '\\.'));
 
     if (form !== undefined && field.length == 1) {
+        form.set_btns([$('#paymentOneTime_paymentSummaryContinueLink')]);
         const state = form.get_state(id);
         if (state !== undefined) {
             for (let validator of callback(state, field)) {
@@ -316,195 +317,6 @@ function add_validator(
         console.error('Multiple elements match a single input field [' + id + '].');
     } else {
         console.error('Could not payment form.');
-    }
-}
-
-//*****************************************************************************
-class OverBalance extends ValidatorBase {
-
-    private locale  : string = '';
-    private balance : number = 0;
-    private custom  : JQuery<any> | undefined;
-    //*************************************************************************
-    constructor(
-                state : ElementState,
-                field : JQuery<any>
-            ) {
-        super(state, field);
-        this.custom = this.field.siblings('*[sorriso-error="over"]');
-
-        const language = ($('.st-language input').val() as string).toLowerCase();
-        const country  = ($('.st-country input').val() as string).toUpperCase();
-        this.locale = language + '-' + country;
-        this.balance = parseAmount(
-            $('.st-current').text(),
-            this.locale
-        )
-    }
-
-    //*************************************************************************
-    protected validate() : boolean|undefined {
-        const str = this.as_string();
-
-        if (str === '') {
-            this.custom?.addClass('visually-hidden');
-            return true;
-        };
-
-        const amount = parseAmount(str, this.locale);
-
-        if (isNaN(amount)) {
-            this.custom?.addClass('visually-hidden');
-            return true;
-        }
-
-        if ( this.balance != 0 && amount > this.balance ) {
-            this.custom?.removeClass('visually-hidden');
-        } else {
-            this.custom?.addClass('visually-hidden');
-        }
-
-        return true;
-    }
-}
-
-//*****************************************************************************
-class AmountIsInLimit extends ValidatorBase {
-
-    private locale  : string = '';
-    private minDue : number = 0;
-    private maxDue : number = 0;
-    private belowMinPrompt  : JQuery<any> | undefined;
-    private continueBtn: JQuery<any> | undefined;
-    private overMaxPrompt : JQuery<any> | undefined;
-
-    //*************************************************************************
-    constructor(
-                state : ElementState,
-                field : JQuery<any>
-            ) {
-        super(state, field);
-        this.belowMinPrompt = this.field.siblings('*[sorriso-error="below-min"]');
-        this.overMaxPrompt = this.field.siblings('*[sorriso-error="over-max"]');
-        this.continueBtn = $('#paymentOneTime_paymentSummaryContinueLink');
-
-        const language = ($('.st-language input').val() as string).toLowerCase();
-        const country  = ($('.st-country input').val() as string).toUpperCase();
-        this.locale = language + '-' + country;
-
-        this.minDue = parseAmount(
-            $('.st-minimum').text(),
-            this.locale
-        )
-
-        this.maxDue = parseAmount(
-            $('.st-maximum').text(),
-            this.locale
-        )
-    }
-
-    //*************************************************************************
-    protected validate() : boolean|undefined {
-        const str = this.as_string();
-
-        if (str === '') {
-            this.belowMinPrompt?.addClass('visually-hidden');
-            this.overMaxPrompt?.addClass('visually-hidden');
-            return true;
-        };
-
-        const amount = parseAmount(str, this.locale);
-
-        if (isNaN(amount)) {
-            this.belowMinPrompt?.addClass('visually-hidden');
-            this.overMaxPrompt?.addClass('visually-hidden');
-            return true;
-        }
-
-        if (amount == 0) {
-            this.belowMinPrompt?.addClass('visually-hidden');
-            this.overMaxPrompt?.addClass('visually-hidden');
-            this.continueBtn?.addClass('disabled');
-            return false;
-        } else if (amount < this.minDue) {
-            this.belowMinPrompt?.removeClass('visually-hidden');
-            this.overMaxPrompt?.addClass('visually-hidden');
-            this.continueBtn?.addClass('disabled');
-            return false;
-        } else if (amount > this.maxDue) {
-            this.overMaxPrompt?.removeClass('visually-hidden');
-            this.belowMinPrompt?.addClass('visually-hidden');
-            this.continueBtn?.addClass('disabled');
-            return false;
-        } else {
-            this.belowMinPrompt?.addClass('visually-hidden');
-            this.overMaxPrompt?.addClass('visually-hidden');
-            this.continueBtn?.removeClass('disabled');
-        }
-
-        return true;
-    }
-}
-
-//*****************************************************************************
-class NotZero extends ValidatorBase {
-
-    private locale  : string = '';
-
-    //*************************************************************************
-    constructor(
-                state : ElementState,
-                field : JQuery<any>
-            ) {
-        super(state, field);
-        this.set_message('zero');
-
-        const language = ($('.st-language input').val() as string).toLowerCase();
-        const country  = ($('.st-country input').val() as string).toUpperCase();
-        this.locale = language + '-' + country;
-    }
-
-    //*************************************************************************
-    protected validate() : boolean|undefined {
-        const str = this.as_string();
-
-        if (str === '') return true;
-
-        const amount = parseAmount(str, this.locale);
-
-        if (isNaN(amount)) return true;
-
-        return amount != 0;
-    }
-}
-
-//*****************************************************************************
-class IsAmount extends ValidatorBase {
-
-    private locale  : string = '';
-
-    //*************************************************************************
-    constructor(
-                state : ElementState,
-                field : JQuery<any>
-            ) {
-        super(state, field);
-        this.set_message('validation');
-
-        const language = ($('.st-language input').val() as string).toLowerCase();
-        const country  = ($('.st-country input').val() as string).toUpperCase();
-        this.locale = language + '-' + country;
-    }
-
-    //*************************************************************************
-    protected validate() : boolean|undefined {
-        const str = this.as_string();
-
-        if (str === '') return true;
-
-        const amount = parseAmount(str, this.locale);
-
-        return !isNaN(amount);
     }
 }
 
@@ -555,10 +367,12 @@ function payment_summary() {
         "paymentOneTime_fOtherAmount.pInput",
         (state, field) => { return [
             new ValidatorRequiredInput(state, field),
-            new IsAmount(state, field),
-            new NotZero(state, field),
-            new AmountIsInLimit(state, field),
-            new OverBalance(state, field)
+            new IsValidAmount(state, field),
+            new IsPositiveValue(state, field),
+            new IsValidDecimals(state, field),
+            new GreaterThanMinDue(state, field),
+            new LessThanMaxDue(state, field),
+            new LessThanBalance(state, field)
         ]}
     );
 
@@ -637,6 +451,223 @@ function payment_summary() {
         $event.preventDefault();
     });
 }
+
+//*****************************************************************************
+class LessThanBalance extends ValidatorBase {
+
+    private locale  : string = '';
+    private balance : number = 0;
+    private overBalanceAlert : JQuery<HTMLElement> | undefined;
+
+    //*************************************************************************
+    constructor(
+                state : ElementState,
+                field : JQuery<any>
+            ) {
+        super(state, field);
+        this.overBalanceAlert = $('*[sorriso-error="over"]');
+
+        const language = ($('.st-language input').val() as string).toLowerCase();
+        const country  = ($('.st-country input').val() as string).toUpperCase();
+        this.locale = language + '-' + country;
+        this.balance = parseAmount($('.st-current').text(), this.locale);
+    }
+
+    //*************************************************************************
+    protected validate() : boolean|undefined {
+        const str = this.as_string();
+
+        if (str === '') return true;
+
+        const amount = parseAmount(str, this.locale);
+        if (isNaN(amount)) return true;
+
+        const isLessThanBalance = ( this.balance != 0 && amount <= this.balance );
+        if (isLessThanBalance) {
+            this.overBalanceAlert?.addClass('visually-hidden');
+        } else {
+            this.overBalanceAlert?.removeClass('visually-hidden')
+        }
+
+        return true;
+    }
+}
+
+//*****************************************************************************
+class GreaterThanMinDue extends ValidatorBase {
+
+    private locale  : string = '';
+    private minDue : number = 0;
+    private belowMinAlert : JQuery<HTMLElement> | undefined;
+
+    //*************************************************************************
+    constructor(
+                state : ElementState,
+                field : JQuery<any>
+            ) {
+        super(state, field);
+        this.belowMinAlert = $('*[sorriso-error="below-min"]');
+
+        const language = ($('.st-language input').val() as string).toLowerCase();
+        const country  = ($('.st-country input').val() as string).toUpperCase();
+        this.locale = language + '-' + country;
+        this.minDue = parseAmount($('.st-minimum').text(), this.locale);
+    }
+
+    //*************************************************************************
+    protected validate() : boolean|undefined {
+        const str = this.as_string();
+
+        if (str === '') true;
+
+        const amount = parseAmount(str, this.locale);
+        if (isNaN(amount)) true;
+
+        const isGreaterThanMin = (amount >= this.minDue);
+        if (isGreaterThanMin) {
+            this.belowMinAlert?.addClass('visually-hidden');
+        } else {
+            this.belowMinAlert?.removeClass('visually-hidden');
+        }
+
+        return true;
+    }
+}
+
+//*****************************************************************************
+class LessThanMaxDue extends ValidatorBase {
+
+    private locale  : string = '';
+    private maxDue : number = 0;
+    private greaterThanMaxAlert : JQuery<HTMLElement> | undefined;
+
+    //*************************************************************************
+    constructor(
+                state : ElementState,
+                field : JQuery<any>
+            ) {
+        super(state, field);
+        this.greaterThanMaxAlert = $('*[sorriso-error="over-max"]');
+
+        const language = ($('.st-language input').val() as string).toLowerCase();
+        const country  = ($('.st-country input').val() as string).toUpperCase();
+        this.locale = language + '-' + country;
+        this.maxDue = parseAmount($('.st-maximum').text(), this.locale);
+    }
+
+    //*************************************************************************
+    protected validate() : boolean|undefined {
+        const str = this.as_string();
+
+        if (str === '') true;
+
+        const amount = parseAmount(str, this.locale);
+        if (isNaN(amount)) true;
+
+        const isLessThanMax = (amount <= this.maxDue);
+        if (isLessThanMax) {
+            this.greaterThanMaxAlert?.addClass('visually-hidden');
+        } else {
+            this.greaterThanMaxAlert?.removeClass('visually-hidden');
+        }
+
+        return true;
+    }
+}
+
+
+//*****************************************************************************
+class IsPositiveValue extends ValidatorBase {
+
+    private locale  : string = '';
+
+    //*************************************************************************
+    constructor(
+                state : ElementState,
+                field : JQuery<any>
+            ) {
+        super(state, field);
+        this.set_message('zero');
+
+        const language = ($('.st-language input').val() as string).toLowerCase();
+        const country  = ($('.st-country input').val() as string).toUpperCase();
+        this.locale = language + '-' + country;
+    }
+
+    //*************************************************************************
+    protected validate() : boolean|undefined {
+        const str = this.as_string();
+
+        if (str === '') return true;
+
+        const amount = parseAmount(str, this.locale);
+        if (isNaN(amount)) return true;
+
+        return Number(amount.toFixed(2)) > 0;
+    }
+}
+
+//*****************************************************************************
+class IsValidDecimals extends ValidatorBase {
+
+    private locale  : string = '';
+
+    //*************************************************************************
+    constructor(
+                state : ElementState,
+                field : JQuery<any>
+            ) {
+        super(state, field);
+        this.set_message('invalid-decimals');
+
+        const language = ($('.st-language input').val() as string).toLowerCase();
+        const country  = ($('.st-country input').val() as string).toUpperCase();
+        this.locale = language + '-' + country;
+    }
+
+    //*************************************************************************
+    protected validate() : boolean|undefined {
+        const str = this.as_string();
+
+        if (str === '') return true;
+
+        const amount = parseAmount(str, this.locale);
+        if (isNaN(amount)) return true;
+
+        return /^\d+(\.\d{0,2})?$/.test(amount.toString());
+    }
+}
+
+//*****************************************************************************
+class IsValidAmount extends ValidatorBase {
+
+    private locale  : string = '';
+
+    //*************************************************************************
+    constructor(
+                state : ElementState,
+                field : JQuery<any>
+            ) {
+        super(state, field);
+        this.set_message('validation');
+
+        const language = ($('.st-language input').val() as string).toLowerCase();
+        const country  = ($('.st-country input').val() as string).toUpperCase();
+        this.locale = language + '-' + country;
+    }
+
+    //*************************************************************************
+    protected validate() : boolean|undefined {
+        const str = this.as_string();
+
+        if (str === '') return true;
+
+        const amount = parseAmount(str, this.locale);
+
+        return !isNaN(amount);
+    }
+}
+
 
 //*****************************************************************************
 function payment_summary_edit() {
