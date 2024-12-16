@@ -216,7 +216,8 @@ useCase paymentHistory [
         string(error) sErrorOver = "{Warning, entry exceeds amount due.}" 
         string(error) sErrorOverMax = "{Warning, amount exceeds the maximum due}"
         string(error) sErrorBelowMin = "{Warning, amount is less than minimum due}" 
-        string(error) sErrorZero = "{Warning, amount should not be zero.}"    
+        string(error) sErrorZero = "{Warning, amount should be greater than zero.}"
+        string(error) sErrorInvalidDecimal = "{Warning, amount must have 0 or 2 decimal places.}"    
     ]
     
 	/* Table for upcoming payments.*/	
@@ -1328,6 +1329,8 @@ useCase paymentHistory [
 							    sErrorBelowMin_attr_sorriso-error: "below-min_pmt_hist"
 							    sErrorZero_class_override: "st-amount-validation-msg alert alert-danger visually-hidden"
 							    sErrorZero_attr_sorriso-error: "zero_pmt_hist"
+							    sErrorInvalidDecimal_class_override: "st-amount-validation-msg alert alert-danger visually-hidden"
+							    sErrorInvalidDecimal_attr_sorriso-error: "invalid-decimals_pmt_hist"
 							]	
 	           		]
 	           		

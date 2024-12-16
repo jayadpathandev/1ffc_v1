@@ -176,17 +176,29 @@ function pay_amount() {
     
     additionalAmountField.removeAttr('readonly');
 
+    const $signDocumentBtn = $('#paymentUpdateAutomaticPayment_signDocument');
+
     additionalAmountField.on('input', function(e) {
         e.preventDefault();
         
+        const invalidDecimalAlert = $('*[sorriso-error="invalid-decimals_rec"]');
         const formattedTotalAmount = $('#paymentUpdateAutomaticPayment_sTotalMonthlyFormattedAmount');
         const formattedContractedAmount = $('#paymentUpdateAutomaticPayment_sContractedFormattedAmount');
 
-        const inputAmount = parseFloat(String($(this).val()));
+        const inputAmount = Number($(this).val());
 
         if (isNaN(inputAmount) || inputAmount <= 0) {
             formattedTotalAmount.text(formattedContractedAmount.text());
             return;
+        }
+
+        // Checking validation of decimal values
+        if ( /^\d+(\.\d{0,2})?$/.test(inputAmount.toString()) ) {
+            invalidDecimalAlert?.addClass('visually-hidden');
+            $signDocumentBtn?.removeClass('disabled');
+        } else {
+            invalidDecimalAlert?.removeClass('visually-hidden');
+            $signDocumentBtn?.addClass('disabled');
         }
 
         const currentText = formattedContractedAmount.text();

@@ -467,9 +467,7 @@ class LessThanBalance extends ValidatorBase {
         super(state, field);
         this.overBalanceAlert = $('*[sorriso-error="over"]');
 
-        const language = ($('.st-language input').val() as string).toLowerCase();
-        const country  = ($('.st-country input').val() as string).toUpperCase();
-        this.locale = language + '-' + country;
+        this.locale = getLocale();
         this.balance = parseAmount($('.st-current').text(), this.locale);
     }
 
@@ -477,10 +475,16 @@ class LessThanBalance extends ValidatorBase {
     protected validate() : boolean|undefined {
         const str = this.as_string();
 
-        if (str === '') return true;
+        if (str === '') {
+            this.overBalanceAlert?.addClass('visually-hidden');
+            return true;
+        }
 
         const amount = parseAmount(str, this.locale);
-        if (isNaN(amount)) return true;
+        if (isNaN(amount)) {
+            this.overBalanceAlert?.addClass('visually-hidden');
+            return true;
+        }
 
         const isLessThanBalance = ( this.balance != 0 && amount <= this.balance );
         if (isLessThanBalance) {
@@ -508,9 +512,7 @@ class GreaterThanMinDue extends ValidatorBase {
         super(state, field);
         this.belowMinAlert = $('*[sorriso-error="below-min"]');
 
-        const language = ($('.st-language input').val() as string).toLowerCase();
-        const country  = ($('.st-country input').val() as string).toUpperCase();
-        this.locale = language + '-' + country;
+        this.locale = getLocale();
         this.minDue = parseAmount($('.st-minimum').text(), this.locale);
     }
 
@@ -518,10 +520,16 @@ class GreaterThanMinDue extends ValidatorBase {
     protected validate() : boolean|undefined {
         const str = this.as_string();
 
-        if (str === '') true;
+        if (str === '') {
+            this.belowMinAlert?.addClass('visually-hidden');
+            return true;
+        }
 
         const amount = parseAmount(str, this.locale);
-        if (isNaN(amount)) true;
+        if (isNaN(amount)) {
+            this.belowMinAlert?.addClass('visually-hidden');
+            return true;
+        }
 
         const isGreaterThanMin = (amount >= this.minDue);
         if (isGreaterThanMin) {
@@ -549,9 +557,7 @@ class LessThanMaxDue extends ValidatorBase {
         super(state, field);
         this.greaterThanMaxAlert = $('*[sorriso-error="over-max"]');
 
-        const language = ($('.st-language input').val() as string).toLowerCase();
-        const country  = ($('.st-country input').val() as string).toUpperCase();
-        this.locale = language + '-' + country;
+        this.locale = getLocale();
         this.maxDue = parseAmount($('.st-maximum').text(), this.locale);
     }
 
@@ -559,10 +565,16 @@ class LessThanMaxDue extends ValidatorBase {
     protected validate() : boolean|undefined {
         const str = this.as_string();
 
-        if (str === '') true;
+        if (str === '') {
+            this.greaterThanMaxAlert?.addClass('visually-hidden');
+            return true;
+        }
 
         const amount = parseAmount(str, this.locale);
-        if (isNaN(amount)) true;
+        if (isNaN(amount)) {
+            this.greaterThanMaxAlert?.addClass('visually-hidden');
+            return true;
+        }
 
         const isLessThanMax = (amount <= this.maxDue);
         if (isLessThanMax) {
@@ -589,9 +601,7 @@ class IsPositiveValue extends ValidatorBase {
         super(state, field);
         this.set_message('zero');
 
-        const language = ($('.st-language input').val() as string).toLowerCase();
-        const country  = ($('.st-country input').val() as string).toUpperCase();
-        this.locale = language + '-' + country;
+        this.locale = getLocale();
     }
 
     //*************************************************************************
@@ -620,9 +630,7 @@ class IsValidDecimals extends ValidatorBase {
         super(state, field);
         this.set_message('invalid-decimals');
 
-        const language = ($('.st-language input').val() as string).toLowerCase();
-        const country  = ($('.st-country input').val() as string).toUpperCase();
-        this.locale = language + '-' + country;
+        this.locale = getLocale();
     }
 
     //*************************************************************************
@@ -650,10 +658,7 @@ class IsValidAmount extends ValidatorBase {
             ) {
         super(state, field);
         this.set_message('validation');
-
-        const language = ($('.st-language input').val() as string).toLowerCase();
-        const country  = ($('.st-country input').val() as string).toUpperCase();
-        this.locale = language + '-' + country;
+        this.locale = getLocale();
     }
 
     //*************************************************************************
@@ -666,6 +671,12 @@ class IsValidAmount extends ValidatorBase {
 
         return !isNaN(amount);
     }
+}
+
+function getLocale() : string{
+    const language = ($('.st-language input').val() as string).toLowerCase();
+    const country  = ($('.st-country input').val() as string).toUpperCase();
+    return language + '-' + country;
 }
 
 

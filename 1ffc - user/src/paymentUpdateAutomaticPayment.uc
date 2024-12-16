@@ -108,7 +108,8 @@ useCase paymentUpdateAutomaticPayment [
     field fAdditionalAmountField [
 		input (control) additionalPaymentAmountInput("^(\\d{1,5}|\\d{0,5}\\.\\d{1,2})$", fAdditionalAmountField.sValidation) = "0"
         string sPayUptoValidationText = "{Enter a number between 1 and <1> (up to 2 decimal values allowed)}"
-        volatile string(pInput_validation) sValidation = I18n.translate ("paymentUpdateAutomaticPayment_fAdditionalAmountField.sPayUptoValidationText", sPayUpto)       
+        volatile string(pInput_validation) sValidation = I18n.translate ("paymentUpdateAutomaticPayment_fAdditionalAmountField.sPayUptoValidationText", sPayUpto)
+        string(error) sErrorInvalidDecimal = "{Warning, amount must have 0 or 2 decimal places.}"        
     ]
     
     native string sFuturePaymentsFound = "false"
@@ -812,6 +813,8 @@ useCase paymentUpdateAutomaticPayment [
 												display fAdditionalAmountField [
 													class: "my-2"
 													control_attr_tabindex: "12"
+													sErrorInvalidDecimal_class_override: "st-amount-validation-msg alert alert-danger visually-hidden"
+							    					sErrorInvalidDecimal_attr_sorriso-error: "invalid-decimals_rec"
 												]
 											]
 										]
