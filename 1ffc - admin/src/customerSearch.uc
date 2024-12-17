@@ -117,6 +117,7 @@ useCase customerSearch [
     native string sCategory          = "address"
     native string sOperation         = "The agent successfully updated users email address."
     native string sSelectedCustomerId
+    native volatile string sCurrentEpochTime = Initialize.getCurrentEpochTime()
     
     input sGeolocation
     			
@@ -724,9 +725,20 @@ useCase customerSearch [
     	// - FFFC-771 Disabling econsent at NLS here.
     	setDataFffc.sConsentActive = "false"
     	switch apiCall FffcNotify.SetUserAddressNls(setDataFffc, status) [
-    		case apiSuccess generateAuthCode
+    		case apiSuccess saveEconsentDetails
     		default genericErrorMsg
     	]
+    ]
+    
+    /* 17a. Save e-consent details.(attribbute at auth_user_profile table) */
+    action saveEconsentDetails [
+    	 updateProfile(        	
+        	userId: sSelectedUserId    
+        	eSignConsentEnabled: "false"
+            eSignConsentLastUpdatedTimeStamp: sCurrentEpochTime 	
+            )
+        if success then generateAuthCode        
+        if failure then genericErrorMsg  
     ]
     
     /* 18. Create Authorization code. */
@@ -928,27 +940,49 @@ useCase customerSearch [
     	setLocationData.sOperation = sOperation
     	
     	switch apiCall Profile.AddLocationTrackedEvent(setLocationData, setLocationResp, status) [
-    		case apiSuccess saveEmailAddressAtNlsResetPwd
+    		case apiSuccess checkEmaiUpdated
     		default genericErrorMsg
     	]
     ]
     
-    /* 32. Saves the new email address via NLS API service */
-    action saveEmailAddressAtNlsResetPwd [
+    /* 31a. Checks if email address has changed or not. */   
+    action checkEmaiUpdated [
+    	if sOldEmailAddress == sEmailAddress then
+    		saveSameEmailAddressAtNlsResetPwd
+    	else 
+    		saveNewEmailAddressAtNlsResetPwd	
+    ]
+    
+    /* 32. Saves the same email address via NLS API service */
+    action saveSameEmailAddressAtNlsResetPwd [
     	setDataFffc.customerId = sSelectedCustomerId
     	setDataFffc.channel = sEmailChannel
     	setDataFffc.address = sEmailAddress
     	setDataFffc.browserGeo = sGeolocation
     	setDataFffc.ipGeo = setLocationResp.IP_GEO
     	setDataFffc.ipAddress = sIpAddress
-    	// - FFFC-771 Disabling econsent at NLS here.
-    	setDataFffc.sConsentActive = "false"
     	switch apiCall FffcNotify.SetUserAddressNls(setDataFffc, status) [
     		case apiSuccess resetCsrPasswordFlag
     		default genericErrorMsg
     	]
     ]
-        
+    
+    /* 32a. Saves the new email address and disable e-consent via NLS API service*/
+    action saveNewEmailAddressAtNlsResetPwd [
+    	setDataFffc.customerId = sSelectedCustomerId
+    	setDataFffc.channel = sEmailChannel
+    	setDataFffc.address = sEmailAddress
+    	setDataFffc.browserGeo = sGeolocation
+    	setDataFffc.ipGeo = setLocationResp.IP_GEO
+    	setDataFffc.ipAddress = sIpAddress
+    	// - FFFC-771 Disabling e-consent at NLS here.
+    	setDataFffc.sConsentActive = "false"
+    	switch apiCall FffcNotify.SetUserAddressNls(setDataFffc, status) [
+    		case apiSuccess resetCsrPasswordFlagAndDisableEconsent
+    		default genericErrorMsg
+    	]
+    ]
+    
     /* 33. Updates the user's profile attributes. */    
     action resetCsrPasswordFlag [
         updateProfile(
@@ -962,6 +996,23 @@ useCase customerSearch [
             csrResetPasswordFlag: "true"                   
         )     
         goto(generateAuthCode)        
+    ]
+    
+    /* 33a. Updates the user's profile attributes and disable e-consent. */  
+    action resetCsrPasswordFlagAndDisableEconsent [
+    	updateProfile(
+            userId: sSelectedUserId    
+            accountStatus: "open"            
+            lockoutTime: "0"
+            passwordRetryCount: "0"
+            passwordFailTime: "-1"            
+            authCodeRetryCount: "0"
+            authCodeFailTime: "-1"       
+            csrResetPasswordFlag: "true"
+            eSignConsentEnabled: "false"
+            eSignConsentLastUpdatedTimeStamp: sCurrentEpochTime                    
+        )
+        goto(generateAuthCode) 
     ]  
         
     /* 34. Resets the cookies. */
