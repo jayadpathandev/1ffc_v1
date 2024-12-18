@@ -26,7 +26,7 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 					and pmtgrp.payment_group = :PMT_GROUP 
 					and pmthist.pay_date > :START_TIME
 					and pmtgrp.online_trans_id = pmthist.online_trans_id
-					and pmthist.pay_status in ('posted','processing') 
+					and pmthist.pay_status in ('posted','processing','queued') 
 			</value>
         </constructor-arg>   
     </bean>    
