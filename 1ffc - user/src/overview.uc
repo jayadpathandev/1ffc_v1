@@ -102,6 +102,7 @@ useCase overview [
     native string sIsConsentDataUpdatedRecently
     native string eSignConsentEnabled
     native volatile string sCurrentEpochTime = UcHelper.getCurrentEpochTime()
+    native string sDisabledEconsent = "true"
   
 	string sPageHeader = "{Account overview}"
     
@@ -147,34 +148,31 @@ useCase overview [
 	/* 0a. System checks result to see if user has access to portal */
 	action testAccess [
 		switch srHasPortalAccessResult.portalAccess [
-			case enabled			getOnlineEligibleAccounts
+			case enabled			checkIfWeShowEconsentOrNot
 			case disabledUser 		genericErrorMsg
-			case disabledEconsent	compareEconsentLastUpdatedTime
+			case disabledEconsent	setdisabledEconsent
 			default 				genericErrorMsg
 		]
 	]
 	
-	/* 0b. Compare last updated time-stamp if disabledEconsent*/
-	action compareEconsentLastUpdatedTime [
+	/* 0b. Set sDisabledEconsent to "false" as consent is disabled in status.*/
+	action setdisabledEconsent [
+		sDisabledEconsent = "false"
+		goto (checkIfWeShowEconsentOrNot)
+	]
+	
+	/* 0c. Check if we have to show e-consent to user or not. */
+	action checkIfWeShowEconsentOrNot [
 		loadProfile(
 			eSignConsentEnabled: eSignConsentEnabled            
             eSignConsentLastUpdatedTimeStamp: eSignConsentLastUpdatedTimeStampProfile   
             )
-        UcHelper.isConsentUpdatedRecently(eSignConsentLastUpdatedTimeStampProfile , srHasPortalAccessResult.lastUpdateTimestamp, sIsConsentDataUpdatedRecently)
+        UcHelper.checkConsentStatus(eSignConsentEnabled, sDisabledEconsent, eSignConsentLastUpdatedTimeStampProfile , srHasPortalAccessResult.lastUpdateTimestamp, sIsConsentDataUpdatedRecently)
         
         if sIsConsentDataUpdatedRecently == "true" then 
-           checkEconsentStatusUserProfile
-        else 
            regTermsAndConditionsScreen
-	]
-	
-	/* 0c. Checks consent is enabled at NLS side or not.*/
-	action checkEconsentStatusUserProfile [
-		
-		if eSignConsentEnabled == "false" then
-		  regTermsAndConditionsScreen
-		else
-		  getOnlineEligibleAccounts
+        else 
+           getOnlineEligibleAccounts
 	]
 	
 	/* 0d. System retrieves the accounts this user is eligible to view online */
