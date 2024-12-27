@@ -123,7 +123,7 @@ useCase apiRequestPaymentStatusForAgent [
 		auditLog(audit_agent_pay.cancel_payment_for_agent_failure) [
 	   		transactionId
    		]
-		Log.error("requestPaymentStatusForAgent", transactionId, sErrorDesc)
+		Log.warn("requestPaymentStatusForAgent", transactionId, sErrorDesc)
 
 		logout()
 		foreignHandler JsonResponse.errorWithData(sErrorStatus)
@@ -143,7 +143,7 @@ useCase apiRequestPaymentStatusForAgent [
 		auditLog(audit_agent_pay.cancel_payment_for_agent_failure) [
 	   		transactionId
    		]
-		Log.error("requestPaymentStatusForAgent", transactionId, "Invalid security token.")
+		Log.warn("requestPaymentStatusForAgent", transactionId, "Invalid security token.")
 
 		logout()
 		foreignHandler JsonResponse.errorWithData("401")

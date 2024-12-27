@@ -620,7 +620,7 @@ useCase apiMakeOneTimePaymentForAgent
 	    auditLog(audit_agent_pay.make_one_time_payment_for_agent_bad) [
 	   		sTransactionId sPaymentDate sPayAmount
 	    ]
-		Log.error("makeOneTimePaymentForAgent", sTransactionId, sPaymentDate, sPayAmount, "Invalid security token.")
+		Log.warn("makeOneTimePaymentForAgent", sTransactionId, sPaymentDate, sPayAmount, "Invalid security token.")
 
 		logout()
 		foreignHandler JsonResponse.errorWithData("401")
