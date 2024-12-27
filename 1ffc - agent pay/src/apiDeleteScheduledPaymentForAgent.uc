@@ -186,7 +186,7 @@ useCase apiDeleteScheduledPaymentForAgent
 	    auditLog(audit_agent_pay.delete_scheduledpay_for_agent_failed) [
 	   		sCustomerId sAccountId sPaymentId
 	    ]
-		Log.error("makeOneTimePaymentForAgent", sCustomerId, sAccountId, sPaymentId, "Invalid security token.")
+		Log.warn("deleteScheduledPaymentForAgent", sCustomerId, sAccountId, sPaymentId, "Invalid security token.")
 		
 		logout()
 		foreignHandler JsonResponse.errorWithData("401")

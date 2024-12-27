@@ -160,7 +160,7 @@ useCase apiCancelPaymentForAgent
 		auditLog(audit_agent_pay.cancel_payment_for_agent_failure) [
 	   		transactionId
    		]
-		Log.error("cancelPaymentForAgent", transactionId, "Invalid security token.")
+		Log.warn("cancelPaymentForAgent", transactionId, "Invalid security token.")
 
 		logout()
 		foreignHandler JsonResponse.errorWithData("401")

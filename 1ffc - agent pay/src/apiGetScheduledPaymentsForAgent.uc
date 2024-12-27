@@ -204,7 +204,7 @@ useCase apiGetScheduledPaymentsForAgent
 		auditLog(audit_agent_pay.start_payment_for_agent_failure) [
 			customerId accountId
 	   	]
-		Log.error("getScheduledPaymentsForAgent", customerId, accountId, "Invalid security token.")
+		Log.warn("getScheduledPaymentsForAgent", customerId, accountId, "Invalid security token.")
 
 		logout()
 		foreignHandler JsonResponse.errorWithData("401")
@@ -223,7 +223,7 @@ useCase apiGetScheduledPaymentsForAgent
 		auditLog(audit_agent_pay.start_payment_for_agent_failure) [
 			customerId accountId
 	   	]
-		Log.error("startPaymentForAgent", customerId, accountId, "Account ID does not belong to Customer ID.")
+		Log.warn("getScheduledPaymentsForAgent", customerId, accountId, "Account ID does not belong to Customer ID.")
 
 		logout()
 		foreignHandler JsonResponse.errorWithData("400")

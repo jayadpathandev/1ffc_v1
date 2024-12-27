@@ -457,7 +457,7 @@ useCase apiCreateAutomaticPaymentRuleForAgent
 		JsonResponse.setString("payload",    "Invalid security token.")
 		JsonResponse.setString("error",      "invalid_security_token")
 
-		Log.error("createAutomaticPaymentRuleForAgent", sTransactionId, sDateRule, sAmountRule, sCountRule, "Invalid security token.")
+		Log.warn("createAutomaticPaymentRuleForAgent", sTransactionId, sDateRule, sAmountRule, sCountRule, "Invalid security token.")
 
 		logout()
 		foreignHandler JsonResponse.errorWithData("401")

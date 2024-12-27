@@ -225,7 +225,7 @@ useCase apiDeleteAutomaticPaymentRuleForAgent
 	    auditLog(audit_agent_pay.delete_autopay_for_agent_failure) [
 	   		sCustomerId sAccountId
 	    ]
-		Log.error("makeOneTimePaymentForAgent", sCustomerId, sAccountId, "Invalid security token.")
+		Log.warn("makeOneTimePaymentForAgent", sCustomerId, sAccountId, "Invalid security token.")
 		
 		logout()
 		foreignHandler JsonResponse.errorWithData("401")
