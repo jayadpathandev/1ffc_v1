@@ -2,10 +2,13 @@ package com.sorrisotech.svcs.accountstatus.cache;
 
 /**
  * 	@author John A. Kowalonek
- *  @version 01-Nov-2023
+ *  @version 10-Nov-2024
  *  
  *  Provides enumerator types for use in the account status service. This class is never
  *  instantiated.
+ *  
+ *  2024-Nov-10  	jak		Added disabledClosed to enumerator based on errors found in 
+ *  							production log
  */
 public final class EnumConst {
 
@@ -21,7 +24,7 @@ public final class EnumConst {
 	 */
 	public enum PayEnabled {
 		enabled, disabledLegal, disabledRepo, disabledLastPayment, 
-		disabledAccountDispute, disabledPendingRetraction, disableDQ, disabledOther
+		disabledAccountDispute, disabledPendingRetraction, disableDQ, disabledOther, disabledClosed
 	}
 	
 	/**

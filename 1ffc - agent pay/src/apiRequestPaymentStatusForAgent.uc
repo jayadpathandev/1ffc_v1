@@ -125,6 +125,7 @@ useCase apiRequestPaymentStatusForAgent [
    		]
 		Log.error("requestPaymentStatusForAgent", transactionId, sErrorDesc)
 
+		logout()
 		foreignHandler JsonResponse.errorWithData(sErrorStatus)
     ]
 
@@ -144,6 +145,7 @@ useCase apiRequestPaymentStatusForAgent [
    		]
 		Log.error("requestPaymentStatusForAgent", transactionId, "Invalid security token.")
 
+		logout()
 		foreignHandler JsonResponse.errorWithData("401")
     ]
     

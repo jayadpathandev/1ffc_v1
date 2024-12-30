@@ -35,6 +35,30 @@
 				</p>
 			</div>
 		</#if>
+		 <#if deleteWalletError != "" >
+            <div class="alert alert-danger" role="alert">
+                <h4>
+					<span>Delete wallet error</span>
+				</h4>
+				<p>
+					<#if deleteWalletError == 'scheduled'>
+      					Payment method is used in a scheduled payment, cannot delete.
+					</#if>
+					<#if deleteWalletError == 'auto'>
+      					Payment method is used in an auto payment schedule, cannot delete.
+					</#if>
+					<#if deleteWalletError == 'progress'>
+      					Scheduled payment is currently be made with the payment method, cannot delete.
+					</#if>
+					<#if deleteWalletError == 'unsaved'>
+      					Payment method is temporary, cannot delete.
+					</#if>
+					<#if deleteWalletError == 'unknown'>
+      					Payment could not be delete for unknown reasons.
+					</#if>
+				</p>
+            </div>
+        </#if>
 		<div class="apipay ms-3">
 			<h4>
 				Payment method
@@ -61,12 +85,37 @@
 						</select>
 					</#if>
 				</div>
-				
-				<div class="col-2">
-					<#if hasWallet>
-						<a id="editButton" class="btn btn-secondary<#if iframe != ""> disabled</#if>" href="startAgentPayIframe?itemType=edit">Edit</a>
-					</#if>
-				</div>
+								
+				<!-- Delete Button -->
+        		<div class="col-3 row">
+            		<#if hasWallet>
+                		<div class="col-12">
+							<a id="editButton" class="btn btn-primary<#if iframe != ""> disabled</#if>" href="startAgentPayIframe?itemType=edit">Edit</a>
+						</div>
+            			<div class="col-12">
+	                		<a id="deleteButton" class="btn btn-secondary" href="#" 
+    	            			data-bs-toggle="modal" data-bs-target="#confirmDeleteModal">Delete</a>
+    	            	</div>
+            		</#if>
+        		</div>
+        		
+        		 <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+            		<div class="modal-dialog">
+                		<div class="modal-content">
+                    		<div class="modal-header">
+                        		<h5 class="modal-title" id="confirmDeleteModalLabel">Confirm Delete</h5>
+                        		<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    		</div>
+                    		<div class="modal-body">
+                        		Are you sure you want to delete this item?
+                    		</div>
+                    		<div class="modal-footer">
+                        		<a id="noButton"  class="btn btn-secondary" data-bs-dismiss="modal">No</a>
+                        		<a id="confirmDeleteButton" class="btn btn-primary" href="startDeleteWallet">Yes</a>
+                    		</div>
+                		</div>
+            		</div>
+        		</div>
 				
 				<#if !disableAch>
 					<div class="col-3">

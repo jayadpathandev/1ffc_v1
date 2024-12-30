@@ -147,6 +147,7 @@ useCase paymentHistory [
     native string nPmtSurcharge			 = ""	
 	native string nPmtTotalAmount		 = ""
 	native string sPmtMethodType		 = ""
+	native string sPaymentGrouping       = ""
 
     native string sMessageFlag  		  = "false"
     native string sCancelTextFinal
@@ -247,7 +248,8 @@ useCase paymentHistory [
         "PAY_GROUP"           => string sPayGroup
         "EDIT_CLASS" 		  => string sEditClass
         "PAY_STATUS"          => string sPayStatus
-        "DETAILS_TYPE"        => string sDetailsType     
+        "DETAILS_TYPE"        => string sDetailsType
+        "GROUPING_JSON"       => string sPayGroupData     
         
         link "" futurePaymentDetails(futurePaymentDetailsPopin) [          
            sOnlineTransId: sOnlineTransId             
@@ -285,6 +287,7 @@ useCase paymentHistory [
            sPmtMethodType: sDetailsType
            sPaymentDetailsName: sDetailsName
            sPaymentMethodAccount: sSourceNum
+           sPaymentGrouping : sPayGroupData
         ]
                    
         column accountCol("{Account number}") [
@@ -414,10 +417,12 @@ useCase paymentHistory [
         "" => string iPayStatusPosted = ""
         "" => string iPayStatusFailed = ""
         "" => string iPayStatusProcessing = ""
+        "" => string iPayStatusCanceled = ""
         
         "" => string  sPayStatusPosted = "Posted"
         "" => string  sPayStatusProcessing = "Processing"  
         "" => string  sPayStatusFailed = "Failed"   
+        "" => string  sPayStatusCanceled = "Canceled"
         
         link "" pastPaymentDetails(pastPaymentDetailsPopin) [  
            sOnlineTransId: sOnlineTransId 
@@ -668,6 +673,10 @@ useCase paymentHistory [
             		^class: 'pay-status-failed st-payment-status-icon'
             		^class: sPayStatus
         		]  
+        		iPayStatusCanceled: [
+        			^class: 'pay-status-canceled st-payment-status-icon'
+            		^class: sPayStatus
+        		]
         		sPayStatusPosted: [
             		^class: 'pay-status-posted'
             		^class: sPayStatus
@@ -679,6 +688,10 @@ useCase paymentHistory [
         		sPayStatusFailed: [
             		^class: 'pay-status-failed'
             		^class: sPayStatus
+        		]
+        		sPayStatusCanceled: [
+        			^class: 'pay-status-canceled'
+        			^class: sPayStatus
         		]
      		]            
         ]     
@@ -1821,6 +1834,7 @@ useCase paymentHistory [
 		srCreatePaymentHistoryParam.RESPONSE_CODE		= "user"
 		srCreatePaymentHistoryParam.RESPONSE_MESSAGE	= "The user has deleted the scheduled payment."
 		srCreatePaymentHistoryParam.FLEX_1			    = sPayScheduledStatus
+		srCreatePaymentHistoryParam.GROUPING_JSON   	= sPaymentGrouping
 		
 		switch apiCall Payment.CreatePaymentHistory(srCreatePaymentHistoryParam, srCreatePaymentHistoryResult, ssStatus) [
             case apiSuccess setScheduledDeleteMsgFlag
