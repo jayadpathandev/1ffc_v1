@@ -31,6 +31,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcDaoSupport;
 
+import com.sorrisotech.fffc.batch.reimport.report.Reporter;
+
 /**************************************************************************************************
  * Update all the changes required in the database to change the account ID for an account number.
  */
@@ -57,6 +59,11 @@ public class OrgIdChangeWriter
 	 * SQL to update records in TM_ACCOUNT.
 	 */
 	private String mUpdateTmAccount = null;
+
+	/**************************************************************************
+	 * Class to report the database state
+	 */
+	private Reporter mReporter = null;
 	
 	/**************************************************************************
 	 * Update PROF_COMPANY_ORGID to remove the old OrgIds and add in the new
@@ -80,7 +87,7 @@ public class OrgIdChangeWriter
 			params
 			);
 		
-		if (updates != 1) {
+		if (updates > 1) {
 			throw new Exception(
 					"PROF_COMPANY_ORGID - Updated [" + updates + 
 					"] records from ORG_ID [" + oldId + "] to [" +
@@ -112,7 +119,7 @@ public class OrgIdChangeWriter
 			params
 			);
 		
-		if (deletes != 1) {
+		if (deletes > 1) {
 			throw new Exception(
 					"PROF_COMPANY_ACCOUNT - Deleted [" + deletes + 
 					"] records for COMPANY_ID [" + change.mCompanyId + 
@@ -165,11 +172,17 @@ public class OrgIdChangeWriter
 			) throws Exception {
 
 		for (final var change : changes) {
-			if (change.mCompanyId != null) {
-				updateProfCompanyOrgid(change);
-				deleteProfCompanyAccount(change);
+			mReporter.beforeOrgChange(change.mCompanyId, change.mOldOrgId, change.mNewOrgId);
+			
+			try {
+				if (change.mCompanyId != null) {
+					updateProfCompanyOrgid(change);
+					deleteProfCompanyAccount(change);
+				}
+				updateTmAccount(change);
+			} finally {
+				mReporter.afterOrgChange(change.mCompanyId, change.mOldOrgId, change.mNewOrgId);
 			}
-			updateTmAccount(change);
 		}
 
 	}
@@ -205,5 +218,16 @@ public class OrgIdChangeWriter
 			final String sql
 			) {
 		mUpdateTmAccount = sql;
+	}
+	
+	/**************************************************************************
+	 * Set the class to report the database state.
+	 * 
+	 * @param report  The class to report the database state.
+	 */
+	public void setReporter(
+			final Reporter report
+			) {
+		mReporter = report;
 	}	
 }

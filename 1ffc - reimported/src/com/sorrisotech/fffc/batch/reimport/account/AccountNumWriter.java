@@ -32,6 +32,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcDaoSupport;
 
+import com.sorrisotech.fffc.batch.reimport.report.Reporter;
+
 /**************************************************************************************************
  * Update all the changes required in the database to change the account ID for an account number.
  */
@@ -93,6 +95,11 @@ public class AccountNumWriter
 	 * SQL to update records in FFFC_TRANSACTIONS.
 	 */
 	private String mUpdateFffcTransactions = null;
+	
+	/**************************************************************************
+	 * Class to report the DB state before an after changes.
+	 */
+	private Reporter mReporter;
 	
 	/**************************************************************************
 	 * Update PROF_COMPANY_ORGID to remove the old OrgIds and add in the new
@@ -469,14 +476,34 @@ public class AccountNumWriter
 			) throws Exception {
 
 		for (final var change : changes) {
-			updateProfCompanyOrgid(change);
-			updateProfCompanyAccount(change);
-			updateTmAccount(change);
-			updateBill(change);
-			updatePmtGrouping(change);
-			updatePmtAutomaticGrouping(change);
-			updatePmtAutomaticDocuments(change);
-			updateFffcTransactions(change);
+			mReporter.beforeAccountChange(
+				change.getCompanyId(),
+				change.getOldOrgIds(),
+				change.getNewOrgId(),
+				change.getAccountNum(),
+				change.getOldAccountIds(),
+				change.getNewAccountId()
+			);
+			
+			try {
+				updateProfCompanyOrgid(change);
+				updateProfCompanyAccount(change);
+				updateTmAccount(change);
+				updateBill(change);
+				updatePmtGrouping(change);
+				updatePmtAutomaticGrouping(change);
+				updatePmtAutomaticDocuments(change);
+				updateFffcTransactions(change);
+			} finally {
+				mReporter.afterAccountChange(
+					change.getCompanyId(),
+					change.getOldOrgIds(),
+					change.getNewOrgId(),
+					change.getAccountNum(),
+					change.getOldAccountIds(),
+					change.getNewAccountId()
+				);
+			}			
 		}
 
 	}
@@ -590,5 +617,16 @@ public class AccountNumWriter
 			) {
 		mUpdateFffcTransactions = sql;
 	}
+	
+	/**************************************************************************
+	 * Set the class to report the database state.
+	 * 
+	 * @param report  The class to report the database state.
+	 */
+	public void setReporter(
+			final Reporter report
+			) {
+		mReporter = report;
+	}	
 	
 }

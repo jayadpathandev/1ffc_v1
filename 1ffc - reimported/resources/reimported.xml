@@ -134,7 +134,7 @@
 		<property name="currentDateSql"  ref="currentDate"/>
 		<property name="accountsSql">
 			<value>
-				select
+				select distinct
 					org_id,
 					tm_tags.value,
 					tm_account.company_id
@@ -208,6 +208,7 @@
     <!-- ********************************************************************************** --> 
  	<bean id="newIdWriter" class="com.sorrisotech.fffc.batch.reimport.customer.OrgIdChangeWriter">
  		<property name="dataSource" ref="dataSource"/>
+ 		<property name="reporter" ref="reporter"/>
  		<property name="updateProfCompanyOrgid">
  			<value>
  				update
@@ -296,6 +297,7 @@
     <!-- ********************************************************************************** --> 
  	<bean id="newAccountIdWriter" class="com.sorrisotech.fffc.batch.reimport.account.AccountNumWriter">
  		<property name="dataSource" ref="dataSource"/>
+ 		<property name="reporter" ref="reporter"/>
  		<property name="insertProfCompanyOrgid">
  			<value>
  				insert into PROF_COMPANY_ORGID(
@@ -405,6 +407,33 @@
  		</property>
  	</bean>
 
+	<bean id="reporter" class="com.sorrisotech.fffc.batch.reimport.report.Reporter">
+		<property name="dataSource" ref="dataSource"/>
+		<property name="profCompanyOrgid">
+			<value>select companyid, orgid from prof_company_orgid where orgid in (@VALUES@) order by companyid</value>
+		</property>
+		<property name="profCompanyAccount">
+			<value>select company_id, account_id, start_date, end_date from prof_company_account where company_id = :companyId order by id</value>
+		</property>
+		<property name="tmAccount">
+			<value>select account_number, account_number_display, start_date, end_date, account_name, company_id, org_id from tm_account where org_id in (@VALUES@) order by id</value>
+		</property>
+		
+		<property name="pmtGrouping">
+			<value>select online_trans_id, internal_account_number, display_account_number from pmt_grouping where display_account_number = :display order by online_trans_id</value>
+		</property>
+		<property name="pmtAutomaticGrouping">
+			<value>select automatic_id, internal_account_number, display_account_number from pmt_automatic_grouping where display_account_number = :display order by automatic_id</value>
+		</property>
+		<property name="pmtAutomaticDocuments">
+			<value>select internal_account_number, document_number, status from pmt_automatic_documents where internal_account_number in (@VALUES@)  order by document_number</value>
+		</property>
+		<property name="bill">
+			<value>select bill_id, account, bill_date, invoice_number from bill where account IN (@VALUES@)  order by bill_date, invoice_number</value>
+		</property>
+				
+	</bean>
+	
 	<!-- ********************************************************************************** -->
     <!-- **** Notification tasklet used to send out notification(s) informing           *** --> 
     <!-- **** successful completion of the job.                                         *** -->
