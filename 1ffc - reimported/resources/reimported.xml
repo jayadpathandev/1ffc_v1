@@ -238,6 +238,26 @@
  					org_id = :oldOrgId;
  			</value>
  		</property>
+ 		<property name="updateTmTags">
+ 			<value>
+				update tm_tags set
+					value = :newOrgId
+				where
+					tm_tags.category_id = (
+						select id from tm_categories where name='orgId' and type='S'
+					) and
+					tm_tags.id in (
+						select 
+							tm_tagged_accounts.tag_id
+						from 
+							tm_tagged_accounts, tm_account
+						where
+							tm_tagged_accounts.account_id = tm_account.id and		
+							tm_tagged_accounts.end_date is null and
+							tm_account.org_id = :newOrgId
+					)
+ 			</value>
+ 		</property>
  	</bean>
 
     <!-- ********************************************************************************** -->

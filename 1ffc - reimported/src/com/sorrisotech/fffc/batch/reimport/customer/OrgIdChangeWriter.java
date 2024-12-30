@@ -61,6 +61,11 @@ public class OrgIdChangeWriter
 	private String mUpdateTmAccount = null;
 
 	/**************************************************************************
+	 * SQL to update records in TM_TAGS.
+	 */
+	private String mUpdateTmTags = null;
+	
+	/**************************************************************************
 	 * Class to report the database state
 	 */
 	private Reporter mReporter = null;
@@ -160,6 +165,33 @@ public class OrgIdChangeWriter
 			newId + "]."
 			);
 	}
+
+	/**************************************************************************
+	 * Update TM_TAGS to the new orgID.
+	 * 
+	 * @param change  The change we are processing.
+	 * 
+	 * @return  True if everything is good, otherwise false.
+	 */
+	private void updateTmTags(
+			final OrgIdChange change
+			) {
+		final var params = new HashMap<String, Object>();
+		final var oldId  = change.mOldOrgId;
+		final var newId  = change.mNewOrgId;
+		
+		params.put("newOrgId", newId);
+							
+		final var updates = getNamedParameterJdbcTemplate().update(
+			mUpdateTmTags,
+			params
+			);
+		LOG.info(
+			"TM_TAGS - Updated [" + updates + 
+			"] records from ORG_ID [" + oldId + "] to [" +
+			newId + "]."
+			);
+	}
 	
 	/**************************************************************************
 	 * Process the changes for a re-imported account.
@@ -180,6 +212,7 @@ public class OrgIdChangeWriter
 					deleteProfCompanyAccount(change);
 				}
 				updateTmAccount(change);
+				updateTmTags(change);
 			} finally {
 				mReporter.afterOrgChange(change.mCompanyId, change.mOldOrgId, change.mNewOrgId);
 			}
@@ -218,6 +251,17 @@ public class OrgIdChangeWriter
 			final String sql
 			) {
 		mUpdateTmAccount = sql;
+	}
+
+	/**************************************************************************
+	 * Set the SQL to update records from TM_TAGS.
+	 * 
+	 * @param sql  The SQL command to save
+	 */
+	public void setUpdateTmTags(
+			final String sql
+			) {
+		mUpdateTmTags = sql;
 	}
 	
 	/**************************************************************************
