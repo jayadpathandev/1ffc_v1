@@ -223,7 +223,8 @@ useCase apiStartPaymentForAgent
 			customerId accountId
 	   	]
 		Log.^success("startPaymentForAgent", customerId, accountId, "Success")
-		
+
+		logout()
 	    foreignHandler JsonResponse.send()
 	]
 
@@ -243,6 +244,7 @@ useCase apiStartPaymentForAgent
 	    ]
 		Log.error("startPaymentForAgent", customerId, accountId, sErrorDesc)
 
+		logout()
 		foreignHandler JsonResponse.errorWithData(sErrorStatus)
     ]
 
@@ -262,6 +264,7 @@ useCase apiStartPaymentForAgent
 	   	]
 		Log.error("startPaymentForAgent", customerId, accountId, "Invalid security token.")
 
+		logout()
 		foreignHandler JsonResponse.errorWithData("401")
     ]
 
@@ -281,6 +284,7 @@ useCase apiStartPaymentForAgent
 	   	]
 		Log.error("startPaymentForAgent", customerId, accountId, "Account ID does not belong to Customer ID.")
 
+		logout()
 		foreignHandler JsonResponse.errorWithData("400")
     ]
     

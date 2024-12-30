@@ -24,6 +24,7 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -150,5 +151,42 @@ public class UcPaymentUtils {
 		if (mAmount == null)
 			throw new RuntimeException("No amount set.");
 		value.putValue(mAmount.toString());
+	}
+	
+	/**************************************************************************
+	 * Checks if the wallet Expire before payment
+	 * 
+	 * @param szSourceExpiry
+	 * @return "true", "false" or "error"
+	 */
+	public String willWalletExpireBeforePayDate(final String szSourceExpiry) {
+		String szResult = "false";
+		
+		if (szSourceExpiry.isEmpty()) return szResult;
+		
+		try {
+			if (szSourceExpiry != null && !szSourceExpiry.isEmpty()) {
+				SimpleDateFormat cFormat = new SimpleDateFormat("MM/yyyy");
+				cFormat.setLenient(false); // for strict date formatting
+				
+				Date cExpDate = cFormat.parse(szSourceExpiry);
+				Calendar cExpCal = Calendar.getInstance();
+				cExpCal.setTime(cExpDate);
+				cExpCal.set(Calendar.DAY_OF_MONTH, cExpCal.getActualMaximum(Calendar.DAY_OF_MONTH)); // Set to the end of the month
+
+				Calendar cPayDateCal = this.mDate;
+				
+				// Wallet expires before the payment date
+				if (cExpCal.before(cPayDateCal)) {
+	                szResult = "true"; 
+	            }
+				
+			}
+		} catch (Exception e) {
+			LOG.error("UcPaymentUtils.....willWalletExpireBeforePayDate()...An exception was thrown", e);
+			szResult = "error";
+		}
+		
+		return szResult;
 	}
 }

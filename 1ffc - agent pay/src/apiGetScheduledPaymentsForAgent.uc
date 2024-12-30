@@ -168,6 +168,7 @@ useCase apiGetScheduledPaymentsForAgent
 	   	]
 		Log.^success("getScheduledPaymentsForAgent", customerId, accountId, "Success")
 		
+		logout()
 	    foreignHandler JsonResponse.send(srGetScheduledPay.scheduledPayments)
 	]
 
@@ -186,6 +187,7 @@ useCase apiGetScheduledPaymentsForAgent
 	    ]
 		Log.error("getScheduledPaymentsForAgent", customerId, accountId, sErrorDesc)
 
+		logout()
 		foreignHandler JsonResponse.errorWithData(sErrorStatus)
     ]
 
@@ -204,6 +206,7 @@ useCase apiGetScheduledPaymentsForAgent
 	   	]
 		Log.error("getScheduledPaymentsForAgent", customerId, accountId, "Invalid security token.")
 
+		logout()
 		foreignHandler JsonResponse.errorWithData("401")
     ]
     
@@ -222,6 +225,7 @@ useCase apiGetScheduledPaymentsForAgent
 	   	]
 		Log.error("startPaymentForAgent", customerId, accountId, "Account ID does not belong to Customer ID.")
 
+		logout()
 		foreignHandler JsonResponse.errorWithData("400")
     ]
 ]

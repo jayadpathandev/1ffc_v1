@@ -325,6 +325,7 @@ useCase apiAddMigrationPaymentSource
 	    ]
 		Log.^success("addMigrationPaymentSource", sCustomerId, sAccountId, "the specified payment source is added.")
 
+		logout()
 		foreignHandler JsonResponse.sendStatus("201")	 	
 	 ]
 
@@ -340,6 +341,7 @@ useCase apiAddMigrationPaymentSource
 	    ]
 		Log.error("addMigrationPaymentSource", sCustomerId, sAccountId, "Invalid security token.")
 		
+		logout()
 		foreignHandler JsonResponse.errorWithData("401")
     ]
     
@@ -355,6 +357,7 @@ useCase apiAddMigrationPaymentSource
 	    ]
 		Log.error("addMigrationPaymentSource", sCustomerId, sAccountId, "Invalid request parameter.")
 		
+		logout()
 		foreignHandler JsonResponse.errorWithData(sErrorStatus)
     ]
     
@@ -370,6 +373,7 @@ useCase apiAddMigrationPaymentSource
 	    ]
 		Log.error("addMigrationPaymentSource", sCustomerId, sAccountId, "Internal software error.")
 		
+		logout()
 		foreignHandler JsonResponse.errorWithData("402")
     ]
     

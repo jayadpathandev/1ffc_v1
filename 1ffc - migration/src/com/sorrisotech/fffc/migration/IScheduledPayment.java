@@ -55,6 +55,13 @@ public interface IScheduledPayment {
 	public String getPayDate();
 	
 	/**
+	 * Is the payment date set to today
+	 * 
+	 * @return true if is today
+	 */
+	public Boolean isPayDateToday();
+	
+	/**
 	 * Gets the payment acount information from
 	 * that will be used for this payment
 	 * 
