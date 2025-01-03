@@ -23,6 +23,7 @@
  */
 package com.sorrisotech.fffc.batch.reimport.customer;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 
@@ -32,6 +33,7 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcDaoSupport;
 
 import com.sorrisotech.fffc.batch.reimport.report.Reporter;
+import com.sorrisotech.fffc.batch.reimport.sanity.Check;
 
 /**************************************************************************************************
  * Update all the changes required in the database to change the account ID for an account number.
@@ -64,6 +66,16 @@ public class OrgIdChangeWriter
 	 * SQL to update records in TM_TAGS.
 	 */
 	private String mUpdateTmTags = null;
+
+	/**************************************************************************
+	 * SQL to check if a company exists even through we were not given one.
+	 */
+	private String mCheckIfCompanyExists = null;
+	
+	/**************************************************************************
+	 * Class to perform a sanity check on the company.
+	 */
+	private Check mSanity = null;
 	
 	/**************************************************************************
 	 * Class to report the database state
@@ -192,6 +204,30 @@ public class OrgIdChangeWriter
 			newId + "]."
 			);
 	}
+
+	/**************************************************************************
+	 * See if a company_id actually exists.
+	 * 
+	 * @param orgId  The OLD org id.
+	 * 
+	 * @return  The companyId if found.
+	 */
+	private BigDecimal checkForCompany(
+			final String orgId
+			) {
+		final var params = new HashMap<String, Object>();
+		params.put("oldOrgId", orgId);
+		
+		var list = this.getNamedParameterJdbcTemplate().queryForList(
+				mCheckIfCompanyExists,
+				params,
+				BigDecimal.class
+				);
+		if (list.size() != 1) {
+			return null;
+		}
+		return list.get(0);
+	}
 	
 	/**************************************************************************
 	 * Process the changes for a re-imported account.
@@ -210,9 +246,19 @@ public class OrgIdChangeWriter
 				if (change.mCompanyId != null) {
 					updateProfCompanyOrgid(change);
 					deleteProfCompanyAccount(change);
-				}
+				} 
 				updateTmAccount(change);
 				updateTmTags(change);
+				
+				BigDecimal companyId = change.mCompanyId;
+				
+				if (companyId == null) {
+					companyId = checkForCompany(change.mOldOrgId);					
+				}
+				mSanity.verifyCompany(
+						change.mNewOrgId,
+						companyId
+						);
 			} finally {
 				mReporter.afterOrgChange(change.mCompanyId, change.mOldOrgId, change.mNewOrgId);
 			}
@@ -263,6 +309,28 @@ public class OrgIdChangeWriter
 			) {
 		mUpdateTmTags = sql;
 	}
+
+	/**************************************************************************
+	 * Set the SQL to check if a company exists for the old org_id.
+	 * 
+	 * @param sql  The SQL command to save
+	 */
+	public void setCheckIfCompanyExists(
+			final String sql
+			) {
+		mCheckIfCompanyExists = sql;
+	}
+
+	/**************************************************************************
+	 * Set the class to do a sanity check on the company.
+	 * 
+	 * @param sanity  The class to sanity check the company.
+	 */
+	public void setSanityCheck(
+			final Check sanity
+			) {
+		mSanity = sanity;
+	}	
 	
 	/**************************************************************************
 	 * Set the class to report the database state.
