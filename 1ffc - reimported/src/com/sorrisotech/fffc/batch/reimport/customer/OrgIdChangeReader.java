@@ -150,25 +150,31 @@ public class OrgIdChangeReader
 				);			
 		}
 		
-		OrgIdChange retval = null;
+		while (mTodo.isEmpty() == false) {
+			OrgIdChange retval = mTodo.removeFirst();
+			
+			if (retval.mNewOrgId.compareTo(retval.mOldOrgId) > 0) {
+				LOG.info(
+					"Processing change for " +
+					(mRegistered ? "registered" : "unregistered") +
+					" account(s) from ORG_ID [" + retval.mOldOrgId + 
+					"] to [" + retval.mNewOrgId + "].");
+				return retval;
+			} else {
+				LOG.info(
+					"Skipping " + retval.mOldOrgId + " to " +
+					retval.mNewOrgId + "because new ORG ID is lower."
+					);
+			}
+		}
 		
-		if (mTodo.isEmpty() == false) {
-			retval = mTodo.removeFirst();
-
-			LOG.info(
-				"Processing change for " +
-				(mRegistered ? "registered" : "unregistered") +
-				" account(s) from ORG_ID [" + retval.mOldOrgId + 
-				"] to [" + retval.mNewOrgId + "].");
-		} else {
-			LOG.info(
-				"Finished processing reimported ORG_IDs for " +
-				(mRegistered ? "registered" : "unregistered") +
-				" accounts."
-				);
-		}	
+		LOG.info(
+			"Finished processing reimported ORG_IDs for " +
+			(mRegistered ? "registered" : "unregistered") +
+			" accounts."
+			);
 		
-		return retval;
+		return null;
 	}
 
 	/**************************************************************************
