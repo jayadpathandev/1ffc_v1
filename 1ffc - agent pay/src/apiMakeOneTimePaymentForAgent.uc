@@ -25,6 +25,7 @@ useCase apiMakeOneTimePaymentForAgent
 	native volatile string sCustomerId   = ApiPay.customerId()
 	native volatile string sAccountId    = ApiPay.accountId()
 	native volatile string sHasPaySource = ApiPay.hasWallet()
+	native volatile string sPayTransactionType  = ApiPay.payTransactionType()
 	native string flexDefinition = Config.get("1ffc.flex.definition")
 	
 	native string sStatus
@@ -155,10 +156,24 @@ useCase apiMakeOneTimePaymentForAgent
     	sErrorCode   = "invalid_transaction_id"
 
 		switch ApiPay.load(sTransactionId) [
-			case "true" verifyWalletSelected
+			case "true" verifyPayTransactionType
 			default	actionFailure
 		]
 	]
+	
+	/*************************
+	 * 7a. Action verify the correct payTransactionType was provided.
+	 */
+    action verifyPayTransactionType [
+    	sErrorStatus = "210"
+    	sErrorDesc   = "Payment transaction type (method) was set to 'automatic' instead of 'oneTime' when starting the payment."
+    	sErrorCode   = "payment_method_automatic"
+
+    	if sPayTransactionType == "oneTime" then 
+    		verifyWalletSelected
+    	else
+    		actionFailure 
+    ]
 	
  	/*************************
 	 * 7a. Verify a wallet item was selected.

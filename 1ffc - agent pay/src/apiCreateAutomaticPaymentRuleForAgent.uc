@@ -25,6 +25,7 @@ useCase apiCreateAutomaticPaymentRuleForAgent
 	native volatile string sIsOneTime  = ApiPay.isOneTime()
 	native volatile string sDecodeCode = Automatic.errorCode()
 	native volatile string sDecodeText = Automatic.errorText()
+	native volatile string sPayTransactionType  = ApiPay.payTransactionType()
 
 	native string sErrorStatus
 	native string sErrorDesc
@@ -153,10 +154,24 @@ useCase apiCreateAutomaticPaymentRuleForAgent
     	sErrorCode   = "invalid_transaction_id"
 
 		switch ApiPay.load(sTransactionId) [
-			case "true" verifyWalletSelected
+			case "true" verifyPayTransactionType
 			default	actionFailure
 		]
-	]	
+	]
+	
+	 /*************************
+	 * 8a. Action verify the correct payTransactionType was provided.
+	 */
+    action verifyPayTransactionType [
+    	sErrorStatus = "210"
+    	sErrorDesc   = "Payment transaction type (method) was set to 'oneTime' instead of 'automatic' when starting the payment."
+    	sErrorCode   = "payment_method_oneTime"
+
+    	if sPayTransactionType == "automatic" then 
+    		verifyWalletSelected
+    	else
+    		actionFailure 
+    ]	
 
  	/*************************
 	 * 8a. Verify a wallet item was selected.
@@ -340,8 +355,8 @@ useCase apiCreateAutomaticPaymentRuleForAgent
 	 
 	 action checkForCardExpiration [
 		sErrorStatus = "400"
-    	sErrorDesc   = "The payment method will expire before the payment date. Please schedule the payment before the expiration date, or update your payment method's expiration date."
-    	sErrorCode   = "wallet_will_expire"
+    	sErrorDesc   = "Payment source not valid."
+    	sErrorCode   = "payment_method_expires_before_first_payment"
     	
 		switch Automatic.willWalletExpireBeforePayDate(sDateRule, srGetWalletInfoResult.SOURCE_EXPIRY) [
 			case "true" actionFailure

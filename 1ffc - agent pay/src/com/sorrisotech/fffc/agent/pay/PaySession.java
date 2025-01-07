@@ -23,6 +23,7 @@ public class PaySession {
 	private String         mWalletToken = "";
 	private boolean        mAchEnabled = true;
 	private String         mWalletDefault;
+	private String         mPayTransactionType;
 	
 	public  enum		   PayStatus {
 								created,
@@ -239,5 +240,13 @@ public class PaySession {
 	}
 	public boolean isAchEnabled() {
 		return mAchEnabled;
+	}
+	
+	// ************************************************************************
+	public void payTransactionType(final String value) {
+		mPayTransactionType = value;
+	}
+	public String payTransactionType() {
+		return mPayTransactionType;
 	}
 }
