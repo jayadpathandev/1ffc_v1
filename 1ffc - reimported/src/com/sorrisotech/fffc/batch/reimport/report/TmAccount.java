@@ -31,7 +31,7 @@ public class TmAccount implements RowMapper<TmAccount.Record> {
 		retval.endDate              = set.getBigDecimal(4);
 		retval.accountName          = set.getString(5);
 		retval.companyId            = set.getBigDecimal(6);
-		retval.orgId                = set.getString(6);
+		retval.orgId                = set.getString(7);
 
 		return retval;
 	}

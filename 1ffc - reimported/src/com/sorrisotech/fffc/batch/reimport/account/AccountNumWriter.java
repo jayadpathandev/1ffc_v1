@@ -33,6 +33,7 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcDaoSupport;
 
 import com.sorrisotech.fffc.batch.reimport.report.Reporter;
+import com.sorrisotech.fffc.batch.reimport.sanity.Check;
 
 /**************************************************************************************************
  * Update all the changes required in the database to change the account ID for an account number.
@@ -95,6 +96,11 @@ public class AccountNumWriter
 	 * SQL to update records in FFFC_TRANSACTIONS.
 	 */
 	private String mUpdateFffcTransactions = null;
+	
+	/**************************************************************************
+	 * Class to perform a sanity check on the company.
+	 */
+	private Check mSanity = null;
 	
 	/**************************************************************************
 	 * Class to report the DB state before an after changes.
@@ -494,6 +500,12 @@ public class AccountNumWriter
 				updatePmtAutomaticGrouping(change);
 				updatePmtAutomaticDocuments(change);
 				updateFffcTransactions(change);
+				
+				var companyId = change.getCompanyId();						
+				if (companyId != null) {
+					mSanity.verifyCompany(change.getNewOrgId(),  companyId);
+				}
+				
 			} finally {
 				mReporter.afterAccountChange(
 					change.getCompanyId(),
@@ -617,6 +629,17 @@ public class AccountNumWriter
 			) {
 		mUpdateFffcTransactions = sql;
 	}
+	
+	/**************************************************************************
+	 * Set the class to do a sanity check on the company.
+	 * 
+	 * @param sanity  The class to sanity check the company.
+	 */
+	public void setSanityCheck(
+			final Check sanity
+			) {
+		mSanity = sanity;
+	}	
 	
 	/**************************************************************************
 	 * Set the class to report the database state.
