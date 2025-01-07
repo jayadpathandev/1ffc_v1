@@ -199,6 +199,7 @@ useCase apiStartPaymentForAgent
 		ApiPay.setTransactionStarted(id)
 		ApiPay.setCustomerId(customerId)
 		ApiPay.setAccountId(accountId)
+		ApiPay.setPayTransactionType(paymentTransactionType)
 		ApiPay.setAccountNumber(srStart.accountNumber)
 		ApiPay.setInvoice(srStart.invoice)
 		ApiPay.setPayGroup(srStart.payGroup)

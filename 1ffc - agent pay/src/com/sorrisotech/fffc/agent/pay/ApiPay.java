@@ -163,7 +163,20 @@ public class ApiPay implements IExternalReuse {
 			return "false";
 		}
 		return "true";
-	}	
+	}
+	
+	// *************************************************************************
+	public void setPayTransactionType(final String value) {
+		if (mCurrent == null)
+			throw new RuntimeException("There is no current session.");
+		mCurrent.payTransactionType(value);
+	}
+	
+	public String payTransactionType() {
+		if (mCurrent == null)
+			throw new RuntimeException("There is no current session.");
+		return mCurrent.payTransactionType();
+	}
 
 	//*************************************************************************
 	public void disableAch() {
