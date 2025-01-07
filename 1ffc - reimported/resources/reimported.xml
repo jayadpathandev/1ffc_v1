@@ -209,6 +209,8 @@
  	<bean id="newIdWriter" class="com.sorrisotech.fffc.batch.reimport.customer.OrgIdChangeWriter">
  		<property name="dataSource" ref="dataSource"/>
  		<property name="reporter" ref="reporter"/>
+ 		<property name="sanityCheck" ref="sanityCheck"/>
+ 		
  		<property name="updateProfCompanyOrgid">
  			<value>
  				update
@@ -238,6 +240,36 @@
  					org_id = :oldOrgId;
  			</value>
  		</property>
+ 		<property name="updateTmTags">
+ 			<value>
+				update tm_tags set
+					value = :newOrgId
+				where
+					tm_tags.category_id = (
+						select id from tm_categories where name='orgId' and type='S'
+					) and
+					tm_tags.id in (
+						select 
+							tm_tagged_accounts.tag_id
+						from 
+							tm_tagged_accounts, tm_account
+						where
+							tm_tagged_accounts.account_id = tm_account.id and		
+							tm_tagged_accounts.end_date is null and
+							tm_account.org_id = :newOrgId
+					)
+ 			</value>
+ 		</property>
+ 		<property name="checkIfCompanyExists">
+ 			<value>
+ 				select
+ 					companyid
+ 				from
+ 					prof_company_orgid
+ 				where
+ 					orgid = :oldOrgId
+ 			</value>
+ 		</property> 		
  	</bean>
 
     <!-- ********************************************************************************** -->
@@ -298,6 +330,7 @@
  	<bean id="newAccountIdWriter" class="com.sorrisotech.fffc.batch.reimport.account.AccountNumWriter">
  		<property name="dataSource" ref="dataSource"/>
  		<property name="reporter" ref="reporter"/>
+ 		<property name="sanityCheck" ref="sanityCheck"/>
  		<property name="insertProfCompanyOrgid">
  			<value>
  				insert into PROF_COMPANY_ORGID(
@@ -432,6 +465,68 @@
 			<value>select bill_id, account, bill_date, invoice_number from bill where account IN (@VALUES@)  order by bill_date, invoice_number</value>
 		</property>
 				
+	</bean>
+	
+	<bean id="sanityCheck" class="com.sorrisotech.fffc.batch.reimport.sanity.Check">
+		<property name="dataSource" ref="dataSource"/>
+		
+		<property name="queryTmAccount">
+			<value>
+				select 
+					id, account_number, end_date, company_id
+				from
+					tm_account
+				where
+					org_id = :newOrgId and
+				    bill_group = '1FFC-ea0f1923-255f-4f12-a603-16a1ed4f950c'
+			</value>
+		</property>
+		<property name="fixTmAccount">
+			<value>
+				update tm_account set
+					company_id = :companyId,
+					end_date   = null
+				where
+					id = :accountId
+			</value>
+		</property>
+		<property name="queryProfCompanyAccount">
+			<value>
+				select 
+					id, account_id, start_date, end_date
+				from
+					prof_company_account
+				where
+					company_id = :companyId					 
+			</value>
+		</property>		
+		<property name="fixProfCompanyAccount">
+			<value>
+				update prof_company_account set
+					end_date   = null,
+					start_date = :startDate
+				where
+					id = :id
+			</value>
+		</property>
+		<property name="queryProfCompanyOrgId">
+			<value>
+				select 
+					orgid
+				from
+					prof_company_orgid
+				where
+					companyid = :companyId					 
+			</value>
+		</property>		
+		<property name="fixProfCompanyOrgId">
+			<value>
+				update prof_company_orgid set
+					orgid = :newOrgId
+				where
+					companyid = :companyId
+			</value>
+		</property>
 	</bean>
 	
 	<!-- ********************************************************************************** -->
