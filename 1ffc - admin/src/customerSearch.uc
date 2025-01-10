@@ -72,7 +72,10 @@ useCase customerSearch [
 	
 	serviceStatus status
 	serviceParam(Notifications.SetUserAddress) setData
+	serviceParam(Notifications.GetContactSettings) getContactData
+	serviceResult(Notifications.GetContactSettings) getContactResponse
 	serviceParam(FffcNotify.SetUserAddressNls) setDataFffc
+	serviceParam(FffcNotify.SetContactSettingsNls) setTopicFffc
 	serviceParam (Profile.AddLocationTrackedEvent) setLocationData
 	serviceResult (Profile.AddLocationTrackedEvent) setLocationResp
 	
@@ -226,6 +229,11 @@ useCase customerSearch [
     string sReset2FAMessageQue = "{Are you sure that you want to disable Multi-Factor Authentication for Login for this user?}"
     string sReset2FAMessageDesc = "{Please press 'Submit' button to disable Multi-Factor Authentication for Login Security option, press 'Cancel' to go back to search screen.}"
     
+    structure(message) oMsgResetTopicPreferencesAtNlsSuccess [
+        string(title) sTitle = "{The topic preferences reset at NLS success.}"
+        volatile string (body) sBody = "{The topic preferences have been reset successfully in the NLS.}"
+    ]
+    
     string resetPasswordFlag = "false"
         
     table tUserList = UcConsumerSearchAction.getTable() [
@@ -297,6 +305,11 @@ useCase customerSearch [
         link "{Reset Multi-Factor Authentication for Login Security Option}" reset2FAOption(reset2FAOptionPopin) [
             sSelectedUserId: sUserId                
         ]
+        
+        link "{Reset Topic Preferences}" resetTopicPreferences(resetTopicPreference) [
+            sSelectedUserId: sUserId                          
+            sSelectedCustomerId: sCustomerId               
+        ]
 
         column customerIdColumn("{Customer Id}") [
             elements: [sCustomerId ]
@@ -355,6 +368,8 @@ useCase customerSearch [
            		reset2FAOption: [
            			^type: "popin"
            		]
+           		
+           		resetTopicPreferences
            ]
        ]  
     ]
@@ -1153,6 +1168,35 @@ useCase customerSearch [
         ]
     ]
     
+    /* 44. Reset topic preference. */
+    action resetTopicPreference [
+    	goto (getDefaultContactPrefSetting)
+    ]
+    
+	/* 45. Getting default contact preferences setting from database. */
+    action getDefaultContactPrefSetting [ 
+    	getContactData.userid = sSelectedUserId
+    	switch apiCall Notifications.GetContactSettings(getContactData, getContactResponse, status) [
+		    case apiSuccess saveNotificationAtNls
+		    default genericErrorMsg
+		]   
+    ]
+    
+    /* 46. Send contact preferences setting to NLS. */
+    action saveNotificationAtNls [
+    	setTopicFffc.customerId = sSelectedCustomerId
+    	setTopicFffc.jsonConfig = getContactResponse.jsonConfig
+    	switch apiCall FffcNotify.SetContactSettingsNls(setTopicFffc, status) [
+    		case apiSuccess resetTpoicAtNlsSuccessMsg
+    		default genericErrorMsg
+    	]
+    ]
+    
+    /* 47. Send contact preferences update success message. */
+    action resetTpoicAtNlsSuccessMsg [
+        displayMessage(type: "success" msg: oMsgResetTopicPreferencesAtNlsSuccess)
+        goto(customerSearchScreen)
+    ] 
     
     /*************************
      * EXTENSION SCENARIOS
