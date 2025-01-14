@@ -313,7 +313,7 @@ useCase apiUpdateScheduledPaymentForAgent
 	    auditLog(audit_agent_pay.make_one_time_payment_for_agent_bad) [
 	   		paymentId payDate payAmount
 	    ]
-		Log.error("updateScheduledPaymentForAgent", paymentId, payDate, payAmount, "Invalid security token.")
+		Log.warn("updateScheduledPaymentForAgent", paymentId, payDate, payAmount, "Invalid security token.")
 		
 		logout()
 		foreignHandler JsonResponse.errorWithData("401")

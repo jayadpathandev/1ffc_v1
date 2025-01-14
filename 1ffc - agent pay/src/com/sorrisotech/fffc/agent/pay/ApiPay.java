@@ -713,6 +713,11 @@ public class ApiPay implements IExternalReuse {
 			lSession = mSessions.get(id);
 		}
 		
+		if (null == lSession) {
+			LOG.warn("Failed to obtain session for transaction id: {}", id);
+			return "false";
+		}
+			
 		lSession.setStatus(ceStatus);
 		return "true";
 	}

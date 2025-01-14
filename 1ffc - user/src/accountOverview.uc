@@ -71,6 +71,9 @@ useCase accountOverview [
     * 									this is a new account. Removed lots of "dead" code from the
     * 									"core" product so this doen'st have code for invoice mode.
     * 		2.5 2024-Apr-28		JAK	fixed defect where a transitioned new bill didn't check bill age
+    *       2.5.01 2024-Dec-13	JAK we honored disabledEconsent in action switchViewStatus when we
+    * 								could have arrived here after that status was fixed but not yet
+    * 							    arrived in an updated status file.	
     */
 
     documentation [
@@ -289,6 +292,7 @@ useCase accountOverview [
     
     native string sLocalAccountStatus = "enabled" 						// -- this is work around to a "defect?" in persona.  API return structures appear to be
     											  						// 		appear to be immutable even though we can "assign a new value"... the 
+    native string sLocalViewAccountStatus = "enabled"							// -- the local view status for this account --
     											  						//		    structure doesn't seem to get that new value . --
     native string bLocalPaymentEnabled = "false" 						// -- System calculates whether payment is enabled and sets this variable 
     																	// 		accordingly. System passes this variable to the template to minimize
@@ -355,26 +359,32 @@ useCase accountOverview [
  		sLocalAccountStatus = srGetStatusResult.accountStatus
  		sStatusLocalDateTime = srGetStatusResult.lastUpdateTimestamp
  		sStatusLocalAmountDue = srGetStatusResult.currentAmountDue
- 		
+ 		sLocalViewAccountStatus = srGetStatusResult.viewAccount
  		monthlyPaymentAmount= srMonthlyPmtAmountResult.monthlyPaymentAmount
  		goto (switchOnViewStatus)
  	]
  	
  	/**
  	 * A3. System determines if user can view the bill. If they can't then system will use the NoBillTemplate...
- 	* 				 and it will	have viewAccount disabled so get that sorted
+ 	 * 				 and it will	have viewAccount disabled so get that sorted
+ 	 * 				 if we got here with disabledEConsent we that's ok... it would have been 
+ 	 * 				 caught earlier and the user would have enabled eConsent... the status
+ 	 * 				 just isn't up to date.
  	 */
  	action switchOnViewStatus [
- 		switch srGetStatusResult.viewAccount [
+ 		switch sLocalViewAccountStatus [
  			case "enabled" 	switchOnAccountStatus
+ 			case "disabledEconsent" switchOnAccountStatus
  			default			setNoBillTemplate
  		]
  	]
  
+
  	/**
  	 * A4. System determines if this is a new or closed account, that's another reason for using  the NoBillTemplate.
  	 */	
  	action switchOnAccountStatus [
+		sLocalViewAccountStatus = "enabled"
  		switch srGetStatusResult.accountStatus [
  			case "activeAccount"	checkActiveAccountNoBills
  			case "newAccount" 		checkForTransition
@@ -512,7 +522,7 @@ useCase accountOverview [
 		FtlTemplate.setItemValue(sActiveTemplate, sStatusGrp, "bPayEnabled", 	 "boolean", bLocalPaymentEnabled)
 		FtlTemplate.setItemValue(sActiveTemplate, sStatusGrp, "paymentEnabled", "string", srGetStatusResult.paymentEnabled)
 		FtlTemplate.setItemValue(sActiveTemplate, sStatusGrp, "achEnabled",     "string", srGetStatusResult.achEnabled)
-		FtlTemplate.setItemValue(sActiveTemplate, sStatusGrp, "viewAccount",    "string", srGetStatusResult.viewAccount)
+		FtlTemplate.setItemValue(sActiveTemplate, sStatusGrp, "viewAccount",    "string", sLocalViewAccountStatus)
 		FtlTemplate.setItemValue(sActiveTemplate, sStatusGrp, "accountBalance", "number", srGetStatusResult.accountBalance)
 		FtlTemplate.setItemValue(sActiveTemplate, sStatusGrp, "dueDate", "dateDb", srGetStatusResult.paymentDueDate)
 		FtlTemplate.setItemValue(sActiveTemplate, sStatusGrp, "amtOverdue", "number", curOverdueAmt)

@@ -28,11 +28,11 @@ import { fffc } from './1ffc';
 import { bill } from './elements/bill';
 import { highlightRecentBills } from './elements/document_search';
 import { one_time_payment } from './elements/one_time_payment';
+import { payment_history } from './elements/payment_history';
 import { scheduled_payment } from './elements/scheduled_payment';
 import { UserProfile } from './elements/user_profile';
 import { payment_wallet } from './elements/wallet';
 import { zingcharts } from './elements/zingcharts';
-import { payment_history } from './elements/payment_history';
 
 //*****************************************************************************
 // This method any special elements that need to be transformed into a react
@@ -63,12 +63,19 @@ export default function user_elements(
     highlightRecentBills(parent);
     payment_history(parent);
 
-    // remove the migrated token from the wallet dropdown
-    $('select[name="dWalletItems"] option').each(function() {
-        if ($(this).text().trim().startsWith('Migrated token')) {
-            $(this).remove();
-        }
-    });
+    const $walletDropdown = $('select[name="dWalletItems"]');
+
+    // Remove the migrated token options and select the first remaining option
+    $walletDropdown
+        .find('option')
+        .filter(function() {
+            return $(this).text().trim().startsWith('Migrated token');
+        })
+        .remove();
+
+    $walletDropdown
+        .find('option:first').prop('selected', true)
+        .trigger('change');
 
     // removing all the migrated token from the wallet list
     $('#paymentWallet_tPaymentWalletTable tbody tr').each(function() {
@@ -76,5 +83,5 @@ export default function user_elements(
         if (nameSpan.length && nameSpan.text().trim().startsWith('Migrated token')) {
             $(this).remove();
         }
-    });
+    }).trigger('change');
 }

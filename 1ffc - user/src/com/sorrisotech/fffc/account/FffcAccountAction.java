@@ -59,6 +59,14 @@ import com.sorrisotech.uc.payment.UcPaymentAction;
 
 public class FffcAccountAction implements IExternalReuse {
 	
+	private static final String QUEUED_POSTED = "queued-posted";
+
+	private static final String POSTED = "posted";
+
+	private static final String PROCESSING = "processing";
+
+	private static final String PAY_STATUS = "PAY_STATUS";
+
 	/***************************************************************************
 	 * Serial version UID
 	 */
@@ -102,6 +110,16 @@ public class FffcAccountAction implements IExternalReuse {
 			
 			for (int i = 0; i < cDataTable.getTotalRows(); i++) {
 				ITable2RowData      cRow       = cDataTable.getRow(i);
+				
+				final String szPayStatus = cRow.getDataValue(PAY_STATUS);
+				if ("queued".equalsIgnoreCase(szPayStatus)) {
+					cRow.setDataValue(PAY_STATUS, PROCESSING);
+				} else if (QUEUED_POSTED.equalsIgnoreCase(szPayStatus)) {
+					cRow.setDataValue(PAY_STATUS, POSTED);
+				} else if (PROCESSING.equalsIgnoreCase(szPayStatus)) {
+					cRow.setDataValue(PAY_STATUS, POSTED);
+				}
+				
 				Map<Object, Object> mData      = cRow.getDataValues();
 				ArrayNode           cJsonArray = (ArrayNode) m_cObjectMapper
 				        .readTree((String) mData.get("GROUPING_JSON"));
@@ -223,6 +241,15 @@ public class FffcAccountAction implements IExternalReuse {
 				
 				String szSourceName = cRow.getDataValue("PAY_FROM_ACCOUNT");
 				String szSourceType = cRow.getDataValue("PAY_SOURCE_TYPE");
+				
+				final String szPayStatus = cRow.getDataValue(PAY_STATUS);
+				if ("queued".equalsIgnoreCase(szPayStatus)) {
+					cRow.setDataValue(PAY_STATUS, PROCESSING);
+				} else if (QUEUED_POSTED.equalsIgnoreCase(szPayStatus)) {
+					cRow.setDataValue(PAY_STATUS, POSTED);
+				} else if (PROCESSING.equalsIgnoreCase(szPayStatus)) {
+					cRow.setDataValue(PAY_STATUS, POSTED);
+				}
 				
 				// i18n Payment Type
 				if (szSourceType != null && szSourceType.equalsIgnoreCase("bank")) {
@@ -487,7 +514,7 @@ public class FffcAccountAction implements IExternalReuse {
 			HashMap<String, Object> cMap = new HashMap<String, Object>();
 			cMap.put("PAY_DATE", szPayDate);
 			cMap.put("PAY_REQ_DATE", szPayReqDate);
-			cMap.put("PAY_STATUS", szPayStatus);
+			cMap.put(PAY_STATUS, szPayStatus);
 			cMap.put("PAY_FROM_ACCOUNT", szPayFromAccount);
 			cMap.put("PAY_CHANNEL", szPayChannel);
 			cMap.put("PAY_AMT", bdPayAmt);

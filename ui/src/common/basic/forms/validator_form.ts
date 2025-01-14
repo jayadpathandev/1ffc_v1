@@ -28,10 +28,11 @@ export class ValidatorForm {
     //*************************************************************************
     private elements : Map<string, ElementState> = new Map<string, ElementState>();
     private submit   : JQuery<any>;
+    private customBtns : JQuery<any>[] | null = null;
 
     //*************************************************************************
     constructor(
-                form : HTMLElement
+                form : HTMLElement,
             ) {
         //---------------------------------------------------------------------
         $(form).off().on('submit', ($event) => {
@@ -54,6 +55,10 @@ export class ValidatorForm {
                 id : string
             ) : ElementState|undefined {
         return this.elements.get(id);
+    }
+
+    public set_btns(btns : JQuery<any>[]) {
+        this.customBtns = btns;
     }
 
     //*************************************************************************
@@ -95,5 +100,15 @@ export class ValidatorForm {
         this.submit.each(function() {
             $(this).prop('disabled', errors);
         });
+
+        if (errors) {
+            this.customBtns?.forEach(btn => {
+                !btn.hasClass('disabled') && btn.addClass('disabled');
+            })
+        } else {
+            this.customBtns?.forEach(btn => {
+                btn.hasClass('disabled') && btn.removeClass('disabled');
+            })
+        }
     }
 }

@@ -1,8 +1,127 @@
 <notifications>
-@batch@
-@bill@
-@enroll@
-@login@
-@profile@
-@payment@
+    <notification id="batch_failure" default="communicate">  
+        <channel>communicate</channel>      
+    </notification>
+    <notification id="batch_noop" default="communicate">    
+        <channel>communicate</channel>  
+    </notification>
+    <notification id="batch_success" default="communicate">      
+        <channel>communicate</channel> 
+    </notification>
+
+    <notification id="bill_new_doc_many_accounts" default="communicate">
+        <channel>communicate</channel> 
+    </notification>
+    <notification id="bill_new_doc_one_account" default="communicate">
+        <channel>communicate</channel> 
+    </notification>
+    <notification id="email_archive_documents" default="communicate">
+        <channel>communicate</channel>       
+    </notification>
+
+    <notification id="enroll_csr" default="communicate">
+        <channel>communicate</channel> 
+    </notification>    
+    <notification id="enroll_user_complete" default="communicate">
+        <channel>communicate</channel>   
+    </notification>
+    <notification id="enroll_validation" default="communicate">
+        <channel>communicate</channel> 
+    </notification>
+    <notification id="org_admin_enroll_validation" default="communicate">
+        <channel>communicate</channel> 
+    </notification>
+    <notification id="enroll_user_api" default="communicate">
+        <channel>communicate</channel> 
+    </notification>
+
+    <notification id="login_2fa_recovery" default="communicate">
+        <channel>communicate</channel>   
+    </notification>    
+    <notification id="login_2fa_reset" default="communicate">
+        <channel>communicate</channel>   
+    </notification>    
+    <notification id="login_forgot_password" default="communicate">
+        <channel>communicate</channel> 
+    </notification>    
+    <notification id="login_forgot_username" default="communicate">
+        <channel>communicate</channel> 
+    </notification>
+    <notification id="login_temporary_password" default="communicate">
+        <channel>communicate</channel> 
+    </notification>
+    <notification id="login_secret_question_reset" default="communicate">
+        <channel>communicate</channel> 
+    </notification>
+    
+
+    <notification id="profile_2fa_settings" default="communicate">
+        <channel>communicate</channel>       
+    </notification> 
+    <notification id="profile_paper_billing" default="communicate">
+        <channel>communicate</channel>      
+    </notification> 
+    <notification id="profile_email_change_confirm" default="communicate">
+        <channel>communicate</channel>         
+    </notification>
+    <notification id="profile_sms_change_confirm" default="communicate">
+        <channel>communicate</channel>       
+    </notification>   
+    <notification id="profile_updated" default="communicate">
+        <channel>communicate</channel>        
+    </notification>
+    <notification id="profile_subject_access_request" default="communicate">
+        <channel>communicate</channel>        
+    </notification>
+    <notification id="profile_sar_back_office" default="communicate">
+        <channel>communicate</channel>       
+    </notification>    
+
+    <notification id="payment_schedule_batch_message" default="communicate">
+        <channel>communicate</channel>  
+    </notification>
+    <notification id="payment_automatic_create_success" default="communicate">
+        <channel>communicate</channel>  
+    </notification>
+    <notification id="payment_automatic_delete_success" default="communicate">
+        <channel>communicate</channel> 
+    </notification> 
+    <notification id="payment_automatic_edit_success" default="communicate">
+        <channel>communicate</channel> 
+    </notification>
+    <notification id="payment_make_payment_failure" default="communicate">
+        <channel>communicate</channel> 
+    </notification>   
+    <notification id="payment_make_payment_success" default="communicate">
+        <channel>communicate</channel> 
+    </notification>
+    <notification id="payment_onetime_scheduled_success" default="communicate">
+        <channel>communicate</channel> 
+    </notification>
+    <notification id="payment_wallet_create_success" default="communicate">
+        <channel>communicate</channel> 
+    </notification>
+    <notification id="payment_wallet_delete_success" default="communicate">
+        <channel>communicate</channel> 
+    </notification>    
+    <notification id="payment_wallet_edit_success" default="communicate">
+        <channel>communicate</channel>       
+    </notification>    
+    <notification id="payment_scheduled_cancelled" default="communicate">
+        <channel>communicate</channel>  
+    </notification>
+    <notification id="payment_scheduled_payment_disabled_cancelled" default="communicate">
+        <channel>communicate</channel>       
+    </notification>
+    <notification id="payment_scheduled_ach_disabled_cancelled" default="communicate">
+        <channel>communicate</channel>       
+    </notification>
+    <notification id="payment_recurring_payment_disabled_rule_cancelled" default="communicate">
+        <channel>communicate</channel>       
+    </notification>
+    <notification id="payment_recurring_ach_disabled_rule_cancelled" default="communicate">
+        <channel>communicate</channel>       
+    </notification>
+    
+
 </notifications>

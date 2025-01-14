@@ -64,12 +64,12 @@ useCase contactPreferences [
      *********************************************************************************************/ 
      
     static sMenuLink       = "{Contact preferences}"
-    string sHeader1        = "{Please select how you would like to be communicated with.}"
+    string sHeader1        = "{Please select your preferred method of communication.}"
     string sPageHeader     = "{Contact Preferences}"
     
     string(p) sIconMailTitle = "{Mail}"
 	image sIconMail = "img/mail.svg"
-    string(p) sIconEmailTitle = "{Email}"
+    string(p) sIconEmailTitle = "{Electronic}"
     image sIconEmail = "img/email.svg"
     string(p) sIconTextTitle   = "{Text}"
     image sIconText = "img/mobile.svg"

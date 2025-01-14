@@ -133,6 +133,7 @@ useCase paymentOneTime [
     import paymentCommon.sPaymentSourceDebitEnabled
     import paymentCommon.sPaymentSourceSepaEnabled
     import paymentCommon.sCurrencySymbol
+    import paymentCommon.sCurrencySignificantDigit
     import paymentCommon.sAppType
 
 	// -- items gathered and calculated by accountSummaryChild when an
@@ -430,7 +431,8 @@ useCase paymentOneTime [
         string(error) sErrorOver = "{Warning, entry exceeds amount due.}" 
         string(error) sErrorOverMax = "{Warning, amount exceeds the maximum due}"
         string(error) sErrorBelowMin = "{Warning, amount is less than minimum due}" 
-        string(error) sErrorZero = "{Warning, amount should not be zero.}"    
+        string(error) sErrorZero = "{Warning, amount should be greater than zero.}"
+        string(error) sErrorInvalidDecimal = "{Warning, amount must have 0 or 2 decimal places.}"    
     ]
     
     auto "{Existing account:}" dropDown dWalletItems
@@ -1172,14 +1174,16 @@ useCase paymentOneTime [
 									    control_attr_tabindex: "3"
 									    sErrorEmpty_class_override: "st-amount-validation-msg alert alert-danger"
 									    sErrorEmpty_attr_sorriso-error: "required"
-									    sErrorOver_class_override: "alert alert-warning visually-hidden"
+									    sErrorOver_class_override: "st-amount-validation-msg alert alert-warning visually-hidden"
 									    sErrorOver_attr_sorriso-error: "over"
-									    sErrorOverMax_class_override: "alert alert-warning visually-hidden"
+									    sErrorOverMax_class_override: "st-amount-validation-msg alert alert-warning visually-hidden"
 									    sErrorOverMax_attr_sorriso-error: "over-max"
-									    sErrorBelowMin_class_override: "alert alert-warning visually-hidden"
+									    sErrorBelowMin_class_override: "st-amount-validation-msg alert alert-warning visually-hidden"
 									    sErrorBelowMin_attr_sorriso-error: "below-min"
 									    sErrorZero_class_override: "st-amount-validation-msg alert alert-danger visually-hidden"
 									    sErrorZero_attr_sorriso-error: "zero"
+									    sErrorInvalidDecimal_class_override: "st-amount-validation-msg alert alert-danger visually-hidden"
+									    sErrorInvalidDecimal_attr_sorriso-error: "invalid-decimals"
 									]																				
 								]							
 							]
@@ -2086,12 +2090,19 @@ useCase paymentOneTime [
 	action validatePayData [
 		UcPaymentAction.setCurrency(sPayData, sCurrency)
 		
-		switch UcPaymentAction.validateMakePaymentRequest(sPayData) [
+		switch UcPaymentAction.validateMakePaymentRequest(sPayData, sCurrencySignificantDigit) [
 			case "valid" validateSurcharge
 			case "pmtDateManipulated" makePaymentErrorResponse
+			case "invaidPmtAmount" updateInvalidAmountInternalError
 			case "invalid" genericErrorResponse
 			default genericErrorResponse
 		]
+	]
+	
+	/* 22a.Create response message for invalid amount. */
+	action updateInvalidAmountInternalError [
+		sInternalErrorMessage = "An invalid amount entered while making payment."
+		goto(updatePaymentHistoryInternalError)
 	]	
 	
     /* 23.validate the payment request if surcharge is true and the paymentMethod is credit */  
@@ -2303,7 +2314,7 @@ useCase paymentOneTime [
 		srStartPaymentTransactionParam.PAY_CHANNEL         = "online"
 		srStartPaymentTransactionParam.PAY_DATE            = sPaymentDate
 		srStartPaymentTransactionParam.PAY_AMT             = sAmountOnAccountPaid		
-		srStartPaymentTransactionParam.PAY_STATUS          = "processing"
+		srStartPaymentTransactionParam.PAY_STATUS          = "queued"
 		srStartPaymentTransactionParam.USER_ID             = sUserId
 		srStartPaymentTransactionParam.RESPONSE_CODE       = srMakePaymentResult.RESPONSE_CODE
 		srStartPaymentTransactionParam.RESPONSE_MESSAGE    = srMakePaymentResult.RESPONSE_MESSAGE

@@ -248,7 +248,7 @@ useCase apiGetAutomaticPaymentRuleForAgent
 		auditLog(audit_agent_pay.start_payment_for_agent_failure) [
 			customerId accountId
 	   	]
-		Log.error("getAutomaticPaymentRuleForAgent", customerId, accountId, "Invalid security token.")
+		Log.warn("getAutomaticPaymentRuleForAgent", customerId, accountId, "Invalid security token.")
 
 		logout()
 		foreignHandler JsonResponse.errorWithData("401")
@@ -267,7 +267,7 @@ useCase apiGetAutomaticPaymentRuleForAgent
 		auditLog(audit_agent_pay.start_payment_for_agent_failure) [
 			customerId accountId
 	   	]
-		Log.error("getAutomaticPaymentRuleForAgent", customerId, accountId, "Account ID does not belong to Customer ID.")
+		Log.warn("getAutomaticPaymentRuleForAgent", customerId, accountId, "Account ID does not belong to Customer ID.")
 
 		logout()
 		foreignHandler JsonResponse.errorWithData("400")

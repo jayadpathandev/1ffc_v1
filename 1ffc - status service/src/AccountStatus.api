@@ -164,6 +164,10 @@ define service AccountStatus(com.sorrisotech.app.serviceapi.uc.UcRequestClient) 
 			// -- Portal disabled for this user --
 			disabledPortal
 			
+			// -------------------------------------------------------------
+			//  Customer chose not to see b because of eConsent
+			disabledEconsent
+			
 		] 
 		
 		// ----------------------------------------------------------------

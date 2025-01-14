@@ -34,8 +34,13 @@
 <#if status.accountStatus?has_content>
 	<#assign accountStatus = status.accountStatus>
 </#if>
+
+<#assign bPayEnabled = status.bPayEnabled>
+
 <#if status.viewAccount?has_content>
 	<#assign viewAccount = status.viewAccount>
+<#else>
+	<#assign bPayEnabled = false>
 </#if>
 
 <#-- ***************************** LET THE GAMES BEGIN ******************************************** -->
@@ -117,8 +122,8 @@
 			</div>
 		</div>
 		<div class="col-5 col-sm-4 col-md-3 col-lg-2">
-			<a class="btn btn-primary <#if !status.bPayEnabled>disabled</#if>" href="overviewJumpToPayment?offset=${jumpToOffset}" 
-										<#if !status.bPayEnabled>disabled="true"</#if>>PAY THIS BILL</a>
+			<a class="btn btn-primary <#if !bPayEnabled>disabled</#if>" href="overviewJumpToPayment?offset=${jumpToOffset}" 
+										<#if !bPayEnabled>disabled="true"</#if>>PAY THIS BILL</a>
 		</div>
 	</div>
 	

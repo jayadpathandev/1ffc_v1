@@ -21,6 +21,8 @@
  */
 package com.sorrisotech.uc.admin1ffc;
 
+import java.util.Date;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,4 +59,9 @@ public class Initialize {
 		}
 	}
 	
+	// ************************************************************************
+	// This method returns current UNIX epoch time stamp.
+	public static String getCurrentEpochTime() {
+		return String.valueOf(new Date().getTime());
+	}
 }
