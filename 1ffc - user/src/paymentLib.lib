@@ -5,7 +5,6 @@ library paymentLib [
     	paymentAutomatic
     	paymentB2bAutomatic
     	paymentCommon
-    	paymentGetBankName
         paymentHistory
         paymentNewBankAccount
         paymentNewCreditCard

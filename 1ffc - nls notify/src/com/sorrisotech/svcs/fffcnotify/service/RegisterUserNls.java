@@ -115,7 +115,8 @@ public class RegisterUserNls extends RegisterUserNlsBase {
 			
 			if (channelAddressesList.isEmpty() || cTopicPreferencesList.isEmpty()) {
 				LOG.error(
-				        "RegisterUserNls:processInternal ..... Failed to get list of channel addresses or topic preferences");
+				        "RegisterUserNls:processInternal ..... Failed to get list of channel addresses or topic preferences for customer Id: {} ",
+				        szCustomerId);
 				request.setToResponse();
 				request.setStatus(eReturnCode);
 				return eReturnCode;
@@ -137,8 +138,8 @@ public class RegisterUserNls extends RegisterUserNlsBase {
 			
 		} catch (Exception e) {
 			LOG.error(
-			        "RegisterUserNls:processInternal ..... failed to update contact prefrences for customer id: {}",
-			        szCustomerId, e, e);
+			        "RegisterUserNls:processInternal ..... failed to update contact prefrences for customer id: {}, Request body: {}",
+			        szCustomerId, cContactPrefrencesRequest.toString(), e, e);
 		}
 		
 		request.setToResponse();
@@ -182,8 +183,8 @@ public class RegisterUserNls extends RegisterUserNlsBase {
 			});
 		} catch (Exception e) {
 			LOG.error(
-			        "RegisterUserNls:getTopicPreferencesList ..... failed to get topic prefrences for customer id: {}",
-			        szCustomerId, e, e);
+			        "RegisterUserNls:getTopicPreferencesList ..... failed to get topic prefrences for customer id: {}, contact preferences JSON string: {} ",
+			        szCustomerId, szContactPrefsJsonConfig, e, e);
 		}
 		
 		return cTopicPreferenceRequest;
@@ -206,8 +207,8 @@ public class RegisterUserNls extends RegisterUserNlsBase {
 			
 		} catch (IOException e) {
 			LOG.error(
-			        "RegisterUserNls:getChannelAddressesList() .. Error parsing channel addresses from JSON: {}",
-			        e);
+			        "RegisterUserNls:getChannelAddressesList() .. Error parsing channel addresses from JSON string: {}",
+			        szChannelAddrJsonConfig, e);
 		}
 		
 		return cChannelAddressesList;

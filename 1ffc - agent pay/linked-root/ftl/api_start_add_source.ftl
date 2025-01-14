@@ -148,11 +148,36 @@
 					$('a#addDebitButton').removeClass('disabled');
 				</#if>
 				}
+				
+				const $walletDropdown = $('select#apipay_wallet');
+				
+				$walletDropdown.on('change', function() {
+			        const selectedItem = $(this).val();
+			        const urlParams = new URLSearchParams(window.location.search);
+			        const currentToken = urlParams.get('walletToken');
 			
-				$('#apipay_wallet').on('change', function() {
-					var item = $(this).val();
-					document.location.href = 'startUseSource?walletToken=' + encodeURIComponent(item);
-				});
+			        if (currentToken !== selectedItem) {
+			            document.location.href = 'startUseSource?walletToken=' + encodeURIComponent(selectedItem);
+			        }
+			    });
+			    
+			    // Remove migrated token options, select the first option, and handle the change event
+				$walletDropdown
+				    .find('option')
+				    .filter(function() {
+				        return $(this).text().trim().startsWith('Migrated token');
+				    }).remove();
+				
+				const urlParams = new URLSearchParams(window.location.search);
+				const currentToken = urlParams.get('code');
+				if (currentToken) {
+					$walletDropdown
+					    .find('option:first')
+					    .prop('selected', true)
+					    .trigger('change');
+				}
+				
+
 				function success(data) {
 					$.ajax({
 						url: 'startNewSource' + 
@@ -186,13 +211,7 @@
 				}
 			
 				window.addEventListener("message", receiveCrossOriginMessage, false);
-				
-				// remove the migrated token from the wallet dropdown
-		        $('select[name="wallet"] option').each(function() {
-		            if ($(this).text().trim().startsWith('Migrated token')) {
-		                $(this).remove();
-		            }
-		        });
+		        
 	        <#if iframe != "">
 	        	window.setTimeout(function() {
 					$('a#editButton').removeClass('disabled');

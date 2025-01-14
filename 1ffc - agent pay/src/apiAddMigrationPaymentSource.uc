@@ -339,7 +339,7 @@ useCase apiAddMigrationPaymentSource
 	    auditLog(audit_agent_pay.add_migrated_payment_source_failure) [
 	   		sCustomerId sAccountId sSourceType sSourceValue sAccountHolder sMaskedNumber
 	    ]
-		Log.error("addMigrationPaymentSource", sCustomerId, sAccountId, "Invalid security token.")
+		Log.warn("addMigrationPaymentSource", sCustomerId, sAccountId, "Invalid security token.")
 		
 		logout()
 		foreignHandler JsonResponse.errorWithData("401")
@@ -355,7 +355,7 @@ useCase apiAddMigrationPaymentSource
 	    auditLog(audit_agent_pay.add_migrated_payment_source_failure) [
 	   		sCustomerId sAccountId sSourceType sSourceValue sAccountHolder sMaskedNumber
 	    ]
-		Log.error("addMigrationPaymentSource", sCustomerId, sAccountId, "Invalid request parameter.")
+		Log.warn("addMigrationPaymentSource", sCustomerId, sAccountId, "Invalid request parameter.")
 		
 		logout()
 		foreignHandler JsonResponse.errorWithData(sErrorStatus)
