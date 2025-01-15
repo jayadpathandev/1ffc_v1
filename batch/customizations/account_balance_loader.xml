@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>1st Franklin Specific - This job deletes old transaction history logs from the database.</description>
+  <description>After the account_balance_xfer job runs, this job will load account balance into the database.  It is best if this job runs at night so as not to add load to the database when usage might be high.  Once this job completes bill files will be accessible via the web application.</description>
   <keepDependencies>false</keepDependencies>
   <properties>
     <hudson.plugins.buildblocker.BuildBlockerProperty plugin="build-blocker-plugin@1.7.8">
@@ -22,15 +22,22 @@
   <scm class="hudson.scm.NullSCM"/>
   <canRoam>true</canRoam>
   <disabled>true</disabled>
-  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenDownstreamBuilding>true</blockBuildWhenDownstreamBuilding>
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
   <triggers>
-    <hudson.triggers.TimerTrigger>
-      <spec>H 0 * * *</spec>
-    </hudson.triggers.TimerTrigger>
+    <jenkins.triggers.ReverseBuildTrigger>
+      <spec></spec>
+      <upstreamProjects>account_balance_xfer, </upstreamProjects>
+      <threshold>
+        <name>SUCCESS</name>
+        <ordinal>0</ordinal>
+        <color>BLUE</color>
+        <completeBuild>true</completeBuild>
+      </threshold>
+    </jenkins.triggers.ReverseBuildTrigger>
   </triggers>
   <concurrentBuild>false</concurrentBuild>
-  <customWorkspace>/sorriso/batch/1ffc_transaction_purge</customWorkspace>
+  <customWorkspace>/sorriso/batch/account_balance_loader</customWorkspace>
   <builders>
     <hudson.tasks.Ant plugin="ant@1.2">
       <targets></targets>
