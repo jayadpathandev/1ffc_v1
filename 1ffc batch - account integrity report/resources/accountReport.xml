@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" 
+       xmlns:batch="http://www.springframework.org/schema/batch"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+	<!-- ********************************************************************************** -->
+	<!-- ******** This file contains bean definitions that are specific to and        ***** -->
+	<!-- ******** required by the 1ffc batch account integrity report job             ***** -->
+	<!-- ********************************************************************************** -->
+	<!-- ********************************************************************************** -->
+	<!-- ******** Import common definitions like dataSource, jdbcTemplate,            ***** -->
+	<!-- ******** jobRepository, simpleStep.                                          ***** -->
+	<!-- ********************************************************************************** -->
+	<import resource="classpath:common-context.xml"/>	
+		
+	<!-- ******************************************************************* -->
+	<!-- ********  Load properties for the following:             ********** -->
+	<!-- ********         Database connection details             ********** -->
+	<!-- ******************************************************************* -->
+	
+	<bean id="propertyConfigurer" class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
+       <property name="propertySources">
+       <bean class="com.sorrisotech.utils.ConfigFactory">
+            <property name="sources">
+                <list>                    
+                    <bean class="com.sorrisotech.utils.ConfigFile">
+                        <constructor-arg value="false"/>
+                        <constructor-arg value="db/common.properties"/>
+                        <property name="cacheTimeout" value="10"/>
+                    </bean>
+                    <bean class="com.sorrisotech.utils.ConfigFile">
+                        <constructor-arg value="false"/>
+                        <constructor-arg value="common/user_config.properties"/>
+                        <property name="cacheTimeout" value="10"/>
+                    </bean>
+                    <bean class="com.sorrisotech.utils.ConfigFile">
+                        <constructor-arg value="false"/>
+                        <constructor-arg value="common/file_path.properties"/>
+                        <property name="cacheTimeout" value="10"/>
+                    </bean>
+                    <bean class="com.sorrisotech.utils.ConfigFile">
+                        <constructor-arg value="false"/>
+                        <constructor-arg value="accountReport.properties"/>
+                        <property name="cacheTimeout" value="10"/>
+                    </bean>
+                    <bean class="com.sorrisotech.utils.ConfigTable">
+                        <property name="jdbc" ref="namedParameterJdbcTemplate"/>
+                        <property name="sql" value="select config_value from db_config where config_key=:name"/>
+	                </bean>                                       
+                    <bean class="com.sorrisotech.utils.ConfigDefine"/>
+                </list>
+            </property>
+        </bean>
+       </property>
+   </bean>
+   
+	<!-- *********************************************************************************************** -->
+    <!-- **** Definition of the Payment Reconciliation Job bean. The job consists of 3 steps:                 ***** -->
+    <!-- ****     - step 1 gets all data that is in progress from PMT_HISTORY table                           ***** -->
+    <!-- ****       administrator from the audit tables                                            ***** -->
+    <!-- ****     - if Step 1 fails, Step 2 sends a notification to the batch job administrator    ***** -->
+    <!-- ****       that the job has failed. Step 3 is never executed in this case.                ***** -->
+    <!-- ****     - if Step 1 completes successfully, Step 3 sends a notification to the batch     ***** -->  
+    <!-- ****       job administrator that the job has completed successfully. Step 2 is never     ***** -->
+    <!-- ****       executed in this case.                                                         ***** -->
+    <!-- ****                                                                                      ***** --> 
+    <!-- *********************************************************************************************** -->
+    <batch:job id="accountReportJob" parent="simpleJob">
+    	<batch:step id="processorStep" parent="simpleStep">
+            <batch:tasklet>
+                <batch:chunk reader="accountReader" writer="accountWriter" commit-interval="${fetch.chunk.size}"/>
+             </batch:tasklet>
+            <batch:next on="FAILED" to="sendFailedNotificationStep" />
+            <batch:next on="COMPLETED" to="sendSuccessNotificationStep" />
+            <batch:end on="NOOP"/>
+        </batch:step>
+        <batch:step id="sendFailedNotificationStep">
+            <batch:tasklet ref="failureNotificationTasklet"/>
+        </batch:step>
+        <batch:step id="sendSuccessNotificationStep">
+            <batch:tasklet ref="successNotificationTasklet"/>
+        </batch:step>
+    </batch:job>
+    
+    <bean id="accountReader" class="org.springframework.batch.item.database.JdbcPagingItemReader">
+        <property name="dataSource" ref="dataSource" />
+        <property name="pageSize" value="${fetch.chunk.size}" />
+        <property name="fetchSize" value="${fetch.chunk.size}" />
+        <property name="rowMapper" ref="accountRecordMapper"/>
+        <property name="queryProvider">
+            <bean class="org.springframework.batch.item.database.support.SqlPagingQueryProviderFactoryBean">
+                <property name="dataSource" ref="dataSource" />
+                <property name="selectClause">
+                	<value>
+						Select * 
+            		</value>
+           </property>                
+           <property name="fromClause" >
+           			<value>
+						from (with 
+				-- get the status records to process
+				status (loan, acct, flex2, bLatest) as 
+				(select distinct 
+					bs.display_name,
+					b.account,
+					b.flex2,
+					max(bfmd.status_update_date) as latest
+				from 
+					bill as b,
+					bill_summary as bs,
+					bill_file_meta_data as bfmd
+				where 
+					bfmd.bill_stream = 'STATUS_1FFCBILLS'
+					and bfmd.bill_file_id = b.bill_file_id
+					and b.bill_id = bs.bill_id
+				group by
+					bs.display_name,
+					b.account,
+					b.flex2),
+				-- get the statements to process
+				statements (loan, acct, flex2, bLatest) as
+				(select distinct 
+					bs.display_name,
+					b.account,
+					b.flex2,
+					max (bfmd.status_update_date) as latest
+				from 
+					bill as b, 
+					bill_summary as bs,
+					bill_file_meta_data as bfmd
+				where 
+					bfmd.bill_stream = '1FFCBILLS'
+					and bfmd.bill_file_id = b.bill_file_id
+					and b.bill_id = bs.bill_id
+				group by
+					bs.display_name,
+					b.account,
+					b.flex2)
+			-- end of with statement
+			
+				-- select status with no statement
+				select
+					status.loan as LoanNum,
+					status.acct as RefNum,
+					status.bLatest as LatestRecordDate,
+					bfmd.bill_file_name as SourceFile,
+					status.flex2 as RecordType,
+					'missing statement' as Missing
+				from 
+					status
+						left join statements on status.acct = statements.acct,
+					bill_file_meta_data as bfmd,
+					bill as b
+				where 
+					statements.acct is null
+					and b.account = status.acct
+					and b.bill_file_id = bfmd.bill_file_id
+					and bfmd.status_update_date = status.bLatest
+			
+			union
+				-- select statement with no status
+				select
+					statements.loan as LoanNum,
+					statements.acct as RefNum,
+					statements.bLatest as LatestRecordDate,
+					bfmd.bill_file_name as SourceFile,
+					statements.flex2 as RecordType,
+					'missing status' as Missing
+				from 
+					statements
+						left join status on status.acct = statements.acct,
+					bill_file_meta_data as bfmd,
+					bill as b
+				where 
+					status.acct is null
+					and b.account = statements.acct
+					and b.bill_file_id = bfmd.bill_file_id
+					and bfmd.status_update_date = statements.bLatest
+			-- end of union
+			) as result
+            		</value>
+           </property>
+           <property name="sortKey" value="LoanNum" />
+            </bean>
+        </property>
+    </bean>
+    
+    <!-- ************************************************************************************* -->
+    <!-- ****   The RowMapper for mapping resultSet into AccountRecord bean               **** -->
+    <!-- ************************************************************************************* -->
+    <bean id="accountRecordMapper" class="com.sorrisotech.fffc.account.report.bean.AccountRecordMapper">
+    </bean>
+      
+    <!-- ************************************************************************************* -->
+    <!-- ****   The bean writes data of account integrity to a PSV file.          **** -->
+    <!-- ************************************************************************************* -->
+    <bean id="accountWriter" class="org.springframework.batch.item.file.FlatFileItemWriter">
+        <property name="headerCallback" ref="psvHeaderCallback"/>
+        <property name="resource" ref="outputResource"/>
+        <property name="appendAllowed" value="true"/>
+        <property name="lineAggregator">
+            <bean class="org.springframework.batch.item.file.transform.DelimitedLineAggregator">
+                <property name="delimiter" value="|"/>
+                <property name="fieldExtractor">
+                    <bean class="org.springframework.batch.item.file.transform.BeanWrapperFieldExtractor">
+                        <property name="names" value="loanNum,refNum,sourceFile,recordType,latestRecordDate,missing"/>
+                    </bean>
+                </property>
+            </bean>
+        </property>
+    </bean>
+    
+    <!-- ************************************************************************************* -->
+    <!-- ****   The Bean for providing header to our generated file                       **** -->
+    <!-- ************************************************************************************* -->
+    <bean id="psvHeaderCallback" class="com.sorrisotech.fffc.account.report.writer.PSVFileHeaderCallback">
+    	<property name="header" value="LoanNumber|ReferenceNumber|FileName|RecordTypeFound|MostRecentRecordDate|MissingRecordType"/>
+    </bean>	
+    
+    <!-- ************************************************************************************* -->
+    <!-- ****   The generated file resource provider                                      **** -->
+    <!-- ************************************************************************************* -->
+    <bean id="outputResource" class="org.springframework.core.io.FileSystemResource">
+	    <constructor-arg value="${airj.dir.dest}/accountIntegrityReport_#{ new java.text.SimpleDateFormat('yyyyMMddhhmmss').format(new java.util.Date()) }.psv"/>
+    </bean>
+    
+    <!-- ********************************************************************************** -->
+    <!-- **** Notification tasklet used to send out notification(s) informing           *** --> 
+    <!-- **** successful completion of the job.                                         *** -->
+    <!-- ********************************************************************************** -->
+    <bean id="successNotificationTasklet" 
+        class="com.sorrisotech.batch.common.notify.NotificationTasklet">
+        <property name="enabled" value="${notification.onSuccess.enabled}"/>
+        <property name="notificationType" value="${batch.success}"/>
+        <property name="destination" value="${notification.onSuccess.emails}"/>
+        <property name="locale">
+            <util:constant static-field="java.util.Locale.US"/>
+        </property>
+        <property name="parameters">
+            <map>
+               <entry key="jobName" value="${job.name}"/>
+            </map>
+       </property>
+    </bean> 
+    
+    <!-- ********************************************************************************** -->
+    <!-- **** Notification tasklet used to send out notification(s) informing failure   *** --> 
+    <!-- **** of the job.                                                               *** -->
+    <!-- ********************************************************************************** -->
+    <bean id="failureNotificationTasklet" 
+        class="com.sorrisotech.batch.common.notify.NotificationTasklet">
+        <property name="enabled" value="${notification.onFailure.enabled}"/>
+        <property name="notificationType" value="${batch.failure}"/>
+        <property name="destination" value="${notification.onFailure.emails}"/>
+        <property name="locale">
+            <util:constant static-field="java.util.Locale.US"/>
+        </property>
+        <property name="parameters">
+            <map>
+               <entry key="jobName" value="${job.name}"/>
+            </map>
+       </property>
+    </bean>
+</beans>
